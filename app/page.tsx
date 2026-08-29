@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   BookOpen,
@@ -272,6 +272,7 @@ function AppSidebar({
 }
 
 export default function Home() {
+  const lessonSectionRef = useRef<HTMLElement>(null);
   const [selected, setSelected] = useState(1);
   const [completed, setCompleted] = useState<number[]>([]);
   const [simCompleted, setSimCompleted] = useState<number[]>([]);
@@ -319,8 +320,14 @@ export default function Home() {
     setQuizChoice("");
     setQuizChecked(false);
     setPreview("");
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [lesson.code]);
+
+  const selectLesson = (id: number) => {
+    setSelected(id);
+    window.requestAnimationFrame(() => {
+      lessonSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
 
   const toggleStep = (index: number) => {
     setCheckedSteps((current) => {
@@ -381,7 +388,7 @@ export default function Home() {
 
   return (
     <SidebarProvider>
-      <AppSidebar selected={selected} completed={completed} onSelect={setSelected} onSetup={openSetup} />
+      <AppSidebar selected={selected} completed={completed} onSelect={selectLesson} onSetup={openSetup} />
       <SidebarInset className="min-w-0 bg-[#f5f7f8]">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200/80 bg-white/90 px-4 backdrop-blur-xl sm:px-7">
           <div className="flex items-center gap-3">
@@ -394,7 +401,7 @@ export default function Home() {
             </div>
           </div>
           <button
-            onClick={() => setSelected(nextIncomplete)}
+            onClick={() => selectLesson(nextIncomplete)}
             className="flex items-center gap-2 rounded-full bg-slate-950 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-slate-800"
           >
             <span className="size-2 rounded-full bg-cyan-400" /> 이어서 학습
@@ -410,7 +417,7 @@ export default function Home() {
             <div className="h-px flex-1 bg-slate-200" />
           </div>
 
-          <section className="overflow-hidden rounded-[28px] bg-slate-950 text-white shadow-[0_20px_60px_rgba(15,23,42,.14)]">
+          <section id="lesson-content" ref={lessonSectionRef} className="scroll-mt-20 overflow-hidden rounded-[28px] bg-slate-950 text-white shadow-[0_20px_60px_rgba(15,23,42,.14)]">
             <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_320px] lg:p-10">
               <div className="relative z-10">
                 <div className="flex flex-wrap items-center gap-2">
@@ -815,18 +822,18 @@ export default function Home() {
           </Tabs>
 
           <nav className="mt-8 flex items-center justify-between gap-3" aria-label="차시 이동">
-            <Button variant="outline" disabled={selected === 1} onClick={() => setSelected(selected - 1)} className="rounded-xl bg-white"><ChevronLeft className="mr-1.5 size-4" />이전 차시</Button>
+            <Button variant="outline" disabled={selected === 1} onClick={() => selectLesson(selected - 1)} className="rounded-xl bg-white"><ChevronLeft className="mr-1.5 size-4" />이전 차시</Button>
             <div className="hidden items-center gap-1 sm:flex">
               {lessons.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setSelected(item.id)}
+                  onClick={() => selectLesson(item.id)}
                   aria-label={item.id + "차시로 이동"}
                   className={"h-2 rounded-full transition-all " + (selected === item.id ? "w-8 bg-cyan-500" : completed.includes(item.id) ? "w-2 bg-emerald-400" : "w-2 bg-slate-300")}
                 />
               ))}
             </div>
-            <Button disabled={selected === 10} onClick={() => setSelected(selected + 1)} className="rounded-xl bg-slate-950 text-white hover:bg-slate-800">다음 차시<ChevronRight className="ml-1.5 size-4" /></Button>
+            <Button disabled={selected === 10} onClick={() => selectLesson(selected + 1)} className="rounded-xl bg-slate-950 text-white hover:bg-slate-800">다음 차시<ChevronRight className="ml-1.5 size-4" /></Button>
           </nav>
         </main>
       </SidebarInset>
