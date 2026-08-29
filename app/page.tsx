@@ -278,6 +278,7 @@ export default function Home() {
   const [simCompleted, setSimCompleted] = useState<number[]>([]);
   const [setupSteps, setSetupSteps] = useState<number[]>([]);
   const [checkedSteps, setCheckedSteps] = useState<Record<number, number[]>>({});
+  const [activeTab, setActiveTab] = useState("learn");
   const [quizChoice, setQuizChoice] = useState("");
   const [quizChecked, setQuizChecked] = useState(false);
   const [draft, setDraft] = useState(lessons[0].code);
@@ -320,6 +321,7 @@ export default function Home() {
     setQuizChoice("");
     setQuizChecked(false);
     setPreview("");
+    setActiveTab("learn");
   }, [lesson.code]);
 
   const selectLesson = (id: number) => {
@@ -479,24 +481,33 @@ export default function Home() {
           <section className="mt-5 rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5" aria-label="차시 학습 순서">
             <div className="grid gap-2 sm:grid-cols-5">
               {[
-                ["01", "개념", "원리 이해"],
-                ["02", "Wokwi", "가상 시험"],
-                ["03", "Thonny 실물", "Pico 실행"],
-                ["04", "코드", "수정·실험"],
-                ["05", "평가", "설명·확인"],
-              ].map(([number, label, note], index) => (
-                <div key={number} className={"rounded-2xl p-3 " + (index === 1 ? "bg-cyan-400 text-slate-950" : "bg-slate-100 text-slate-700")}>
+                ["01", "개념", "원리 이해", "learn"],
+                ["02", "Wokwi", "가상 시험", "wokwi"],
+                ["03", "Thonny 실물", "Pico 실행", "practice"],
+                ["04", "코드", "수정·실험", "code"],
+                ["05", "평가", "설명·확인", "check"],
+              ].map(([number, label, note, value]) => {
+                const isActive = activeTab === value;
+                return (
+                <button
+                  key={number}
+                  type="button"
+                  aria-label={`${number} ${label} ${note}`}
+                  aria-pressed={isActive}
+                  onClick={() => setActiveTab(value)}
+                  className={"w-full rounded-2xl p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 " + (isActive ? "bg-cyan-400 text-slate-950 shadow-sm" : "bg-slate-100 text-slate-700 hover:bg-cyan-50 hover:text-cyan-950")}
+                >
                   <div className="flex items-center gap-2">
-                    <span className={"grid size-7 place-items-center rounded-full text-[10px] font-black " + (index === 1 ? "bg-slate-950 text-cyan-300" : "bg-white text-slate-500")}>{number}</span>
+                    <span className={"grid size-7 place-items-center rounded-full text-[10px] font-black " + (isActive ? "bg-slate-950 text-cyan-300" : "bg-white text-slate-500")}>{number}</span>
                     <p className="text-sm font-black">{label}</p>
                   </div>
                   <p className="mt-1 pl-9 text-[11px] font-bold opacity-65">{note}</p>
-                </div>
-              ))}
+                </button>
+              )})}
             </div>
           </section>
 
-          <Tabs defaultValue="learn" className="mt-7">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value)} className="mt-7">
             <div className="overflow-x-auto pb-1 scrollbar-none">
               <TabsList variant="line" className="min-w-max gap-5 border-b border-slate-200 px-1">
                 <TabsTrigger value="learn" className="px-1 pb-3 text-sm font-extrabold">개념 학습</TabsTrigger>
