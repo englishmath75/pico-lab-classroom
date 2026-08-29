@@ -35,6 +35,8 @@ jobs:
 
       - name: GitHub Pages 설정
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: 배포 파일 준비
         uses: actions/upload-pages-artifact@v4
