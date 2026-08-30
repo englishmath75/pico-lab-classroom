@@ -49,7 +49,7 @@ export const arduinoLessons: ArduinoLesson[] = [
       { from: "저항 다른 쪽", to: "LED 애노드(긴 다리)", note: "저항과 LED를 직렬 연결" },
       { from: "LED 캐소드(짧은 다리)", to: "Arduino GND", note: "전류가 돌아오는 경로" },
     ],
-    simulatorUrl: "https://www.tinkercad.com/things/bDHquWl5k2q-lesson-1-blinking-led",
+    simulatorUrl: "https://www.tinkercad.com/classrooms/dky0pTDB1Aj/activities",
     simulatorNote: "공개 LED 회로를 참고하되 핀 번호와 코드는 이 교재의 D9·220Ω 기준으로 구성합니다.",
     steps: [
       "Tinkercad Circuits에서 Arduino Uno와 브레드보드를 놓는다.",
@@ -125,7 +125,7 @@ export const arduinoLessons: ArduinoLesson[] = [
       { from: "LED 애노드", to: "D9를 거쳐 220Ω", note: "경고 빛 출력" },
       { from: "피에조 +", to: "D10", note: "경고음 출력, 다른 쪽은 GND" },
     ],
-    simulatorUrl: "https://www.tinkercad.com/things/haWp1Ru8OeP-ultrasonic-sensor-piezo-buzzer-and-led",
+    simulatorUrl: "https://www.tinkercad.com/classrooms/dky0pTDB1Aj/activities",
     simulatorNote: "초음파·LED·부저 공개 회로를 참고하고, 아래 연결표와 20cm 임계값 코드를 기준으로 실습합니다.",
     steps: [
       "HC-SR04의 VCC·TRIG·ECHO·GND 글자를 확대해 확인한다.",
@@ -220,7 +220,7 @@ export const arduinoLessons: ArduinoLesson[] = [
       { from: "빨강 LED / 초록 LED", to: "D9 / D8", note: "각 LED에 220Ω 직렬 저항" },
       { from: "피에조 +", to: "D10", note: "환경 경고음, 다른 쪽은 GND" },
     ],
-    simulatorUrl: "https://www.tinkercad.com/things/e2Iy4wgvdvT-interface-arduino-with-sensor-dht11-temperature-and-humidity-",
+    simulatorUrl: "https://www.tinkercad.com/classrooms/dky0pTDB1Aj/activities",
     simulatorNote: "DHT11 공개 회로를 참고합니다. 계정·회로 환경에 따라 DHT 라이브러리 사용 여부가 다르면 교사의 기준 회로를 우선합니다.",
     steps: [
       "DHT11의 VCC·DATA·GND 방향을 확인하고 D2에 DATA를 연결한다.",
@@ -324,7 +324,7 @@ export const arduinoLessons: ArduinoLesson[] = [
       { from: "10kΩ 다른 쪽", to: "GND", note: "전압 분배 완성" },
       { from: "D9(~)", to: "220Ω→LED 애노드", note: "PWM 핀 사용, LED 캐소드는 GND" },
     ],
-    simulatorUrl: "https://www.tinkercad.com/things/2BLkZ0kZz2X-photoresistor",
+    simulatorUrl: "https://www.tinkercad.com/classrooms/dky0pTDB1Aj/activities",
     simulatorNote: "LDR와 LED 밝기 제어 공개 예제를 참고합니다. A0 전압 분배 방향과 D9 PWM 연결은 아래 표를 기준으로 맞춥니다.",
     steps: [
       "LDR와 10kΩ 저항으로 전압 분배 회로를 만들고 중간점을 A0에 연결한다.",
@@ -406,7 +406,7 @@ export const arduinoLessons: ArduinoLesson[] = [
       { from: "서보 VCC / GND", to: "5V / GND", note: "실물에서는 별도 5V 전원 권장, GND 공통" },
       { from: "피에조 + / -", to: "D10 / GND", note: "음높이 출력" },
     ],
-    simulatorUrl: "https://www.tinkercad.com/things/7DPGBIoKmH2-",
+    simulatorUrl: "https://www.tinkercad.com/classrooms/dky0pTDB1Aj/activities",
     simulatorNote: "부저와 서보 공개 회로를 참고하고 D9 서보·D10 부저 기준으로 아래 코드를 실행합니다.",
     steps: [
       "서보의 Signal·VCC·GND 선을 구분해 연결한다.",
@@ -493,7 +493,7 @@ export const arduinoLessons: ArduinoLesson[] = [
       { from: "피에조 +", to: "D10", note: "경고음" },
       { from: "서보 Signal", to: "D9", note: "경고 장치 또는 문 열기" },
     ],
-    simulatorUrl: "https://www.tinkercad.com/things/2IYhw4ZL1tn-",
+    simulatorUrl: "https://www.tinkercad.com/classrooms/dky0pTDB1Aj/activities",
     simulatorNote: "초음파·서보·LED·부저 통합 공개 회로를 참고합니다. LDR를 추가하고 아래 핀 배치와 전체 코드를 기준으로 완성합니다.",
     steps: [
       "먼저 LDR→PWM LED만 연결해 밝기 자동 조절을 확인한다.",
