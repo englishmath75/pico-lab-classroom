@@ -104,3 +104,33 @@ label,
   background: #a5f3fc;
   color: #083344;
 }
+
+/*
+ * 교실 화면 가독성 기준
+ * 작은 보조 문구도 13px 아래로 내려가지 않게 하고,
+ * 학생이 읽는 표·설명·실습 단계 본문은 16~17px로 확대한다.
+ */
+.text-\[10px\] {
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+.text-\[11px\] {
+  font-size: 0.875rem;
+  line-height: 1.375rem;
+}
+
+.text-xs {
+  font-size: 0.9375rem;
+  line-height: 1.5rem;
+}
+
+.text-\[13px\] {
+  font-size: 1rem;
+  line-height: 1.75rem;
+}
+
+.text-sm {
+  font-size: 1.0625rem;
+  line-height: 1.75rem;
+}
