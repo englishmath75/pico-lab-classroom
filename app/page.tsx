@@ -230,8 +230,8 @@ function AppSidebar({
       <SidebarContent className="bg-slate-950 text-white">
         <SidebarGroup className="px-3 py-5">
           <button onClick={onArduinoCourse} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-amber-300/50 bg-amber-400 px-3 py-3 text-left text-slate-950 shadow-[0_10px_30px_rgba(251,191,36,.14)] transition hover:bg-amber-300">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-950 text-sm font-black text-amber-300">3</span>
-            <span className="min-w-0"><span className="block text-[10px] font-black">새 수업 · 4~8강</span><span className="block truncate text-sm font-black">Arduino 3차시 교실</span></span>
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-950 text-sm font-black text-amber-300">A</span>
+            <span className="min-w-0"><span className="block text-[10px] font-black">아두이노 실습</span><span className="block truncate text-sm font-black">Arduino 전용 교실</span></span>
             <BookOpen className="ml-auto size-5" />
           </button>
           <SidebarGroupLabel className="px-3 text-[11px] font-bold tracking-[0.15em] text-slate-500">
@@ -475,7 +475,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={openArduinoCourse} className="hidden items-center gap-2 rounded-full bg-amber-400 px-3.5 py-2 text-xs font-black text-slate-950 transition hover:bg-amber-300 sm:flex"><span className="size-2 rounded-full bg-slate-950" /> Arduino 3차시</button>
+            <button onClick={openArduinoCourse} className="hidden items-center gap-2 rounded-full bg-amber-400 px-3.5 py-2 text-xs font-black text-slate-950 transition hover:bg-amber-300 sm:flex"><span className="size-2 rounded-full bg-slate-950" /> Arduino 실습</button>
             <button onClick={() => selectLesson(nextIncomplete)} className="flex items-center gap-2 rounded-full bg-slate-950 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-slate-800"><span className="size-2 rounded-full bg-cyan-400" /> Pico 이어서</button>
           </div>
         </header>
@@ -484,11 +484,11 @@ export default function Home() {
           <section className="mb-7 overflow-hidden rounded-[26px] border border-amber-200 bg-gradient-to-r from-amber-100 via-white to-cyan-50 p-5 shadow-sm sm:p-7">
             <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
               <div>
-                <div className="flex items-center gap-2"><span className="rounded-full bg-slate-950 px-3 py-1.5 text-xs font-black text-amber-300">NEW · 3차시</span><span className="text-sm font-black text-amber-800">유튜브 4~8강 기반</span></div>
+                <div className="flex items-center gap-2"><span className="rounded-full bg-slate-950 px-3 py-1.5 text-xs font-black text-amber-300">ARDUINO</span><span className="text-sm font-black text-amber-800">Tinkercad·실물 회로·시험 연결</span></div>
                 <h1 className="mt-3 text-2xl font-black tracking-tight sm:text-3xl">아두이노 입력·출력 기본원리 전용 교실</h1>
-                <p className="mt-2 max-w-3xl text-base leading-7 text-slate-700">LED 출력 → 버튼·시리얼 입력 → 가변저항 아날로그 입력과 PWM 출력까지 3차시로 익힌 뒤 Pico로 이동합니다.</p>
+                <p className="mt-2 max-w-3xl text-base leading-7 text-slate-700">비트·시리얼 통신 기초부터 LED 출력, 버튼 입력, 가변저항 아날로그 입력과 PWM 출력까지 익힌 뒤 Pico로 이동합니다.</p>
               </div>
-              <Button onClick={openArduinoCourse} className="h-auto min-h-12 shrink-0 rounded-xl bg-amber-400 px-5 font-black text-slate-950 hover:bg-amber-300">아두이노 3차시 시작 <ChevronRight className="ml-1.5 size-5" /></Button>
+              <Button onClick={openArduinoCourse} className="h-auto min-h-12 shrink-0 rounded-xl bg-amber-400 px-5 font-black text-slate-950 hover:bg-amber-300">아두이노 시작 <ChevronRight className="ml-1.5 size-5" /></Button>
             </div>
           </section>
 
