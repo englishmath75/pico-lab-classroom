@@ -50,6 +50,7 @@ import { toast } from "sonner";
 import { lessons, phaseColors } from "./lessons";
 import { wokwiLessons } from "./wokwi";
 import { ArduinoJourney } from "./arduino-lab";
+import { ArduinoOnlyCourse } from "./arduino-only-course";
 
 function SectionTitle({
   icon: Icon,
@@ -199,6 +200,7 @@ function AppSidebar({
   selected,
   completed,
   onSelect,
+  onArduinoCourse,
   onArduino,
   onCompare,
   onSetup,
@@ -206,6 +208,7 @@ function AppSidebar({
   selected: number;
   completed: number[];
   onSelect: (id: number) => void;
+  onArduinoCourse: () => void;
   onArduino: () => void;
   onCompare: () => void;
   onSetup: () => void;
@@ -226,13 +229,18 @@ function AppSidebar({
       </SidebarHeader>
       <SidebarContent className="bg-slate-950 text-white">
         <SidebarGroup className="px-3 py-5">
+          <button onClick={onArduinoCourse} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-amber-300/50 bg-amber-400 px-3 py-3 text-left text-slate-950 shadow-[0_10px_30px_rgba(251,191,36,.14)] transition hover:bg-amber-300">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-950 text-sm font-black text-amber-300">3</span>
+            <span className="min-w-0"><span className="block text-[10px] font-black">새 수업 · 4~8강</span><span className="block truncate text-sm font-black">Arduino 3차시 교실</span></span>
+            <BookOpen className="ml-auto size-5" />
+          </button>
           <SidebarGroupLabel className="px-3 text-[11px] font-bold tracking-[0.15em] text-slate-500">
             통합 학습경로
           </SidebarGroupLabel>
           <div className="mt-2 grid gap-2">
             <button onClick={onArduino} className="flex w-full items-center gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/15 px-3 py-3 text-left text-amber-100 transition hover:bg-amber-400/25">
               <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-400 text-xs font-black text-slate-950">A</span>
-              <span className="min-w-0"><span className="block text-[10px] font-bold text-amber-300">PART A · 6개 모듈</span><span className="block truncate text-sm font-black">Arduino·Tinkercad</span></span>
+              <span className="min-w-0"><span className="block text-[10px] font-bold text-amber-300">보충·심화 · 6개 모듈</span><span className="block truncate text-sm font-black">Arduino·Tinkercad</span></span>
               <FlaskConical className="ml-auto size-4 text-amber-300" />
             </button>
             <button onClick={onCompare} className="flex w-full items-center gap-3 rounded-2xl border border-violet-400/30 bg-violet-400/15 px-3 py-3 text-left text-violet-100 transition hover:bg-violet-400/25">
@@ -293,6 +301,7 @@ function AppSidebar({
 
 export default function Home() {
   const lessonSectionRef = useRef<HTMLElement>(null);
+  const [courseView, setCourseView] = useState<"integrated" | "arduino">("integrated");
   const [selected, setSelected] = useState(1);
   const [completed, setCompleted] = useState<number[]>([]);
   const [simCompleted, setSimCompleted] = useState<number[]>([]);
@@ -330,6 +339,16 @@ export default function Home() {
     } catch {
       window.localStorage.removeItem("pico-lab-progress");
     }
+  }, []);
+
+  useEffect(() => {
+    const syncCourseView = () => {
+      const view = new URLSearchParams(window.location.search).get("view");
+      setCourseView(view === "arduino" ? "arduino" : "integrated");
+    };
+    syncCourseView();
+    window.addEventListener("popstate", syncCourseView);
+    return () => window.removeEventListener("popstate", syncCourseView);
   }, []);
 
   useEffect(() => {
@@ -377,6 +396,28 @@ export default function Home() {
     document.getElementById("course-roadmap")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const openArduinoCourse = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("view", "arduino");
+    window.history.pushState({}, "", url);
+    setCourseView("arduino");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const leaveArduinoCourse = (goToPico = false) => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("view");
+    window.history.pushState({}, "", url);
+    setCourseView("integrated");
+    window.requestAnimationFrame(() => {
+      if (goToPico) {
+        document.getElementById("lesson-0")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+  };
+
   const openCompare = () => {
     document.getElementById("arduino-pico-compare")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -415,9 +456,13 @@ export default function Home() {
     toast.success(wasCompleted ? "가상 실습 완료 표시를 취소했습니다." : "Wokwi 가상 실습을 완료했습니다.");
   };
 
+  if (courseView === "arduino") {
+    return <ArduinoOnlyCourse onBack={() => leaveArduinoCourse(false)} onGoPico={() => leaveArduinoCourse(true)} />;
+  }
+
   return (
     <SidebarProvider>
-      <AppSidebar selected={selected} completed={completed} onSelect={selectLesson} onArduino={openArduino} onCompare={openCompare} onSetup={openSetup} />
+      <AppSidebar selected={selected} completed={completed} onSelect={selectLesson} onArduinoCourse={openArduinoCourse} onArduino={openArduino} onCompare={openCompare} onSetup={openSetup} />
       <SidebarInset className="min-w-0 bg-[#f5f7f8]">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200/80 bg-white/90 px-4 backdrop-blur-xl sm:px-7">
           <div className="flex items-center gap-3">
@@ -429,15 +474,24 @@ export default function Home() {
               <p className="text-sm font-black text-slate-900">Arduino·Raspberry Pi Pico 통합 실습실</p>
             </div>
           </div>
-          <button
-            onClick={() => selectLesson(nextIncomplete)}
-            className="flex items-center gap-2 rounded-full bg-slate-950 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-slate-800"
-          >
-            <span className="size-2 rounded-full bg-cyan-400" /> 이어서 학습
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={openArduinoCourse} className="hidden items-center gap-2 rounded-full bg-amber-400 px-3.5 py-2 text-xs font-black text-slate-950 transition hover:bg-amber-300 sm:flex"><span className="size-2 rounded-full bg-slate-950" /> Arduino 3차시</button>
+            <button onClick={() => selectLesson(nextIncomplete)} className="flex items-center gap-2 rounded-full bg-slate-950 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-slate-800"><span className="size-2 rounded-full bg-cyan-400" /> Pico 이어서</button>
+          </div>
         </header>
 
         <main className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-7 sm:py-9">
+          <section className="mb-7 overflow-hidden rounded-[26px] border border-amber-200 bg-gradient-to-r from-amber-100 via-white to-cyan-50 p-5 shadow-sm sm:p-7">
+            <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
+              <div>
+                <div className="flex items-center gap-2"><span className="rounded-full bg-slate-950 px-3 py-1.5 text-xs font-black text-amber-300">NEW · 3차시</span><span className="text-sm font-black text-amber-800">유튜브 4~8강 기반</span></div>
+                <h1 className="mt-3 text-2xl font-black tracking-tight sm:text-3xl">아두이노 입력·출력 기본원리 전용 교실</h1>
+                <p className="mt-2 max-w-3xl text-base leading-7 text-slate-700">LED 출력 → 버튼·시리얼 입력 → 가변저항 아날로그 입력과 PWM 출력까지 3차시로 익힌 뒤 Pico로 이동합니다.</p>
+              </div>
+              <Button onClick={openArduinoCourse} className="h-auto min-h-12 shrink-0 rounded-xl bg-amber-400 px-5 font-black text-slate-950 hover:bg-amber-300">아두이노 3차시 시작 <ChevronRight className="ml-1.5 size-5" /></Button>
+            </div>
+          </section>
+
           <ArduinoJourney />
 
           <ThonnySetup checked={setupSteps} onToggle={toggleSetupStep} onCopy={copySetupCode} />
