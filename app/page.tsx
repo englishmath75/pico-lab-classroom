@@ -49,6 +49,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { lessons, phaseColors } from "./lessons";
 import { wokwiLessons } from "./wokwi";
+import { ArduinoJourney } from "./arduino-lab";
 
 function SectionTitle({
   icon: Icon,
@@ -198,32 +199,51 @@ function AppSidebar({
   selected,
   completed,
   onSelect,
+  onArduino,
+  onCompare,
   onSetup,
 }: {
   selected: number;
   completed: number[];
   onSelect: (id: number) => void;
+  onArduino: () => void;
+  onCompare: () => void;
   onSetup: () => void;
 }) {
   return (
     <Sidebar collapsible="offcanvas" className="border-r-0">
       <SidebarHeader className="border-b border-white/10 bg-slate-950 p-5 text-white">
-        <button className="flex items-center gap-3 text-left" onClick={onSetup} aria-label="0차시 준비로 이동">
-          <div className="relative grid size-11 place-items-center rounded-2xl bg-cyan-400 text-slate-950 shadow-[0_0_30px_rgba(34,211,238,.25)]">
+        <button className="flex items-center gap-3 text-left" onClick={onArduino} aria-label="통합 학습경로 처음으로 이동">
+          <div className="relative grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-amber-400 to-cyan-400 text-slate-950 shadow-[0_0_30px_rgba(34,211,238,.25)]">
             <Cpu className="size-6" />
             <span className="absolute -right-1 -top-1 size-3 rounded-full border-2 border-slate-950 bg-amber-400" />
           </div>
           <div>
             <p className="text-[10px] font-bold tracking-[0.22em] text-cyan-300">SOFTWARE &amp; LIFE</p>
-            <p className="text-xl font-black tracking-tight">PICO LAB</p>
+            <p className="text-lg font-black tracking-tight">ARDUINO → PICO</p>
           </div>
         </button>
       </SidebarHeader>
       <SidebarContent className="bg-slate-950 text-white">
         <SidebarGroup className="px-3 py-5">
+          <SidebarGroupLabel className="px-3 text-[11px] font-bold tracking-[0.15em] text-slate-500">
+            통합 학습경로
+          </SidebarGroupLabel>
+          <div className="mt-2 grid gap-2">
+            <button onClick={onArduino} className="flex w-full items-center gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/15 px-3 py-3 text-left text-amber-100 transition hover:bg-amber-400/25">
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-400 text-xs font-black text-slate-950">A</span>
+              <span className="min-w-0"><span className="block text-[10px] font-bold text-amber-300">PART A · 6개 모듈</span><span className="block truncate text-sm font-black">Arduino·Tinkercad</span></span>
+              <FlaskConical className="ml-auto size-4 text-amber-300" />
+            </button>
+            <button onClick={onCompare} className="flex w-full items-center gap-3 rounded-2xl border border-violet-400/30 bg-violet-400/15 px-3 py-3 text-left text-violet-100 transition hover:bg-violet-400/25">
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-violet-400 text-xs font-black text-slate-950">↔</span>
+              <span className="min-w-0"><span className="block text-[10px] font-bold text-violet-300">PART B · BRIDGE</span><span className="block truncate text-sm font-black">Arduino·Pico 비교</span></span>
+              <Code2 className="ml-auto size-4 text-violet-300" />
+            </button>
+          </div>
           <button onClick={onSetup} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-indigo-400/30 bg-indigo-400/15 px-3 py-3 text-left text-indigo-100 transition hover:bg-indigo-400/25">
             <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-indigo-400 text-sm font-black text-indigo-950">0</span>
-            <span className="min-w-0"><span className="block text-[10px] font-bold text-indigo-300">시작 전 필수</span><span className="block truncate text-sm font-black">Thonny와 Pico 준비</span></span>
+            <span className="min-w-0"><span className="block text-[10px] font-bold text-indigo-300">PART C · 시작 전 필수</span><span className="block truncate text-sm font-black">Thonny와 Pico 준비</span></span>
             <Usb className="ml-auto size-4 text-indigo-300" />
           </button>
           <SidebarGroupLabel className="px-3 text-[11px] font-bold tracking-[0.15em] text-slate-500">
@@ -353,6 +373,13 @@ export default function Home() {
     document.getElementById("lesson-0")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const openArduino = () => {
+    document.getElementById("course-roadmap")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const openCompare = () => {
+    document.getElementById("arduino-pico-compare")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   const toggleLessonComplete = () => {
     const wasCompleted = completed.includes(selected);
     setCompleted((current) =>
@@ -390,7 +417,7 @@ export default function Home() {
 
   return (
     <SidebarProvider>
-      <AppSidebar selected={selected} completed={completed} onSelect={selectLesson} onSetup={openSetup} />
+      <AppSidebar selected={selected} completed={completed} onSelect={selectLesson} onArduino={openArduino} onCompare={openCompare} onSetup={openSetup} />
       <SidebarInset className="min-w-0 bg-[#f5f7f8]">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200/80 bg-white/90 px-4 backdrop-blur-xl sm:px-7">
           <div className="flex items-center gap-3">
@@ -399,7 +426,7 @@ export default function Home() {
               <p className="hidden text-[10px] font-extrabold uppercase tracking-[0.16em] text-slate-400 sm:block">
                 2단원 · 소프트웨어로 만드는 생활
               </p>
-              <p className="text-sm font-black text-slate-900">라즈베리파이 피코 실습실</p>
+              <p className="text-sm font-black text-slate-900">Arduino·Raspberry Pi Pico 통합 실습실</p>
             </div>
           </div>
           <button
@@ -411,6 +438,8 @@ export default function Home() {
         </header>
 
         <main className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-7 sm:py-9">
+          <ArduinoJourney />
+
           <ThonnySetup checked={setupSteps} onToggle={toggleSetupStep} onCopy={copySetupCode} />
 
           <div className="my-8 flex items-center gap-3" aria-hidden="true">
@@ -419,7 +448,7 @@ export default function Home() {
             <div className="h-px flex-1 bg-slate-200" />
           </div>
 
-          <section id="lesson-content" ref={lessonSectionRef} className="scroll-mt-20 overflow-hidden rounded-[28px] bg-slate-950 text-white shadow-[0_20px_60px_rgba(15,23,42,.14)]">
+          <section id="pico-lesson-content" ref={lessonSectionRef} className="scroll-mt-20 overflow-hidden rounded-[28px] bg-slate-950 text-white shadow-[0_20px_60px_rgba(15,23,42,.14)]">
             <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_320px] lg:p-10">
               <div className="relative z-10">
                 <div className="flex flex-wrap items-center gap-2">
@@ -489,14 +518,7 @@ export default function Home() {
               ].map(([number, label, note, value]) => {
                 const isActive = activeTab === value;
                 return (
-                <button
-                  key={number}
-                  type="button"
-                  aria-label={`${number} ${label} ${note}`}
-                  aria-pressed={isActive}
-                  onClick={() => setActiveTab(value)}
-                  className={"w-full rounded-2xl p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 " + (isActive ? "bg-cyan-400 text-slate-950 shadow-sm" : "bg-slate-100 text-slate-700 hover:bg-cyan-50 hover:text-cyan-950")}
-                >
+                <button key={number} type="button" aria-label={`${number} ${label} ${note}`} aria-pressed={isActive} onClick={() => setActiveTab(value)} className={"w-full rounded-2xl p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 " + (isActive ? "bg-cyan-400 text-slate-950 shadow-sm" : "bg-slate-100 text-slate-700 hover:bg-cyan-50 hover:text-cyan-950")}>
                   <div className="flex items-center gap-2">
                     <span className={"grid size-7 place-items-center rounded-full text-[10px] font-black " + (isActive ? "bg-slate-950 text-cyan-300" : "bg-white text-slate-500")}>{number}</span>
                     <p className="text-sm font-black">{label}</p>
@@ -507,7 +529,7 @@ export default function Home() {
             </div>
           </section>
 
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value)} className="mt-7">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-7">
             <div className="overflow-x-auto pb-1 scrollbar-none">
               <TabsList variant="line" className="min-w-max gap-5 border-b border-slate-200 px-1">
                 <TabsTrigger value="learn" className="px-1 pb-3 text-sm font-extrabold">개념 학습</TabsTrigger>
