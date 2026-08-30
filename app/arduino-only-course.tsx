@@ -16,7 +16,6 @@ import {
   ExternalLink,
   FlaskConical,
   GraduationCap,
-  MonitorPlay,
   Play,
   RotateCcw,
   Sparkles,
@@ -30,11 +29,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { arduinoCourseLessons, arduinoPlaylistUrl } from "./arduino-only-data";
+import { arduinoCourseLessons } from "./arduino-only-data";
+import { ArduinoFoundations } from "./arduino-foundations";
 
 const stageCards: { number: string; label: string; note: string; value: string }[] = [
   { number: "01", label: "개념", note: "원리·시험", value: "concept" },
-  { number: "02", label: "영상", note: "4~8강", value: "video" },
+  { number: "02", label: "Tinkercad", note: "가상 실습", value: "tinkercad" },
   { number: "03", label: "회로", note: "배선·실습", value: "circuit" },
   { number: "04", label: "코드", note: "해석·수정", value: "code" },
   { number: "05", label: "평가", note: "중간고사", value: "assessment" },
@@ -147,16 +147,16 @@ export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; on
           <div className="grid gap-8 bg-[radial-gradient(circle_at_80%_10%,rgba(251,191,36,.22),transparent_32%)] p-6 sm:p-9 lg:grid-cols-[1.2fr_.8fr] lg:p-12">
             <div>
               <div className="flex flex-wrap gap-2">
-                <span className="rounded-full bg-amber-400 px-3 py-1.5 text-sm font-black text-slate-950">아두이노 3차시 전용 교실</span>
+                <span className="rounded-full bg-amber-400 px-3 py-1.5 text-sm font-black text-slate-950">아두이노 전용 교실</span>
                 <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm font-bold text-cyan-200">입력 → 처리 → 출력</span>
               </div>
               <h1 className="mt-6 text-4xl font-black tracking-[-0.045em] sm:text-5xl">Arduino에서 원리를 배우고<br className="hidden sm:block" /> Pico로 이동합니다</h1>
               <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">
-                학교에서 자주 사용하는 Arduino Uno로 디지털·아날로그 입력과 출력을 먼저 익힙니다. 영상 시청으로 끝내지 않고 회로를 만들고, 코드를 해석하고, 값을 바꾸고, 시험형 문제로 정리합니다.
+                학교에서 자주 사용하는 Arduino Uno로 디지털·아날로그 입력과 출력을 먼저 익힙니다. Tinkercad에서 회로를 실행하고, 코드를 해석하고, 값을 바꾸고, 시험형 문제로 정리합니다.
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
-                <Button asChild className="rounded-xl bg-red-500 text-white hover:bg-red-400">
-                  <a href={arduinoPlaylistUrl} target="_blank" rel="noreferrer"><MonitorPlay className="mr-1.5 size-4" />43강 재생목록 열기<ExternalLink className="ml-1.5 size-3.5" /></a>
+                <Button asChild className="rounded-xl bg-cyan-400 text-slate-950 hover:bg-cyan-300">
+                  <a href="https://www.tinkercad.com/classrooms/dky0pTDB1Aj/activities/bSv6W8qlaJ4" target="_blank" rel="noreferrer"><FlaskConical className="mr-1.5 size-4" />Tinkercad 1차시 열기<ExternalLink className="ml-1.5 size-3.5" /></a>
                 </Button>
                 <Button onClick={() => selectLesson(1)} variant="outline" className="rounded-xl border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                   1차시 시작 <Play className="ml-1.5 size-4" />
@@ -172,7 +172,7 @@ export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; on
                   return (
                     <button key={item.id} onClick={() => selectLesson(item.id)} className="flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-black/10 p-4 text-left transition hover:border-amber-300/50 hover:bg-white/10">
                       <span className={`grid size-9 shrink-0 place-items-center rounded-xl font-black ${done ? "bg-emerald-400 text-emerald-950" : "bg-amber-400 text-slate-950"}`}>{done ? <Check className="size-5" /> : item.id}</span>
-                      <span className="min-w-0"><span className="block text-xs font-black text-amber-300">{item.sourceLessons}</span><span className="mt-1 block text-base font-black text-white">{item.title}</span></span>
+                      <span className="min-w-0"><span className="block text-base font-black leading-7 text-white">{item.title}</span></span>
                     </button>
                   );
                 })}
@@ -181,7 +181,9 @@ export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; on
           </div>
         </section>
 
-        <section className="mt-7 grid gap-3 md:grid-cols-3" aria-label="3차시 수업 개요">
+        <ArduinoFoundations />
+
+        <section className="mt-7 grid gap-3 md:grid-cols-3" aria-label="아두이노 수업 개요">
           {arduinoCourseLessons.map((item) => {
             const isActive = item.id === selected;
             const done = completed.includes(item.id);
@@ -198,7 +200,7 @@ export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; on
         <section id="arduino-lesson" className="mt-8 scroll-mt-24 overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-sm">
           <div className="grid gap-6 bg-gradient-to-br from-amber-50 via-white to-cyan-50 p-6 sm:p-9 lg:grid-cols-[1fr_320px]">
             <div>
-              <div className="flex flex-wrap gap-2"><span className="rounded-full bg-slate-950 px-3 py-1.5 text-sm font-black text-amber-300">ARDUINO 0{lesson.id}</span><span className="rounded-full bg-white px-3 py-1.5 text-sm font-black text-slate-600 ring-1 ring-slate-200">{lesson.sourceLessons}</span></div>
+              <div className="flex flex-wrap gap-2"><span className="rounded-full bg-slate-950 px-3 py-1.5 text-sm font-black text-amber-300">ARDUINO 0{lesson.id}</span></div>
               <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-4xl">{lesson.title}</h2>
               <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-700">{lesson.subtitle}</p>
               <div className="mt-6 flex flex-wrap gap-3">
@@ -234,7 +236,7 @@ export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; on
           <div className="overflow-x-auto pb-1 scrollbar-none">
             <TabsList variant="line" className="min-w-max gap-6 border-b border-slate-200 px-1">
               <TabsTrigger value="concept" className="px-1 pb-3 text-base font-extrabold">개념·원리</TabsTrigger>
-              <TabsTrigger value="video" className="px-1 pb-3 text-base font-extrabold">영상 학습</TabsTrigger>
+              <TabsTrigger value="tinkercad" className="px-1 pb-3 text-base font-extrabold">Tinkercad 실습</TabsTrigger>
               <TabsTrigger value="circuit" className="px-1 pb-3 text-base font-extrabold">회로·실습</TabsTrigger>
               <TabsTrigger value="code" className="px-1 pb-3 text-base font-extrabold">전체 코드·해석</TabsTrigger>
               <TabsTrigger value="assessment" className="px-1 pb-3 text-base font-extrabold">평가·시험</TabsTrigger>
@@ -256,17 +258,28 @@ export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; on
             </section>
             <section className="rounded-[26px] border border-cyan-200 bg-cyan-50 p-5 sm:p-7">
               <Heading icon={Workflow} eyebrow="50 Minute Class" title="50분 수업 흐름" />
-              <div className="grid gap-3 sm:grid-cols-5">{[["5분","결과 예측"],["12분","영상 핵심"],["15분","회로·실행"],["10분","코드 수정"],["8분","평가·정리"]].map(([time, task]) => <div key={time} className="rounded-2xl bg-white p-4 text-center ring-1 ring-cyan-100"><p className="text-xl font-black text-cyan-700">{time}</p><p className="mt-1 font-bold text-slate-700">{task}</p></div>)}</div>
+              <div className="grid gap-3 sm:grid-cols-5">{[["5분","결과 예측"],["12분","Tinkercad"],["15분","회로·실행"],["10분","코드 수정"],["8분","평가·정리"]].map(([time, task]) => <div key={time} className="rounded-2xl bg-white p-4 text-center ring-1 ring-cyan-100"><p className="text-xl font-black text-cyan-700">{time}</p><p className="mt-1 font-bold text-slate-700">{task}</p></div>)}</div>
             </section>
           </TabsContent>
 
-          <TabsContent value="video" className="mt-6 space-y-5">
+          <TabsContent value="tinkercad" className="mt-6 space-y-5">
             <section className="rounded-[28px] bg-slate-950 p-5 text-white shadow-sm sm:p-7">
-              <Heading icon={MonitorPlay} eyebrow="YouTube Learning" title="강의 영상을 보고 핵심을 기록하세요" description="전체 43강 중 이번 3차시 범위에 필요한 4~8강만 연결했습니다." />
-              <div className="grid gap-5 lg:grid-cols-2">
-                {lesson.videos.map((video) => <article key={video.id} className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06]"><div className="aspect-video bg-black"><iframe className="h-full w-full" src={`https://www.youtube-nocookie.com/embed/${video.id}`} title={video.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div><div className="p-5"><h3 className="text-xl font-black">{video.title}</h3><p className="mt-2 text-base leading-7 text-slate-300">집중해서 볼 내용: {video.focus}</p><a href={video.url} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1.5 font-black text-amber-300 hover:text-amber-200">YouTube에서 크게 보기 <ExternalLink className="size-4" /></a></div></article>)}
-              </div>
-              <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-5 text-base leading-7 text-amber-50"><strong className="text-amber-300">영상 학습 규칙:</strong> 재생 전에 결과를 예측하고, 시청 후에는 사용한 핀·함수·입력값·출력 결과를 네 칸으로 나누어 기록합니다.</div>
+              <Heading icon={FlaskConical} eyebrow="Tinkercad Practice" title="가상 회로에서 먼저 실행하세요" description="실행 전에 결과를 예상하고, 핀·함수·입력값·출력 결과를 기록합니다." />
+              {lesson.tinkercad ? (
+                <article className="rounded-3xl border border-cyan-300/20 bg-white/[0.06] p-5 sm:p-7">
+                  <p className="text-sm font-black text-cyan-300">학교 Tinkercad 수업 활동</p>
+                  <h3 className="mt-2 text-2xl font-black">{lesson.tinkercad.title}</h3>
+                  <p className="mt-3 max-w-3xl text-base leading-7 text-slate-300">{lesson.tinkercad.description}</p>
+                  <Button asChild className="mt-5 rounded-xl bg-cyan-400 font-black text-slate-950 hover:bg-cyan-300">
+                    <a href={lesson.tinkercad.url} target="_blank" rel="noreferrer">활동 회로 열기 <ExternalLink className="ml-1.5 size-4" /></a>
+                  </Button>
+                </article>
+              ) : (
+                <div className="rounded-3xl border border-amber-300/20 bg-amber-300/10 p-5 text-base leading-7 text-amber-50">
+                  이 수업의 활동 링크가 등록되기 전에는 아래 회로 연결표를 보고 결과를 먼저 예측합니다.
+                </div>
+              )}
+              <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-5 text-base leading-7 text-amber-50"><strong className="text-amber-300">실습 규칙:</strong> 회로를 실행하기 전에 결과를 예측하고, 실행 후에는 코드에서 바꾼 값과 달라진 결과를 한 문장으로 기록합니다.</div>
             </section>
           </TabsContent>
 
@@ -327,7 +340,7 @@ export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; on
         </nav>
 
         <footer className="mt-10 border-t border-slate-200 py-7 text-center text-base leading-7 text-slate-500">
-          영상은 코사임당 YouTube 공개 강좌로 연결되며, 이 페이지의 설명·배선표·수정 코드·평가 문항은 수업용으로 재구성했습니다.
+          이 페이지의 개념 설명·Tinkercad 활동·배선표·실습 코드·평가 문항은 교실 수업용으로 구성했습니다.
         </footer>
       </main>
       <Toaster richColors position="top-center" />
