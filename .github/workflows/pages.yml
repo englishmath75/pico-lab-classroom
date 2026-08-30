@@ -21,6 +21,11 @@ jobs:
       - name: 소스 가져오기
         uses: actions/checkout@v4
 
+      - name: 학생용 교재 준비
+        run: |
+          mkdir -p public/downloads
+          base64 --decode public/downloads/arduino-foundations.docx.b64 > public/downloads/arduino-foundations.docx
+
       - name: Node.js 준비
         uses: actions/setup-node@v4
         with:
