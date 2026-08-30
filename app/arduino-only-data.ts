@@ -2,13 +2,12 @@ export type ArduinoCourseLesson = {
   id: number;
   title: string;
   subtitle: string;
-  sourceLessons: string;
+  tinkercad?: { title: string; description: string; url: string };
   input: string;
   process: string;
   output: string;
   objectives: string[];
   concepts: { title: string; body: string; exam: string }[];
-  videos: { id: string; title: string; focus: string; url: string }[];
   parts: string[];
   wiring: { from: string; to: string; note: string }[];
   steps: string[];
@@ -27,7 +26,11 @@ export const arduinoCourseLessons: ArduinoCourseLesson[] = [
     id: 1,
     title: "LED로 배우는 디지털 출력과 PWM",
     subtitle: "LED를 켜고 끄는 디지털 출력에서 시작해 밝기를 단계적으로 바꾸는 PWM 출력까지 비교합니다.",
-    sourceLessons: "유튜브 4강·5강",
+    tinkercad: {
+      title: "LED 깜빡이기",
+      description: "학교 Tinkercad 수업의 활동 회로를 열어 LED 출력 코드를 실행하고 값을 바꿉니다.",
+      url: "https://www.tinkercad.com/classrooms/dky0pTDB1Aj/activities/bSv6W8qlaJ4",
+    },
     input: "시간과 반복 횟수",
     process: "HIGH/LOW 판단·0~255 밝기 계산",
     output: "일반 LED·RGB LED의 빛",
@@ -56,20 +59,6 @@ export const arduinoCourseLessons: ArduinoCourseLesson[] = [
         title: "RGB LED",
         body: "빨강·초록·파랑 LED가 한 부품 안에 들어 있습니다. 세 채널의 PWM 값을 조합하면 여러 색을 표현할 수 있습니다.",
         exam: "RGB 각 채널은 0~255로 제어하며 공통 단자의 종류를 확인해야 한다.",
-      },
-    ],
-    videos: [
-      {
-        id: "6TEaXPfJS40",
-        title: "4강 · LED 제어",
-        focus: "브레드보드, digitalWrite(), analogWrite()",
-        url: "https://www.youtube.com/watch?v=6TEaXPfJS40",
-      },
-      {
-        id: "W5Y0px1FaPo",
-        title: "5강 · RGB LED 제어",
-        focus: "RGB 혼합과 세 PWM 출력",
-        url: "https://www.youtube.com/watch?v=W5Y0px1FaPo",
       },
     ],
     parts: ["Arduino Uno", "브레드보드", "LED", "220Ω~330Ω 저항", "점퍼선", "USB 데이터 케이블"],
@@ -169,7 +158,6 @@ void loop() {
     id: 2,
     title: "버튼과 시리얼로 배우는 디지털 입력",
     subtitle: "버튼과 컴퓨터의 문자를 입력으로 받아 조건을 판단하고 LED 출력으로 연결합니다.",
-    sourceLessons: "유튜브 6강·7강",
     input: "버튼의 HIGH/LOW·시리얼 문자",
     process: "digitalRead()·조건 판단",
     output: "LED 켜기·끄기",
@@ -198,20 +186,6 @@ void loop() {
         title: "입력→처리→출력",
         body: "버튼 상태를 읽고 조건문으로 판단한 뒤 LED를 제어합니다. 이것이 피지컬 컴퓨팅의 가장 기본적인 제어 흐름입니다.",
         exam: "digitalRead는 입력, if는 처리, digitalWrite는 출력에 해당한다.",
-      },
-    ],
-    videos: [
-      {
-        id: "lOjulMG3Iyo",
-        title: "6강 · 시리얼 통신",
-        focus: "Serial.available(), Serial.read(), 문자로 LED 제어",
-        url: "https://www.youtube.com/watch?v=lOjulMG3Iyo",
-      },
-      {
-        id: "7qLcVvO_CdA",
-        title: "7강 · 버튼으로 LED 제어",
-        focus: "버튼 원리, digitalRead(), 여러 LED 제어",
-        url: "https://www.youtube.com/watch?v=7qLcVvO_CdA",
       },
     ],
     parts: ["Arduino Uno", "푸시버튼", "LED", "220Ω 저항", "10kΩ 풀다운 저항", "브레드보드", "점퍼선"],
@@ -302,7 +276,6 @@ void loop() {
     id: 3,
     title: "가변저항으로 배우는 아날로그 입력과 출력 변환",
     subtitle: "연속적으로 변하는 전압을 0~1023 숫자로 읽고 0~255 PWM 밝기로 변환합니다.",
-    sourceLessons: "유튜브 8강",
     input: "가변저항의 0~5V 전압",
     process: "ADC 변환·map() 범위 변환",
     output: "LED의 0~255 PWM 밝기",
@@ -331,14 +304,6 @@ void loop() {
         title: "센서 기반 제어",
         body: "센서값을 읽고 필요한 범위로 변환한 다음 출력 장치를 제어하는 구조는 조도·온도·거리 센서에도 그대로 확장됩니다.",
         exam: "센서 종류가 달라도 입력→처리→출력 구조는 같다.",
-      },
-    ],
-    videos: [
-      {
-        id: "zJ4YN7iDV1o",
-        title: "8강 · 가변저항과 analogRead()",
-        focus: "0~1023 입력, LED 밝기와 여러 LED 제어",
-        url: "https://www.youtube.com/watch?v=zJ4YN7iDV1o",
       },
     ],
     parts: ["Arduino Uno", "10kΩ 가변저항", "LED", "220Ω 저항", "브레드보드", "점퍼선"],
@@ -423,5 +388,3 @@ void loop() {
     ],
   },
 ];
-
-export const arduinoPlaylistUrl = "https://www.youtube.com/playlist?list=PLHWeJv86qvJbPqzwBDOGiv631hgYncB7q";
