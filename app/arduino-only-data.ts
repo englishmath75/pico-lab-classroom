@@ -29,7 +29,7 @@ export const arduinoCourseLessons: ArduinoCourseLesson[] = [
     tinkercad: {
       title: "LED 깜빡이기",
       description: "학교 Tinkercad 수업의 활동 회로를 열어 LED 출력 코드를 실행하고 값을 바꿉니다.",
-      url: "https://www.tinkercad.com/classrooms/dky0pTDB1Aj/activities/bSv6W8qlaJ4",
+      url: "https://www.tinkercad.com/classrooms/dky0pTDB1Aj/activities",
     },
     input: "시간과 반복 횟수",
     process: "HIGH/LOW 판단·0~255 밝기 계산",
