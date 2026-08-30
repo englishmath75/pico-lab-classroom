@@ -237,23 +237,23 @@ function AppSidebar({
           <SidebarGroupLabel className="px-3 text-[11px] font-bold tracking-[0.15em] text-slate-500">
             통합 학습경로
           </SidebarGroupLabel>
-          <div className="mt-2 grid gap-2">
-            <button onClick={onArduino} className="flex w-full items-center gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/15 px-3 py-3 text-left text-amber-100 transition hover:bg-amber-400/25">
-              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-400 text-xs font-black text-slate-950">A</span>
-              <span className="min-w-0"><span className="block text-[10px] font-bold text-amber-300">보충·심화 · 6개 모듈</span><span className="block truncate text-sm font-black">Arduino·Tinkercad</span></span>
-              <FlaskConical className="ml-auto size-4 text-amber-300" />
+          <div className="mb-4 mt-2 grid gap-3">
+            <button onClick={onArduino} className="grid h-[112px] w-full grid-cols-[52px_minmax(0,1fr)_20px] items-center gap-4 rounded-[24px] border border-amber-400/30 bg-amber-400/15 px-4 text-left text-amber-100 transition hover:bg-amber-400/25">
+              <span className="grid size-[52px] shrink-0 place-items-center rounded-2xl bg-amber-400 text-xl font-black text-slate-950">A</span>
+              <span className="min-w-0 overflow-hidden"><span className="block whitespace-nowrap text-[14px] font-black leading-5 text-amber-300">PART A · 6개 모듈</span><span className="mt-1 block whitespace-nowrap text-base font-black leading-7">Arduino·Tinkercad</span></span>
+              <FlaskConical className="size-5 text-amber-300" />
             </button>
-            <button onClick={onCompare} className="flex w-full items-center gap-3 rounded-2xl border border-violet-400/30 bg-violet-400/15 px-3 py-3 text-left text-violet-100 transition hover:bg-violet-400/25">
-              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-violet-400 text-xs font-black text-slate-950">↔</span>
-              <span className="min-w-0"><span className="block text-[10px] font-bold text-violet-300">PART B · BRIDGE</span><span className="block truncate text-sm font-black">Arduino·Pico 비교</span></span>
-              <Code2 className="ml-auto size-4 text-violet-300" />
+            <button onClick={onCompare} className="grid h-[112px] w-full grid-cols-[52px_minmax(0,1fr)_20px] items-center gap-4 rounded-[24px] border border-violet-400/30 bg-violet-400/15 px-4 text-left text-violet-100 transition hover:bg-violet-400/25">
+              <span className="grid size-[52px] shrink-0 place-items-center rounded-2xl bg-violet-400 text-xl font-black text-slate-950">↔</span>
+              <span className="min-w-0 overflow-hidden"><span className="block whitespace-nowrap text-[14px] font-black leading-5 text-violet-300">PART B · BRIDGE</span><span className="mt-1 block whitespace-nowrap text-base font-black leading-7">Arduino·Pico 비교</span></span>
+              <Code2 className="size-5 text-violet-300" />
+            </button>
+            <button onClick={onSetup} className="grid h-[112px] w-full grid-cols-[52px_minmax(0,1fr)_20px] items-center gap-4 rounded-[24px] border border-indigo-400/30 bg-indigo-400/15 px-4 text-left text-indigo-100 transition hover:bg-indigo-400/25">
+              <span className="grid size-[52px] shrink-0 place-items-center rounded-2xl bg-indigo-400 text-xl font-black text-indigo-950">0</span>
+              <span className="min-w-0 overflow-hidden"><span className="block whitespace-nowrap text-[14px] font-black leading-5 text-indigo-300">PART C · 시작 전 필수</span><span className="mt-1 block whitespace-nowrap text-base font-black leading-7">Thonny·Pico 준비</span></span>
+              <Usb className="size-5 text-indigo-300" />
             </button>
           </div>
-          <button onClick={onSetup} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-indigo-400/30 bg-indigo-400/15 px-3 py-3 text-left text-indigo-100 transition hover:bg-indigo-400/25">
-            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-indigo-400 text-sm font-black text-indigo-950">0</span>
-            <span className="min-w-0"><span className="block text-[10px] font-bold text-indigo-300">PART C · 시작 전 필수</span><span className="block truncate text-sm font-black">Thonny와 Pico 준비</span></span>
-            <Usb className="ml-auto size-4 text-indigo-300" />
-          </button>
           <SidebarGroupLabel className="px-3 text-[11px] font-bold tracking-[0.15em] text-slate-500">
             10차시 실습 로드맵
           </SidebarGroupLabel>
