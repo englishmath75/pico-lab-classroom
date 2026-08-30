@@ -156,7 +156,7 @@ export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; on
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Button asChild className="rounded-xl bg-cyan-400 text-slate-950 hover:bg-cyan-300">
-                  <a href="https://www.tinkercad.com/classrooms/dky0pTDB1Aj/activities/bSv6W8qlaJ4" target="_blank" rel="noreferrer"><FlaskConical className="mr-1.5 size-4" />Tinkercad 1차시 열기<ExternalLink className="ml-1.5 size-3.5" /></a>
+                  <a href="https://www.tinkercad.com/classrooms/dky0pTDB1Aj/activities" target="_blank" rel="noreferrer"><FlaskConical className="mr-1.5 size-4" />Tinkercad 실습 열기<ExternalLink className="ml-1.5 size-3.5" /></a>
                 </Button>
                 <Button onClick={() => selectLesson(1)} variant="outline" className="rounded-xl border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
                   1차시 시작 <Play className="ml-1.5 size-4" />
