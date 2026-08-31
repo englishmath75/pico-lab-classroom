@@ -208,12 +208,12 @@ def add_code_block(doc, code):
     cell = table.cell(0, 0)
     set_cell_shading(cell, NAVY)
     p = clear_cell(cell)
-    set_paragraph(p, after=0, line=1.25)
+    set_paragraph(p, after=0, line=1.08)
     for idx, line in enumerate(code.splitlines()):
         if idx:
             p.add_run().add_break()
         run = p.add_run(line or " ")
-        set_run_font(run, size=9.2, color="CFFAFE", name="Consolas")
+        set_run_font(run, size=8.4, color="CFFAFE", name="Consolas")
     add_paragraph(doc, "", size=2, after=1)
     return table
 
@@ -222,7 +222,7 @@ def add_footer(section):
     footer = section.footer
     p = footer.paragraphs[0]
     set_paragraph(p, after=0, line=1.0, align=WD_ALIGN_PARAGRAPH.CENTER)
-    r = p.add_run("ARDUINO → PICO LAB  ·  아두이노 시작 전 핵심 교재  ·  ")
+    r = p.add_run("ARDUINO → PICO LAB  ·  Arduino Uno 기초 완성 교재  ·  ")
     set_run_font(r, size=8.5, color=MUTED)
     fld = OxmlElement("w:fldSimple")
     fld.set(qn("w:instr"), "PAGE")
@@ -263,11 +263,11 @@ def style_document(doc):
 
 def add_cover(doc):
     add_paragraph(doc, "ARDUINO → PICO LAB · 사전 학습", size=10.5, bold=True, color="B45309", before=28, after=18, align=WD_ALIGN_PARAGRAPH.CENTER)
-    add_paragraph(doc, "아두이노 시작 전 핵심 교재", size=29, bold=True, color=NAVY, after=8, line=1.1, align=WD_ALIGN_PARAGRAPH.CENTER)
-    add_paragraph(doc, "비트 · 시리얼 통신 · 출력 형식", size=16, bold=True, color=CYAN, after=18, align=WD_ALIGN_PARAGRAPH.CENTER)
+    add_paragraph(doc, "아두이노 Uno 기초 완성 교재", size=29, bold=True, color=NAVY, after=8, line=1.1, align=WD_ALIGN_PARAGRAPH.CENTER)
+    add_paragraph(doc, "보드 구조 · 핀 · ADC · PWM · 시리얼 통신", size=16, bold=True, color=CYAN, after=18, align=WD_ALIGN_PARAGRAPH.CENTER)
     add_paragraph(
         doc,
-        "실습과 중간고사 학습에 바로 사용할 수 있도록 핵심 개념과 실행 코드를 정확하게 정리한 학생용 자료입니다.",
+        "처음 배우는 학생이 보드의 구조와 입력·처리·출력 원리를 이해하고, 실습과 중간고사를 함께 준비할 수 있도록 구성한 학생용 통합 자료입니다.",
         size=11.5,
         color=SLATE,
         after=26,
@@ -278,7 +278,7 @@ def add_cover(doc):
     table = doc.add_table(rows=2, cols=3)
     set_table_geometry(table, [3120, 3120, 3120])
     set_table_borders(table, color="F3D48A", size=7)
-    labels = [("01", "0과 1 · ASCII"), ("02", "Serial.begin()"), ("03", "print · format")]
+    labels = [("01", "보드와 핀 구조"), ("02", "ADC · PWM"), ("03", "코드 · 평가")]
     for idx, (number, title) in enumerate(labels):
         set_cell_shading(table.cell(0, idx), NAVY)
         add_cell_text(table.cell(0, idx), number, size=14, bold=True, color=AMBER, align=WD_ALIGN_PARAGRAPH.CENTER)
@@ -294,8 +294,8 @@ def add_cover(doc):
         accent="0E7490",
     )
     add_paragraph(doc, "대상  고등학교 소프트웨어와 생활 · Arduino 기초 실습", size=9.5, color=MUTED, before=18, after=2, align=WD_ALIGN_PARAGRAPH.CENTER)
-    add_paragraph(doc, "자료 범위  비트·ASCII·시리얼 통신·출력 형식의 필수 개념", size=9.5, color=MUTED, after=2, align=WD_ALIGN_PARAGRAPH.CENTER)
-    add_paragraph(doc, "확장 계획  이후 강의 캡처를 같은 체계로 누적하여 최종 중간고사 대비 자료로 통합", size=9.5, color=MUTED, after=2, align=WD_ALIGN_PARAGRAPH.CENTER)
+    add_paragraph(doc, "자료 범위  Uno 구조·전원·디지털 I/O·A0~A5·10비트 ADC·8비트 PWM·시리얼 통신", size=9.5, color=MUTED, after=2, align=WD_ALIGN_PARAGRAPH.CENTER)
+    add_paragraph(doc, "평가 준비  개념 비교·회로 해석·코드 실행 결과·오류 진단·서술형", size=9.5, color=MUTED, after=2, align=WD_ALIGN_PARAGRAPH.CENTER)
     doc.add_page_break()
 
 
@@ -511,6 +511,297 @@ def add_exam_section(doc):
     add_paragraph(doc, "이 문서는 화면을 복제한 자료가 아니라 개념과 코드를 독자적으로 설명한 학습자료입니다.", size=9, color=MUTED, after=2)
 
 
+def add_uno_structure_section(doc):
+    doc.add_page_break()
+    add_heading(doc, "6. Arduino Uno 보드의 구조와 역할", 1)
+    add_paragraph(doc, "Arduino Uno는 센서와 스위치의 신호를 입력받고, 프로그램에 따라 처리한 뒤 LED·부저·모터 같은 장치를 제어하는 마이크로컨트롤러 보드입니다. 수업에서는 Uno R3의 ATmega328P 기반 보드를 기준으로 설명합니다.", size=11.2)
+
+    table = doc.add_table(rows=9, cols=3)
+    set_table_geometry(table, [2350, 3500, 3510])
+    set_table_borders(table)
+    headers = ["보드 구성", "역할", "수업에서 확인할 점"]
+    for i, text in enumerate(headers):
+        set_cell_shading(table.cell(0, i), NAVY)
+        add_cell_text(table.cell(0, i), text, size=10, bold=True, color=WHITE, align=WD_ALIGN_PARAGRAPH.CENTER)
+    rows = [
+        ("ATmega328P", "작성한 스케치를 실행하는 핵심 마이크로컨트롤러", "디지털 I/O, ADC, 타이머 등을 포함"),
+        ("USB 단자", "PC와 연결하여 프로그램 업로드·시리얼 통신·전원 공급", "충전 전용이 아닌 데이터 케이블 사용"),
+        ("DC 전원 잭", "외부 어댑터로 보드에 전원 공급", "USB와 다른 전원 경로임"),
+        ("RESET 버튼", "프로그램을 처음부터 다시 실행", "저장된 스케치는 지워지지 않음"),
+        ("디지털 0~13", "HIGH/LOW 디지털 입력 또는 출력", "~ 표시 핀은 PWM 기능도 제공"),
+        ("아날로그 A0~A5", "연속 전압을 ADC로 읽는 입력", "디지털 14~19로도 사용 가능"),
+        ("전원 핀", "5V·3.3V·GND·VIN 등 전원 연결", "전압과 GND를 먼저 확인"),
+        ("내장 LED", "D13에 연결된 보드 위 LED", "외부 부품 없이 Blink 실습 가능"),
+    ]
+    for r_idx, row in enumerate(rows, 1):
+        for c_idx, value in enumerate(row):
+            set_cell_shading(table.cell(r_idx, c_idx), WHITE if r_idx % 2 else LIGHT)
+            add_cell_text(table.cell(r_idx, c_idx), value, size=9.7, bold=c_idx == 0, color=NAVY)
+    set_repeat_table_header(table.rows[0])
+
+    add_heading(doc, "입력 → 처리 → 출력으로 보는 보드", 2)
+    flow = doc.add_table(rows=2, cols=3)
+    set_table_geometry(flow, [3120, 3120, 3120])
+    set_table_borders(flow, color="CDE7EA")
+    labels = [("입력", "버튼·가변저항·센서의 값을 읽음"), ("처리", "조건·계산·반복으로 판단함"), ("출력", "LED·부저·모터를 제어함")]
+    for i, (title, body) in enumerate(labels):
+        set_cell_shading(flow.cell(0, i), ["E0F2FE", AMBER_LIGHT, GREEN_LIGHT][i])
+        add_cell_text(flow.cell(0, i), title, size=11, bold=True, color=NAVY, align=WD_ALIGN_PARAGRAPH.CENTER)
+        add_cell_text(flow.cell(1, i), body, size=9.8, color=NAVY, align=WD_ALIGN_PARAGRAPH.CENTER)
+    add_note_box(doc, "시험 핵심", "핀 이름만 보고 입력·출력을 단정하지 않습니다. 디지털 핀은 pinMode() 설정에 따라 입력 또는 출력이 되고, A0~A5도 디지털 입출력으로 바꿔 사용할 수 있습니다.")
+
+
+def add_pin_map_section(doc):
+    doc.add_page_break()
+    add_heading(doc, "7. Uno 핀 기능을 정확하게 구분하기", 1)
+    add_paragraph(doc, "하나의 핀에 기본 기능과 특수 기능이 함께 들어 있는 경우가 많습니다. 회로를 만들기 전에는 핀 번호뿐 아니라 PWM(~), 통신, 인터럽트 같은 겸용 기능도 확인해야 합니다.", size=11.2)
+
+    table = doc.add_table(rows=8, cols=4)
+    set_table_geometry(table, [1900, 2480, 2500, 2480])
+    set_table_borders(table)
+    headers = ["핀 범위", "기본 역할", "대표 특수 기능", "주의"]
+    for i, text in enumerate(headers):
+        set_cell_shading(table.cell(0, i), NAVY)
+        add_cell_text(table.cell(0, i), text, size=9.8, bold=True, color=WHITE, align=WD_ALIGN_PARAGRAPH.CENTER)
+    rows = [
+        ("D0(RX), D1(TX)", "디지털 I/O", "USB 시리얼 통신", "업로드·통신 중 사용 충돌 주의"),
+        ("D2, D3", "디지털 I/O", "외부 인터럽트", "D3은 PWM도 가능"),
+        ("D3,5,6,9,10,11", "디지털 I/O", "PWM 출력(~)", "analogWrite() 사용 가능"),
+        ("D10~D13", "디지털 I/O", "SPI 통신", "D13은 내장 LED와 연결"),
+        ("A0~A3", "아날로그 입력", "디지털 14~17", "PWM 출력 기능은 없음"),
+        ("A4(SDA)", "아날로그 입력", "디지털 18·I²C 데이터", "I²C 사용 중 겸용 주의"),
+        ("A5(SCL)", "아날로그 입력", "디지털 19·I²C 클록", "I²C 사용 중 겸용 주의"),
+    ]
+    for r_idx, row in enumerate(rows, 1):
+        for c_idx, value in enumerate(row):
+            set_cell_shading(table.cell(r_idx, c_idx), WHITE if r_idx % 2 else LIGHT)
+            add_cell_text(table.cell(r_idx, c_idx), value, size=9.4, bold=c_idx == 0, color=NAVY)
+    set_repeat_table_header(table.rows[0])
+
+    add_heading(doc, "전원 관련 핀", 2)
+    pwr = doc.add_table(rows=7, cols=3)
+    set_table_geometry(pwr, [1900, 3700, 3760])
+    set_table_borders(pwr)
+    headers = ["핀", "의미", "중요한 주의"]
+    for i, text in enumerate(headers):
+        set_cell_shading(pwr.cell(0, i), "B45309")
+        add_cell_text(pwr.cell(0, i), text, size=10, bold=True, color=WHITE, align=WD_ALIGN_PARAGRAPH.CENTER)
+    rows = [
+        ("5V", "보드의 5V 전원선", "GND와 직접 연결하면 안 됨"),
+        ("3.3V", "3.3V 부품용 전원선", "허용 전류가 작으므로 큰 부하 금지"),
+        ("GND", "회로 전압의 공통 기준", "외부 전원 사용 시 공통 GND 확인"),
+        ("VIN", "외부 입력 전압을 보드로 공급", "5V 출력 핀과 혼동 금지"),
+        ("AREF", "ADC 기준 전압 입력", "초급 실습에서는 임의 연결 금지"),
+        ("IOREF/RESET", "논리 전압 기준 표시/보드 재시작", "일반 출력 핀으로 사용하지 않음"),
+    ]
+    for r_idx, row in enumerate(rows, 1):
+        for c_idx, value in enumerate(row):
+            set_cell_shading(pwr.cell(r_idx, c_idx), WHITE if r_idx % 2 else AMBER_LIGHT)
+            add_cell_text(pwr.cell(r_idx, c_idx), value, size=9.7, bold=c_idx == 0, color=NAVY)
+    add_note_box(doc, "안전", "Uno의 I/O 핀에는 0~5V 범위를 벗어나는 신호를 직접 넣지 않습니다. 모터처럼 전류를 많이 사용하는 부품은 GPIO에 직접 연결하지 말고 드라이버와 별도 전원을 사용하며 GND를 공통으로 연결합니다.", fill="FEE2E2", accent="991B1B")
+
+
+def add_analog_input_section(doc):
+    doc.add_page_break()
+    add_heading(doc, "8. A0~A5: 아날로그 입력과 디지털 입출력", 1)
+    add_paragraph(doc, "A0~A5의 가장 중요한 역할은 센서의 연속적인 전압을 읽는 것입니다. 그러나 이 여섯 핀은 디지털 핀 14~19로도 동작합니다. '아날로그 핀'이라는 이름 때문에 아날로그 출력도 가능하다고 오해하기 쉽지만, Uno의 A0~A5에는 DAC 방식의 아날로그 출력 기능이 없습니다.", size=11.2)
+
+    table = doc.add_table(rows=4, cols=4)
+    set_table_geometry(table, [2100, 2420, 2420, 2420])
+    set_table_borders(table)
+    headers = ["사용 방식", "함수", "값/상태", "예"]
+    for i, text in enumerate(headers):
+        set_cell_shading(table.cell(0, i), NAVY)
+        add_cell_text(table.cell(0, i), text, size=10, bold=True, color=WHITE, align=WD_ALIGN_PARAGRAPH.CENTER)
+    rows = [
+        ("아날로그 입력", "analogRead(A0)", "0~1023", "가변저항·조도 센서"),
+        ("디지털 입력", "digitalRead(A0)", "LOW/HIGH", "버튼·디지털 센서"),
+        ("디지털 출력", "digitalWrite(A0, ...)", "LOW/HIGH", "LED 켜기·끄기"),
+    ]
+    for r_idx, row in enumerate(rows, 1):
+        for c_idx, value in enumerate(row):
+            set_cell_shading(table.cell(r_idx, c_idx), WHITE if r_idx % 2 else LIGHT)
+            add_cell_text(table.cell(r_idx, c_idx), value, size=9.7, bold=c_idx == 0, color=NAVY, font="Consolas" if c_idx == 1 else FONT)
+
+    add_heading(doc, "10비트 ADC와 0~1023", 2)
+    add_paragraph(doc, "Uno의 ADC는 기준 전압 범위를 2¹⁰=1024개의 구간으로 나눕니다. 숫자는 0부터 시작하므로 결과값은 0~1023입니다. 따라서 '1023단계'가 아니라 '1024단계, 최댓값 1023'이라고 표현해야 정확합니다.")
+    add_note_box(doc, "계산", "기본 5V 기준에서 한 단계의 이상적인 크기 ≈ 5V ÷ 1024 ≈ 0.00488V = 4.88mV", fill=CYAN_LIGHT, accent="0E7490")
+    add_note_box(doc, "구분", "ADC는 아날로그 전압을 디지털 숫자로 바꾸는 입력 변환기입니다. DAC는 디지털 숫자를 실제 아날로그 전압으로 바꾸는 출력 변환기인데, 일반 Uno에는 DAC 출력 핀이 없습니다.", fill=GREEN_LIGHT, accent=GREEN)
+
+    add_heading(doc, "예제 1 · A0에서 가변저항 읽기", 2)
+    add_code_block(doc, "const int SENSOR_PIN = A0;\n\nvoid setup() {\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int sensorValue = analogRead(SENSOR_PIN);\n  Serial.println(sensorValue);\n  delay(500);\n}")
+    add_paragraph(doc, "가변저항 양 끝은 5V와 GND, 가운데 단자는 A0에 연결합니다. 손잡이를 돌리면 A0 전압이 변하고 sensorValue가 0~1023 범위에서 달라집니다.")
+    add_heading(doc, "예제 2 · A0를 디지털 출력으로 사용", 2)
+    add_code_block(doc, "void setup() {\n  pinMode(A0, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(A0, HIGH);\n  delay(1000);\n  digitalWrite(A0, LOW);\n  delay(1000);\n}")
+    add_note_box(doc, "시험 핵심", "A0라는 이름을 코드에 그대로 쓰는 편이 읽기 쉽습니다. Uno에서 A0는 디지털 14번과 같은 핀이지만, 보드 종류가 달라지면 숫자 대응이 달라질 수 있습니다.")
+
+
+def add_pwm_section(doc):
+    doc.add_page_break()
+    add_heading(doc, "9. PWM 핀: 디지털 출력으로 밝기와 속도 조절", 1)
+    add_paragraph(doc, "Uno의 D3·D5·D6·D9·D10·D11에는 ~ 표시가 있습니다. 이 핀에서는 analogWrite()로 PWM을 출력할 수 있습니다. 이름에 analog가 들어가지만, 핀이 일정한 중간 전압을 계속 내보내는 것은 아닙니다.", size=11.2)
+
+    table = doc.add_table(rows=5, cols=4)
+    set_table_geometry(table, [1700, 2100, 2600, 2960])
+    set_table_borders(table)
+    headers = ["analogWrite 값", "켜짐 비율", "핀의 실제 동작", "관찰 결과"]
+    for i, text in enumerate(headers):
+        set_cell_shading(table.cell(0, i), NAVY)
+        add_cell_text(table.cell(0, i), text, size=9.7, bold=True, color=WHITE, align=WD_ALIGN_PARAGRAPH.CENTER)
+    rows = [
+        ("0", "0%", "계속 LOW", "LED 꺼짐"),
+        ("64", "약 25%", "짧게 켜지고 길게 꺼짐", "어두움"),
+        ("128", "약 50%", "켜짐·꺼짐 시간이 비슷", "중간 밝기"),
+        ("255", "100%", "계속 HIGH", "가장 밝음"),
+    ]
+    for r_idx, row in enumerate(rows, 1):
+        for c_idx, value in enumerate(row):
+            set_cell_shading(table.cell(r_idx, c_idx), WHITE if r_idx % 2 else LIGHT)
+            add_cell_text(table.cell(r_idx, c_idx), value, size=9.7, bold=c_idx == 0, color=NAVY, align=WD_ALIGN_PARAGRAPH.CENTER if c_idx < 2 else WD_ALIGN_PARAGRAPH.LEFT)
+
+    add_heading(doc, "PWM의 핵심: 주기와 듀티비", 2)
+    add_paragraph(doc, "PWM은 HIGH와 LOW를 빠르게 반복합니다. 한 주기 중 HIGH인 시간의 비율을 듀티비(duty cycle)라고 합니다. LED는 빠른 깜빡임을 평균 밝기로 느끼고, 모터는 평균적으로 전달되는 에너지의 차이로 속도가 달라집니다.")
+    add_note_box(doc, "8비트 출력", "analogWrite() 값은 0~255로 모두 256단계입니다. 128은 255의 약 절반이므로 듀티비가 약 50%입니다. 이는 실제 2.5V를 계속 출력한다는 뜻이 아닙니다.", fill=CYAN_LIGHT, accent="0E7490")
+    add_note_box(doc, "용어 주의", "수업에서 PWM을 편의상 '아날로그 출력'이라고 부르기도 하지만, 정확하게는 디지털 펄스의 폭을 조절해 평균 효과를 만드는 PWM 출력입니다.")
+
+    doc.add_page_break()
+    add_heading(doc, "예제 · D9 LED 밝기 서서히 바꾸기", 2)
+    add_code_block(doc, "const int LED_PIN = 9;\n\nvoid setup() {\n  pinMode(LED_PIN, OUTPUT);\n}\n\nvoid loop() {\n  for (int brightness = 0; brightness <= 255; brightness++) {\n    analogWrite(LED_PIN, brightness);\n    delay(10);\n  }\n\n  for (int brightness = 255; brightness >= 0; brightness--) {\n    analogWrite(LED_PIN, brightness);\n    delay(10);\n  }\n}")
+    add_paragraph(doc, "D9 → 220Ω 저항 → LED 긴 다리, LED 짧은 다리 → GND 순서로 연결합니다. brightness가 0에서 255로 증가하면 듀티비가 커져 LED가 밝아지고, 반대로 감소하면 어두워집니다.")
+
+
+def add_compare_practice_section(doc):
+    doc.add_page_break()
+    add_heading(doc, "10. 아날로그 입력과 PWM 출력을 한 번에 연결하기", 1)
+    add_paragraph(doc, "가변저항의 0~5V 전압을 A0에서 0~1023으로 읽고, 그 값을 D9의 0~255 PWM 값으로 변환해 LED 밝기를 제어합니다. 입력→처리→출력 구조를 가장 분명하게 확인할 수 있는 실습입니다.", size=11.2)
+    code = '''const int SENSOR_PIN = A0;
+const int LED_PIN = 9;
+
+void setup() {
+  pinMode(LED_PIN, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int sensorValue = analogRead(SENSOR_PIN);
+  int pwmValue = map(sensorValue, 0, 1023, 0, 255);
+
+  analogWrite(LED_PIN, pwmValue);
+  Serial.print("ADC: ");
+  Serial.print(sensorValue);
+  Serial.print("  PWM: ");
+  Serial.println(pwmValue);
+  delay(20);
+}'''
+    add_code_block(doc, code)
+    add_note_box(doc, "코드 해석", "analogRead()는 입력, map()은 범위 변환 처리, analogWrite()는 PWM 출력입니다. 시리얼 모니터에는 ADC 원본값과 PWM 변환값이 함께 표시됩니다.", fill=GREEN_LIGHT, accent=GREEN)
+
+    add_heading(doc, "실습 순서", 2)
+    steps = [
+        ("1", "전원을 분리하고 가변저항을 5V-A0-GND에 연결한다."),
+        ("2", "D9-220Ω 저항-LED-GND 순서로 출력 회로를 만든다."),
+        ("3", "USB를 연결하고 보드·포트를 선택한 뒤 코드를 업로드한다."),
+        ("4", "시리얼 모니터를 9600 bps로 열고 ADC와 PWM 값을 비교한다."),
+        ("5", "가변저항을 돌려 입력값·변환값·LED 밝기의 관계를 기록한다."),
+        ("6", "map()의 출력 범위나 delay()를 바꾸고 결과를 설명한다."),
+    ]
+    check = doc.add_table(rows=len(steps), cols=2)
+    set_table_geometry(check, [700, 8660])
+    set_table_borders(check, color="CDE7EA")
+    for i, (num, text) in enumerate(steps):
+        set_cell_shading(check.cell(i, 0), CYAN_LIGHT)
+        add_cell_text(check.cell(i, 0), num, size=11, bold=True, color="0E7490", align=WD_ALIGN_PARAGRAPH.CENTER)
+        add_cell_text(check.cell(i, 1), text, size=10.2, color=NAVY)
+
+    add_heading(doc, "세 함수 비교", 2)
+    table = doc.add_table(rows=4, cols=5)
+    set_table_geometry(table, [1750, 2050, 1750, 1650, 2160])
+    set_table_borders(table)
+    headers = ["함수", "핀", "방향", "값", "정확한 의미"]
+    for i, text in enumerate(headers):
+        set_cell_shading(table.cell(0, i), NAVY)
+        add_cell_text(table.cell(0, i), text, size=9.5, bold=True, color=WHITE, align=WD_ALIGN_PARAGRAPH.CENTER)
+    rows = [
+        ("analogRead()", "A0~A5", "입력", "0~1023", "10비트 ADC 결과"),
+        ("digitalWrite()", "디지털 I/O", "출력", "LOW/HIGH", "0V 또는 약 5V 상태"),
+        ("analogWrite()", "PWM ~ 핀", "출력", "0~255", "8비트 PWM 듀티비"),
+    ]
+    for r_idx, row in enumerate(rows, 1):
+        for c_idx, value in enumerate(row):
+            set_cell_shading(table.cell(r_idx, c_idx), WHITE if r_idx % 2 else LIGHT)
+            add_cell_text(table.cell(r_idx, c_idx), value, size=9.4, bold=c_idx == 0, color=NAVY, align=WD_ALIGN_PARAGRAPH.CENTER if c_idx < 4 else WD_ALIGN_PARAGRAPH.LEFT, font="Consolas" if c_idx == 0 else FONT)
+
+
+def add_final_assessment_section(doc):
+    add_heading(doc, "11. 중간고사 대비 핵심 정리와 예상문제", 1)
+    add_note_box(doc, "한 문장 정리", "Uno는 A0~A5에서 아날로그 전압을 10비트 ADC의 0~1023으로 읽고, D3·5·6·9·10·11에서는 8비트 PWM의 0~255로 출력 효과를 조절합니다.", fill=CYAN_LIGHT, accent="0E7490")
+
+    table = doc.add_table(rows=10, cols=3)
+    set_table_geometry(table, [2200, 3600, 3560])
+    set_table_borders(table)
+    headers = ["구분", "정확한 내용", "자주 하는 오해"]
+    for i, text in enumerate(headers):
+        set_cell_shading(table.cell(0, i), NAVY)
+        add_cell_text(table.cell(0, i), text, size=10, bold=True, color=WHITE, align=WD_ALIGN_PARAGRAPH.CENTER)
+    rows = [
+        ("A0~A5", "아날로그 입력 + 디지털 I/O", "아날로그 출력 핀이다"),
+        ("ADC 범위", "1024단계, 결과 0~1023", "1023단계이다"),
+        ("PWM 핀", "D3·5·6·9·10·11", "모든 디지털 핀에서 가능"),
+        ("PWM 범위", "256단계, 값 0~255", "255단계이다"),
+        ("analogWrite", "PWM 듀티비 설정", "실제 중간 전압을 계속 출력"),
+        ("digitalWrite", "LOW/HIGH 두 상태", "0~255 밝기값 출력"),
+        ("A4/A5", "ADC·디지털 I/O·I²C 겸용", "아날로그 입력만 가능"),
+        ("D0/D1", "디지털 I/O·시리얼 RX/TX", "항상 자유롭게 사용 가능"),
+        ("모터", "드라이버·외부 전원·공통 GND", "GPIO에 직접 연결"),
+    ]
+    for r_idx, row in enumerate(rows, 1):
+        for c_idx, value in enumerate(row):
+            set_cell_shading(table.cell(r_idx, c_idx), WHITE if r_idx % 2 else LIGHT)
+            add_cell_text(table.cell(r_idx, c_idx), value, size=9.5, bold=c_idx == 0, color=NAVY)
+
+    add_heading(doc, "예상문제", 2)
+    questions = [
+        "Uno의 A0~A5 핀이 수행할 수 있는 기능 세 가지를 쓰시오.",
+        "10비트 ADC의 단계 수와 analogRead() 결과 범위를 각각 쓰시오.",
+        "A0를 디지털 출력으로 설정하는 한 줄의 코드를 쓰시오.",
+        "Uno에서 PWM 기능을 제공하는 디지털 핀 번호를 모두 쓰시오.",
+        "analogWrite(9, 128)의 의미를 듀티비와 실제 핀 동작으로 설명하시오.",
+        "PWM을 진짜 아날로그 전압 출력이라고 부르기 어려운 이유를 쓰시오.",
+        "analogRead(A0)의 결과가 512일 때 5V 기준 입력 전압을 대략 계산하시오.",
+        "map(sensorValue, 0, 1023, 0, 255)의 역할을 설명하시오.",
+        "D0과 D1을 외부 부품에 연결할 때 특히 주의해야 하는 이유를 쓰시오.",
+        "모터를 GPIO에 직접 연결하면 안 되는 이유와 안전한 연결 방법을 쓰시오.",
+    ]
+    qt = doc.add_table(rows=len(questions), cols=2)
+    set_table_geometry(qt, [700, 8660])
+    set_table_borders(qt, color="CDE7EA")
+    for i, q in enumerate(questions, 1):
+        set_cell_shading(qt.cell(i - 1, 0), AMBER_LIGHT)
+        add_cell_text(qt.cell(i - 1, 0), str(i), size=11, bold=True, color="B45309", align=WD_ALIGN_PARAGRAPH.CENTER)
+        add_cell_text(qt.cell(i - 1, 1), q, size=10.1, color=NAVY)
+
+    add_heading(doc, "정답과 해설", 2)
+    answers = [
+        "아날로그 입력, 디지털 입력, 디지털 출력.",
+        "1024단계이며 결과값은 0~1023.",
+        "pinMode(A0, OUTPUT);",
+        "D3, D5, D6, D9, D10, D11.",
+        "D9를 약 50% 듀티비로 빠르게 HIGH/LOW 스위칭한다.",
+        "중간 전압을 일정하게 출력하지 않고 0V와 5V를 빠르게 반복하기 때문이다.",
+        "약 512×5/1024=2.5V.",
+        "ADC의 0~1023 입력 범위를 PWM의 0~255 출력 범위로 비례 변환한다.",
+        "D0·D1은 USB 시리얼 RX/TX와 겸용이어서 업로드나 통신과 충돌할 수 있다.",
+        "GPIO 허용 전류보다 큰 전류가 필요하므로 모터 드라이버와 외부 전원을 사용하고 GND를 공통 연결한다.",
+    ]
+    at = doc.add_table(rows=len(answers), cols=2)
+    set_table_geometry(at, [700, 8660])
+    set_table_borders(at, color="D1FAE5")
+    for i, a in enumerate(answers, 1):
+        set_cell_shading(at.cell(i - 1, 0), GREEN_LIGHT)
+        add_cell_text(at.cell(i - 1, 0), str(i), size=10.5, bold=True, color=GREEN, align=WD_ALIGN_PARAGRAPH.CENTER)
+        add_cell_text(at.cell(i - 1, 1), a, size=9.8, color=NAVY)
+
+
 def build():
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     doc = Document()
@@ -521,10 +812,16 @@ def build():
     add_print_section(doc)
     add_code_reading_section(doc)
     add_exam_section(doc)
-    doc.core_properties.title = "아두이노 시작 전 핵심 교재"
-    doc.core_properties.subject = "비트, ASCII, 시리얼 통신, Serial.print/println"
+    add_uno_structure_section(doc)
+    add_pin_map_section(doc)
+    add_analog_input_section(doc)
+    add_pwm_section(doc)
+    add_compare_practice_section(doc)
+    add_final_assessment_section(doc)
+    doc.core_properties.title = "아두이노 Uno 기초 완성 교재"
+    doc.core_properties.subject = "Uno 구조, 핀, ADC, PWM, 시리얼 통신, 실습, 중간고사"
     doc.core_properties.author = "PICO LAB"
-    doc.core_properties.keywords = "Arduino, Serial, ASCII, 중간고사, 실습"
+    doc.core_properties.keywords = "Arduino Uno, 핀, ADC, PWM, Serial, ASCII, 중간고사, 실습"
     doc.save(OUTPUT)
     print(OUTPUT)
 
