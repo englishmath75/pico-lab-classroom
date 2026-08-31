@@ -7,6 +7,24 @@ export type ArduinoQuestionBankTopic = {
 
 export const arduinoQuestionBankTopics: ArduinoQuestionBankTopic[] = [
   {
+    unit: "Uno 구조",
+    keyword: "핀 · 전원 · 겸용 기능",
+    mastery: "디지털 핀, 아날로그 핀, 전원 핀과 통신 겸용 핀을 구분한다.",
+    futureTypes: ["핀 찾기", "회로 해석", "안전"],
+  },
+  {
+    unit: "아날로그 입력",
+    keyword: "A0~A5 · 10비트 ADC",
+    mastery: "1024단계와 결과값 0~1023의 관계를 설명하고 전압을 계산한다.",
+    futureTypes: ["계산", "개념 비교", "코드 해석"],
+  },
+  {
+    unit: "PWM 출력",
+    keyword: "D3·5·6·9·10·11 · 0~255",
+    mastery: "PWM 듀티비와 진짜 아날로그 전압 출력의 차이를 설명한다.",
+    futureTypes: ["출력 예측", "서술", "코드 수정"],
+  },
+  {
     unit: "시작 전 기초",
     keyword: "bit · ASCII",
     mastery: "0과 1의 의미와 문자 코드 변환을 설명한다.",
