@@ -38,13 +38,13 @@ export function ArduinoFoundations() {
             <span className="rounded-full bg-cyan-500 px-3 py-1.5 text-sm font-black text-slate-950">먼저 배우는 필수 기초</span>
             <span className="rounded-full bg-slate-950 px-3 py-1.5 text-sm font-black text-amber-300">실습·중간고사 공통</span>
           </div>
-          <h2 id="arduino-foundations-title" className="mt-5 text-3xl font-black tracking-tight sm:text-4xl">비트부터 시리얼 출력까지</h2>
+          <h2 id="arduino-foundations-title" className="mt-5 text-3xl font-black tracking-tight sm:text-4xl">Arduino Uno 기초 완성 교재</h2>
           <p className="mt-3 max-w-3xl text-lg leading-8 text-slate-700">
-            회로 실습 전에 컴퓨터의 0과 1, ASCII 문자 코드, 통신 속도, Serial.print()와 Serial.println()의 차이를 먼저 이해합니다.
+            Uno 보드 구조와 핀 기능부터 10비트 ADC, 8비트 PWM, 시리얼 통신, 통합 실습과 중간고사 예상문제까지 한 문서로 학습합니다.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild className="rounded-xl bg-slate-950 text-white hover:bg-slate-800">
-              <a href="downloads/arduino-foundations.docx" download><Download className="mr-1.5 size-4" />학생용 교재 다운로드</a>
+              <a href="downloads/arduino-foundations.docx" download><Download className="mr-1.5 size-4" />Uno 완성 교재 다운로드</a>
             </Button>
             <Button variant="outline" onClick={() => document.getElementById("arduino-foundation-code")?.scrollIntoView({ behavior: "smooth", block: "center" })} className="rounded-xl bg-white">
               <BookOpen className="mr-1.5 size-4" />핵심 코드 보기
@@ -54,7 +54,7 @@ export function ArduinoFoundations() {
         <div className="rounded-[24px] bg-slate-950 p-5 text-white">
           <p className="text-sm font-black text-cyan-300">학습 순서</p>
           <div className="mt-4 space-y-3">
-            {["0과 1 · bit · ASCII", "Serial.begin() · bps", "print · println · 출력 형식"].map((item, index) => (
+            {["Uno 구조 · 전원 · 핀", "A0~A5 · 10비트 ADC", "PWM · 코드 · 예상문제"].map((item, index) => (
               <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-4">
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-400 font-black text-slate-950">{index + 1}</span>
                 <span className="text-base font-black leading-7">{item}</span>
