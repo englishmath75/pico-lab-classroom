@@ -43,6 +43,9 @@ export function ArduinoFoundations() {
             Uno 보드 구조와 핀 기능부터 10비트 ADC, 8비트 PWM, 시리얼 통신, 통합 실습과 중간고사 예상문제까지 한 문서로 학습합니다.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild className="rounded-xl bg-amber-400 text-slate-950 hover:bg-amber-300">
+              <a href="arduino-textbook.html"><BookOpen className="mr-1.5 size-4" />교재 전체 웹으로 읽기</a>
+            </Button>
             <Button asChild className="rounded-xl bg-slate-950 text-white hover:bg-slate-800">
               <a href="downloads/arduino-foundations.docx" download><Download className="mr-1.5 size-4" />Uno 완성 교재 다운로드</a>
             </Button>
