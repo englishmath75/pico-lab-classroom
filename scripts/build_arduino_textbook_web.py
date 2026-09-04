@@ -83,6 +83,37 @@ document.querySelectorAll('.toc a').forEach(link => link.addEventListener('click
 """
 
 
+def ascii_reference():
+    controls = ['NUL', 'SOH', 'STX', 'ETX', 'EOT', 'ENQ', 'ACK', 'BEL', 'BS', 'HT', 'LF', 'VT', 'FF', 'CR', 'SO', 'SI', 'DLE', 'DC1', 'DC2', 'DC3', 'DC4', 'NAK', 'SYN', 'ETB', 'CAN', 'EM', 'SUB', 'ESC', 'FS', 'GS', 'RS', 'US']
+    meanings = ['널', '헤더 시작', '본문 시작', '본문 끝', '전송 끝', '응답 요청', '긍정 응답', '벨', '백스페이스', '수평 탭', '줄바꿈', '수직 탭', '폼 피드', '캐리지 리턴', '시프트 아웃', '시프트 인', '데이터 링크 이스케이프', '장치 제어 1', '장치 제어 2', '장치 제어 3', '장치 제어 4', '부정 응답', '동기 유휴', '전송 블록 끝', '취소', '매체 끝', '대체', '이스케이프', '파일 구분', '그룹 구분', '레코드 구분', '단위 구분']
+    escapes = {0:r'\0',7:r'\a',8:r'\b',9:r'\t',10:r'\n',11:r'\v',12:r'\f',13:r'\r'}
+    out = ['<section id="ascii-reference" aria-labelledby="ascii-title"><h3 id="ascii-title">ASCII 전체 코드표 · 0~127</h3><p>Dec는 10진수, Hex는 16진수, Char는 문자 또는 제어 문자 이름입니다. ASCII는 7비트로 128개의 코드를 표현합니다.</p><p><a href="https://blog.naver.com/englishmathe" target="_blank" rel="noopener noreferrer">선생님 블로그 열기 (새 탭)</a></p><p class="meta">참고: 선생님이 제공한 블로그 코드표. 링크는 블로그 홈으로 연결됩니다.</p><div class="ascii-legend"><span class="ascii-control">회색 · 제어 문자: 0~31, 127</span><span class="ascii-special">초록 · 공백·기호</span><span class="ascii-letter">노랑 · 숫자·영문자</span></div><div class="ascii-grid">']
+    for start in range(0,128,32):
+        out.append(f'<div class="table-wrap" tabindex="0" role="region" aria-label="ASCII {start}부터 {start+31}까지"><table class="ascii-table"><caption>{start}~{start+31}</caption><thead><tr><th scope="col">Dec</th><th scope="col">Hex</th><th scope="col">Char</th><th scope="col">설명</th></tr></thead><tbody>')
+        for n in range(start,start+32):
+            if n < 32:
+                char, desc, kind = controls[n], meanings[n], 'control'
+                if n in escapes: desc += ' · ' + escapes[n]
+            elif n == 127:
+                char, desc, kind = 'DEL', '삭제 · 제어 문자', 'control'
+            elif n == 32:
+                char, desc, kind = 'SP', '공백 (스페이스)', 'special'
+            else:
+                char = chr(n)
+                kind = 'letter' if char.isalnum() else 'special'
+                desc = '숫자' if char.isdigit() else '영문 대문자' if char.isupper() else '영문 소문자' if char.islower() else '기호'
+                if n == 92: desc = r'역슬래시 · C/C++ 표기 \\'
+            out.append(f'<tr class="ascii-{kind}" data-ascii="{n}"><td>{n}</td><td>{n:02X}</td><td class="ascii-char">{escape(char)}</td><td>{escape(desc)}</td></tr>')
+        out.append('</tbody></table></div>')
+    out.append('</div><aside class="note cyan"><p><strong>Arduino 연결:</strong> Serial.println(\'B\', DEC)는 66, HEX는 42, BIN은 1000010을 출력합니다. 숫자 0과 문자 \'0\'는 다르며, 문자 \'0\'의 ASCII 값은 48입니다.</p></aside><aside class="note"><p><strong>제어 문자:</strong> LF(10)는 줄바꿈, CR(13)은 줄의 처음으로 이동을 뜻합니다. Serial.println()은 값 뒤에 CR과 LF를 붙입니다. 제어 문자는 일반 글자처럼 표시되지 않지만 장치나 터미널의 동작에 영향을 줄 수 있습니다. 공백(32)은 화면에 빈자리로 표시되는 인쇄 가능 문자입니다.</p></aside></section>')
+    return ''.join(out)
+
+
+STYLE += '''
+#ascii-reference{scroll-margin-top:7rem}.ascii-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.ascii-table{min-width:340px;font-size:1rem}.ascii-table caption{text-align:left;padding:.7rem 1rem;font-weight:800;background:#f1f5f9}.ascii-table th,.ascii-table td{padding:.55rem .6rem}.ascii-char{font-family:Consolas,monospace;font-weight:800;font-size:1.125rem}.ascii-table tr.ascii-control td,.ascii-legend .ascii-control{background:#e2e8f0;color:#0f172a}.ascii-table tr.ascii-special td,.ascii-legend .ascii-special{background:#dcfce7;color:#14532d}.ascii-table tr.ascii-letter td,.ascii-legend .ascii-letter{background:#fef08a;color:#422006}.ascii-legend{display:flex;flex-wrap:wrap;gap:.6rem;font-size:1rem}.ascii-legend span{padding:.4rem .65rem;border-radius:.4rem}@media(max-width:1100px){.ascii-grid{grid-template-columns:1fr}}@media print{.ascii-grid{display:block}.ascii-table{min-width:0}.ascii-table thead{display:table-header-group}}
+'''
+
+
 def build():
     with ZipFile(SOURCE) as archive:
         root = ET.fromstring(archive.read("word/document.xml"))
@@ -149,6 +180,10 @@ def build():
                 parts.append('</table></div>')
     parts.append('</section>')
     content = ''.join(parts)
+    marker = '</section><section class="chapter" id="chapter-2">'
+    assert marker in content
+    content = content.replace(marker, ascii_reference() + marker, 1)
+    headings.insert(2, ('ascii-reference', 'ASCII 전체 코드표 · 0~127'))
     # Every original nonempty paragraph must survive, in order, including table cells.
     class TextReader(HTMLParser):
         def __init__(self):
