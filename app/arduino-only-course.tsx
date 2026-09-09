@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, ArrowLeft, ArrowRight, Check, CheckCircle2, CircuitBoard, Clock3, ExternalLink, FlaskConical, FunctionSquare, KeyRound, Lightbulb, LockKeyhole, Settings, ShieldCheck, Wrench, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, CircuitBoard, Clock3, ExternalLink, FlaskConical, FunctionSquare, GraduationCap, KeyRound, Lightbulb, LockKeyhole, Search, Settings, ShieldCheck, Wrench, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { lessons, pinMap, type Activity } from "./arduino-only-data";
+import { glossary, lessonConcepts, teacherGuides, textbookMeta } from "./arduino-textbook-data";
 
 const errors = {
   "LED가 안 켜짐": ["LED 긴 다리와 짧은 다리 방향", "D3 연결", "저항 직렬 연결", "GND", "코드의 핀 번호", "시뮬레이션 시작"],
@@ -31,6 +32,8 @@ export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; on
   const [completed, setCompleted] = useState<string[]>([]);
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [answerUnlocked, setAnswerUnlocked] = useState(false);
+  const [bookMode, setBookMode] = useState<"student"|"teacher"|"glossary">("student");
+  const [glossaryQuery, setGlossaryQuery] = useState("");
   const lesson = lessons[lessonId - 1];
   const activity = lesson.activities[activityId];
   const allCount = lessons.reduce((sum, item) => sum + item.activities.length, 0);
@@ -70,10 +73,18 @@ export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; on
     <main className="mx-auto max-w-[1280px] px-4 py-7 sm:px-7">
       <section className="overflow-hidden rounded-[30px] bg-slate-950 text-white shadow-xl">
         <div className="grid gap-7 bg-[radial-gradient(circle_at_85%_5%,rgba(34,211,238,.2),transparent_32%)] p-6 sm:p-9 lg:grid-cols-[1.35fr_.65fr]">
-          <div><p className="text-sm font-black tracking-[.15em] text-amber-300">3회 완성 · TINKERCAD → 실제 ARDUINO → PICO</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">빈 회로에서 직접 만들고<br/>실물에 그대로 옮깁니다</h1><p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">공통 핀을 고정하고 회로를 해체하지 않은 채 입력을 하나씩 추가합니다. 막히면 함수 → 코드 순서 → 교사용 정답의 세 단계 도움말을 사용합니다.</p><div className="mt-6 grid gap-2 sm:grid-cols-3">{["① 회로 지시","② 미션","③ 사용 함수 정리"].map(x=><div key={x} className="rounded-2xl border border-white/10 bg-white/[.06] p-4 text-center font-black text-cyan-100">{x}</div>)}</div></div>
+          <div><p className="text-sm font-black tracking-[.15em] text-amber-300">{textbookMeta.edition} · 3회 완성</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">{textbookMeta.title}</h1><p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">{textbookMeta.principle}. Tinkercad에서 확인한 뒤 실제 Arduino에 같은 회로를 만듭니다.</p><div className="mt-6 grid gap-2 sm:grid-cols-3">{["① 개념 이해","② 회로·미션","③ 설명·점검"].map(x=><div key={x} className="rounded-2xl border border-white/10 bg-white/[.06] p-4 text-center font-black text-cyan-100">{x}</div>)}</div></div>
           <div className="rounded-[24px] border border-white/10 bg-white/[.06] p-5"><div className="flex justify-between font-black"><span>전체 실습 진도</span><span className="text-amber-300">{completed.length}/{allCount}</span></div><Progress value={progress} className="mt-3 h-2 bg-white/10 [&>div]:bg-amber-400"/><div className="mt-5 rounded-2xl bg-rose-400/10 p-4 text-sm leading-6 text-rose-100"><ShieldCheck className="mb-2 size-5 text-rose-300"/>배선을 바꿀 때는 시뮬레이션을 멈추고 실제 Arduino의 USB를 분리합니다. 5V와 GND를 직접 연결하지 않습니다.</div></div>
         </div>
       </section>
+
+      <nav className="mt-6 grid gap-2 rounded-[22px] border border-slate-200 bg-white p-2 sm:grid-cols-3" aria-label="교재 모드">
+        {([["student","학생용 교재",BookOpen],["teacher","교사용 지도서",GraduationCap],["glossary","용어사전",Search]] as const).map(([id,label,Icon])=><button key={id} onClick={()=>setBookMode(id)} className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-4 font-black ${bookMode===id?"bg-slate-950 text-white":"hover:bg-slate-100"}`}><Icon className="size-5"/>{label}</button>)}
+      </nav>
+
+      {bookMode==="glossary"?<Glossary query={glossaryQuery} setQuery={setGlossaryQuery}/>:bookMode==="teacher"?<TeacherMode lessonId={lessonId} unlocked={answerUnlocked} openPassword={()=>setPasswordOpen(true)}/>:<>
+
+      <Concepts lessonId={lessonId}/>
 
       <section className="mt-6 grid gap-3 md:grid-cols-3">{lessons.map((item)=><button key={item.id} onClick={()=>choose(item.id)} className={`rounded-[24px] border p-5 text-left transition ${lessonId===item.id?"border-amber-400 bg-amber-50 shadow-md":"border-slate-200 bg-white hover:border-amber-300"}`}><div className="flex items-center justify-between"><span className={`grid size-10 place-items-center rounded-xl font-black ${lessonId===item.id?"bg-slate-950 text-amber-300":"bg-slate-100"}`}>0{item.id}</span><span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-black">{item.activities.length}개 실습</span></div><h2 className="mt-4 text-xl font-black">{item.title}</h2><p className="mt-2 leading-7 text-slate-600">{item.subtitle}</p></button>)}</section>
 
@@ -96,9 +107,18 @@ export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; on
 
       <section className="mt-8 grid gap-5 lg:grid-cols-2"><Trouble/><article className="rounded-[26px] border border-slate-200 bg-white p-6"><h2 className="text-2xl font-black">시험 핵심</h2><ul className="mt-4 space-y-3">{lesson.exam.map((x,i)=><li key={x} className="flex gap-3 rounded-2xl bg-slate-50 p-4"><span className="font-black text-amber-600">0{i+1}</span>{x}</li>)}</ul></article></section>
 
+      </>}
     </main>{passwordOpen&&<PasswordPanel onClose={()=>setPasswordOpen(false)} onSuccess={unlockAnswer}/>}<Toaster richColors position="top-center"/>
   </div>;
 }
+
+function Concepts({lessonId}:{lessonId:number}) { return <section className="mt-6 rounded-[26px] border border-cyan-200 bg-cyan-50/50 p-5 sm:p-7"><div className="flex items-center gap-3"><BookOpen className="size-6 text-cyan-700"/><div><p className="text-sm font-black text-cyan-700">실습 전에 먼저 읽기</p><h2 className="text-2xl font-black">{lessonId}차시 핵심 개념</h2></div></div><div className="mt-5 grid gap-4 lg:grid-cols-2">{lessonConcepts[lessonId].map(c=><article key={c.term} className="rounded-2xl border border-cyan-100 bg-white p-5"><h3 className="text-xl font-black text-slate-950">{c.term}</h3><p className="mt-3 leading-7 text-slate-700">{c.plain}</p><p className="mt-3 rounded-xl bg-amber-50 p-4 leading-7 text-amber-950"><strong>생활 비유:</strong> {c.analogy}</p><p className="mt-3 font-black text-cyan-800">한 줄 기억: {c.remember}</p></article>)}</div></section>; }
+
+function TeacherMode({lessonId,unlocked,openPassword}:{lessonId:number;unlocked:boolean;openPassword:()=>void}) { const g=teacherGuides[lessonId]; if(!unlocked) return <section className="mt-6 rounded-[26px] border-2 border-dashed border-slate-300 bg-white p-8 text-center"><LockKeyhole className="mx-auto size-10 text-slate-500"/><h2 className="mt-4 text-2xl font-black">교사용 지도서 잠김</h2><p className="mt-2 text-slate-600">정답 코드와 수업 운영 정보는 교사 비밀번호 확인 후 표시됩니다.</p><Button onClick={openPassword} className="mt-5 bg-slate-950"><KeyRound className="mr-2 size-4"/>비밀번호 입력</Button></section>; return <section className="mt-6 space-y-5"><article className="rounded-[26px] bg-slate-950 p-6 text-white sm:p-8"><p className="text-sm font-black text-amber-300">TEACHER GUIDE · {lessonId}차시</p><h2 className="mt-2 text-3xl font-black">수업 운영 지도서</h2><h3 className="mt-6 font-black text-cyan-300">학습 목표</h3><ul className="mt-3 grid gap-2 sm:grid-cols-2">{g.objective.map(x=><li key={x} className="rounded-xl bg-white/10 p-4">{x}</li>)}</ul></article><div className="grid gap-5 lg:grid-cols-2"><GuideCard title="도입 발문·설명" items={[g.opening]}/><GuideCard title="칠판 판서" items={g.board}/><article className="rounded-[26px] border border-slate-200 bg-white p-6"><h3 className="text-xl font-black">예상 질문과 답변</h3><div className="mt-4 space-y-3">{g.questions.map(x=><div key={x.q} className="rounded-2xl bg-slate-50 p-4"><p className="font-black text-amber-800">Q. {x.q}</p><p className="mt-2 leading-7">A. {x.a}</p></div>)}</div></article><GuideCard title="교사 관찰 체크" items={g.observe}/><GuideCard title="마무리 출구표" items={g.exitTicket}/><GuideCard title="수업 운영 원칙" items={["30명이 동시에 막히면 전체를 멈추지 않고 전원→배선→핀→코드 점검표를 먼저 사용합니다.","필수 통과 실습을 먼저 끝낸 학생은 시간 변경·기준값 변경 미션으로 확장합니다.","완성 여부보다 학생이 입력→처리→출력을 말로 설명하는지를 확인합니다."]}/></div></section>; }
+
+function GuideCard({title,items}:{title:string;items:string[]}) { return <article className="rounded-[26px] border border-slate-200 bg-white p-6"><h3 className="text-xl font-black">{title}</h3><ul className="mt-4 space-y-3">{items.map((x,i)=><li key={x} className="flex gap-3 rounded-2xl bg-slate-50 p-4 leading-7"><span className="font-black text-cyan-700">{i+1}</span>{x}</li>)}</ul></article>; }
+
+function Glossary({query,setQuery}:{query:string;setQuery:(v:string)=>void}) { const q=query.trim().toLowerCase(); const rows=glossary.filter(x=>!q||`${x.term} ${x.korean} ${x.meaning}`.toLowerCase().includes(q)); return <section className="mt-6 rounded-[26px] border border-slate-200 bg-white p-5 sm:p-7"><div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-sm font-black text-cyan-700">ARDUINO DICTIONARY</p><h2 className="text-3xl font-black">그림 없이도 이해하는 용어사전</h2><p className="mt-2 text-slate-600">영어 용어·우리말·생활 비유·코드 예를 함께 찾습니다.</p></div><label className="relative block sm:w-80"><Search className="absolute left-4 top-3.5 size-5 text-slate-400"/><input value={query} onChange={e=>setQuery(e.target.value)} className="h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4" placeholder="예: PWM, 전압, 반복"/></label></div><div className="mt-6 grid gap-4 lg:grid-cols-2">{rows.map(x=><article key={x.term} className="rounded-2xl border border-slate-200 p-5"><div className="flex items-start justify-between gap-3"><div><h3 className="font-mono text-xl font-black text-cyan-800">{x.term}</h3><p className="font-black">{x.korean}</p></div><span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-black">{x.lesson}차시</span></div><p className="mt-3 leading-7">{x.meaning}</p><p className="mt-3 rounded-xl bg-slate-50 p-3"><strong>비유:</strong> {x.analogy}</p><code className="mt-3 block overflow-auto rounded-xl bg-slate-950 p-3 font-sans font-bold text-cyan-100">{x.example}</code></article>)}</div>{rows.length===0&&<p className="mt-8 rounded-2xl bg-slate-50 p-8 text-center font-bold text-slate-500">검색 결과가 없습니다.</p>}</section>; }
 
 function Circuit({a}:{a:Activity}) { return <div className="grid gap-5 lg:grid-cols-[.7fr_1.3fr]"><article className="rounded-[26px] border border-slate-200 bg-white p-6"><h3 className="text-xl font-black">Tinkercad 부품 선택</h3><div className="mt-4 flex flex-wrap gap-2">{a.parts.map(x=><span key={x} className="rounded-full bg-slate-100 px-3 py-2 font-bold">{x}</span>)}</div><Button asChild className="mt-5 bg-cyan-500 text-slate-950 hover:bg-cyan-400"><a href="https://www.tinkercad.com/dashboard" target="_blank" rel="noreferrer">빈 회로 만들기 <ExternalLink className="ml-2 size-4"/></a></Button><p className="mt-4 rounded-xl bg-rose-50 p-4 leading-7 text-rose-950"><AlertTriangle className="mb-2 size-5 text-rose-500"/>Tinkercad 성공 후 시뮬레이션을 멈춥니다. 실제 배선은 USB를 분리한 상태에서 같은 핀으로 옮깁니다.</p></article><article className="rounded-[26px] border border-slate-200 bg-white p-6"><h3 className="text-xl font-black">회로 지시</h3><ol className="mt-4 space-y-3">{a.circuit.map((x,i)=><li key={x} className="flex gap-3 rounded-2xl bg-slate-50 p-4 leading-7"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-amber-400 font-black">{i+1}</span>{x}</li>)}</ol>{a.note&&<p className="mt-4 rounded-xl bg-cyan-50 p-4 leading-7 text-cyan-950"><strong>꼭 확인:</strong> {a.note}</p>}</article></div>; }
 

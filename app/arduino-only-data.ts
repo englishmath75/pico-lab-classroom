@@ -18,7 +18,7 @@ export type ArduinoLesson = {
   title: string;
   subtitle: string;
   required: string;
-  timeline: { time: string; task: string }[];
+  timeline: [string, string][];
   activities: Activity[];
   exam: string[];
   pico: { title: string; body: string }[];
