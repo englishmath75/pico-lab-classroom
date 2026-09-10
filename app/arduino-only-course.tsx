@@ -25,7 +25,7 @@ async function hashPassword(value:string) {
   return Array.from(new Uint8Array(hash)).map((byte)=>byte.toString(16).padStart(2,"0")).join("");
 }
 
-export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; onGoPico: () => void }) {
+export function ArduinoOnlyCourse({ onBack, onGoPico, onGoPwm }: { onBack: () => void; onGoPico: () => void; onGoPwm: () => void }) {
   const [lessonId, setLessonId] = useState(1);
   const [activityId, setActivityId] = useState(0);
   const [stage, setStage] = useState("circuit");
@@ -66,7 +66,7 @@ export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; on
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex min-h-18 max-w-[1280px] items-center justify-between gap-3 px-4 py-3 sm:px-7">
         <button onClick={onBack} className="flex items-center gap-3 text-left"><span className="grid size-10 place-items-center rounded-xl bg-slate-950 text-amber-300"><ArrowLeft className="size-5"/></span><span><span className="block text-xs font-black tracking-wider text-amber-700">ARDUINO → PICO</span><span className="font-black">통합실습실로 돌아가기</span></span></button>
-        <Button onClick={()=>choose(next[0],next[1])} className="bg-amber-400 font-black text-slate-950 hover:bg-amber-300">이어서 학습 <ArrowRight className="ml-1 size-4"/></Button>
+        <div className="flex gap-2"><Button onClick={onGoPwm} className="bg-cyan-400 font-black text-slate-950 hover:bg-cyan-300">PWM 집중학습</Button><Button onClick={()=>choose(next[0],next[1])} className="bg-amber-400 font-black text-slate-950 hover:bg-amber-300">이어서 학습 <ArrowRight className="ml-1 size-4"/></Button></div>
       </div>
     </header>
 

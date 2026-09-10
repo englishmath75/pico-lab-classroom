@@ -51,6 +51,7 @@ import { lessons, phaseColors } from "./lessons";
 import { wokwiLessons } from "./wokwi";
 import { ArduinoJourney } from "./arduino-lab";
 import { ArduinoOnlyCourse } from "./arduino-only-course";
+import { PwmCourse } from "./pwm-course";
 
 function SectionTitle({
   icon: Icon,
@@ -301,7 +302,7 @@ function AppSidebar({
 
 export default function Home() {
   const lessonSectionRef = useRef<HTMLElement>(null);
-  const [courseView, setCourseView] = useState<"integrated" | "arduino">("integrated");
+  const [courseView, setCourseView] = useState<"integrated" | "arduino" | "pwm">("integrated");
   const [selected, setSelected] = useState(1);
   const [completed, setCompleted] = useState<number[]>([]);
   const [simCompleted, setSimCompleted] = useState<number[]>([]);
@@ -344,7 +345,7 @@ export default function Home() {
   useEffect(() => {
     const syncCourseView = () => {
       const view = new URLSearchParams(window.location.search).get("view");
-      setCourseView(view === "arduino" ? "arduino" : "integrated");
+      setCourseView(view === "arduino" ? "arduino" : view === "pwm" ? "pwm" : "integrated");
     };
     syncCourseView();
     window.addEventListener("popstate", syncCourseView);
@@ -418,6 +419,14 @@ export default function Home() {
     });
   };
 
+  const leavePwmCourse = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("view", "arduino");
+    window.history.pushState({}, "", url);
+    setCourseView("arduino");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const openCompare = () => {
     document.getElementById("arduino-pico-compare")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -457,7 +466,17 @@ export default function Home() {
   };
 
   if (courseView === "arduino") {
-    return <ArduinoOnlyCourse onBack={() => leaveArduinoCourse(false)} onGoPico={() => leaveArduinoCourse(true)} />;
+    return <ArduinoOnlyCourse onBack={() => leaveArduinoCourse(false)} onGoPico={() => leaveArduinoCourse(true)} onGoPwm={() => {
+      const url = new URL(window.location.href);
+      url.searchParams.set("view", "pwm");
+      window.history.pushState({}, "", url);
+      setCourseView("pwm");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }} />;
+  }
+
+  if (courseView === "pwm") {
+    return <PwmCourse onBack={leavePwmCourse} />;
   }
 
   return (
