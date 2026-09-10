@@ -14,6 +14,8 @@ type Example = {
   wiring: string[];
   code: string;
   observe: string;
+  lessonNote?: string;
+  terms?: { name: string; usage: string; meaning: string }[];
 };
 
 const examples: Example[] = [
@@ -24,8 +26,9 @@ const examples: Example[] = [
     goal: "analogWrite()의 값 0~255를 반복해서 바꾸며 PWM 출력의 의미를 확인합니다.",
     parts: ["Arduino Uno", "LED", "220~330Ω 저항", "점퍼선"],
     wiring: ["D3(PWM) → 저항 → LED 긴 다리(+) ", "LED 짧은 다리(-) → GND"],
-    code: `int a = 3;\n\nvoid setup() {\n  pinMode(a, OUTPUT);\n}\n\nvoid loop() {\n  for (int b = 0; b <= 255; b++) {\n    analogWrite(a, b);\n    delay(10);\n  }\n\n  for (int b = 255; b >= 0; b--) {\n    analogWrite(a, b);\n    delay(10);\n  }\n}`,
-    observe: "LED가 천천히 밝아졌다가 어두워집니다. 숫자가 클수록 HIGH인 시간의 비율(듀티비)이 커집니다.",
+    code: `int a = 3;\n\nvoid setup() {\n  pinMode(a, OUTPUT);\n}\n\nvoid loop() {\n  for (int b = 0; b <= 250; b = b + 50) {\n    analogWrite(a, b);\n    delay(1000);\n  }\n\n  for (int b = 250; b >= 0; b = b - 50) {\n    analogWrite(a, b);\n    delay(1000);\n  }\n}`,
+    observe: "LED 밝기가 0 → 50 → 100 → 150 → 200 → 250 순서로 1초마다 바뀌는지 눈으로 확인합니다.",
+    lessonNote: "눈으로 단계 변화를 확인한 다음 학생이 직접 두 곳을 바꿉니다: ① b = b + 50과 b = b - 50을 b++와 b--로 변경  ② delay(1000)을 delay(10)으로 변경. 단계가 빠르고 촘촘해지면 LED가 부드럽게 밝아지고 어두워지는 것처럼 보입니다.",
   },
   {
     number: "02",
@@ -33,8 +36,8 @@ const examples: Example[] = [
     title: "가변저항으로 LED 밝기 직접 조절하기",
     goal: "0~1023의 아날로그 입력값을 0~255의 PWM 출력값으로 변환합니다.",
     parts: ["Arduino Uno", "가변저항", "LED", "220~330Ω 저항", "점퍼선"],
-    wiring: ["가변저항 양쪽 핀 → 5V, GND / 가운데 핀 → A0", "D3(PWM) → 저항 → LED 긴 다리(+) / LED 짧은 다리(-) → GND"],
-    code: `int a = A0;\nint b = 3;\n\nvoid setup() {\n  pinMode(b, OUTPUT);\n}\n\nvoid loop() {\n  int c = analogRead(a);\n  int d = map(c, 0, 1023, 0, 255);\n  analogWrite(b, d);\n  delay(10);\n}`,
+    wiring: ["가변저항 양쪽 핀 → 5V, GND / 가운데 핀 → A4", "D3(PWM) → 저항 → LED 긴 다리(+) / LED 짧은 다리(-) → GND"],
+    code: `int a = A4;\nint b = 3;\n\nvoid setup() {\n  pinMode(b, OUTPUT);\n}\n\nvoid loop() {\n  int c = analogRead(a);\n  int d = map(c, 0, 1023, 0, 255);\n  analogWrite(b, d);\n  delay(10);\n}`,
     observe: "가변저항을 돌리는 정도에 따라 LED 밝기가 연속적으로 달라집니다.",
   },
   {
@@ -44,7 +47,7 @@ const examples: Example[] = [
     goal: "눈으로 본 밝기 변화와 실제 입력·출력 숫자를 함께 비교합니다.",
     parts: ["예제 02와 같은 회로"],
     wiring: ["예제 02의 배선을 그대로 사용합니다."],
-    code: `int a = A0;\nint b = 3;\n\nvoid setup() {\n  pinMode(b, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int c = analogRead(a);\n  int d = map(c, 0, 1023, 0, 255);\n  analogWrite(b, d);\n\n  Serial.print("input = ");\n  Serial.print(c);\n  Serial.print("  pwm = ");\n  Serial.println(d);\n  delay(100);\n}`,
+    code: `int a = A4;\nint b = 3;\n\nvoid setup() {\n  pinMode(b, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int c = analogRead(a);\n  int d = map(c, 0, 1023, 0, 255);\n  analogWrite(b, d);\n\n  Serial.print("input = ");\n  Serial.print(c);\n  Serial.print("  pwm = ");\n  Serial.println(d);\n  delay(100);\n}`,
     observe: "시리얼 모니터를 9600 baud로 열면 input은 0~1023, pwm은 0~255 범위로 표시됩니다.",
   },
   {
@@ -56,6 +59,7 @@ const examples: Example[] = [
     wiring: ["5V → CDS → A0 → 10kΩ 저항 → GND (전압 분배)", "부저 +(S) → D9 / 부저 -(GND) → GND"],
     code: `int a = A0;\nint b = 9;\n\nvoid setup() {\n}\n\nvoid loop() {\n  int c = analogRead(a);\n  int d = map(c, 0, 1023, 200, 2000);\n  tone(b, d);\n  delay(20);\n}`,
     observe: "CDS를 가리거나 빛을 비추면 음높이가 달라집니다. 회로 방향에 따라 변화 방향은 반대가 될 수 있습니다.",
+    terms: [{ name: "tone()", usage: "tone(핀 번호, 주파수);", meaning: "부저 소리를 시작합니다. 이 수업에서는 200~2000Hz, 학생 실험은 약 100~5000Hz를 권장합니다. 사람의 가청 범위는 대략 20~20000Hz이지만 부저가 모든 주파수를 잘 내는 것은 아닙니다. 매우 큰 수를 넣어도 더 큰 소리가 되는 것이 아니며, 들리지 않거나 불안정할 수 있습니다." }],
   },
   {
     number: "05",
@@ -66,6 +70,10 @@ const examples: Example[] = [
     wiring: ["예제 04의 배선을 그대로 사용합니다."],
     code: `int a = A0;\nint b = 9;\nint c = 400;\n\nvoid setup() {\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int d = analogRead(a);\n  Serial.println(d);\n\n  if (d < c) {\n    tone(b, 1000);\n  } else {\n    noTone(b);\n  }\n  delay(100);\n}`,
     observe: "시리얼 모니터에서 교실의 밝기값을 먼저 확인한 뒤 c의 400을 알맞게 바꾸세요. 반대로 작동하면 <를 >로 바꿉니다.",
+    terms: [
+      { name: "tone()", usage: "tone(9, 1000);", meaning: "9번 핀의 부저에서 1000Hz 소리를 시작합니다. 교실 실험에는 약 100~5000Hz를 권장합니다." },
+      { name: "noTone()", usage: "noTone(9);", meaning: "tone()으로 시작한 9번 핀의 부저 소리를 멈춥니다." },
+    ],
   },
 ];
 
@@ -82,7 +90,7 @@ export function PwmCourse({ onBack }: { onBack: () => void }) {
           <span className="grid size-10 place-items-center rounded-xl bg-slate-950 text-amber-300"><ArrowLeft className="size-5" /></span>
           <span><span className="block text-xs font-black tracking-wider text-cyan-700">ARDUINO PWM LAB</span><span className="font-black">아두이노 교실로 돌아가기</span></span>
         </button>
-        <span className="hidden rounded-full bg-cyan-100 px-4 py-2 text-sm font-black text-cyan-900 sm:block">?view=pwm</span>
+        <div className="flex items-center gap-2"><Button asChild className="hidden bg-violet-100 font-black text-violet-950 hover:bg-violet-200 sm:flex"><a href="?view=c-basic">초간단 C언어</a></Button><span className="hidden rounded-full bg-cyan-100 px-4 py-2 text-sm font-black text-cyan-900 sm:block">박영수 정보T</span></div>
       </div>
     </header>
 
@@ -104,7 +112,7 @@ export function PwmCourse({ onBack }: { onBack: () => void }) {
         {examples.map((item) => <article key={item.number} className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
           <div className="grid gap-4 bg-gradient-to-r from-cyan-50 via-white to-amber-50 p-5 sm:grid-cols-[auto_1fr] sm:p-7"><span className="grid size-12 place-items-center rounded-2xl bg-slate-950 font-black text-cyan-300">{item.number}</span><div><p className="text-sm font-black text-cyan-700">{item.category}</p><h2 className="mt-1 text-2xl font-black">{item.title}</h2><p className="mt-2 leading-7 text-slate-600">{item.goal}</p></div></div>
           <div className="grid gap-5 border-t border-slate-200 p-5 sm:p-7 lg:grid-cols-[.8fr_1.2fr]">
-            <div className="space-y-4"><div className="rounded-2xl bg-slate-50 p-5"><h3 className="font-black">준비물</h3><div className="mt-3 flex flex-wrap gap-2">{item.parts.map(x=><span key={x} className="rounded-full bg-white px-3 py-1.5 text-sm font-bold ring-1 ring-slate-200">{x}</span>)}</div></div><div className="rounded-2xl bg-amber-50 p-5"><h3 className="font-black text-amber-900">배선</h3><ol className="mt-3 space-y-2">{item.wiring.map((x,i)=><li key={x} className="flex gap-2 text-sm leading-6"><span className="font-black text-amber-700">{i+1}</span>{x}</li>)}</ol></div></div>
+            <div className="space-y-4"><div className="rounded-2xl bg-slate-50 p-5"><h3 className="font-black">준비물</h3><div className="mt-3 flex flex-wrap gap-2">{item.parts.map(x=><span key={x} className="rounded-full bg-white px-3 py-1.5 text-sm font-bold ring-1 ring-slate-200">{x}</span>)}</div></div><div className="rounded-2xl bg-amber-50 p-5"><h3 className="font-black text-amber-900">배선</h3><ol className="mt-3 space-y-2">{item.wiring.map((x,i)=><li key={x} className="flex gap-2 text-sm leading-6"><span className="font-black text-amber-700">{i+1}</span>{x}</li>)}</ol></div>{item.lessonNote&&<div className="rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-5"><h3 className="font-black text-cyan-900">수업 중 꼭 바꾸기</h3><p className="mt-2 text-sm leading-7 text-cyan-950">{item.lessonNote}</p></div>}{item.terms&&<div className="rounded-2xl border border-violet-200 bg-violet-50 p-5"><h3 className="font-black text-violet-950">새로운 코드 용어</h3><div className="mt-3 space-y-4">{item.terms.map(term=><div key={term.name}><p className="font-black text-violet-800">{term.name}</p><code className="mt-1 block rounded-lg bg-white px-3 py-2 text-sm font-black text-slate-900">{term.usage}</code><p className="mt-2 text-sm leading-6 text-violet-950">{term.meaning}</p></div>)}</div></div>}</div>
             <div className="overflow-hidden rounded-2xl bg-[#0b1220] text-white"><div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3"><span className="font-mono text-xs font-bold text-cyan-300">Arduino IDE · sketch.ino</span><Button size="sm" onClick={()=>copy(item.code)} className="bg-cyan-400 text-slate-950 hover:bg-cyan-300"><Clipboard className="mr-1.5 size-3.5"/>코드 복사</Button></div><pre className="max-h-[480px] overflow-auto p-5 font-mono text-[13px] leading-7 text-cyan-50"><code>{item.code}</code></pre></div>
           </div>
           <div className="border-t border-emerald-200 bg-emerald-50 p-5 text-sm leading-7 text-emerald-950 sm:px-7"><strong>관찰·성공 기준:</strong> {item.observe}</div>

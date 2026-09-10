@@ -52,6 +52,7 @@ import { wokwiLessons } from "./wokwi";
 import { ArduinoJourney } from "./arduino-lab";
 import { ArduinoOnlyCourse } from "./arduino-only-course";
 import { PwmCourse } from "./pwm-course";
+import { CBasicCourse } from "./c-basic-course";
 
 function SectionTitle({
   icon: Icon,
@@ -302,7 +303,7 @@ function AppSidebar({
 
 export default function Home() {
   const lessonSectionRef = useRef<HTMLElement>(null);
-  const [courseView, setCourseView] = useState<"integrated" | "arduino" | "pwm">("integrated");
+  const [courseView, setCourseView] = useState<"integrated" | "arduino" | "pwm" | "c-basic">("integrated");
   const [selected, setSelected] = useState(1);
   const [completed, setCompleted] = useState<number[]>([]);
   const [simCompleted, setSimCompleted] = useState<number[]>([]);
@@ -345,7 +346,7 @@ export default function Home() {
   useEffect(() => {
     const syncCourseView = () => {
       const view = new URLSearchParams(window.location.search).get("view");
-      setCourseView(view === "arduino" ? "arduino" : view === "pwm" ? "pwm" : "integrated");
+      setCourseView(view === "arduino" ? "arduino" : view === "pwm" ? "pwm" : view === "c-basic" ? "c-basic" : "integrated");
     };
     syncCourseView();
     window.addEventListener("popstate", syncCourseView);
@@ -477,6 +478,10 @@ export default function Home() {
 
   if (courseView === "pwm") {
     return <PwmCourse onBack={leavePwmCourse} />;
+  }
+
+  if (courseView === "c-basic") {
+    return <CBasicCourse onBack={leavePwmCourse} />;
   }
 
   return (
