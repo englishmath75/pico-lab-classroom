@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, CircuitBoard, Clock3, ExternalLink, FlaskConical, FunctionSquare, GraduationCap, KeyRound, Lightbulb, LockKeyhole, Search, Settings, ShieldCheck, Wrench, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, CircuitBoard, Clock3, Download, ExternalLink, FlaskConical, FunctionSquare, GraduationCap, KeyRound, Lightbulb, LockKeyhole, Search, Settings, ShieldCheck, Wrench, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
@@ -73,7 +73,7 @@ export function ArduinoOnlyCourse({ onBack, onGoPico }: { onBack: () => void; on
     <main className="mx-auto max-w-[1280px] px-4 py-7 sm:px-7">
       <section className="overflow-hidden rounded-[30px] bg-slate-950 text-white shadow-xl">
         <div className="grid gap-7 bg-[radial-gradient(circle_at_85%_5%,rgba(34,211,238,.2),transparent_32%)] p-6 sm:p-9 lg:grid-cols-[1.35fr_.65fr]">
-          <div><p className="text-sm font-black tracking-[.15em] text-amber-300">{textbookMeta.edition} · 3회 완성</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">{textbookMeta.title}</h1><p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">{textbookMeta.principle}. Tinkercad에서 확인한 뒤 실제 Arduino에 같은 회로를 만듭니다.</p><div className="mt-6 grid gap-2 sm:grid-cols-3">{["① 개념 이해","② 회로·미션","③ 설명·점검"].map(x=><div key={x} className="rounded-2xl border border-white/10 bg-white/[.06] p-4 text-center font-black text-cyan-100">{x}</div>)}</div></div>
+          <div><p className="text-sm font-black tracking-[.15em] text-amber-300">{textbookMeta.edition} · 3회 완성</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">{textbookMeta.title}</h1><p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">{textbookMeta.principle}. Tinkercad에서 확인한 뒤 실제 Arduino에 같은 회로를 만듭니다.</p><div className="mt-5 flex flex-wrap gap-2"><Button asChild className="bg-amber-400 font-black text-slate-950 hover:bg-amber-300"><a href="downloads/arduino-uno-student-textbook.pdf" download><Download className="mr-2 size-4"/>학생용 PDF 교재</a></Button><Button asChild variant="outline" className="border-white/20 bg-white/10 font-black text-white hover:bg-white/20 hover:text-white"><a href="downloads/arduino-uno-student-textbook.docx" download><Download className="mr-2 size-4"/>편집용 Word 교재</a></Button></div><div className="mt-6 grid gap-2 sm:grid-cols-3">{["① 개념 이해","② 회로·미션","③ 설명·점검"].map(x=><div key={x} className="rounded-2xl border border-white/10 bg-white/[.06] p-4 text-center font-black text-cyan-100">{x}</div>)}</div></div>
           <div className="rounded-[24px] border border-white/10 bg-white/[.06] p-5"><div className="flex justify-between font-black"><span>전체 실습 진도</span><span className="text-amber-300">{completed.length}/{allCount}</span></div><Progress value={progress} className="mt-3 h-2 bg-white/10 [&>div]:bg-amber-400"/><div className="mt-5 rounded-2xl bg-rose-400/10 p-4 text-sm leading-6 text-rose-100"><ShieldCheck className="mb-2 size-5 text-rose-300"/>배선을 바꿀 때는 시뮬레이션을 멈추고 실제 Arduino의 USB를 분리합니다. 5V와 GND를 직접 연결하지 않습니다.</div></div>
         </div>
       </section>
