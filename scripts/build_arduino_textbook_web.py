@@ -1,6 +1,7 @@
 """Reproduce the student DOCX as a standalone, accessible web textbook.
 
-No prose is rewritten: paragraph/table order and code whitespace come from OOXML.
+Paragraph/table order and code whitespace come from OOXML.
+After preservation checks, apply the classroom LED pin alignment explicitly.
 Run again when the source textbook changes; the original DOCX is never modified.
 """
 from pathlib import Path
@@ -201,8 +202,20 @@ def build():
         cursor = found + len(compact(value))
     toc = ''.join(f'<li><a href="#{ident}">{escape(title)}</a></li>' for ident, title in headings)
     html = '<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>아두이노 Uno 기초 완성 교재 | ARDUINO → PICO LAB</title><meta name="description" content="Uno 구조·핀·ADC·PWM·시리얼 통신·실습 코드·중간고사 예상문제를 담은 학생용 웹 교재"><style>' + STYLE + '</style></head><body><a class="skip" href="#textbook">본문 바로가기</a><header class="bar"><a class="brand" href="./?view=arduino">← 아두이노 실습교실</a><div class="actions"><a class="action primary" href="downloads/arduino-foundations.docx" download>교재 다운로드</a><button class="action" type="button" id="print">인쇄</button></div></header><div class="layout"><nav class="toc" aria-label="교재 목차"><details open><summary>교재 목차</summary><ol>' + toc + '</ol></details></nav><main id="textbook">' + content + '<footer class="end"><a href="./?view=arduino">실습교실로 돌아가기</a><a href="#cover">맨 위로 ↑</a></footer></main></div><div id="status" class="status" role="status" aria-live="polite"></div><script>' + SCRIPT + '</script></body></html>'
+    # Preserve the source document; align only classroom LED examples on the web.
+    # D9 in the board capability tables remains a valid PWM pin.
+    for old, new in [
+        ("LED_PIN = 9", "LED_PIN = 3"),
+        ("D9 LED", "D3 LED"), ("D9 →", "D3 →"),
+        ("D9의 0~255", "D3의 0~255"), ("D9-220Ω", "D3-220Ω"),
+        ("analogWrite(9, 128)", "analogWrite(3, 128)"),
+        ("D9를 약 50%", "D3를 약 50%"),
+    ]:
+        html = html.replace(old, new)
+    alignment = '<aside class="note cyan"><p><strong>실습 공통 기준</strong> 버튼 D2 · LED/PWM D3 · 가변저항 A0 · CDS A1 · TRIG D8 · ECHO D7 · 통신 9600 baud. 아래 115200 bps와 A0 디지털 출력은 보충 개념 예제로, 해당 코드 실행 시 모니터 속도를 맞추고 A0의 가변저항을 분리합니다. 기존 배부 교재의 D9 LED 예제는 D3으로 정정해 사용하세요. <a href="./?view=arduino">D-01~S-02 핵심 실습과 기존 번호 대조</a></p></aside>'
+    html = html.replace('<section class="chapter cover" id="cover" aria-label="교재 소개">', '<section class="chapter cover" id="cover" aria-label="교재 소개">' + alignment, 1)
     OUTPUT.write_text(html, encoding="utf-8")
-    print(f"Verified {paragraph_count} body paragraphs, {table_count} source tables, {code_count} code examples, {len(headings)-1} chapters; all source text preserved in order.")
+    print(f"Verified {paragraph_count} body paragraphs, {table_count} source tables, {code_count} code examples, {len(headings)-1} chapters; source text preserved in order before classroom pin alignment.")
     print(OUTPUT)
 
 

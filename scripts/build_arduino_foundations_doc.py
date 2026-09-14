@@ -665,17 +665,17 @@ def add_pwm_section(doc):
     add_note_box(doc, "용어 주의", "수업에서 PWM을 편의상 '아날로그 출력'이라고 부르기도 하지만, 정확하게는 디지털 펄스의 폭을 조절해 평균 효과를 만드는 PWM 출력입니다.")
 
     doc.add_page_break()
-    add_heading(doc, "예제 · D9 LED 밝기 서서히 바꾸기", 2)
-    add_code_block(doc, "const int LED_PIN = 9;\n\nvoid setup() {\n  pinMode(LED_PIN, OUTPUT);\n}\n\nvoid loop() {\n  for (int brightness = 0; brightness <= 255; brightness++) {\n    analogWrite(LED_PIN, brightness);\n    delay(10);\n  }\n\n  for (int brightness = 255; brightness >= 0; brightness--) {\n    analogWrite(LED_PIN, brightness);\n    delay(10);\n  }\n}")
-    add_paragraph(doc, "D9 → 220Ω 저항 → LED 긴 다리, LED 짧은 다리 → GND 순서로 연결합니다. brightness가 0에서 255로 증가하면 듀티비가 커져 LED가 밝아지고, 반대로 감소하면 어두워집니다.")
+    add_heading(doc, "예제 · D3 LED 밝기 서서히 바꾸기", 2)
+    add_code_block(doc, "const int LED_PIN = 3;\n\nvoid setup() {\n  pinMode(LED_PIN, OUTPUT);\n}\n\nvoid loop() {\n  for (int brightness = 0; brightness <= 255; brightness++) {\n    analogWrite(LED_PIN, brightness);\n    delay(10);\n  }\n\n  for (int brightness = 255; brightness >= 0; brightness--) {\n    analogWrite(LED_PIN, brightness);\n    delay(10);\n  }\n}")
+    add_paragraph(doc, "D3 → 220Ω 저항 → LED 긴 다리, LED 짧은 다리 → GND 순서로 연결합니다. brightness가 0에서 255로 증가하면 듀티비가 커져 LED가 밝아지고, 반대로 감소하면 어두워집니다.")
 
 
 def add_compare_practice_section(doc):
     doc.add_page_break()
     add_heading(doc, "10. 아날로그 입력과 PWM 출력을 한 번에 연결하기", 1)
-    add_paragraph(doc, "가변저항의 0~5V 전압을 A0에서 0~1023으로 읽고, 그 값을 D9의 0~255 PWM 값으로 변환해 LED 밝기를 제어합니다. 입력→처리→출력 구조를 가장 분명하게 확인할 수 있는 실습입니다.", size=11.2)
+    add_paragraph(doc, "가변저항의 0~5V 전압을 A0에서 0~1023으로 읽고, 그 값을 D3의 0~255 PWM 값으로 변환해 LED 밝기를 제어합니다. 입력→처리→출력 구조를 가장 분명하게 확인할 수 있는 실습입니다.", size=11.2)
     code = '''const int SENSOR_PIN = A0;
-const int LED_PIN = 9;
+const int LED_PIN = 3;
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
@@ -699,7 +699,7 @@ void loop() {
     add_heading(doc, "실습 순서", 2)
     steps = [
         ("1", "전원을 분리하고 가변저항을 5V-A0-GND에 연결한다."),
-        ("2", "D9-220Ω 저항-LED-GND 순서로 출력 회로를 만든다."),
+        ("2", "D3-220Ω 저항-LED-GND 순서로 출력 회로를 만든다."),
         ("3", "USB를 연결하고 보드·포트를 선택한 뒤 코드를 업로드한다."),
         ("4", "시리얼 모니터를 9600 bps로 열고 ADC와 PWM 값을 비교한다."),
         ("5", "가변저항을 돌려 입력값·변환값·LED 밝기의 관계를 기록한다."),
@@ -765,7 +765,7 @@ def add_final_assessment_section(doc):
         "10비트 ADC의 단계 수와 analogRead() 결과 범위를 각각 쓰시오.",
         "A0를 디지털 출력으로 설정하는 한 줄의 코드를 쓰시오.",
         "Uno에서 PWM 기능을 제공하는 디지털 핀 번호를 모두 쓰시오.",
-        "analogWrite(9, 128)의 의미를 듀티비와 실제 핀 동작으로 설명하시오.",
+        "analogWrite(3, 128)의 의미를 듀티비와 실제 핀 동작으로 설명하시오.",
         "PWM을 진짜 아날로그 전압 출력이라고 부르기 어려운 이유를 쓰시오.",
         "analogRead(A0)의 결과가 512일 때 5V 기준 입력 전압을 대략 계산하시오.",
         "map(sensorValue, 0, 1023, 0, 255)의 역할을 설명하시오.",
@@ -786,7 +786,7 @@ def add_final_assessment_section(doc):
         "1024단계이며 결과값은 0~1023.",
         "pinMode(A0, OUTPUT);",
         "D3, D5, D6, D9, D10, D11.",
-        "D9를 약 50% 듀티비로 빠르게 HIGH/LOW 스위칭한다.",
+        "D3를 약 50% 듀티비로 빠르게 HIGH/LOW 스위칭한다.",
         "중간 전압을 일정하게 출력하지 않고 0V와 5V를 빠르게 반복하기 때문이다.",
         "약 512×5/1024=2.5V.",
         "ADC의 0~1023 입력 범위를 PWM의 0~255 출력 범위로 비례 변환한다.",
