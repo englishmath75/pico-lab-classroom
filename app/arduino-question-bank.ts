@@ -1,3 +1,5 @@
+import { coreGroups } from "./arduino-only-data";
+
 export type ArduinoQuestionBankTopic = {
   unit: string;
   keyword: string;
@@ -6,6 +8,12 @@ export type ArduinoQuestionBankTopic = {
 };
 
 export const arduinoQuestionBankTopics: ArduinoQuestionBankTopic[] = [
+  ...coreGroups.flatMap(group => group.activities.map(({ activity }) => ({
+    unit: `${group.area} · ${activity.id}`,
+    keyword: activity.title,
+    mastery: `${activity.goal}. ${activity.functions.map(fn => fn.name).join(" · ")}`,
+    futureTypes: ["코드 빈칸", "실행 결과", "핀·배선 대조", "입력·판단·출력 설명"],
+  }))),
   {
     unit: "Uno 구조",
     keyword: "핀 · 전원 · 겸용 기능",

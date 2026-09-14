@@ -83,7 +83,7 @@ function CourseRoadmap() {
           </div>
           <h1 className="mt-6 max-w-3xl text-3xl font-black tracking-[-0.045em] sm:text-5xl">Arduino에서 원리를 익히고<br className="hidden sm:block" /> Raspberry Pi Pico로 확장합니다</h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-            같은 센서와 출력 장치를 두 보드에서 비교합니다. 먼저 코드를 예측하고 Tinkercad에서 확인한 뒤, Pico의 Wokwi·Thonny 실습으로 자연스럽게 넘어갑니다.
+            Arduino 전용 교실의 DIGITAL·ANALOG·SERIAL 6개 핵심 실습 뒤에 활용하는 보충·응용 과정입니다. 같은 센서와 출력 장치를 두 보드에서 비교합니다. 먼저 코드를 예측하고 Tinkercad에서 확인한 뒤, Pico의 Wokwi·Thonny 실습으로 자연스럽게 넘어갑니다.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Button onClick={() => scrollToId("arduino-lab")} className="rounded-xl bg-amber-400 text-slate-950 hover:bg-amber-300">
@@ -337,7 +337,7 @@ export function ArduinoJourney() {
         </div>
         <div className="overflow-x-auto p-5 sm:p-7"><table className="min-w-[850px] w-full text-left text-sm"><thead className="bg-slate-950 text-white"><tr><th className="rounded-l-xl px-4 py-3">비교 항목</th><th className="px-4 py-3 text-amber-300">Arduino Uno</th><th className="px-4 py-3 text-cyan-300">Raspberry Pi Pico</th><th className="rounded-r-xl px-4 py-3">공통 원리·주의</th></tr></thead><tbody>{arduinoPicoComparison.map((row) => <tr key={row.item} className="border-b border-slate-100 align-top"><th className="px-4 py-4 font-black text-slate-950">{row.item}</th><td className="px-4 py-4 font-mono text-xs font-bold text-amber-700">{row.arduino}</td><td className="px-4 py-4 font-mono text-xs font-bold text-cyan-700">{row.pico}</td><td className="px-4 py-4 leading-6 text-slate-600">{row.meaning}</td></tr>)}</tbody></table></div>
         <div className="grid gap-4 border-t border-slate-100 bg-slate-50 p-5 sm:p-7 lg:grid-cols-2">
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5"><p className="font-mono text-xs font-black text-amber-800">Arduino C/C++</p><pre className="mt-3 overflow-auto font-mono text-xs leading-6 text-slate-800"><code>{`pinMode(9, OUTPUT);\ndigitalWrite(9, HIGH);\ndelay(1000);`}</code></pre></div>
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5"><p className="font-mono text-xs font-black text-amber-800">Arduino C/C++</p><pre className="mt-3 overflow-auto font-mono text-xs leading-6 text-slate-800"><code>{`pinMode(3, OUTPUT);\ndigitalWrite(3, HIGH);\ndelay(1000);`}</code></pre></div>
           <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-5"><p className="font-mono text-xs font-black text-cyan-800">Pico MicroPython</p><pre className="mt-3 overflow-auto font-mono text-xs leading-6 text-slate-800"><code>{`led = Pin(9, Pin.OUT)\nled.value(1)\nsleep(1)`}</code></pre></div>
         </div>
       </section>

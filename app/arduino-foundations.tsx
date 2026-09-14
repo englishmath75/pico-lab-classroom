@@ -74,7 +74,7 @@ export function ArduinoFoundations() {
         </article>
         <article className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
           <div className="flex items-center gap-3"><span className="grid size-11 place-items-center rounded-2xl bg-slate-950 text-amber-300"><Terminal className="size-5" /></span><h3 className="text-xl font-black">Serial.begin(115200)</h3></div>
-          <p className="mt-4 text-base leading-7 text-slate-700">115200은 초당 전송하는 비트 수입니다. 일반적인 8N1에서는 한 바이트에 10비트가 필요하므로 이론상 약 11,520바이트/초입니다. 코드와 시리얼 모니터의 속도는 같아야 합니다.</p>
+          <p className="mt-4 text-base leading-7 text-slate-700">핵심 실습 S-01·S-02는 9600 baud를 사용합니다. 이 115200 예제는 통신 속도 계산 보충 학습입니다. 115200은 초당 전송하는 비트 수입니다. 일반적인 8N1에서는 한 바이트에 10비트가 필요하므로 이론상 약 11,520바이트/초입니다. 코드와 시리얼 모니터의 속도는 같아야 합니다.</p>
         </article>
         <article className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
           <h3 className="text-xl font-black">print와 println</h3>

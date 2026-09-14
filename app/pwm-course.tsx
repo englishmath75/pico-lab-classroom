@@ -15,12 +15,34 @@ type Example = {
   code: string;
   observe: string;
   lessonNote?: string;
+  beforeCode?: string;
   terms?: { name: string; usage: string; meaning: string }[];
 };
 
 const examples: Example[] = [
   {
-    number: "01",
+    number: "P-01",
+    beforeCode: `int a = 3;
+
+void setup() {
+  pinMode(a, OUTPUT);
+}
+
+void loop() {
+  analogWrite(a, 0); delay(1000);
+  analogWrite(a, 50); delay(1000);
+  analogWrite(a, 100); delay(1000);
+  analogWrite(a, 150); delay(1000);
+  analogWrite(a, 200); delay(1000);
+  analogWrite(a, 250); delay(1000);
+  analogWrite(a, 250); delay(1000);
+  analogWrite(a, 200); delay(1000);
+  analogWrite(a, 150); delay(1000);
+  analogWrite(a, 100); delay(1000);
+  analogWrite(a, 50); delay(1000);
+  analogWrite(a, 0); delay(1000);
+}`,
+
     category: "센서 없는 PWM",
     title: "LED 밝기를 자동으로 서서히 바꾸기",
     goal: "analogWrite()의 값 0~255를 반복해서 바꾸며 PWM 출력의 의미를 확인합니다.",
@@ -28,47 +50,47 @@ const examples: Example[] = [
     wiring: ["D3(PWM) → 저항 → LED 긴 다리(+) ", "LED 짧은 다리(-) → GND"],
     code: `int a = 3;\n\nvoid setup() {\n  pinMode(a, OUTPUT);\n}\n\nvoid loop() {\n  for (int b = 0; b <= 250; b = b + 50) {\n    analogWrite(a, b);\n    delay(1000);\n  }\n\n  for (int b = 250; b >= 0; b = b - 50) {\n    analogWrite(a, b);\n    delay(1000);\n  }\n}`,
     observe: "LED 밝기가 0 → 50 → 100 → 150 → 200 → 250 순서로 1초마다 바뀌는지 눈으로 확인합니다.",
-    lessonNote: "눈으로 단계 변화를 확인한 다음 학생이 직접 두 곳을 바꿉니다: ① b = b + 50과 b = b - 50을 b++와 b--로 변경  ② delay(1000)을 delay(10)으로 변경. 단계가 빠르고 촘촘해지면 LED가 부드럽게 밝아지고 어두워지는 것처럼 보입니다.",
+    lessonNote: "먼저 같은 analogWrite·delay 명령을 직접 반복한 코드를 실행하고, 값만 달라지는 규칙을 찾아 아래 for문과 비교합니다. 눈으로 단계 변화를 확인한 다음 학생이 직접 두 곳을 바꿉니다: ① b = b + 50과 b = b - 50을 b++와 b--로 변경  ② delay(1000)을 delay(10)으로 변경. 단계가 빠르고 촘촘해지면 LED가 부드럽게 밝아지고 어두워지는 것처럼 보입니다.",
   },
   {
-    number: "02",
+    number: "P-02",
     category: "가변저항 + LED",
     title: "가변저항으로 LED 밝기 직접 조절하기",
     goal: "0~1023의 아날로그 입력값을 0~255의 PWM 출력값으로 변환합니다.",
     parts: ["Arduino Uno", "가변저항", "LED", "220~330Ω 저항", "점퍼선"],
-    wiring: ["가변저항 양쪽 핀 → 5V, GND / 가운데 핀 → A4", "D3(PWM) → 저항 → LED 긴 다리(+) / LED 짧은 다리(-) → GND"],
-    code: `int a = A4;\nint b = 3;\n\nvoid setup() {\n  pinMode(b, OUTPUT);\n}\n\nvoid loop() {\n  int c = analogRead(a);\n  int d = map(c, 0, 1023, 0, 255);\n  analogWrite(b, d);\n  delay(10);\n}`,
+    wiring: ["가변저항 양쪽 핀 → 5V, GND / 가운데 핀 → A0", "D3(PWM) → 저항 → LED 긴 다리(+) / LED 짧은 다리(-) → GND"],
+    code: `int a = A0;\nint b = 3;\n\nvoid setup() {\n  pinMode(b, OUTPUT);\n}\n\nvoid loop() {\n  int c = analogRead(a);\n  int d = map(c, 0, 1023, 0, 255);\n  analogWrite(b, d);\n  delay(10);\n}`,
     observe: "가변저항을 돌리는 정도에 따라 LED 밝기가 연속적으로 달라집니다.",
   },
   {
-    number: "03",
+    number: "P-03",
     category: "가변저항 + LED",
     title: "입력값과 PWM 출력값을 시리얼 모니터로 확인하기",
     goal: "눈으로 본 밝기 변화와 실제 입력·출력 숫자를 함께 비교합니다.",
-    parts: ["예제 02와 같은 회로"],
-    wiring: ["예제 02의 배선을 그대로 사용합니다."],
-    code: `int a = A4;\nint b = 3;\n\nvoid setup() {\n  pinMode(b, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int c = analogRead(a);\n  int d = map(c, 0, 1023, 0, 255);\n  analogWrite(b, d);\n\n  Serial.print("input = ");\n  Serial.print(c);\n  Serial.print("  pwm = ");\n  Serial.println(d);\n  delay(100);\n}`,
+    parts: ["예제 P-02와 같은 회로"],
+    wiring: ["예제 P-02의 배선을 그대로 사용합니다."],
+    code: `int a = A0;\nint b = 3;\n\nvoid setup() {\n  pinMode(b, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int c = analogRead(a);\n  int d = map(c, 0, 1023, 0, 255);\n  analogWrite(b, d);\n\n  Serial.print("input = ");\n  Serial.print(c);\n  Serial.print("  pwm = ");\n  Serial.println(d);\n  delay(100);\n}`,
     observe: "시리얼 모니터를 9600 baud로 열면 input은 0~1023, pwm은 0~255 범위로 표시됩니다.",
   },
   {
-    number: "04",
+    number: "P-04",
     category: "CDS + 부저",
     title: "빛의 세기에 따라 부저 음높이 바꾸기",
     goal: "CDS 입력값을 주파수로 변환해 빛에 반응하는 소리를 만듭니다.",
     parts: ["Arduino Uno", "CDS 5528", "10kΩ 저항", "피에조 부저", "점퍼선"],
-    wiring: ["5V → CDS → A0 → 10kΩ 저항 → GND (전압 분배)", "부저 +(S) → D9 / 부저 -(GND) → GND"],
-    code: `int a = A0;\nint b = 9;\n\nvoid setup() {\n}\n\nvoid loop() {\n  int c = analogRead(a);\n  int d = map(c, 0, 1023, 200, 2000);\n  tone(b, d);\n  delay(20);\n}`,
+    wiring: ["5V → CDS → A1 → 10kΩ 저항 → GND (전압 분배)", "부저 +(S) → D9 / 부저 -(GND) → GND"],
+    code: `int a = A1;\nint b = 9;\n\nvoid setup() {\n}\n\nvoid loop() {\n  int c = analogRead(a);\n  int d = map(c, 0, 1023, 200, 2000);\n  tone(b, d);\n  delay(20);\n}`,
     observe: "CDS를 가리거나 빛을 비추면 음높이가 달라집니다. 회로 방향에 따라 변화 방향은 반대가 될 수 있습니다.",
     terms: [{ name: "tone()", usage: "tone(핀 번호, 주파수);", meaning: "부저 소리를 시작합니다. 이 수업에서는 200~2000Hz, 학생 실험은 약 100~5000Hz를 권장합니다. 사람의 가청 범위는 대략 20~20000Hz이지만 부저가 모든 주파수를 잘 내는 것은 아닙니다. 매우 큰 수를 넣어도 더 큰 소리가 되는 것이 아니며, 들리지 않거나 불안정할 수 있습니다." }],
   },
   {
-    number: "05",
+    number: "P-05",
     category: "CDS + 부저",
     title: "어두워지면 경고음 울리기",
     goal: "기준값과 조건문을 사용해 어두울 때만 부저를 작동시킵니다.",
-    parts: ["예제 04와 같은 회로"],
-    wiring: ["예제 04의 배선을 그대로 사용합니다."],
-    code: `int a = A0;\nint b = 9;\nint c = 400;\n\nvoid setup() {\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int d = analogRead(a);\n  Serial.println(d);\n\n  if (d < c) {\n    tone(b, 1000);\n  } else {\n    noTone(b);\n  }\n  delay(100);\n}`,
+    parts: ["예제 P-04와 같은 회로"],
+    wiring: ["예제 P-04의 배선을 그대로 사용합니다."],
+    code: `int a = A1;\nint b = 9;\nint c = 400;\n\nvoid setup() {\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int d = analogRead(a);\n  Serial.println(d);\n\n  if (d < c) {\n    tone(b, 1000);\n  } else {\n    noTone(b);\n  }\n  delay(100);\n}`,
     observe: "시리얼 모니터에서 교실의 밝기값을 먼저 확인한 뒤 c의 400을 알맞게 바꾸세요. 반대로 작동하면 <를 >로 바꿉니다.",
     terms: [
       { name: "tone()", usage: "tone(9, 1000);", meaning: "9번 핀의 부저에서 1000Hz 소리를 시작합니다. 교실 실험에는 약 100~5000Hz를 권장합니다." },
@@ -97,7 +119,7 @@ export function PwmCourse({ onBack }: { onBack: () => void }) {
     <main className="mx-auto max-w-[1180px] px-4 py-7 sm:px-7">
       <section className="overflow-hidden rounded-[30px] bg-slate-950 text-white shadow-xl">
         <div className="grid gap-7 bg-[radial-gradient(circle_at_85%_5%,rgba(34,211,238,.24),transparent_35%)] p-6 sm:p-9 lg:grid-cols-[1.25fr_.75fr]">
-          <div><p className="text-sm font-black tracking-[.15em] text-cyan-300">PWM SPECIAL CLASS</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">PWM 집중 실습실</h1><p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">디지털 핀을 매우 빠르게 켰다 껐다 하여 LED 밝기와 부저 소리를 조절합니다. Uno의 PWM 핀 3·5·6·9·10·11 중 이 수업에서는 LED D3, 부저 D9를 사용합니다.</p></div>
+          <div><p className="text-sm font-black tracking-[.15em] text-cyan-300">PWM SPECIAL CLASS · ANALOG 이후 보충·심화</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">PWM 집중 실습실</h1><p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">PWM은 연속적인 아날로그 전압 대신 디지털 HIGH/LOW를 빠르게 반복하고, 한 주기에서 HIGH인 비율(듀티비)로 평균 출력 효과를 조절합니다. LED 밝기는 analogWrite(), 부저 음높이는 tone()의 주파수로 조절합니다. Uno의 PWM 핀 3·5·6·9·10·11 중 이 수업에서는 LED D3, 부저 D9를 사용합니다.</p></div>
           <div className="rounded-[24px] border border-white/10 bg-white/[.06] p-5"><Gauge className="size-8 text-amber-300"/><h2 className="mt-3 text-xl font-black">핵심 숫자</h2><dl className="mt-4 space-y-3 text-sm"><div className="rounded-xl bg-white/[.06] p-3"><dt className="text-slate-400">analogRead()</dt><dd className="mt-1 text-lg font-black text-cyan-200">0 ~ 1023</dd></div><div className="rounded-xl bg-white/[.06] p-3"><dt className="text-slate-400">analogWrite()</dt><dd className="mt-1 text-lg font-black text-amber-200">0 ~ 255</dd></div></dl></div>
         </div>
       </section>
@@ -108,9 +130,11 @@ export function PwmCourse({ onBack }: { onBack: () => void }) {
 
       <div className="mt-6 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm leading-6 text-rose-950"><TriangleAlert className="mt-0.5 size-5 shrink-0 text-rose-600"/><p><strong>안전:</strong> 배선을 바꿀 때는 USB를 먼저 분리하고, LED에는 반드시 220~330Ω 저항을 직렬로 연결하세요. 5V와 GND를 직접 연결하면 안 됩니다.</p></div>
 
+      <p className="mt-4 leading-7 text-slate-600">P-01~P-03은 D3 LED PWM, P-04~P-05는 A1 CDS와 D9 부저의 별도 응용입니다. Uno에서 tone()은 D3 PWM과 타이머를 공유하므로 이 예제들을 동시에 실행하지 않습니다.</p>
       <section className="mt-7 space-y-6">
         {examples.map((item) => <article key={item.number} className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
           <div className="grid gap-4 bg-gradient-to-r from-cyan-50 via-white to-amber-50 p-5 sm:grid-cols-[auto_1fr] sm:p-7"><span className="grid size-12 place-items-center rounded-2xl bg-slate-950 font-black text-cyan-300">{item.number}</span><div><p className="text-sm font-black text-cyan-700">{item.category}</p><h2 className="mt-1 text-2xl font-black">{item.title}</h2><p className="mt-2 leading-7 text-slate-600">{item.goal}</p></div></div>
+          {item.beforeCode&&<div className="border-t border-slate-200 p-5 sm:p-7"><h3 className="font-black">먼저: 반복되는 명령을 직접 실행하기 → 다음: 아래 for문으로 줄이기</h3><p className="mt-2 leading-7 text-slate-600">0은 항상 LOW, 255는 항상 HIGH, 128은 약 50% 듀티비입니다. 이 예제는 50씩 바꾸므로 최고 단계가 250입니다.</p><Button variant="outline" className="my-3" onClick={()=>copy(item.beforeCode!)}>단계별 코드 복사</Button><pre className="max-h-[480px] overflow-auto rounded-2xl bg-[#0b1220] p-5 font-mono text-[13px] leading-7 text-cyan-50"><code>{item.beforeCode}</code></pre></div>}
           <div className="grid gap-5 border-t border-slate-200 p-5 sm:p-7 lg:grid-cols-[.8fr_1.2fr]">
             <div className="space-y-4"><div className="rounded-2xl bg-slate-50 p-5"><h3 className="font-black">준비물</h3><div className="mt-3 flex flex-wrap gap-2">{item.parts.map(x=><span key={x} className="rounded-full bg-white px-3 py-1.5 text-sm font-bold ring-1 ring-slate-200">{x}</span>)}</div></div><div className="rounded-2xl bg-amber-50 p-5"><h3 className="font-black text-amber-900">배선</h3><ol className="mt-3 space-y-2">{item.wiring.map((x,i)=><li key={x} className="flex gap-2 text-sm leading-6"><span className="font-black text-amber-700">{i+1}</span>{x}</li>)}</ol></div>{item.lessonNote&&<div className="rounded-2xl border-2 border-cyan-200 bg-cyan-50 p-5"><h3 className="font-black text-cyan-900">수업 중 꼭 바꾸기</h3><p className="mt-2 text-sm leading-7 text-cyan-950">{item.lessonNote}</p></div>}{item.terms&&<div className="rounded-2xl border border-violet-200 bg-violet-50 p-5"><h3 className="font-black text-violet-950">새로운 코드 용어</h3><div className="mt-3 space-y-4">{item.terms.map(term=><div key={term.name}><p className="font-black text-violet-800">{term.name}</p><code className="mt-1 block rounded-lg bg-white px-3 py-2 text-sm font-black text-slate-900">{term.usage}</code><p className="mt-2 text-sm leading-6 text-violet-950">{term.meaning}</p></div>)}</div></div>}</div>
             <div className="overflow-hidden rounded-2xl bg-[#0b1220] text-white"><div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3"><span className="font-mono text-xs font-bold text-cyan-300">Arduino IDE · sketch.ino</span><Button size="sm" onClick={()=>copy(item.code)} className="bg-cyan-400 text-slate-950 hover:bg-cyan-300"><Clipboard className="mr-1.5 size-3.5"/>코드 복사</Button></div><pre className="max-h-[480px] overflow-auto p-5 font-mono text-[13px] leading-7 text-cyan-50"><code>{item.code}</code></pre></div>

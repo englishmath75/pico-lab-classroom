@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { lessons, pinMap, type Activity } from "./arduino-only-data";
+import { lessons, pinMap, activityOrder, learningPath, coreGroups, type Activity } from "./arduino-only-data";
 import { glossary, lessonConcepts, teacherGuides, textbookMeta } from "./arduino-textbook-data";
 
 const errors = {
@@ -40,7 +40,7 @@ export function ArduinoOnlyCourse({ onBack, onGoPico, onGoPwm }: { onBack: () =>
   const progress = Math.round(completed.length / allCount * 100);
   const key = `${lessonId}-${activityId}`;
   const next = useMemo(() => {
-    for (const item of lessons) for (let i=0;i<item.activities.length;i++) if (!completed.includes(`${item.id}-${i}`)) return [item.id,i];
+    for (const item of learningPath) if (!completed.includes(`${item.lessonId}-${item.index}`)) return [item.lessonId,item.index];
     return [3,0];
   }, [completed]);
 
@@ -51,7 +51,11 @@ export function ArduinoOnlyCourse({ onBack, onGoPico, onGoPwm }: { onBack: () =>
   }, []);
   useEffect(() => { localStorage.setItem("arduino-3class-progress", JSON.stringify(completed)); }, [completed]);
 
-  const choose = (lessonNumber:number, a=0) => {
+  const pathIndex = learningPath.findIndex(item => item.lessonId===lessonId && item.index===activityId);
+  const previous = learningPath[pathIndex-1];
+  const following = learningPath[pathIndex+1];
+
+  const choose = (lessonNumber:number, a=activityOrder[lessonNumber][0]) => {
     setLessonId(lessonNumber); setActivityId(a); setStage("circuit"); setAnswerUnlocked(false); setPasswordOpen(false);
     requestAnimationFrame(() => document.getElementById("activity")?.scrollIntoView({behavior:"smooth",block:"start"}));
   };
@@ -64,7 +68,7 @@ export function ArduinoOnlyCourse({ onBack, onGoPico, onGoPwm }: { onBack: () =>
 
   return <div className="min-h-screen bg-[#f5f7fb] text-slate-950">
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex min-h-18 max-w-[1280px] items-center justify-between gap-3 px-4 py-3 sm:px-7">
+      <div className="mx-auto flex min-h-18 max-w-[1280px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-7">
         <button onClick={onBack} className="flex items-center gap-3 text-left"><span className="grid size-10 place-items-center rounded-xl bg-slate-950 text-amber-300"><ArrowLeft className="size-5"/></span><span><span className="block text-xs font-black tracking-wider text-amber-700">ARDUINO → PICO</span><span className="font-black">통합실습실로 돌아가기</span></span></button>
         <div className="flex gap-2"><Button onClick={onGoPwm} className="bg-cyan-400 font-black text-slate-950 hover:bg-cyan-300">PWM 집중학습</Button><Button onClick={()=>choose(next[0],next[1])} className="bg-amber-400 font-black text-slate-950 hover:bg-amber-300">이어서 학습 <ArrowRight className="ml-1 size-4"/></Button></div>
       </div>
@@ -84,6 +88,14 @@ export function ArduinoOnlyCourse({ onBack, onGoPico, onGoPwm }: { onBack: () =>
 
       {bookMode==="glossary"?<Glossary query={glossaryQuery} setQuery={setGlossaryQuery}/>:bookMode==="teacher"?<TeacherMode lessonId={lessonId} unlocked={answerUnlocked} openPassword={()=>setPasswordOpen(true)}/>:<>
 
+      <section className="mt-6 rounded-[26px] border border-slate-200 bg-white p-5 sm:p-7" aria-label="6개 핵심 실습">
+        <h2 className="text-2xl font-black">DIGITAL · ANALOG · SERIAL — 6개 핵심 실습</h2>
+        <p className="mt-2 leading-7 text-slate-600">입력 → 판단 → 출력의 흐름을 익힙니다. 기존 차시·실습 번호 옆의 D/A/S 번호를 종이 교재와 평가의 공통 식별자로 사용합니다.</p>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">{coreGroups.map(group=><div key={group.area} className="rounded-2xl bg-slate-50 p-4"><h3 className="font-black text-cyan-800">{group.area}</h3><div className="mt-3 space-y-2">{group.activities.map(item=><button key={item.activity.id} onClick={()=>choose(item.lessonId,item.index)} className="block w-full rounded-xl border border-slate-200 bg-white p-3 text-left font-bold hover:border-amber-400"><span className="font-mono text-amber-700">{item.activity.id}</span> · {item.activity.title.split(". ")[1]}</button>)}</div></div>)}</div>
+        <p className="mt-4 leading-7 text-slate-600">SERIAL: S-01 센서 → Arduino → PC / S-02 PC → Arduino → 판단 → LED. 6개 핵심 뒤에는 X-01 초음파·X-02 통합 응용을 진행합니다.</p>
+        <Button variant="outline" onClick={onGoPwm} className="mt-3 h-auto max-w-full whitespace-normal text-left">ANALOG 이후 보충·심화: PWM 집중학습</Button>
+      </section>
+
       <Concepts lessonId={lessonId}/>
 
       <section className="mt-6 grid gap-3 md:grid-cols-3">{lessons.map((item)=><button key={item.id} onClick={()=>choose(item.id)} className={`rounded-[24px] border p-5 text-left transition ${lessonId===item.id?"border-amber-400 bg-amber-50 shadow-md":"border-slate-200 bg-white hover:border-amber-300"}`}><div className="flex items-center justify-between"><span className={`grid size-10 place-items-center rounded-xl font-black ${lessonId===item.id?"bg-slate-950 text-amber-300":"bg-slate-100"}`}>0{item.id}</span><span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-black">{item.activities.length}개 실습</span></div><h2 className="mt-4 text-xl font-black">{item.title}</h2><p className="mt-2 leading-7 text-slate-600">{item.subtitle}</p></button>)}</section>
@@ -96,14 +108,14 @@ export function ArduinoOnlyCourse({ onBack, onGoPico, onGoPwm }: { onBack: () =>
 
       <section className="mt-6 rounded-[26px] border border-slate-200 bg-white p-5 sm:p-7"><h2 className="text-2xl font-black">수업 전체 공통 핀</h2><p className="mt-2 text-slate-600">Tinkercad와 실제 Arduino에서 끝까지 같은 번호를 사용합니다.</p><div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200"><table className="min-w-[620px] w-full text-left"><thead className="bg-slate-950 text-white"><tr><th className="p-4">부품</th><th className="p-4">고정 핀</th><th className="p-4">역할</th></tr></thead><tbody>{pinMap.map(row=><tr key={row[0]} className="border-t border-slate-100"><td className="p-4 font-bold">{row[0]}</td><td className="p-4 font-mono font-black text-amber-700">{row[1]}</td><td className="p-4">{row[2]}</td></tr>)}</tbody></table></div></section>
 
-      <section id="activity" className="mt-6 scroll-mt-24 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-        <div className="bg-gradient-to-br from-amber-50 via-white to-cyan-50 p-6 sm:p-8"><p className="text-sm font-black text-amber-700">{lessonId}차시 · 실습 {activityId+1}/{lesson.activities.length}</p><h2 className="mt-2 text-3xl font-black">{activity.title}</h2><p className="mt-2 text-lg text-slate-700">{activity.goal}</p><div className="mt-5 flex flex-wrap gap-2">{lesson.activities.map((item,i)=><button key={item.title} onClick={()=>choose(lessonId,i)} className={`rounded-xl px-4 py-2 font-black ${activityId===i?"bg-slate-950 text-white":"bg-white ring-1 ring-slate-200"}`}>{i+1}. {item.title.split(". ")[1]}</button>)}</div></div>
+      <section id="activity" className="mt-6 scroll-mt-36 sm:scroll-mt-24 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
+        <div className="bg-gradient-to-br from-amber-50 via-white to-cyan-50 p-6 sm:p-8"><p className="text-sm font-black text-amber-700">{activity.id} · {activity.area} {activity.area==="응용"?"실습":"핵심 실습"} · {lessonId}차시 실습 {activityId+1}</p><h2 className="mt-2 text-3xl font-black">{activity.title}</h2><p className="mt-2 text-lg text-slate-700">{activity.goal}</p><div className="mt-5 flex flex-wrap gap-2">{activityOrder[lessonId].map(i=>{const item=lesson.activities[i]; return <button key={item.title} onClick={()=>choose(lessonId,i)} className={`rounded-xl px-4 py-2 font-black ${activityId===i?"bg-slate-950 text-white":"bg-white ring-1 ring-slate-200"}`}>{item.id} · {item.title.split(". ")[1]}</button>;})}</div></div>
         <div className="grid gap-2 border-t border-slate-200 p-4 sm:grid-cols-3 sm:p-6">{[["circuit","회로 지시",CircuitBoard],["mission","미션",FlaskConical],["functions","사용 함수 정리",FunctionSquare]].map(([id,label,Icon])=><button key={String(id)} onClick={()=>setStage(String(id))} className={`flex items-center justify-center gap-2 rounded-2xl p-4 font-black ${stage===id?"bg-slate-950 text-white":"bg-slate-100 hover:bg-amber-50"}`}>{typeof Icon!=="string"&&<Icon className="size-5"/>}{String(label)}</button>)}</div>
       </section>
 
       <section className="mt-5">{stage==="circuit"&&<Circuit a={activity}/>} {stage==="mission"&&<Mission a={activity} answerUnlocked={answerUnlocked}/>} {stage==="functions"&&<Functions a={activity}/>}</section>
 
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3"><Button variant="outline" disabled={activityId===0} onClick={()=>choose(lessonId,activityId-1)}>이전 실습</Button><Button onClick={()=>setPasswordOpen(true)} className={answerUnlocked?"bg-emerald-500 hover:bg-emerald-400":"bg-slate-950 hover:bg-slate-800"}>{answerUnlocked?<Check className="mr-2 size-4"/>:<KeyRound className="mr-2 size-4"/>}{answerUnlocked?"정답 코드 열림":"비밀번호 입력"}</Button>{activityId<lesson.activities.length-1?<Button onClick={()=>choose(lessonId,activityId+1)} className="bg-amber-400 font-black text-slate-950 hover:bg-amber-300">다음 실습 <ArrowRight className="ml-1 size-4"/></Button>:lessonId<3?<Button onClick={()=>choose(lessonId+1)} className="bg-amber-400 font-black text-slate-950 hover:bg-amber-300">다음 차시 <ArrowRight className="ml-1 size-4"/></Button>:<Button onClick={onGoPico} className="bg-cyan-400 font-black text-slate-950 hover:bg-cyan-300">Pico로 이동 <ArrowRight className="ml-1 size-4"/></Button>}</div>
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3"><Button variant="outline" disabled={!previous} onClick={()=>previous&&choose(previous.lessonId,previous.index)}>이전 실습</Button><Button onClick={()=>setPasswordOpen(true)} className={answerUnlocked?"bg-emerald-500 hover:bg-emerald-400":"bg-slate-950 hover:bg-slate-800"}>{answerUnlocked?<Check className="mr-2 size-4"/>:<KeyRound className="mr-2 size-4"/>}{answerUnlocked?"정답 코드 열림":"비밀번호 입력"}</Button>{following?<Button onClick={()=>choose(following.lessonId,following.index)} className="bg-amber-400 font-black text-slate-950 hover:bg-amber-300">다음 실습 <ArrowRight className="ml-1 size-4"/></Button>:<Button onClick={onGoPico} className="bg-cyan-400 font-black text-slate-950 hover:bg-cyan-300">Pico로 이동 <ArrowRight className="ml-1 size-4"/></Button>}</div>
 
       <section className="mt-8 grid gap-5 lg:grid-cols-2"><Trouble/><article className="rounded-[26px] border border-slate-200 bg-white p-6"><h2 className="text-2xl font-black">시험 핵심</h2><ul className="mt-4 space-y-3">{lesson.exam.map((x,i)=><li key={x} className="flex gap-3 rounded-2xl bg-slate-50 p-4"><span className="font-black text-amber-600">0{i+1}</span>{x}</li>)}</ul></article></section>
 

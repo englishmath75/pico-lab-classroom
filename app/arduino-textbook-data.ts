@@ -53,7 +53,7 @@ export const teacherGuides: Record<number, TeacherGuide> = {
   1: {
     objective: ["디지털 입력과 출력을 구분한다.", "setup과 loop의 역할을 설명한다.", "가변저항값을 PWM 밝기로 변환한다.", "시리얼 문자 A·B로 LED를 제어한다."],
     opening: "전등 스위치, 현관 센서등, 스피커 음량 다이얼을 보여 주고 무엇이 입력이고 무엇이 출력인지 먼저 묻습니다. 정답을 설명하기 전에 학생의 말을 입력→처리→출력 세 칸에 배치합니다.",
-    board: ["입력 → 처리 → 출력", "버튼: 평상시 HIGH / 누르면 LOW (INPUT_PULLUP)", "analogRead: 0~1023 → map → analogWrite: 0~255", "문자 비교: c=='A' / 값 저장: c=Serial.read()"],
+    board: ["입력 → 처리 → 출력", "버튼: 평상시 HIGH / 누르면 LOW (INPUT_PULLUP)", "analogRead: 0~1023 → map → analogWrite: 0~255", "문자 비교: c=='A' / 값 저장: c=Serial.read()", "S-01: A0 → analogRead → println → PC / S-02: PC → available → read → if/else if → D3"],
     questions: [
       { q: "왜 LED에 저항을 연결하나요?", a: "LED에 너무 큰 전류가 흐르지 않도록 제한하기 위해서입니다." },
       { q: "버튼을 눌렀는데 왜 LOW인가요?", a: "INPUT_PULLUP이 평상시 핀을 HIGH로 잡고, 누르면 핀이 GND에 연결되기 때문입니다." },
@@ -61,7 +61,7 @@ export const teacherGuides: Record<number, TeacherGuide> = {
       { q: "A를 보냈는데 반응하지 않아요.", a: "9600 baud, 대문자 A, 줄바꿈 없음, Serial.available() 뒤 Serial.read() 순서를 확인합니다." },
     ],
     observe: ["전원 연결 전에 LED 방향과 GND를 확인하는가", "코드를 복사만 하지 않고 setup·loop를 가리켜 설명하는가", "오류가 생기면 전원→배선→핀 번호→코드 순으로 점검하는가"],
-    exitTicket: ["digitalWrite와 analogWrite의 차이를 한 문장으로 쓰기", "INPUT_PULLUP 버튼의 누른 값을 쓰기", "1023을 255로 바꾸는 함수 이름 쓰기"],
+    exitTicket: ["digitalWrite와 analogWrite의 차이를 한 문장으로 쓰기", "INPUT_PULLUP 버튼의 누른 값을 쓰기", "1023을 255로 바꾸는 함수 이름 쓰기", "S-01과 S-02의 데이터 방향을 화살표로 쓰기"],
   },
   2: {
     objective: ["초음파 왕복 시간을 거리로 계산한다.", "CDS 전압분배를 설명한다.", "측정값을 보고 기준값을 정한다."],
