@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   BookOpen,
+  Bluetooth,
   Check,
   CheckCircle2,
   ChevronLeft,
@@ -52,7 +53,7 @@ import { wokwiLessons } from "./wokwi";
 import { ArduinoJourney } from "./arduino-lab";
 import { ArduinoOnlyCourse } from "./arduino-only-course";
 import { PwmCourse } from "./pwm-course";
-import { CBasicCourse } from "./c-basic-course";
+import { CBasicCourse } from "./c-basic-course";\nimport { AiBleCourse } from "./ai-ble-course";
 
 function SectionTitle({
   icon: Icon,
@@ -299,7 +300,7 @@ function AppSidebar({
 
 export default function Home() {
   const lessonSectionRef = useRef<HTMLElement>(null);
-  const [courseView, setCourseView] = useState<"integrated" | "arduino" | "pwm" | "c-basic">("integrated");
+  const [courseView, setCourseView] = useState<"integrated" | "arduino" | "pwm" | "c-basic" | "ai-ble">("integrated");
   const [selected, setSelected] = useState(1);
   const [completed, setCompleted] = useState<number[]>([]);
   const [simCompleted, setSimCompleted] = useState<number[]>([]);
@@ -342,7 +343,7 @@ export default function Home() {
   useEffect(() => {
     const syncCourseView = () => {
       const view = new URLSearchParams(window.location.search).get("view");
-      setCourseView(view === "arduino" ? "arduino" : view === "pwm" ? "pwm" : view === "c-basic" ? "c-basic" : "integrated");
+      setCourseView(view === "arduino" ? "arduino" : view === "pwm" ? "pwm" : view === "c-basic" ? "c-basic" : view === "ai-ble" ? "ai-ble" : "integrated");
     };
     syncCourseView();
     window.addEventListener("popstate", syncCourseView);
@@ -416,6 +417,22 @@ export default function Home() {
     });
   };
 
+  const openAiBleCourse = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("view", "ai-ble");
+    window.history.pushState({}, "", url);
+    setCourseView("ai-ble");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const leaveAiBleCourse = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("view");
+    window.history.pushState({}, "", url);
+    setCourseView("integrated");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const leavePwmCourse = () => {
     const url = new URL(window.location.href);
     url.searchParams.set("view", "arduino");
@@ -480,6 +497,10 @@ export default function Home() {
     return <CBasicCourse onBack={leavePwmCourse} />;
   }
 
+  if (courseView === "ai-ble") {
+    return <AiBleCourse onBack={leaveAiBleCourse} />;
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar selected={selected} completed={completed} onSelect={selectLesson} onArduinoCourse={openArduinoCourse} onArduino={openArduino} onCompare={openCompare} onSetup={openSetup} />
@@ -495,6 +516,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button onClick={openAiBleCourse} className="hidden items-center gap-2 rounded-full bg-cyan-400 px-3.5 py-2 text-xs font-black text-slate-950 transition hover:bg-cyan-300 sm:flex"><Bluetooth className="size-3.5" /> AI·BLE</button>
             <button onClick={openArduinoCourse} className="hidden items-center gap-2 rounded-full bg-amber-400 px-3.5 py-2 text-xs font-black text-slate-950 transition hover:bg-amber-300 sm:flex"><span className="size-2 rounded-full bg-slate-950" /> Arduino 실습</button>
             <button onClick={() => selectLesson(nextIncomplete)} className="flex items-center gap-2 rounded-full bg-slate-950 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-slate-800"><span className="size-2 rounded-full bg-cyan-400" /> Pico 이어서</button>
           </div>
