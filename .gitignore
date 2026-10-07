@@ -12,6 +12,10 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+__pycache__/
+*.tsbuildinfo
 
 # next.js
 /.next/

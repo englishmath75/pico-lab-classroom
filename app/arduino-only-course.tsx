@@ -44,12 +44,17 @@ export function ArduinoOnlyCourse({ onBack, onGoPico, onGoPwm }: { onBack: () =>
     return [3,0];
   }, [completed]);
 
+  const [progressLoaded, setProgressLoaded] = useState(false);
   useEffect(() => {
-    const raw = localStorage.getItem("arduino-3class-progress");
-    if (!raw) return;
-    try { setCompleted(JSON.parse(raw)); } catch { localStorage.removeItem("arduino-3class-progress"); }
+    try {
+      const raw = localStorage.getItem("arduino-3class-progress");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.every(value => typeof value === "string")) setCompleted(parsed);
+      }
+    } catch { /* memory-only */ } finally { setProgressLoaded(true); }
   }, []);
-  useEffect(() => { localStorage.setItem("arduino-3class-progress", JSON.stringify(completed)); }, [completed]);
+  useEffect(() => { if (progressLoaded) try { localStorage.setItem("arduino-3class-progress", JSON.stringify(completed)); } catch { /* memory-only */ } }, [completed, progressLoaded]);
 
   const pathIndex = learningPath.findIndex(item => item.lessonId===lessonId && item.index===activityId);
   const previous = learningPath[pathIndex-1];

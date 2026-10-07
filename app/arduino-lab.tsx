@@ -141,21 +141,25 @@ export function ArduinoJourney() {
     [completed],
   );
 
+  const [progressLoaded, setProgressLoaded] = useState(false);
   useEffect(() => {
-    const saved = window.localStorage.getItem("arduino-lab-progress");
-    if (!saved) return;
     try {
+      const saved = window.localStorage.getItem("arduino-lab-progress");
+      if (!saved) return;
       const parsed = JSON.parse(saved) as { completed?: number[]; checkedSteps?: Record<number, number[]> };
       setCompleted(parsed.completed ?? []);
       setCheckedSteps(parsed.checkedSteps ?? {});
     } catch {
-      window.localStorage.removeItem("arduino-lab-progress");
+      // Continue in memory when storage is blocked or malformed.
+    } finally {
+      setProgressLoaded(true);
     }
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem("arduino-lab-progress", JSON.stringify({ completed, checkedSteps }));
-  }, [completed, checkedSteps]);
+    if (!progressLoaded) return;
+    try { window.localStorage.setItem("arduino-lab-progress", JSON.stringify({ completed, checkedSteps })); } catch { /* memory-only */ }
+  }, [completed, checkedSteps, progressLoaded]);
 
   useEffect(() => {
     setActiveTab("concept");

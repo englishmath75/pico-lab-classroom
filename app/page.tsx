@@ -53,6 +53,7 @@ import { ArduinoJourney } from "./arduino-lab";
 import { ArduinoOnlyCourse } from "./arduino-only-course";
 import { PwmCourse } from "./pwm-course";
 import { CBasicCourse } from "./c-basic-course";
+import { AiBleCourse } from "./ai-ble-course";
 
 function SectionTitle({
   icon: Icon,
@@ -299,7 +300,12 @@ function AppSidebar({
 
 export default function Home() {
   const lessonSectionRef = useRef<HTMLElement>(null);
-  const [courseView, setCourseView] = useState<"integrated" | "arduino" | "pwm" | "c-basic">("integrated");
+  const [courseView, setCourseView] = useState<"integrated" | "arduino" | "pwm" | "c-basic" | "ai-ble">(() => {
+    const view = new URLSearchParams(window.location.search).get("view");
+    return view === "ai-ble" || view === "arduino" || view === "pwm" || view === "c-basic" ? view : "integrated";
+  });
+  const [progressLoaded, setProgressLoaded] = useState(false);
+  const acceptedUrl = useRef(window.location.href);
   const [selected, setSelected] = useState(1);
   const [completed, setCompleted] = useState<number[]>([]);
   const [simCompleted, setSimCompleted] = useState<number[]>([]);
@@ -321,9 +327,9 @@ export default function Home() {
   );
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("pico-lab-progress");
-    if (!saved) return;
     try {
+      const saved = window.localStorage.getItem("pico-lab-progress");
+      if (!saved) return;
       const parsed = JSON.parse(saved) as {
         completed?: number[];
         simCompleted?: number[];
@@ -335,14 +341,24 @@ export default function Home() {
       setSetupSteps(parsed.setupSteps ?? []);
       setCheckedSteps(parsed.checkedSteps ?? {});
     } catch {
-      window.localStorage.removeItem("pico-lab-progress");
+      // Storage may be blocked; preserve other course keys and continue in memory.
+    } finally {
+      setProgressLoaded(true);
     }
   }, []);
 
   useEffect(() => {
     const syncCourseView = () => {
       const view = new URLSearchParams(window.location.search).get("view");
-      setCourseView(view === "arduino" ? "arduino" : view === "pwm" ? "pwm" : view === "c-basic" ? "c-basic" : "integrated");
+      if (new URL(acceptedUrl.current).searchParams.get("view") === "ai-ble" && view !== "ai-ble") {
+        const leave = new Event("ai-before-leave", { cancelable: true });
+        if (!window.dispatchEvent(leave)) {
+          window.history.pushState({}, "", acceptedUrl.current);
+          return;
+        }
+      }
+      acceptedUrl.current = window.location.href;
+      setCourseView(view === "ai-ble" ? "ai-ble" : view === "arduino" ? "arduino" : view === "pwm" ? "pwm" : view === "c-basic" ? "c-basic" : "integrated");
     };
     syncCourseView();
     window.addEventListener("popstate", syncCourseView);
@@ -350,8 +366,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem("pico-lab-progress", JSON.stringify({ completed, simCompleted, setupSteps, checkedSteps }));
-  }, [completed, simCompleted, setupSteps, checkedSteps]);
+    if (!progressLoaded) return;
+    try { window.localStorage.setItem("pico-lab-progress", JSON.stringify({ completed, simCompleted, setupSteps, checkedSteps })); } catch { /* memory-only mode */ }
+  }, [completed, simCompleted, setupSteps, checkedSteps, progressLoaded]);
 
   useEffect(() => {
     setDraft(lesson.code);
@@ -462,6 +479,10 @@ export default function Home() {
     toast.success(wasCompleted ? "가상 실습 완료 표시를 취소했습니다." : "Wokwi 가상 실습을 완료했습니다.");
   };
 
+  if (courseView === "ai-ble") {
+    return <AiBleCourse onBack={() => { leaveArduinoCourse(false); acceptedUrl.current = window.location.href; }} />;
+  }
+
   if (courseView === "arduino") {
     return <ArduinoOnlyCourse onBack={() => leaveArduinoCourse(false)} onGoPico={() => leaveArduinoCourse(true)} onGoPwm={() => {
       const url = new URL(window.location.href);
@@ -484,6 +505,14 @@ export default function Home() {
     <SidebarProvider>
       <AppSidebar selected={selected} completed={completed} onSelect={selectLesson} onArduinoCourse={openArduinoCourse} onArduino={openArduino} onCompare={openCompare} onSetup={openSetup} />
       <SidebarInset className="min-w-0 bg-[#f5f7f8]">
+        <Button className="m-3 min-h-11 bg-cyan-700 text-white" onClick={() => {
+          const url = new URL(window.location.href);
+          url.searchParams.set("view", "ai-ble");
+          window.history.pushState({}, "", url);
+          acceptedUrl.current = url.href;
+          setCourseView("ai-ble");
+          window.scrollTo({ top: 0 });
+        }}>Pico 2 W AI SMART CLASSROOM · 8차시</Button>
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200/80 bg-white/90 px-4 backdrop-blur-xl sm:px-7">
           <div className="flex items-center gap-3">
             <SidebarTrigger className="size-9 rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm" />
