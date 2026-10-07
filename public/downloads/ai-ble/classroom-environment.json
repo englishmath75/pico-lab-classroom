@@ -1,0 +1,15 @@
+{
+  "status": "NOT_RUN",
+  "board": "RPI_PICO2_W",
+  "firmware_version": null,
+  "uf2_sha256": null,
+  "sys_implementation": null,
+  "aioble_commit": null,
+  "aioble_packages": [],
+  "dht11_sku": null,
+  "dht11_3v3_verified": false,
+  "temperature_range_c": [0, 50],
+  "buzzer_design": "3.3V-compatible active buzzer driver module; GPIO to IN only; SKU NOT_RUN",
+  "browser_os": null,
+  "reason": "No physical Pico 2 W, DHT11 or Galaxy made available to this implementation session. Teacher must record exact versions, SKU and UF2 SHA256 before class."
+}
