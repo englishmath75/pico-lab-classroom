@@ -109,6 +109,18 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
               </a>
             </Button>
             <Button asChild variant="outline" className="font-black">
+              <a href={base + "a29/materials/worksheet.html"} target="_blank" rel="noreferrer">
+                <Printer className="mr-2 size-4" />
+                대비 학습지
+              </a>
+            </Button>
+            <Button asChild variant="outline" className="font-black">
+              <a href={base + "a29/materials/exam.html"} target="_blank" rel="noreferrer">
+                <Printer className="mr-2 size-4" />
+                시험지
+              </a>
+            </Button>
+            <Button asChild variant="outline" className="font-black">
               <a href={base + "downloads/arduino-assessment-guide.md"} download>
                 <Download className="mr-2 size-4" />
                 평가 안내
