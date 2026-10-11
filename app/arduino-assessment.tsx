@@ -133,7 +133,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                   소프트웨어와 생활
                 </span>
                 <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-black text-cyan-200">
-                  아두이노 실물 수행평가
+                  아두이노 수행평가 연습
                 </span>
               </div>
               <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">
@@ -238,7 +238,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
 
         <section id="problem" className="mt-6 rounded-[28px] border border-slate-200 bg-white p-5 sm:p-8">
           <p className="text-sm font-black text-rose-700">02 · MISSION</p>
-          <h2 className="mt-1 text-3xl font-black">수행평가 문제</h2>
+          <h2 className="mt-1 text-3xl font-black">수행평가 연습 문제</h2>
           <p className="mt-3 text-xl font-black leading-8 text-slate-800">
             가까이 오면 소리가 나고, 가까우면서 어두우면 불도 켜지게 만드시오.
           </p>
@@ -318,7 +318,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
             <AlertTriangle className="mt-0.5 size-6 shrink-0 text-rose-500" />
             <p className="leading-7">
               배선을 바꿀 때는 USB 전원을 분리합니다. 5V와 GND를 직접 연결하지 않습니다.
-              이번 수행평가에서 LED는 D9를 사용하며 기존 기초 실습의 D3 설정을 바꾸는 것이 아닙니다.
+              이번 수행평가 연습에서 LED는 D9를 사용하며 기존 기초 실습의 D3 설정을 바꾸는 것이 아닙니다.
             </p>
           </div>
         </section>
