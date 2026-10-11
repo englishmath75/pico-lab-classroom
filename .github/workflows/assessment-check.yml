@@ -2,7 +2,7 @@ name: Arduino assessment check
 
 on:
   push:
-    branches: ["feat/arduino-assessment-80-20", "feat/a29-tinkercad-learning"]
+    branches: ["feat/arduino-assessment-80-20", "feat/a29-tinkercad-learning", "feat/assessment-print-materials"]
   workflow_dispatch:
 
 permissions:
@@ -29,6 +29,10 @@ jobs:
           test -f public/a29/index.html
           test -f public/a29/assets/step3.svg
           test -f public/a29/downloads/STEP3_student.ino
+          test -f public/a29/materials/worksheet.html
+          test -f public/a29/materials/exam.html
+          grep -q "대비 학습지" app/arduino-assessment.tsx
+          grep -q "시험지" app/arduino-assessment.tsx
           grep -q "Tinkercad 3단계" app/arduino-assessment.tsx
           grep -q 'view === "assessment"' app/page.tsx
           grep -q '실물 수행평가' app/arduino-only-course.tsx
