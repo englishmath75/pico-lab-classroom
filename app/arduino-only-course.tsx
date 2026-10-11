@@ -25,7 +25,7 @@ async function hashPassword(value:string) {
   return Array.from(new Uint8Array(hash)).map((byte)=>byte.toString(16).padStart(2,"0")).join("");
 }
 
-export function ArduinoOnlyCourse({ onBack, onGoPico, onGoPwm }: { onBack: () => void; onGoPico: () => void; onGoPwm: () => void }) {
+export function ArduinoOnlyCourse({ onBack, onGoPico, onGoPwm, onGoAssessment }: { onBack: () => void; onGoPico: () => void; onGoPwm: () => void; onGoAssessment: () => void }) {
   const [lessonId, setLessonId] = useState(1);
   const [activityId, setActivityId] = useState(0);
   const [stage, setStage] = useState("circuit");
@@ -70,7 +70,7 @@ export function ArduinoOnlyCourse({ onBack, onGoPico, onGoPwm }: { onBack: () =>
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex min-h-18 max-w-[1280px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-7">
         <button onClick={onBack} className="flex items-center gap-3 text-left"><span className="grid size-10 place-items-center rounded-xl bg-slate-950 text-amber-300"><ArrowLeft className="size-5"/></span><span><span className="block text-xs font-black tracking-wider text-amber-700">ARDUINO → PICO</span><span className="font-black">통합실습실로 돌아가기</span></span></button>
-        <div className="flex gap-2"><Button onClick={onGoPwm} className="bg-cyan-400 font-black text-slate-950 hover:bg-cyan-300">PWM 집중학습</Button><Button onClick={()=>choose(next[0],next[1])} className="bg-amber-400 font-black text-slate-950 hover:bg-amber-300">이어서 학습 <ArrowRight className="ml-1 size-4"/></Button></div>
+        <div className="flex flex-wrap gap-2"><Button onClick={onGoAssessment} className="bg-rose-500 font-black text-white hover:bg-rose-400">실물 수행평가</Button><Button onClick={onGoPwm} className="bg-cyan-400 font-black text-slate-950 hover:bg-cyan-300">PWM 집중학습</Button><Button onClick={()=>choose(next[0],next[1])} className="bg-amber-400 font-black text-slate-950 hover:bg-amber-300">이어서 학습 <ArrowRight className="ml-1 size-4"/></Button></div>
       </div>
     </header>
 
@@ -93,7 +93,7 @@ export function ArduinoOnlyCourse({ onBack, onGoPico, onGoPwm }: { onBack: () =>
         <p className="mt-2 leading-7 text-slate-600">입력 → 판단 → 출력의 흐름을 익힙니다. 기존 차시·실습 번호 옆의 D/A/S 번호를 종이 교재와 평가의 공통 식별자로 사용합니다.</p>
         <div className="mt-4 grid gap-3 md:grid-cols-3">{coreGroups.map(group=><div key={group.area} className="rounded-2xl bg-slate-50 p-4"><h3 className="font-black text-cyan-800">{group.area}</h3><div className="mt-3 space-y-2">{group.activities.map(item=><button key={item.activity.id} onClick={()=>choose(item.lessonId,item.index)} className="block w-full rounded-xl border border-slate-200 bg-white p-3 text-left font-bold hover:border-amber-400"><span className="font-mono text-amber-700">{item.activity.id}</span> · {item.activity.title.split(". ")[1]}</button>)}</div></div>)}</div>
         <p className="mt-4 leading-7 text-slate-600">SERIAL: S-01 센서 → Arduino → PC / S-02 PC → Arduino → 판단 → LED. 6개 핵심 뒤에는 X-01 초음파·X-02 통합 응용을 진행합니다.</p>
-        <Button variant="outline" onClick={onGoPwm} className="mt-3 h-auto max-w-full whitespace-normal text-left">ANALOG 이후 보충·심화: PWM 집중학습</Button>
+        <div className="mt-4 flex flex-wrap gap-2"><Button onClick={onGoAssessment} className="bg-rose-500 font-black text-white hover:bg-rose-400">수행평가 문제·채점기준 열기</Button><Button variant="outline" onClick={onGoPwm} className="h-auto max-w-full whitespace-normal text-left">ANALOG 이후 보충·심화: PWM 집중학습</Button></div>
       </section>
 
       <Concepts lessonId={lessonId}/>
