@@ -102,6 +102,12 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
             </span>
           </button>
           <div className="flex flex-wrap gap-2">
+            <Button asChild className="bg-cyan-500 font-black text-slate-950 hover:bg-cyan-400">
+              <a href={base + "a29/index.html"}>
+                <Code2 className="mr-2 size-4" />
+                Tinkercad 3단계
+              </a>
+            </Button>
             <Button asChild variant="outline" className="font-black">
               <a href={base + "downloads/arduino-assessment-guide.md"} download>
                 <Download className="mr-2 size-4" />
@@ -146,6 +152,9 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                 </a>
                 <a href="#rubric" className="rounded-xl border border-white/20 px-5 py-3 font-black text-white">
                   평가기준 보기
+                </a>
+                <a href={base + "a29/index.html"} className="rounded-xl bg-cyan-400 px-5 py-3 font-black text-slate-950">
+                  Tinkercad 3단계 연습 ↗
                 </a>
                 <button
                   onClick={() => window.print()}
