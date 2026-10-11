@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 620" role="img" aria-label="STEP 3 · 수행평가 최종 통합">
+<style>
+.bg{fill:#f7fafc} .board{fill:#1e88c8;stroke:#0d4f79;stroke-width:3} .bb{fill:#fff;stroke:#cbd5e1;stroke-width:3} .chip{fill:#0f172a} .pin{fill:#e2e8f0} .label{font:700 24px Arial,sans-serif;fill:#102e43} .small{font:600 17px Arial,sans-serif;fill:#475569} .wirelabel{font:700 15px Arial,sans-serif;fill:#334155;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round} .hint{font:700 18px Arial,sans-serif;fill:#087f86} .power{fill:#ef4444} .gnd{fill:#111827}
+</style>
+<rect class="bg" width="1100" height="620" rx="28"/>
+<text x="45" y="50" class="label">STEP 3 · 수행평가 최종 통합</text><text x="45" y="78" class="small">거리 + 밝기 조건을 결합하고 가변저항으로 LED 밝기를 정하는 최종 회로</text>
+<rect x="55" y="160" width="280" height="300" rx="28" class="board"/>
+<rect x="78" y="190" width="95" height="55" rx="8" class="chip"/><text x="185" y="220" class="small" fill="#fff">Arduino Uno R3</text>
+<rect x="80" y="405" width="55" height="32" rx="5" fill="#d6dde4"/><text x="145" y="429" class="small">USB</text>
+<text x="72" y="285" class="small" fill="#fff">D2</text><circle cx="110" cy="280" r="6" class="pin"/>
+<text x="72" y="320" class="small" fill="#fff">D7</text><circle cx="110" cy="315" r="6" class="pin"/>
+<text x="72" y="355" class="small" fill="#fff">D8</text><circle cx="110" cy="350" r="6" class="pin"/>
+<text x="72" y="390" class="small" fill="#fff">D9</text><circle cx="110" cy="385" r="6" class="pin"/>
+<text x="245" y="285" class="small" fill="#fff">A0</text><circle cx="290" cy="280" r="6" class="pin"/>
+<text x="245" y="320" class="small" fill="#fff">A1</text><circle cx="290" cy="315" r="6" class="pin"/>
+<text x="232" y="388" class="small" fill="#fff">5V</text><circle cx="290" cy="382" r="6" class="power"/>
+<text x="226" y="425" class="small" fill="#fff">GND</text><circle cx="290" cy="420" r="6" class="gnd"/>
+<rect x="420" y="150" width="610" height="350" rx="24" class="bb"/>
+<line x1="450" y1="185" x2="1000" y2="185" stroke="#ef4444" stroke-width="4"/><line x1="450" y1="215" x2="1000" y2="215" stroke="#111827" stroke-width="4"/>
+<text x="955" y="178" class="small" fill="#ef4444">+5V</text><text x="955" y="240" class="small">GND</text>
+<g><rect x="500" y="245" width="190" height="92" rx="14" fill="#0d7a8c" stroke="#07505c" stroke-width="3"/><circle cx="555" cy="291" r="30" fill="#d7dde4" stroke="#64748b" stroke-width="4"/><circle cx="635" cy="291" r="30" fill="#d7dde4" stroke="#64748b" stroke-width="4"/><text x="535" y="235" class="small">HC-SR04</text></g>
+<g><circle cx="600" cy="405" r="28" fill="#f3d25d" stroke="#8b6f17" stroke-width="4"/><path d="M582,402 h36 M582,413 h36" stroke="#6b550f" stroke-width="3"/><text x="565" y="459" class="small">CDS → A0</text></g>
+<g><rect x="660" y="393" width="100" height="24" rx="8" fill="#ead8b1" stroke="#8c6e38" stroke-width="2"/><path d="M672,393 v24 M688,393 v24 M726,393 v24 M742,393 v24" stroke="#7c3aed" stroke-width="4"/><text x="660" y="440" class="small">10kΩ</text></g>
+<g><rect x="790" y="385" width="105" height="70" rx="10" fill="#2563eb"/><circle cx="842" cy="403" r="25" fill="#94a3b8"/><text x="788" y="482" class="small">POT → A1</text></g>
+<g><path d="M917,415 q18 -55 36 0 v20 h-36z" fill="#ef4444" stroke="#991b1b" stroke-width="3"/><line x1="927" y1="435" x2="927" y2="468" stroke="#475569" stroke-width="4"/><line x1="945" y1="435" x2="945" y2="468" stroke="#475569" stroke-width="4"/><text x="897" y="496" class="small">LED D9</text></g>
+<g><rect x="875" y="470" width="100" height="24" rx="8" fill="#ead8b1" stroke="#8c6e38" stroke-width="2"/><path d="M887,470 v24 M903,470 v24 M941,470 v24 M957,470 v24" stroke="#7c3aed" stroke-width="4"/><text x="875" y="517" class="small">220Ω</text></g>
+<g><circle cx="920" cy="275" r="42" fill="#1f2937"/><circle cx="920" cy="275" r="12" fill="#94a3b8"/><text x="875" y="341" class="small">Piezo D2</text></g>
+<path d="M290,382 L455,185" fill="none" stroke="#ef4444" stroke-width="5"/><text x="360" y="175" class="wirelabel">5V</text>
+<path d="M290,420 L455,215" fill="none" stroke="#111827" stroke-width="5"/><text x="350" y="245" class="wirelabel">GND</text>
+<path d="M110,315 L500,325" fill="none" stroke="#f59e0b" stroke-width="5"/><text x="280" y="300" class="wirelabel">D7 → TRIG</text>
+<path d="M110,350 L500,355" fill="none" stroke="#22c55e" stroke-width="5"/><text x="280" y="382" class="wirelabel">D8 ← ECHO</text>
+<path d="M110,280 L878,275" fill="none" stroke="#8b5cf6" stroke-width="5"/><text x="610" y="255" class="wirelabel">D2 → BUZZER</text>
+<path d="M920,317 L920,215" fill="none" stroke="#111827" stroke-width="5"/><path d="M500,275 L500,185" fill="none" stroke="#ef4444" stroke-width="5"/><path d="M690,275 L690,215" fill="none" stroke="#111827" stroke-width="5"/>
+<path d="M290,280 L630,405" fill="none" stroke="#06b6d4" stroke-width="5"/><text x="420" y="390" class="wirelabel">A0</text>
+<path d="M600,377 L600,185" fill="none" stroke="#ef4444" stroke-width="5"/><path d="M710,417 L710,215" fill="none" stroke="#111827" stroke-width="5"/>
+<path d="M290,315 L842,455" fill="none" stroke="#f97316" stroke-width="5"/><text x="500" y="450" class="wirelabel">A1</text>
+<path d="M790,455 L790,185" fill="none" stroke="#ef4444" stroke-width="5"/><path d="M895,455 L895,215" fill="none" stroke="#111827" stroke-width="5"/>
+<path d="M110,385 L935,465" fill="none" stroke="#ec4899" stroke-width="5"/><text x="560" y="405" class="wirelabel">D9 PWM</text>
+<path d="M935,466 L925,470" fill="none" stroke="#ef4444" stroke-width="5"/><path d="M975,494 L975,215" fill="none" stroke="#111827" stroke-width="5"/>
+<text x="45" y="560" class="hint">최종: D7/D8 · A0 · A1 · D9 · D2 / 거리 20cm · 조도 기준 400</text>
+<text x="45" y="592" class="small">빨강 = 5V · 검정 = GND · 신호선은 핀 번호 라벨을 확인하세요.</text>
+</svg>
