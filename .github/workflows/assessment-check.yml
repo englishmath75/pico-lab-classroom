@@ -35,7 +35,7 @@ jobs:
           grep -q "시험지" app/arduino-assessment.tsx
           grep -q "Tinkercad 3단계" app/arduino-assessment.tsx
           grep -q 'view === "assessment"' app/page.tsx
-          grep -q '실물 수행평가' app/arduino-only-course.tsx
+          grep -q '수행평가 연습' app/arduino-only-course.tsx
           grep -q '__12__' public/downloads/arduino-assessment-starter.ino
       - name: 웹앱 빌드
         run: npm run build
