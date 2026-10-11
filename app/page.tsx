@@ -517,7 +517,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2">
             <button onClick={openArduinoCourse} className="hidden items-center gap-2 rounded-full bg-amber-400 px-3.5 py-2 text-xs font-black text-slate-950 transition hover:bg-amber-300 sm:flex"><span className="size-2 rounded-full bg-slate-950" /> Arduino 실습</button>
-            <button onClick={openAssessment} className="hidden items-center gap-2 rounded-full bg-rose-500 px-3.5 py-2 text-xs font-black text-white transition hover:bg-rose-400 sm:flex"><span className="size-2 rounded-full bg-white" /> 수행평가</button>
+            <button onClick={openAssessment} className="hidden items-center gap-2 rounded-full bg-rose-500 px-3.5 py-2 text-xs font-black text-white transition hover:bg-rose-400 sm:flex"><span className="size-2 rounded-full bg-white" /> 수행평가 연습</button>
             <button onClick={() => selectLesson(nextIncomplete)} className="flex items-center gap-2 rounded-full bg-slate-950 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-slate-800"><span className="size-2 rounded-full bg-cyan-400" /> Pico 이어서</button>
           </div>
         </header>
