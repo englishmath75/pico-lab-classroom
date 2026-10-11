@@ -1,0 +1,33 @@
+name: Arduino assessment check
+
+on:
+  push:
+    branches: ["feat/arduino-assessment-80-20"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 소스 가져오기
+        uses: actions/checkout@v4
+      - name: Node.js 준비
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: 패키지 설치
+        run: npm ci
+      - name: 수행평가 자료 검증
+        run: |
+          test -f app/arduino-assessment.tsx
+          test -f app/arduino-assessment-data.ts
+          test -f public/downloads/arduino-assessment-starter.ino
+          grep -q 'view === "assessment"' app/page.tsx
+          grep -q '실물 수행평가' app/arduino-only-course.tsx
+          grep -q '__12__' public/downloads/arduino-assessment-starter.ino
+      - name: 웹앱 빌드
+        run: npm run build
