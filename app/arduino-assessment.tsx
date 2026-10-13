@@ -148,10 +148,8 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                   아두이노 수행평가 연습
                 </span>
               </div>
-              <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">
-                스마트 야간 접근
-                <br />
-                경보 장치 만들기
+              <h1 className="mt-5 text-[2rem] font-black leading-tight tracking-[-0.045em] text-white sm:text-[2.35rem] lg:whitespace-nowrap lg:text-[2.55rem] xl:text-[2.7rem]">
+                스마트 야간 접근 경보 장치 만들기
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
                 초음파센서·조도센서·가변저항을 하나의 시스템으로 연결하고,
