@@ -373,7 +373,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
             <div>
               <p className="text-sm font-black text-cyan-300">04 · STARTER CODE</p>
               <h2 className="mt-1 text-3xl font-black">학생용 12개 빈칸 코드</h2>
-              <p className="mt-2 text-sm text-slate-400">__01__부터 __12__까지 완성합니다.</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">__01__부터 __12__까지 완성합니다. <span className="text-cyan-300">LIGHT_LIMIT=400</span>은 밝음과 어두움을 나누는 고정 정수 기준값입니다.</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button onClick={copyCode} className="bg-cyan-400 font-black text-slate-950 hover:bg-cyan-300">

@@ -1,6 +1,3 @@
-// A29-UNO-80-v1.1 | Arduino Uno R3 | Student starter
-// Replace __01__ ... __12__. This file will not compile before completion.
-// Pins: TRIG D7, ECHO D8, LED D9, passive piezo D2, CDS A0, POT A1.
 const int LIGHT_LIMIT = 400;
 
 void setup() {
