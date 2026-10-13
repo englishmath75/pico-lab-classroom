@@ -92,6 +92,9 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
             </span>
           </button>
           <div className="flex flex-wrap gap-2">
+            <Button asChild className="bg-emerald-700 font-black text-white hover:bg-emerald-600">
+              <a href={base + "learning-videos/index.html"}>자율학습 영상</a>
+            </Button>
             <Button asChild className="bg-cyan-500 font-black text-slate-950 hover:bg-cyan-400">
               <a href={base + "a29/index.html"}>
                 <Code2 className="mr-2 size-4" />
@@ -252,6 +255,26 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
             </a>
           ))}
         </nav>
+
+        <section id="videos" className="mt-6 rounded-[28px] border border-emerald-200 bg-emerald-50 p-5 sm:p-8 print:hidden" aria-labelledby="videos-title">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div><p className="text-xs font-black tracking-widest text-emerald-700">WATCH · PAUSE · PRACTICE</p><h2 id="videos-title" className="mt-2 text-2xl font-black">수업 뒤 혼자 따라 하는 영상</h2><p className="mt-2 text-sm leading-7 text-slate-600">실제 Tinkercad 시연 · 무음 자막 5편 · 총 50분 30초. 단계별로 멈추며 내 회로를 완성하세요.</p></div>
+            <a href={base + "learning-videos/index.html?playlist=all"} className="rounded-xl bg-emerald-800 px-5 py-3 font-black text-white">전체 이어보기 →</a>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              ["학생 활동과 기본 조작", "4:15"],
+              ["초음파센서와 부저", "11:19"],
+              ["CDS·가변저항·LED", "13:46"],
+              ["통합 회로와 조건", "12:48"],
+              ["혼자 연습·오류 점검·저장", "8:21"],
+            ].map(([title, duration], i) => (
+              <a key={title} href={base + `learning-videos/index.html?episode=ep0${i + 1}`} className="rounded-2xl border border-emerald-200 bg-white p-4 transition hover:border-emerald-600 focus-visible:outline-2 focus-visible:outline-emerald-700">
+                <span className="text-xs font-black text-emerald-700">EP0{i + 1} · {duration}</span><strong className="mt-2 block text-sm leading-6">{title}</strong><span className="mt-3 block text-xs text-slate-500">무음 자막판 보기 ↗</span>
+              </a>
+            ))}
+          </div>
+        </section>
 
         <section id="overview" className="mt-6 rounded-[28px] border border-slate-200 bg-white p-5 sm:p-8">
           <div className="flex items-center gap-3">
