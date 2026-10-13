@@ -129,7 +129,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
       <main className="mx-auto max-w-[1280px] px-4 py-7 sm:px-7">
         <section className="overflow-hidden rounded-[32px] bg-slate-950 text-white shadow-xl">
           <div className="grid gap-8 bg-[radial-gradient(circle_at_85%_10%,rgba(34,211,238,.23),transparent_34%)] p-6 sm:p-9 lg:grid-cols-[minmax(0,1.35fr)_minmax(340px,.65fr)]">
-            <div>
+            <div className="flex h-full min-w-0 flex-col">
               <div className="flex flex-wrap gap-2">
                 <span className="rounded-full bg-amber-400 px-3 py-1 text-xs font-black text-slate-950">
                   소프트웨어와 생활
@@ -163,6 +163,42 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                   <Printer className="size-4" />
                   인쇄
                 </button>
+              </div>
+
+              <div className="mt-auto pt-8">
+                <div className="mb-3 flex items-center gap-3">
+                  <span className="h-px flex-1 bg-gradient-to-r from-white/20 to-transparent" />
+                  <span className="text-[10px] font-black tracking-[.18em] text-slate-500">REMEMBER 3 THINGS</span>
+                </div>
+                <div className="grid gap-2.5 sm:grid-cols-3">
+                  <div className="rounded-2xl border border-white/10 bg-white/[.05] px-4 py-3.5">
+                    <div className="flex items-center gap-2">
+                      <span className="grid size-7 place-items-center rounded-lg bg-amber-400 text-xs font-black text-slate-950">01</span>
+                      <span className="text-sm font-black text-amber-200">거리 경보</span>
+                    </div>
+                    <p className="mt-2 text-sm font-bold leading-6 text-slate-200">
+                      <span className="text-white">20cm 미만</span>이면 부저가 울립니다.
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[.05] px-4 py-3.5">
+                    <div className="flex items-center gap-2">
+                      <span className="grid size-7 place-items-center rounded-lg bg-cyan-400 text-xs font-black text-slate-950">02</span>
+                      <span className="text-sm font-black text-cyan-200">복합 조건</span>
+                    </div>
+                    <p className="mt-2 text-sm font-bold leading-6 text-slate-200">
+                      <span className="text-white">가까움 + 어두움</span>일 때만 LED가 켜집니다.
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[.05] px-4 py-3.5">
+                    <div className="flex items-center gap-2">
+                      <span className="grid size-7 place-items-center rounded-lg bg-emerald-400 text-xs font-black text-slate-950">03</span>
+                      <span className="text-sm font-black text-emerald-200">밝기 제어</span>
+                    </div>
+                    <p className="mt-2 text-sm font-bold leading-6 text-slate-200">
+                      가변저항을 <span className="text-white">PWM 50~255</span> 밝기로 바꿉니다.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
             <aside className="rounded-[28px] border border-cyan-200/30 bg-gradient-to-br from-white/[.10] via-white/[.06] to-cyan-400/[.08] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] sm:p-6">
