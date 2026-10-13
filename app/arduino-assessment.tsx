@@ -193,9 +193,9 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
               </dl>
               <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
                 <p className="text-xs font-bold leading-5 text-slate-300">
-                  학생에게는 <span className="font-black text-white">6개 평가영역</span>과
-                  <span className="font-black text-cyan-300"> {totalItems}개 평가항목</span>만 안내합니다.
-                  세부 판정기준은 교사가 채점할 때만 사용합니다.
+                  기본 화면은 <span className="font-black text-white">6개 평가영역</span>과
+                  <span className="font-black text-cyan-300"> {totalItems}개 평가항목</span>으로 간단히 보여줍니다.
+                  각 항목을 누르면 세부 판정기준과 배점까지 모두 확인할 수 있습니다.
                 </p>
               </div>
             </aside>
@@ -365,8 +365,8 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
               <h2 className="text-3xl font-black">실습활동 20점 학생용 평가표</h2>
               <p className="mt-2 leading-7 text-slate-600">
                 전체 평가는 기본점수 40점 + 수업참여 20점 + 태도 20점 + 실습활동 20점으로 구성됩니다.
-                학생에게는 아래 <strong>6개 평가영역 · {totalItems}개 평가항목</strong>만 안내합니다.
-                더 세밀한 하위 판정기준은 교사가 공정하게 채점하기 위한 내부 기준입니다.
+                먼저 <strong>6개 평가영역 · {totalItems}개 평가항목</strong>을 확인하고,
+                각 항목을 클릭하면 세부 판정기준과 배점을 모두 볼 수 있습니다.
               </p>
             </div>
           </div>
@@ -423,23 +423,42 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                   </div>
                   <p className="text-xl font-black">{(section.maxUnits / 10).toFixed(1)}점</p>
                 </div>
-                <div className="mt-4 overflow-hidden rounded-2xl border border-white/70 bg-white shadow-sm">
-                  <div className="grid grid-cols-[72px_minmax(0,1fr)_110px_82px] bg-slate-950 px-4 py-3 text-xs font-black text-white max-sm:grid-cols-[58px_minmax(0,1fr)_72px]">
-                    <span>항목</span>
-                    <span>확인할 내용</span>
-                    <span className="max-sm:hidden">평가방법</span>
-                    <span className="text-right">배점</span>
-                  </div>
+                <div className="mt-4 space-y-2">
                   {section.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="grid grid-cols-[72px_minmax(0,1fr)_110px_82px] items-center gap-0 border-t border-slate-100 px-4 py-3 text-sm max-sm:grid-cols-[58px_minmax(0,1fr)_72px]"
-                    >
-                      <span className="font-mono font-black text-cyan-800">{item.id}</span>
-                      <span className="font-bold leading-6 text-slate-800">{item.title}</span>
-                      <span className="text-slate-500 max-sm:hidden">{item.mode}</span>
-                      <span className="text-right font-black text-slate-950">{(item.maxUnits / 10).toFixed(1)}점</span>
-                    </div>
+                    <details key={item.id} className="group overflow-hidden rounded-2xl border border-white/70 bg-white shadow-sm">
+                      <summary className="grid cursor-pointer list-none grid-cols-[72px_minmax(0,1fr)_110px_82px] items-center px-4 py-3 text-sm transition hover:bg-slate-50 max-sm:grid-cols-[58px_minmax(0,1fr)_72px]">
+                        <span className="font-mono font-black text-cyan-800">{item.id}</span>
+                        <span className="font-bold leading-6 text-slate-800">
+                          {item.title}
+                          <span className="ml-2 text-xs font-bold text-cyan-700 group-open:hidden">세부기준 보기 +</span>
+                          <span className="ml-2 hidden text-xs font-bold text-cyan-700 group-open:inline">세부기준 닫기 −</span>
+                        </span>
+                        <span className="text-slate-500 max-sm:hidden">{item.mode}</span>
+                        <span className="text-right font-black text-slate-950">{(item.maxUnits / 10).toFixed(1)}점</span>
+                      </summary>
+                      <div className="border-t border-slate-100 bg-slate-50/70 p-3 sm:p-4">
+                        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+                          <table className="w-full min-w-[640px] text-left text-sm">
+                            <thead className="bg-slate-100 text-slate-700">
+                              <tr>
+                                <th className="p-3">세부 ID</th>
+                                <th className="p-3">세부 판정기준</th>
+                                <th className="p-3 text-right">배점</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {item.subcriteria.map((sub) => (
+                                <tr key={sub.id} className="border-t border-slate-100">
+                                  <td className="p-3 font-mono font-black text-slate-600">{sub.id}</td>
+                                  <td className="p-3 leading-6 text-slate-700">{sub.criterion}</td>
+                                  <td className="p-3 text-right font-black text-slate-950">{(sub.units / 10).toFixed(1)}점</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </details>
                   ))}
                 </div>
               </article>
