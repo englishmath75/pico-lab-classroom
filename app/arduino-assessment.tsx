@@ -138,7 +138,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
 
       <main className="mx-auto max-w-[1280px] px-4 py-7 sm:px-7">
         <section className="overflow-hidden rounded-[32px] bg-slate-950 text-white shadow-xl">
-          <div className="grid gap-8 bg-[radial-gradient(circle_at_85%_10%,rgba(34,211,238,.23),transparent_34%)] p-6 sm:p-9 lg:grid-cols-[1.35fr_.65fr]">
+          <div className="grid gap-8 bg-[radial-gradient(circle_at_85%_10%,rgba(34,211,238,.23),transparent_34%)] p-6 sm:p-9 lg:grid-cols-[minmax(0,1.35fr)_minmax(340px,.65fr)]">
             <div>
               <div className="flex flex-wrap gap-2">
                 <span className="rounded-full bg-amber-400 px-3 py-1 text-xs font-black text-slate-950">
@@ -175,30 +175,38 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                 </button>
               </div>
             </div>
-            <aside className="rounded-[26px] border border-white/10 bg-white/[.07] p-5 sm:p-6">
-              <p className="text-xs font-black tracking-[.16em] text-cyan-300">INDIVIDUAL / 50 MIN</p>
-              <div className="mt-3 text-6xl font-black text-white">
-                80<span className="text-2xl text-slate-400"> + </span>20
+            <aside className="rounded-[28px] border border-cyan-200/30 bg-gradient-to-br from-white/[.10] via-white/[.06] to-cyan-400/[.08] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] sm:p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[11px] font-black tracking-[.18em] text-cyan-300">ASSESSMENT / 100 POINTS</p>
+                  <h2 className="mt-1 text-2xl font-black tracking-tight text-white">평가 반영 기준</h2>
+                </div>
+                <span className="shrink-0 rounded-full bg-white px-3 py-1.5 text-sm font-black text-slate-950 shadow-sm">총 100점</span>
               </div>
-              <p className="mt-1 font-bold text-slate-300">기본점수 + 실습 성취점수</p>
-              <dl className="mt-6 grid grid-cols-2 gap-2 text-sm">
-                <div className="rounded-2xl bg-white/10 p-4">
-                  <dt className="text-slate-400">학생</dt>
-                  <dd className="mt-1 text-xl font-black">29명</dd>
+              <dl className="mt-5 grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-amber-300/20 bg-amber-300/[.08] p-4">
+                  <dt className="text-sm font-bold text-amber-200">기본점수</dt>
+                  <dd className="mt-1 text-3xl font-black text-white">40<span className="ml-1 text-base text-amber-200">점</span></dd>
                 </div>
-                <div className="rounded-2xl bg-white/10 p-4">
-                  <dt className="text-slate-400">연습기준</dt>
-                  <dd className="mt-1 text-xl font-black">{totalCriteria}개</dd>
+                <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/[.08] p-4">
+                  <dt className="text-sm font-bold text-cyan-200">수업참여</dt>
+                  <dd className="mt-1 text-3xl font-black text-white">20<span className="ml-1 text-base text-cyan-200">점</span></dd>
                 </div>
-                <div className="rounded-2xl bg-white/10 p-4">
-                  <dt className="text-slate-400">코드 빈칸</dt>
-                  <dd className="mt-1 text-xl font-black">12개</dd>
+                <div className="rounded-2xl border border-violet-300/20 bg-violet-300/[.08] p-4">
+                  <dt className="text-sm font-bold text-violet-200">태도</dt>
+                  <dd className="mt-1 text-3xl font-black text-white">20<span className="ml-1 text-base text-violet-200">점</span></dd>
                 </div>
-                <div className="rounded-2xl bg-white/10 p-4">
-                  <dt className="text-slate-400">최소 간격</dt>
-                  <dd className="mt-1 text-xl font-black">0.2점</dd>
+                <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/[.08] p-4">
+                  <dt className="text-sm font-bold text-emerald-200">실습활동</dt>
+                  <dd className="mt-1 text-3xl font-black text-white">20<span className="ml-1 text-base text-emerald-200">점</span></dd>
                 </div>
               </dl>
+              <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
+                <p className="text-xs font-bold leading-5 text-slate-300">
+                  현재 <span className="font-black text-white">{totalCriteria}개 세부 기준</span>은
+                  <span className="font-black text-emerald-300"> 실습활동 20점</span>을 준비하기 위한 연습 기준입니다.
+                </p>
+              </div>
             </aside>
           </div>
         </section>
@@ -363,10 +371,10 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
             <ShieldCheck className="mt-1 size-7 text-emerald-600" />
             <div>
               <p className="text-sm font-black text-emerald-700">05 · RUBRIC</p>
-              <h2 className="text-3xl font-black">연습용 평가기준</h2>
+              <h2 className="text-3xl font-black">실습활동 20점 연습기준</h2>
               <p className="mt-2 leading-7 text-slate-600">
-                기본점수 80.0점에 아래 실습 성취점수 20.0점을 더합니다.
-                실제 평가에서 적용할 최종 채점 기준은 교사의 별도 안내를 따릅니다.
+                전체 평가는 기본점수 40점 + 수업참여 20점 + 태도 20점 + 실습활동 20점으로 구성됩니다.
+                아래 {totalCriteria}개 세부 기준은 그중 실습활동 20점을 준비하기 위한 연습용 기준입니다.
               </p>
             </div>
           </div>
@@ -377,7 +385,6 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                 <tr><th className="p-4">영역</th><th className="p-4">배점</th></tr>
               </thead>
               <tbody>
-                <tr className="border-t border-slate-100"><td className="p-4 font-black">기본점수</td><td className="p-4 font-black">80.0</td></tr>
                 {assessmentData.rubric.map((section) => (
                   <tr key={section.id} className="border-t border-slate-100">
                     <td className="p-4 font-black">{section.id}. {section.name}</td>
@@ -385,7 +392,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                   </tr>
                 ))}
                 <tr className="border-t-2 border-slate-950 bg-slate-50">
-                  <td className="p-4 font-black">총점</td><td className="p-4 text-lg font-black">100.0</td>
+                  <td className="p-4 font-black">실습활동 연습 소계</td><td className="p-4 text-lg font-black">20.0</td>
                 </tr>
               </tbody>
             </table>
