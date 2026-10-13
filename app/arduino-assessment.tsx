@@ -37,13 +37,8 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
   const [checked, setChecked] = useState<number[]>([]);
   const base = import.meta.env.BASE_URL;
 
-  const totalCriteria = assessmentData.rubric.reduce(
-    (sum, section) =>
-      sum +
-      section.items.reduce(
-        (inner, item) => inner + item.subcriteria.length,
-        0,
-      ),
+  const totalItems = assessmentData.rubric.reduce(
+    (sum, section) => sum + section.items.length,
     0,
   );
 
@@ -55,12 +50,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
         ...section,
         items: section.items.filter((item) => {
           if (!q) return true;
-          const text = [
-            item.id,
-            item.title,
-            item.mode,
-            ...item.subcriteria.map((sub) => `${sub.id} ${sub.criterion}`),
-          ]
+          const text = [item.id, item.title, item.mode]
             .join(" ")
             .toLowerCase();
           return text.includes(q);
@@ -203,8 +193,9 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
               </dl>
               <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
                 <p className="text-xs font-bold leading-5 text-slate-300">
-                  현재 <span className="font-black text-white">{totalCriteria}개 세부 기준</span>은
-                  <span className="font-black text-emerald-300"> 실습활동 20점</span>을 준비하기 위한 연습 기준입니다.
+                  학생에게는 <span className="font-black text-white">6개 평가영역</span>과
+                  <span className="font-black text-cyan-300"> {totalItems}개 평가항목</span>만 안내합니다.
+                  세부 판정기준은 교사가 채점할 때만 사용합니다.
                 </p>
               </div>
             </aside>
@@ -371,10 +362,11 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
             <ShieldCheck className="mt-1 size-7 text-emerald-600" />
             <div>
               <p className="text-sm font-black text-emerald-700">05 · RUBRIC</p>
-              <h2 className="text-3xl font-black">실습활동 20점 연습기준</h2>
+              <h2 className="text-3xl font-black">실습활동 20점 학생용 평가표</h2>
               <p className="mt-2 leading-7 text-slate-600">
                 전체 평가는 기본점수 40점 + 수업참여 20점 + 태도 20점 + 실습활동 20점으로 구성됩니다.
-                아래 {totalCriteria}개 세부 기준은 그중 실습활동 20점을 준비하기 위한 연습용 기준입니다.
+                학생에게는 아래 <strong>6개 평가영역 · {totalItems}개 평가항목</strong>만 안내합니다.
+                더 세밀한 하위 판정기준은 교사가 공정하게 채점하기 위한 내부 기준입니다.
               </p>
             </div>
           </div>
@@ -416,7 +408,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 className="h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4"
-                placeholder="예: 초음파, PWM, 시리얼, D5.1"
+                placeholder="예: 초음파, PWM, 시리얼, D5"
               />
             </label>
           </div>
@@ -431,33 +423,23 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                   </div>
                   <p className="text-xl font-black">{(section.maxUnits / 10).toFixed(1)}점</p>
                 </div>
-                <div className="mt-4 space-y-2">
+                <div className="mt-4 overflow-hidden rounded-2xl border border-white/70 bg-white shadow-sm">
+                  <div className="grid grid-cols-[72px_minmax(0,1fr)_110px_82px] bg-slate-950 px-4 py-3 text-xs font-black text-white max-sm:grid-cols-[58px_minmax(0,1fr)_72px]">
+                    <span>항목</span>
+                    <span>확인할 내용</span>
+                    <span className="max-sm:hidden">평가방법</span>
+                    <span className="text-right">배점</span>
+                  </div>
                   {section.items.map((item) => (
-                    <details key={item.id} className="rounded-2xl bg-white p-4 shadow-sm">
-                      <summary className="cursor-pointer list-none font-black">
-                        <span className="mr-2 font-mono text-cyan-800">{item.id}</span>
-                        {item.title}
-                        <span className="ml-2 text-sm text-slate-500">
-                          {item.mode} · {(item.maxUnits / 10).toFixed(1)}점
-                        </span>
-                      </summary>
-                      <div className="mt-3 overflow-x-auto">
-                        <table className="w-full min-w-[620px] text-left text-sm">
-                          <thead className="bg-slate-100">
-                            <tr><th className="p-3">ID</th><th className="p-3">평가 기준</th><th className="p-3">배점</th></tr>
-                          </thead>
-                          <tbody>
-                            {item.subcriteria.map((sub) => (
-                              <tr key={sub.id} className="border-t border-slate-100">
-                                <td className="p-3 font-mono font-black">{sub.id}</td>
-                                <td className="p-3 leading-6">{sub.criterion}</td>
-                                <td className="p-3 font-black">{(sub.units / 10).toFixed(1)}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </details>
+                    <div
+                      key={item.id}
+                      className="grid grid-cols-[72px_minmax(0,1fr)_110px_82px] items-center gap-0 border-t border-slate-100 px-4 py-3 text-sm max-sm:grid-cols-[58px_minmax(0,1fr)_72px]"
+                    >
+                      <span className="font-mono font-black text-cyan-800">{item.id}</span>
+                      <span className="font-bold leading-6 text-slate-800">{item.title}</span>
+                      <span className="text-slate-500 max-sm:hidden">{item.mode}</span>
+                      <span className="text-right font-black text-slate-950">{(item.maxUnits / 10).toFixed(1)}점</span>
+                    </div>
                   ))}
                 </div>
               </article>
