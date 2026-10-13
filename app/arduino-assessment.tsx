@@ -117,7 +117,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
             <Button asChild variant="outline" className="font-black">
               <a href={base + "a29/materials/exam.html"} target="_blank" rel="noreferrer">
                 <Printer className="mr-2 size-4" />
-                시험지
+                연습 문제지
               </a>
             </Button>
             <Button asChild variant="outline" className="font-black">
@@ -189,7 +189,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                   <dd className="mt-1 text-xl font-black">29명</dd>
                 </div>
                 <div className="rounded-2xl bg-white/10 p-4">
-                  <dt className="text-slate-400">세부기준</dt>
+                  <dt className="text-slate-400">연습기준</dt>
                   <dd className="mt-1 text-xl font-black">{totalCriteria}개</dd>
                 </div>
                 <div className="rounded-2xl bg-white/10 p-4">
@@ -365,10 +365,10 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
             <ShieldCheck className="mt-1 size-7 text-emerald-600" />
             <div>
               <p className="text-sm font-black text-emerald-700">05 · RUBRIC</p>
-              <h2 className="text-3xl font-black">학생 공개용 평가기준</h2>
+              <h2 className="text-3xl font-black">연습용 평가기준</h2>
               <p className="mt-2 leading-7 text-slate-600">
                 기본점수 80.0점에 아래 실습 성취점수 20.0점을 더합니다.
-                공개된 기준 외의 추가 감점은 하지 않습니다.
+                실제 평가에서 적용할 최종 채점 기준은 교사의 별도 안내를 따릅니다.
               </p>
             </div>
           </div>

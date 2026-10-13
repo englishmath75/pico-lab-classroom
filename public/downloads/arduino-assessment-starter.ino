@@ -24,8 +24,8 @@ void loop() {
   digitalWrite(7, HIGH);
   delayMicroseconds(10);
   digitalWrite(7, LOW);
-  unsigned long duration = pulseIn(8, HIGH, 30000UL);
-  float distance = duration * 0.034f / 2.0f;
+  long duration = pulseIn(8, HIGH);
+  float distance = duration * 0.034 / 2;
 
   int ledPwm = 0;
   int alarm = 0;
