@@ -6,18 +6,12 @@ import {
   ArrowLeft,
   CheckCircle2,
   CircuitBoard,
-  Clipboard,
   Clock3,
   Code2,
-  Download,
-  Printer,
   Search,
   ShieldCheck,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Toaster } from "@/components/ui/sonner";
-import { toast } from "sonner";
 import { assessmentData, studentStarterCode } from "./arduino-assessment-data";
 
 type AreaId = "ALL" | "A" | "B" | "C" | "D" | "E" | "F";
@@ -59,15 +53,6 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
       .filter((section) => section.items.length > 0);
   }, [area, query]);
 
-  const copyCode = async () => {
-    try {
-      await navigator.clipboard.writeText(studentStarterCode);
-      toast.success("학생용 빈칸 코드를 복사했습니다.");
-    } catch {
-      toast.error("자동 복사가 차단되었습니다. INO 파일을 다운로드하세요.");
-    }
-  };
-
   const toggleChecklist = (index: number) => {
     setChecked((current) =>
       current.includes(index)
@@ -93,12 +78,12 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
           </button>
           <div className="flex flex-wrap gap-2">
             {[
-              { label: "자율학습 영상", href: "learning-videos/index.html", style: "bg-emerald-700 text-white hover:bg-emerald-600" },
-              { label: "Tinkercad 3단계", href: "a29/index.html", style: "bg-cyan-500 text-slate-950 hover:bg-cyan-400" },
-              { label: "대비 학습지", href: "a29/materials/worksheet.html", style: "bg-white text-slate-950 border border-slate-200 hover:bg-slate-100" },
-              { label: "기본 코드", href: "downloads/arduino-assessment-starter.ino", style: "bg-amber-400 text-slate-950 hover:bg-amber-300" },
+              { label: "수행평가 안내", href: "#overview", style: "bg-emerald-700 text-white hover:bg-emerald-600" },
+              { label: "Tinkercad 3단계 연습", href: "a29/index.html", style: "bg-cyan-500 text-slate-950 hover:bg-cyan-400" },
+              { label: "수행평가 대비 학습지", href: "a29/materials/worksheet.html", style: "bg-white text-slate-950 border border-slate-200 hover:bg-slate-100" },
+              { label: "빈칸 코드 다운로드", href: "downloads/arduino-assessment-starter.ino", style: "bg-amber-400 text-slate-950 hover:bg-amber-300" },
             ].map(({ label, href, style }) => (
-              <a key={label} href={base + href}
+              <a key={label} href={href.startsWith("#") ? href : base + href}
                 className={`inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-sm font-black transition-colors ${style}`}
                 download={href.endsWith(".ino") ? true : undefined}
                 target={href.endsWith(".html") ? "_blank" : undefined}
@@ -201,21 +186,6 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
             </aside>
           </div>
         </section>
-
-        <nav className="mt-5 grid gap-2 rounded-[22px] border border-slate-200 bg-white p-2 text-sm font-black sm:grid-cols-3 lg:grid-cols-6">
-          {[
-            ["overview", "평가 안내"],
-            ["problem", "문제"],
-            ["wiring", "회로"],
-            ["code", "기본 코드"],
-            ["rubric", "평가기준"],
-            ["check", "자기점검"],
-          ].map(([id, label]) => (
-            <a key={id} href={"#" + id} className="rounded-xl px-4 py-3 text-center hover:bg-slate-100">
-              {label}
-            </a>
-          ))}
-        </nav>
 
         <section id="overview" className="mt-6 rounded-[28px] border border-slate-200 bg-white p-5 sm:p-8">
           <div className="flex items-center gap-3">
@@ -339,13 +309,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
               <h2 className="mt-1 text-3xl font-black">학생용 12개 빈칸 코드</h2>
               <p className="mt-2 text-sm leading-6 text-slate-400">__01__부터 __12__까지 완성합니다. <span className="text-cyan-300">LIGHT_LIMIT=400</span>은 밝음과 어두움을 나누는 고정 정수 기준값입니다.</p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={copyCode} className="bg-cyan-400 font-black text-slate-950 hover:bg-cyan-300">
-                <Clipboard className="mr-2 size-4" />
-                코드 복사
-              </Button>
 
-            </div>
           </div>
           <pre className="max-h-[760px] overflow-auto p-5 font-mono text-[13px] leading-7 text-cyan-50 sm:p-7">
             <code>{studentStarterCode}</code>
