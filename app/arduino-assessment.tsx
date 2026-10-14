@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   CircuitBoard,
   Clock3,
-  Code2,
   Search,
   ShieldCheck,
 } from "lucide-react";
@@ -76,7 +75,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
               <span className="font-black">아두이노 교실로 돌아가기</span>
             </span>
           </button>
-          <div className="flex flex-wrap gap-2">
+          <nav aria-label="수행평가 학습 메뉴" className="flex flex-wrap gap-2">
             {[
               { label: "수행평가 안내", href: "#overview", style: "bg-emerald-700 text-white hover:bg-emerald-600" },
               { label: "Tinkercad 3단계 연습", href: "a29/index.html", style: "bg-cyan-500 text-slate-950 hover:bg-cyan-400" },
@@ -90,7 +89,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                 rel={href.endsWith(".html") ? "noreferrer" : undefined}
               >{label}</a>
             ))}
-          </div>
+          </nav>
         </div>
       </header>
 
@@ -187,7 +186,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
           </div>
         </section>
 
-        <section id="overview" className="mt-6 rounded-[28px] border border-slate-200 bg-white p-5 sm:p-8">
+        <section id="overview" className="mt-6 scroll-mt-56 rounded-[28px] border border-slate-200 bg-white p-5 sm:scroll-mt-40 sm:p-8">
           <div className="flex items-center gap-3">
             <Clock3 className="size-7 text-amber-600" />
             <div>
@@ -472,7 +471,6 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
           </p>
         </section>
       </main>
-      <Toaster richColors position="top-center" />
     </div>
   );
 }
