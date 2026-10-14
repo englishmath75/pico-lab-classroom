@@ -1,0 +1,158 @@
+name: Assessment navigation browser check
+
+on:
+  workflow_run:
+    workflows: ["PICO LAB 배포"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: assessment-navigation-browser
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the deployed revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser test tools
+        run: |
+          python -m pip install playwright==1.55.0
+          python -m playwright install --with-deps --only-shell chromium
+      - name: Verify live desktop and mobile navigation
+        env:
+          CHECKED_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          import time
+          from pathlib import Path
+          from urllib.parse import urljoin
+          from playwright.sync_api import sync_playwright, expect
+
+          base = "https://englishmath75.github.io/pico-lab-classroom/"
+          sha = os.environ["CHECKED_SHA"]
+          url = base + "?view=assessment&v=" + sha[:12]
+          expected = ["수행평가 안내", "Tinkercad 3단계 연습", "수행평가 대비 학습지", "빈칸 코드 다운로드"]
+          expected_hrefs = ["#overview", base + "a29/index.html", base + "a29/materials/worksheet.html", base + "downloads/arduino-assessment-starter.ino"]
+          output = Path("qa-assessment")
+          output.mkdir(exist_ok=True)
+          report = {"sha": sha, "url": url, "results": [], "status": "RUNNING"}
+          source_code = Path("public/downloads/arduino-assessment-starter.ino").read_bytes()
+
+          try:
+              with sync_playwright() as p:
+                  browser = p.chromium.launch()
+                  for name, width, height in [("desktop", 1440, 1000), ("school-screen", 1280, 800), ("mobile", 390, 844)]:
+                      context = browser.new_context(viewport={"width": width, "height": height}, accept_downloads=True, extra_http_headers={"Cache-Control": "no-cache"})
+                      page = context.new_page()
+                      errors = []
+                      page.on("pageerror", lambda error: errors.append(str(error)))
+                      # A fresh query and bounded retries allow the Pages CDN to settle.
+                      for attempt in range(5):
+                          errors.clear()
+                          response = page.goto(url + "&check=" + str(int(time.time())), wait_until="networkidle", timeout=60000)
+                          assert response and response.status == 200, "Assessment page did not return HTTP 200"
+                          try:
+                              expect(page.locator('header nav[aria-label="수행평가 학습 메뉴"] a')).to_have_count(4, timeout=10000)
+                              break
+                          except AssertionError:
+                              if attempt == 4:
+                                  raise
+                              time.sleep(8)
+                      links = page.locator('header nav[aria-label="수행평가 학습 메뉴"] a')
+                      assert links.all_text_contents() == expected, links.all_text_contents()
+                      assert page.locator("main a").count() == 0, "Duplicate main-page links returned"
+                      assert page.get_by_role("link").count() == 4, "The assessment must contain exactly four learning links"
+                      for i, expected_href in enumerate(expected_hrefs):
+                          href = links.nth(i).get_attribute("href")
+                          actual = href if href.startswith("#") else urljoin(base, href)
+                          assert actual == expected_href, (actual, expected_href)
+                          assert links.nth(i).is_visible(), expected[i]
+                      for section in ["overview", "problem", "wiring", "code", "rubric", "check"]:
+                          assert page.locator("#" + section).count() == 1, "Missing content: " + section
+                      assert not errors, errors
+                      assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1"), "Horizontal page overflow"
+                      page.screenshot(path=str(output / (name + ".png")), full_page=False)
+
+                      links.nth(0).click()
+                      assert page.url.endswith("#overview"), page.url
+                      top = page.locator("#overview").bounding_box()["y"]
+                      header = page.locator("header").bounding_box()
+                      assert top >= header["y"] + header["height"] - 2, "Sticky header obscures the guide"
+
+                      page.evaluate("window.scrollTo(0, 0)")
+                      with page.expect_download(timeout=30000) as downloaded:
+                          links.nth(3).click()
+                      download = downloaded.value
+                      assert download.failure() is None, download.failure()
+                      code = Path(download.path()).read_bytes()
+                      assert code == source_code, "Published starter code differs from the deployed source"
+                      markers = re.findall(rb"__\d{2}__", code)
+                      assert markers == [f"__{i:02}__".encode() for i in range(1, 13)], markers
+                      assert links.nth(3).get_attribute("download") is not None
+
+                      destinations = []
+                      for i in (1, 2):
+                          target = expected_hrefs[i]
+                          resource = context.request.get(target)
+                          assert resource.status == 200, (target, resource.status)
+                          assert "<html" in resource.text().lower(), target
+                          with page.expect_popup(timeout=30000) as popup_info:
+                              links.nth(i).click()
+                          popup = popup_info.value
+                          popup.wait_for_load_state("domcontentloaded")
+                          assert popup.url.startswith(target), popup.url
+                          destinations.append({"label": expected[i], "url": popup.url, "status": resource.status})
+                          popup.close()
+
+                      # Self-check remains interactive despite removal of duplicate action buttons.
+                      checkbox = page.locator('#check [role="checkbox"]').first
+                      if checkbox.count():
+                          checkbox.click()
+                          expect(checkbox).to_have_attribute("aria-checked", "true")
+                      assert not errors, errors
+                      result = {"viewport": name, "width": width, "links": expected, "link_count": 4, "runtime_errors": errors, "download_blanks": len(markers), "download_sha256": hashlib.sha256(code).hexdigest(), "destinations": destinations, "status": "PASS"}
+                      report["results"].append(result)
+                      print(json.dumps(result, ensure_ascii=False), flush=True)
+                      context.close()
+                  browser.close()
+              report["status"] = "PASS"
+          except Exception as error:
+              report["status"] = "FAIL"
+              report["error"] = str(error)
+              raise
+          finally:
+              (output / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+                  summary.write("## Assessment navigation: " + report["status"] + "\n\n")
+                  summary.write("Revision: `" + sha + "`\n\n")
+                  for result in report["results"]:
+                      summary.write("- " + result["viewport"] + ": 4 links, 12 code blanks, no JavaScript errors, guide anchor and resource links passed.\n")
+                  if "error" in report:
+                      summary.write("\nError: " + report["error"] + "\n")
+          PY
+      - name: Preserve browser check evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assessment-navigation-browser-evidence
+          path: qa-assessment/
+          retention-days: 7
