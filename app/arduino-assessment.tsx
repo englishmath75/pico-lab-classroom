@@ -186,6 +186,25 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
           </div>
         </section>
 
+        <section id="videos" aria-labelledby="practice-video-title" className="mt-6 rounded-[28px] border border-emerald-200 bg-white p-4 shadow-sm sm:p-7">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-black text-emerald-700">VIDEO · 자율학습</p>
+              <h2 id="practice-video-title" className="mt-1 text-2xl font-black sm:text-3xl">수행평가 실습 영상 5편</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">총 50분 30초 · 무음 자막 영상 · STEP1~3 실제 Tinkercad 화면. 영상을 일시정지하며 따라 해 보세요.</p>
+            </div>
+            <span className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-800">페이지 안에서 바로 시청</span>
+          </div>
+          <iframe
+            title="Arduino 수행평가 자율학습 영상 재생기"
+            src={base + "learning-videos/index.html"}
+            loading="lazy"
+            allow="fullscreen; autoplay"
+            allowFullScreen
+            className="h-[700px] w-full rounded-2xl border border-slate-200 bg-slate-950 sm:h-[780px]"
+          />
+        </section>
+
         <section id="overview" className="mt-6 scroll-mt-56 rounded-[28px] border border-slate-200 bg-white p-5 sm:scroll-mt-40 sm:p-8">
           <div className="flex items-center gap-3">
             <Clock3 className="size-7 text-amber-600" />
