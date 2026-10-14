@@ -92,39 +92,19 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
             </span>
           </button>
           <div className="flex flex-wrap gap-2">
-            <Button asChild className="bg-emerald-700 font-black text-white hover:bg-emerald-600">
-              <a href={base + "learning-videos/index.html"}>자율학습 영상</a>
-            </Button>
-            <Button asChild className="bg-cyan-500 font-black text-slate-950 hover:bg-cyan-400">
-              <a href={base + "a29/index.html"}>
-                <Code2 className="mr-2 size-4" />
-                Tinkercad 3단계
-              </a>
-            </Button>
-            <Button asChild variant="outline" className="font-black">
-              <a href={base + "a29/materials/worksheet.html"} target="_blank" rel="noreferrer">
-                <Printer className="mr-2 size-4" />
-                대비 학습지
-              </a>
-            </Button>
-            <Button asChild variant="outline" className="font-black">
-              <a href={base + "a29/materials/exam.html"} target="_blank" rel="noreferrer">
-                <Printer className="mr-2 size-4" />
-                연습 문제지
-              </a>
-            </Button>
-            <Button asChild variant="outline" className="font-black">
-              <a href={base + "downloads/arduino-assessment-guide.md"} download>
-                <Download className="mr-2 size-4" />
-                평가 안내
-              </a>
-            </Button>
-            <Button asChild className="bg-amber-400 font-black text-slate-950 hover:bg-amber-300">
-              <a href={base + "downloads/arduino-assessment-starter.ino"} download>
-                <Download className="mr-2 size-4" />
-                기본 코드
-              </a>
-            </Button>
+            {[
+              { label: "자율학습 영상", href: "learning-videos/index.html", style: "bg-emerald-700 text-white hover:bg-emerald-600" },
+              { label: "Tinkercad 3단계", href: "a29/index.html", style: "bg-cyan-500 text-slate-950 hover:bg-cyan-400" },
+              { label: "대비 학습지", href: "a29/materials/worksheet.html", style: "bg-white text-slate-950 border border-slate-200 hover:bg-slate-100" },
+              { label: "기본 코드", href: "downloads/arduino-assessment-starter.ino", style: "bg-amber-400 text-slate-950 hover:bg-amber-300" },
+            ].map(({ label, href, style }) => (
+              <a key={label} href={base + href}
+                className={`inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-sm font-black transition-colors ${style}`}
+                download={href.endsWith(".ino") ? true : undefined}
+                target={href.endsWith(".html") ? "_blank" : undefined}
+                rel={href.endsWith(".html") ? "noreferrer" : undefined}
+              >{label}</a>
+            ))}
           </div>
         </div>
       </header>
@@ -149,25 +129,6 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                 조건에 따라 LED와 부저를 제어합니다. 회로 구성부터 코드 완성,
                 업로드와 실물 동작까지 50분 안에 완성합니다.
               </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <a href="#problem" className="rounded-xl bg-amber-400 px-5 py-3 font-black text-slate-950">
-                  문제 보기
-                </a>
-                <a href="#rubric" className="rounded-xl border border-white/20 px-5 py-3 font-black text-white">
-                  평가기준 보기
-                </a>
-                <a href={base + "a29/index.html"} className="rounded-xl bg-cyan-400 px-5 py-3 font-black text-slate-950">
-                  Tinkercad 3단계 연습 ↗
-                </a>
-                <button
-                  onClick={() => window.print()}
-                  className="flex items-center gap-2 rounded-xl border border-white/20 px-5 py-3 font-black text-white"
-                >
-                  <Printer className="size-4" />
-                  인쇄
-                </button>
-              </div>
-
               <div className="mt-auto pt-8">
                 <div className="mb-3 flex items-center gap-3">
                   <span className="h-px flex-1 bg-gradient-to-r from-white/20 to-transparent" />
@@ -255,26 +216,6 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
             </a>
           ))}
         </nav>
-
-        <section id="videos" className="mt-6 rounded-[28px] border border-emerald-200 bg-emerald-50 p-5 sm:p-8 print:hidden" aria-labelledby="videos-title">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div><p className="text-xs font-black tracking-widest text-emerald-700">WATCH · PAUSE · PRACTICE</p><h2 id="videos-title" className="mt-2 text-2xl font-black">수업 뒤 혼자 따라 하는 영상</h2><p className="mt-2 text-sm leading-7 text-slate-600">실제 Tinkercad 시연 · 무음 자막 5편 · 총 50분 30초. 단계별로 멈추며 내 회로를 완성하세요.</p></div>
-            <a href={base + "learning-videos/index.html?playlist=all"} className="rounded-xl bg-emerald-800 px-5 py-3 font-black text-white">전체 이어보기 →</a>
-          </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            {[
-              ["학생 활동과 기본 조작", "4:15"],
-              ["초음파센서와 부저", "11:19"],
-              ["CDS·가변저항·LED", "13:46"],
-              ["통합 회로와 조건", "12:48"],
-              ["혼자 연습·오류 점검·저장", "8:21"],
-            ].map(([title, duration], i) => (
-              <a key={title} href={base + `learning-videos/index.html?episode=ep0${i + 1}`} className="rounded-2xl border border-emerald-200 bg-white p-4 transition hover:border-emerald-600 focus-visible:outline-2 focus-visible:outline-emerald-700">
-                <span className="text-xs font-black text-emerald-700">EP0{i + 1} · {duration}</span><strong className="mt-2 block text-sm leading-6">{title}</strong><span className="mt-3 block text-xs text-slate-500">무음 자막판 보기 ↗</span>
-              </a>
-            ))}
-          </div>
-        </section>
 
         <section id="overview" className="mt-6 rounded-[28px] border border-slate-200 bg-white p-5 sm:p-8">
           <div className="flex items-center gap-3">
@@ -403,12 +344,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
                 <Clipboard className="mr-2 size-4" />
                 코드 복사
               </Button>
-              <Button asChild variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
-                <a href={base + "downloads/arduino-assessment-starter.ino"} download>
-                  <Download className="mr-2 size-4" />
-                  INO 다운로드
-                </a>
-              </Button>
+
             </div>
           </div>
           <pre className="max-h-[760px] overflow-auto p-5 font-mono text-[13px] leading-7 text-cyan-50 sm:p-7">
