@@ -75,12 +75,12 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
               <span className="font-black">아두이노 교실로 돌아가기</span>
             </span>
           </button>
-          <nav aria-label="수행평가 학습 메뉴" className="flex flex-wrap gap-2">
+          <nav aria-label="학생 수행평가 바로가기" className="flex flex-wrap gap-2">
             {[
-              { label: "수행평가 안내", href: "#overview", style: "bg-emerald-700 text-white hover:bg-emerald-600" },
-              { label: "Tinkercad 3단계 연습", href: "a29/index.html", style: "bg-cyan-500 text-slate-950 hover:bg-cyan-400" },
-              { label: "수행평가 대비 학습지", href: "a29/materials/worksheet.html", style: "bg-white text-slate-950 border border-slate-200 hover:bg-slate-100" },
-              { label: "빈칸 코드 다운로드", href: "downloads/arduino-assessment-starter.ino", style: "bg-amber-400 text-slate-950 hover:bg-amber-300" },
+              { label: "① 시험지 한 장 보기", href: "a29/materials/exam-one-page.html", style: "bg-amber-400 text-slate-950 hover:bg-amber-300" },
+              { label: "② 배선 실습·영상 보기", href: "#videos", style: "bg-emerald-700 text-white hover:bg-emerald-600" },
+              { label: "③ Tinkercad 3단계", href: "a29/index.html", style: "bg-cyan-500 text-slate-950 hover:bg-cyan-400" },
+              { label: "④ 빈칸 코드 받기", href: "downloads/arduino-assessment-starter.ino", style: "bg-white text-slate-950 border border-slate-200 hover:bg-slate-100" },
             ].map(({ label, href, style }) => (
               <a key={label} href={href.startsWith("#") ? href : base + href}
                 className={`inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-sm font-black transition-colors ${style}`}
@@ -94,6 +94,16 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
       </header>
 
       <main className="mx-auto max-w-[1280px] px-4 py-7 sm:px-7">
+        <section aria-label="학생 시작 안내" className="mb-5 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
+          <h1 className="text-xl font-black text-slate-950">수행평가 연습은 이 순서대로 하세요</h1>
+          <p className="mt-2 text-sm font-semibold leading-7 text-slate-700">① 시험지 한 장으로 문제 확인 → ② 아래 실습 영상으로 배선 따라 하기 → ③ Tinkercad 3단계에서 회로 완성 → ④ 빈칸 코드 입력 및 동작 확인</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <a className="rounded-xl bg-slate-950 px-4 py-2 font-bold text-white" href={base + "a29/materials/exam-one-page.html"} target="_blank" rel="noreferrer">시험지 한 장 열기 ↗</a>
+            <a className="rounded-xl bg-emerald-700 px-4 py-2 font-bold text-white" href="#videos">실습 영상 5편 바로 보기 ↓</a>
+            <a className="rounded-xl bg-cyan-600 px-4 py-2 font-bold text-white" href={base + "a29/index.html"} target="_blank" rel="noreferrer">Tinkercad 실습 열기 ↗</a>
+            <a className="rounded-xl border border-slate-300 bg-white px-4 py-2 font-bold text-slate-950" href={base + "a29/materials/worksheet.html"} target="_blank" rel="noreferrer">추가 학습지</a>
+          </div>
+        </section>
         <section className="overflow-hidden rounded-[32px] bg-slate-950 text-white shadow-xl">
           <div className="grid gap-8 bg-[radial-gradient(circle_at_85%_10%,rgba(34,211,238,.23),transparent_34%)] p-6 sm:p-9 lg:grid-cols-[minmax(0,1.35fr)_minmax(340px,.65fr)]">
             <div className="flex h-full min-w-0 flex-col">
