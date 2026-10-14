@@ -81,6 +81,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
               { label: "② 배선 실습·영상 보기", href: "#videos", style: "bg-emerald-700 text-white hover:bg-emerald-600" },
               { label: "③ Tinkercad 3단계", href: "a29/index.html", style: "bg-cyan-500 text-slate-950 hover:bg-cyan-400" },
               { label: "④ 빈칸 코드 받기", href: "downloads/arduino-assessment-starter.ino", style: "bg-white text-slate-950 border border-slate-200 hover:bg-slate-100" },
+              { label: "⑤ 연습 정답·해설", href: "a29/materials/starter-answers.html", style: "bg-violet-700 text-white hover:bg-violet-600" },
             ].map(({ label, href, style }) => (
               <a key={label} href={href.startsWith("#") ? href : base + href}
                 className={`inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-sm font-black transition-colors ${style}`}
@@ -101,6 +102,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
             <a className="rounded-xl bg-slate-950 px-4 py-2 font-bold text-white" href={base + "a29/materials/exam-one-page.html"} target="_blank" rel="noreferrer">시험지 한 장 열기 ↗</a>
             <a className="rounded-xl bg-emerald-700 px-4 py-2 font-bold text-white" href="#videos">실습 영상 5편 바로 보기 ↓</a>
             <a className="rounded-xl bg-cyan-600 px-4 py-2 font-bold text-white" href={base + "a29/index.html"} target="_blank" rel="noreferrer">Tinkercad 실습 열기 ↗</a>
+            <a className="rounded-xl bg-violet-700 px-4 py-2 font-bold text-white" href={base + "a29/materials/starter-answers.html"} target="_blank" rel="noreferrer">연습 정답·해설 확인 ↗</a>
             <a className="rounded-xl border border-slate-300 bg-white px-4 py-2 font-bold text-slate-950" href={base + "a29/materials/worksheet.html"} target="_blank" rel="noreferrer">추가 학습지</a>
           </div>
         </section>
