@@ -3,7 +3,7 @@
   "episodes": [
     {
       "id": "ep02",
-      "title": "초음파센서와 부저",
+      "title": "STEP 1 · 초음파센서와 부저",
       "duration": 679.1,
       "poster": "./v5/ep02/poster.jpg",
       "variants": [
@@ -70,7 +70,7 @@
     },
     {
       "id": "ep03",
-      "title": "CDS·가변저항·LED",
+      "title": "STEP 2 · 조도센서·가변저항·LED",
       "duration": 826.2,
       "poster": "./v5/ep03/poster.jpg",
       "variants": [
@@ -145,7 +145,7 @@
     },
     {
       "id": "ep04",
-      "title": "통합 회로와 조건",
+      "title": "STEP 3 · 통합 회로",
       "duration": 768.5,
       "poster": "./v5/ep04/poster.jpg",
       "variants": [
