@@ -100,7 +100,7 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
           <p className="mt-2 text-sm font-semibold leading-7 text-slate-700">① 시험지 한 장으로 문제 확인 → ② 아래 실습 영상으로 배선 따라 하기 → ③ Tinkercad 3단계에서 회로 완성 → ④ 빈칸 코드 입력 및 동작 확인</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <a className="rounded-xl bg-slate-950 px-4 py-2 font-bold text-white" href={base + "a29/materials/exam-one-page.html"} target="_blank" rel="noreferrer">시험지 한 장 열기 ↗</a>
-            <a className="rounded-xl bg-emerald-700 px-4 py-2 font-bold text-white" href="#videos">실습 영상 5편 바로 보기 ↓</a>
+            <a className="rounded-xl bg-emerald-700 px-4 py-2 font-bold text-white" href="#videos">실습 영상 3편 바로 보기 ↓</a>
             <a className="rounded-xl bg-cyan-600 px-4 py-2 font-bold text-white" href={base + "a29/index.html"} target="_blank" rel="noreferrer">Tinkercad 실습 열기 ↗</a>
             <a className="rounded-xl bg-violet-700 px-4 py-2 font-bold text-white" href={base + "a29/materials/starter-answers.html"} target="_blank" rel="noreferrer">연습 정답·해설 확인 ↗</a>
             <a className="rounded-xl border border-slate-300 bg-white px-4 py-2 font-bold text-slate-950" href={base + "a29/materials/worksheet.html"} target="_blank" rel="noreferrer">추가 학습지</a>
@@ -202,11 +202,12 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-black text-emerald-700">VIDEO · 자율학습</p>
-              <h2 id="practice-video-title" className="mt-1 text-2xl font-black sm:text-3xl">수행평가 실습 영상 5편</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">총 50분 30초 · 무음 자막 영상 · STEP1~3 실제 Tinkercad 화면. 영상을 일시정지하며 따라 해 보세요.</p>
+              <h2 id="practice-video-title" className="mt-1 text-2xl font-black sm:text-3xl">수행평가 실습 영상 3편</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">총 37분 54초 · 무음 자막 영상 · 초음파 / 조도·가변저항 / 통합 3단계. 기존 회로 촬영본이므로 배선 원리를 중심으로 참고하세요.</p>
             </div>
             <span className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-800">페이지 안에서 바로 시청</span>
           </div>
+          <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900"><strong>영상 안내:</strong> 기존 촬영 영상은 단일 LED 회로를 사용합니다. 새 수행평가의 빨간 LED(D9)·초록 LED(D10) 독립 제어와 코드가 다르므로, 배선 방법을 참고하고 최종 연결과 코드는 NEW STEP 1~3 회로 기준을 따르세요.</p>
           <iframe
             title="Arduino 수행평가 자율학습 영상 재생기"
             src={base + "learning-videos/index.html"}
