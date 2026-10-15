@@ -13,8 +13,8 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
   const resources = [
     { label: "① 연습 문제지 보기", href: base + "a29/materials/exam-one-page.html", external: true },
     { label: "② 실습 영상 3편", href: "#videos", external: false },
-    { label: "③ NEW Tinkercad 3단계", href: base + "a29/index.html", external: true },
-    { label: "④ NEW 빈칸 코드", href: base + "downloads/arduino-assessment-starter.ino", external: false, download: true },
+    { label: "③ Tinkercad 3단계", href: base + "a29/index.html", external: true },
+    { label: "④ 빈칸 코드 받기", href: base + "downloads/arduino-assessment-starter.ino", external: false, download: true },
     { label: "⑤ 연습 정답·해설", href: base + "a29/materials/starter-answers.html", external: true },
   ];
   return <div className="min-h-screen bg-[#f5f7fb] text-slate-950">
@@ -28,9 +28,9 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
     </header>
     <main className="mx-auto max-w-[1280px] space-y-6 px-4 py-7 sm:px-7">
       <section className="overflow-hidden rounded-[28px] bg-slate-950 p-6 text-white shadow-lg sm:p-10">
-        <p className="text-sm font-black tracking-wider text-cyan-300">ARDUINO UNO R3 · NEW 3 STEP</p>
-        <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">아두이노 수행평가 · 새 실습</h1>
-        <p className="mt-4 max-w-4xl text-base leading-8 text-slate-200">초음파센서 → 부저, 조도센서 → 빨간 LED, 가변저항 → 초록 LED. <strong className="text-white">세 출력은 서로 독립적</strong>입니다. 선생님 교사 계정의 NEW STEP 1~3 회로와 동일한 핀 번호를 사용합니다.</p>
+        <p className="text-sm font-black tracking-wider text-cyan-300">ARDUINO UNO R3 · 3-STEP PRACTICE</p>
+        <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">아두이노 수행평가 실습</h1>
+        <p className="mt-4 max-w-4xl text-base leading-8 text-slate-200">초음파센서 → 부저, 조도센서 → 빨간 LED, 가변저항 → 초록 LED. <strong className="text-white">세 출력은 서로 독립적</strong>입니다. 3단계 실습에서 같은 핀 번호를 사용하며 입력·처리·출력의 흐름을 익힙니다.</p>
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-white/20 bg-white/10 p-4"><b className="text-amber-200">거리 경보</b><p className="mt-1">20cm 미만 → 부저 D2 울림</p></div>
           <div className="rounded-2xl border border-white/20 bg-white/10 p-4"><b className="text-rose-200">조도 경보</b><p className="mt-1">CDS 값 400 미만 → 빨강 D9 켜짐</p></div>
@@ -56,26 +56,26 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
         </div>
       </section>
       <section className="rounded-[24px] border border-amber-200 bg-amber-50 p-5 sm:p-7">
-        <h2 className="text-xl font-black">처음부터 이 순서로 공부하세요</h2>
-        <p className="mt-2 leading-8 text-slate-800">① 연습 문제지 확인 → ② 영상에서 기본 배선 방법 확인 → ③ 아래 NEW Tinkercad 회로 열기 → ④ 빈칸 코드 완성 → ⑤ 정답·해설 확인</p>
-        <p className="mt-2 text-sm text-amber-950">기존 단일 LED 회로 및 예전 빈칸 코드는 사용하지 않습니다. 실제 시험의 평가 조건·배점은 선생님의 최종 안내를 따릅니다.</p>
+        <h2 className="text-xl font-black">이 순서로 공부하세요</h2>
+        <p className="mt-2 leading-8 text-slate-800">① 연습 문제지 확인 → ② 영상에서 기본 배선 방법 확인 → ③ Tinkercad 실습 회로 열기 → ④ 빈칸 코드 완성 → ⑤ 정답·해설 확인</p>
+        <p className="mt-2 text-sm text-amber-950">회로를 열어 부품과 핀 연결을 확인한 뒤, 값을 바꾸며 동작을 직접 비교해 보세요.</p>
       </section>
-      <section aria-labelledby="new-steps" className="rounded-[24px] border border-slate-200 bg-white p-5 sm:p-7">
-        <h2 id="new-steps" className="flex items-center gap-2 text-2xl font-black"><CircuitBoard className="size-6 text-cyan-700" /> NEW Tinkercad 회로 3개</h2>
-        <p className="mt-2 text-sm text-slate-600">교사 계정에서 새로 제작·검수한 회로입니다. 반드시 아래 NEW 링크를 사용하세요.</p>
+      <section aria-labelledby="practice-steps" className="rounded-[24px] border border-slate-200 bg-white p-5 sm:p-7">
+        <h2 id="practice-steps" className="flex items-center gap-2 text-2xl font-black"><CircuitBoard className="size-6 text-cyan-700" /> Tinkercad 실습 회로 3개</h2>
+        <p className="mt-2 text-sm text-slate-600">STEP 1부터 차례로 회로를 열고 배선과 코드를 살펴본 뒤 시뮬레이션해 보세요.</p>
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
-          {steps.map(s=><article key={s.id} className="flex flex-col rounded-2xl border border-slate-200 bg-slate-50 p-5"><p className="text-xs font-black tracking-widest text-cyan-800">STEP {s.id}</p><h3 className="mt-2 text-lg font-black">{s.name}</h3><p className="mt-2 flex-1 text-sm leading-6 text-slate-700">{s.detail}</p><p className="mt-3 text-xs text-slate-500">{s.components}</p><p className="mt-1 font-mono text-xs font-black text-slate-700">{s.pins}</p><a className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 py-2 font-bold text-white" href={s.url} target="_blank" rel="noopener noreferrer">NEW 회로 열기 ↗</a></article>)}
+          {steps.map(s=><article key={s.id} className="flex flex-col rounded-2xl border border-slate-200 bg-slate-50 p-5"><p className="text-xs font-black tracking-widest text-cyan-800">STEP {s.id}</p><h3 className="mt-2 text-lg font-black">{s.name}</h3><p className="mt-2 flex-1 text-sm leading-6 text-slate-700">{s.detail}</p><p className="mt-3 text-xs text-slate-500">{s.components}</p><p className="mt-1 font-mono text-xs font-black text-slate-700">{s.pins}</p><a className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 py-2 font-bold text-white" href={s.url} target="_blank" rel="noopener noreferrer">회로 열기 ↗</a></article>)}
         </div>
         <a className="mt-5 inline-flex items-center gap-2 rounded-xl bg-cyan-100 px-4 py-3 font-black text-cyan-950" href={base+"a29/index.html"} target="_blank" rel="noopener noreferrer"><BookOpen className="size-5" />3단계 설명·동작 예측 열기</a>
       </section>
       <section id="videos" aria-labelledby="video-title" className="scroll-mt-44 rounded-[24px] border border-emerald-200 bg-white p-5 sm:scroll-mt-32 sm:p-7">
         <h2 id="video-title" className="flex items-center gap-2 text-2xl font-black"><PlayCircle className="size-6 text-emerald-700" /> 수행평가 실습 영상 3편</h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">STEP 1 초음파, STEP 2 CDS·가변저항, STEP 3 통합 회로. 총 37분 54초입니다.</p>
-        <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950"><strong>주의:</strong> 기존 영상은 단일 LED로 촬영됐습니다. 부품 배치·조작을 참고하되, NEW 회로의 빨간 LED D9·초록 LED D10 및 독립 동작을 최종 기준으로 하세요.</p>
-        <iframe title="Arduino NEW 수행평가 실습 영상 3편" src={base+"learning-videos/index.html"} loading="lazy" allow="fullscreen; autoplay" allowFullScreen className="mt-4 h-[680px] w-full rounded-2xl border border-slate-200 bg-slate-950 sm:h-[760px]" />
+        <p className="mt-3 text-sm leading-6 text-slate-700">영상에서 Tinkercad 기본 조작과 배선 방법을 익혀보세요. 회로 연결과 코드는 STEP 1~3 실습 자료를 확인하세요.</p>
+        <iframe title="아두이노 수행평가 실습 영상 3편" src={base+"learning-videos/index.html"} loading="lazy" allow="fullscreen; autoplay" allowFullScreen className="mt-4 h-[680px] w-full rounded-2xl border border-slate-200 bg-slate-950 sm:h-[760px]" />
       </section>
       <section id="code" className="rounded-[24px] border border-slate-200 bg-white p-5 sm:p-7">
-        <h2 className="flex items-center gap-2 text-2xl font-black"><FileCode2 className="size-6 text-violet-700" /> NEW 통합 12개 빈칸 코드</h2><p className="mt-2 text-slate-700">복잡한 bool 변수와 긴 함수를 사용하지 않습니다. 검수한 코드의 <code>dist</code>, <code>cds</code>, <code>pot</code>, <code>led</code>를 그대로 사용합니다.</p><div className="mt-4 flex flex-wrap gap-3"><a className="rounded-xl bg-slate-950 px-5 py-3 font-bold text-white" href={base+"downloads/arduino-assessment-starter.ino"} download>NEW 학생용 코드 받기 ↓</a><a className="rounded-xl bg-violet-700 px-5 py-3 font-bold text-white" href={base+"a29/materials/starter-answers.html"} target="_blank" rel="noopener noreferrer">12개 정답·해설 보기 ↗</a></div>
+        <h2 className="flex items-center gap-2 text-2xl font-black"><FileCode2 className="size-6 text-violet-700" /> 통합 실습 · 12개 빈칸 코드</h2><p className="mt-2 text-slate-700">코드에는 짧은 변수명 <code>dist</code>, <code>cds</code>, <code>pot</code>, <code>led</code>를 사용합니다. 빈칸을 직접 완성한 뒤 실행 결과를 확인해 보세요.</p><div className="mt-4 flex flex-wrap gap-3"><a className="rounded-xl bg-slate-950 px-5 py-3 font-bold text-white" href={base+"downloads/arduino-assessment-starter.ino"} download>학생용 코드 받기 ↓</a><a className="rounded-xl bg-violet-700 px-5 py-3 font-bold text-white" href={base+"a29/materials/starter-answers.html"} target="_blank" rel="noopener noreferrer">12개 정답·해설 보기 ↗</a></div>
       </section>
       <section id="rubric" className="scroll-mt-44 rounded-[24px] border border-slate-200 bg-white p-5 sm:scroll-mt-32 sm:p-7">
         <div className="flex items-start gap-3">
@@ -83,10 +83,10 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
           <div>
             <p className="text-sm font-black text-emerald-700">STUDENT RUBRIC · 실습활동 20점</p>
             <h2 className="mt-1 text-2xl font-black">세부 채점기준 83개</h2>
-            <p className="mt-2 leading-7 text-slate-700">아래 6개 영역의 항목을 클릭하면 <strong>0.2·0.4·0.6점 단위의 세부 판정기준</strong>이 펼쳐집니다. 기존 세부기준의 번호와 배점은 유지하고, 빨간 LED·초록 LED·부저의 NEW 독립 동작에 맞게 설명을 수정했습니다.</p>
+            <p className="mt-2 leading-7 text-slate-700">아래 6개 영역의 항목을 클릭하면 <strong>0.2·0.4·0.6점 단위의 세부 판정기준</strong>이 펼쳐집니다. 빨간 LED·초록 LED·부저의 독립 동작을 기준으로 평가항목을 확인할 수 있습니다.</p>
           </div>
         </div>
-        {!assessmentRubric.isSchoolApproved && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">안내: 기존 웹앱의 점수 배분(40+20+20+20)을 복원한 검토용 기준입니다. NEW 회로에 맞춘 판정 문구는 학교의 최종 확정 평가계획과 일치 여부를 확인한 후 적용하세요.</p>}
+        {!assessmentRubric.isSchoolApproved && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">점수 적용 안내: 실제 성적 처리는 학교의 확정된 평가계획과 운영 기준에 따릅니다.</p>}
         <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-950 text-white"><tr><th className="p-3 sm:p-4">실습 평가영역</th><th className="p-3 text-right sm:p-4">배점</th></tr></thead>
