@@ -1,57 +1,48 @@
-const int LIGHT_LIMIT = 400;
-
 void setup() {
   pinMode(7, OUTPUT);
   pinMode(8, INPUT);
-  pinMode(9, OUTPUT);
   pinMode(2, OUTPUT);
-  digitalWrite(7, LOW);
-  analogWrite(9, 0);
-  noTone(2);
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
   Serial.begin(9600);
 }
 
 void loop() {
-  int light = __01__(A0);
+  int cds = __01__(A0);
   int pot = __02__(A1);
-  int brightness = map(pot, 0, 1023, __03__, __04__);
+  int led = map(pot, 0, 1023, __03__, __04__);
+
+  if (__05__) {
+    digitalWrite(__06__, HIGH);
+  } else {
+    digitalWrite(9, __07__);
+  }
+  analogWrite(__08__, __09__);
 
   digitalWrite(7, LOW);
   delayMicroseconds(2);
   digitalWrite(7, HIGH);
   delayMicroseconds(10);
   digitalWrite(7, LOW);
-  long duration = pulseIn(8, HIGH);
-  float distance = duration * 0.034 / 2;
 
-  int ledPwm = 0;
-  int alarm = 0;
-
-  if (duration > 0) {
-    if (__05__) {
-      alarm = 1;
-      if (__06__) {
-        ledPwm = __07__;
-      }
-    }
+  float dist = pulseIn(8, HIGH, 25000) * 0.034 / 2;
+  if (dist == 0) {
+    dist = 999;
   }
 
-  analogWrite(9, __08__);
-  if (alarm == 1) {
-    __09__(2, 1000);
+  if (__10__) {
+    __11__(2, 1000);
   } else {
-    __10__(2);
+    __12__(2);
   }
 
-  Serial.print("DIST_CM=");
-  if (duration > 0) {
-    Serial.print(__11__);
-  } else {
-    Serial.print("N/A");
-  }
-  Serial.print(" LIGHT_RAW="); Serial.print(__12__);
-  Serial.print(" POT_RAW="); Serial.print(pot);
-  Serial.print(" LED_PWM_CMD="); Serial.print(ledPwm);
-  Serial.print(" BUZZER_CMD="); Serial.println(alarm);
-  delay(200);
+  Serial.print("cds=");
+  Serial.print(cds);
+  Serial.print(" pot=");
+  Serial.print(pot);
+  Serial.print(" led=");
+  Serial.print(led);
+  Serial.print(" dist=");
+  Serial.println(dist);
+  delay(100);
 }
