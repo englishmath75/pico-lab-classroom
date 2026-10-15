@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowLeft, BookOpen, CircuitBoard, PlayCircle, FileCode2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, BookOpen, CircuitBoard, PlayCircle, FileCode2, CheckCircle2, ShieldCheck } from "lucide-react";
+import { assessmentRubric } from "./arduino-assessment-rubric";
 
 const steps = [
   { id: 1, name: "초음파센서와 부저", detail: "20cm 미만이면 부저가 울립니다.", components: "HC-SR04 · 부저", pins: "TRIG D7 · ECHO D8 · 부저 D2", url: "https://www.tinkercad.com/things/h4ANNRDybN4-newstep1/editel" },
@@ -35,6 +36,24 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
           <div className="rounded-2xl border border-white/20 bg-white/10 p-4"><b className="text-rose-200">조도 경보</b><p className="mt-1">CDS 값 400 미만 → 빨강 D9 켜짐</p></div>
           <div className="rounded-2xl border border-white/20 bg-white/10 p-4"><b className="text-emerald-200">밝기 조절</b><p className="mt-1">가변저항 → 초록 D10 PWM 0~255</p></div>
         </div>
+        <div className="mt-7 border-t border-white/15 pt-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-xl font-black text-white">수행평가 반영 점수</h2>
+            <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-slate-950">총 100점</span>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+            {assessmentRubric.scoreGroups.map((g) => (
+              <div key={g.name} className="rounded-2xl border border-white/25 bg-white/10 p-4">
+                <p className="text-sm font-bold text-slate-200">{g.name}</p>
+                <p className="mt-2 text-3xl font-black">{g.score}<span className="ml-1 text-base font-bold text-slate-300">점</span></p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm leading-6 text-slate-300">실습활동 20점의 세부 판정기준: 6개 영역 · 32개 항목 · 83개 세부기준</p>
+            <a href="#rubric" className="inline-flex min-h-11 items-center rounded-xl border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-200 hover:bg-white/10">0.2점 세부 채점기준 보기 ↓</a>
+          </div>
+        </div>
       </section>
       <section className="rounded-[24px] border border-amber-200 bg-amber-50 p-5 sm:p-7">
         <h2 className="text-xl font-black">처음부터 이 순서로 공부하세요</h2>
@@ -57,6 +76,62 @@ export function ArduinoAssessment({ onBack }: { onBack: () => void }) {
       </section>
       <section id="code" className="rounded-[24px] border border-slate-200 bg-white p-5 sm:p-7">
         <h2 className="flex items-center gap-2 text-2xl font-black"><FileCode2 className="size-6 text-violet-700" /> NEW 통합 12개 빈칸 코드</h2><p className="mt-2 text-slate-700">복잡한 bool 변수와 긴 함수를 사용하지 않습니다. 검수한 코드의 <code>dist</code>, <code>cds</code>, <code>pot</code>, <code>led</code>를 그대로 사용합니다.</p><div className="mt-4 flex flex-wrap gap-3"><a className="rounded-xl bg-slate-950 px-5 py-3 font-bold text-white" href={base+"downloads/arduino-assessment-starter.ino"} download>NEW 학생용 코드 받기 ↓</a><a className="rounded-xl bg-violet-700 px-5 py-3 font-bold text-white" href={base+"a29/materials/starter-answers.html"} target="_blank" rel="noopener noreferrer">12개 정답·해설 보기 ↗</a></div>
+      </section>
+      <section id="rubric" className="scroll-mt-44 rounded-[24px] border border-slate-200 bg-white p-5 sm:scroll-mt-32 sm:p-7">
+        <div className="flex items-start gap-3">
+          <ShieldCheck className="mt-1 size-7 shrink-0 text-emerald-700" />
+          <div>
+            <p className="text-sm font-black text-emerald-700">STUDENT RUBRIC · 실습활동 20점</p>
+            <h2 className="mt-1 text-2xl font-black">세부 채점기준 83개</h2>
+            <p className="mt-2 leading-7 text-slate-700">아래 6개 영역의 항목을 클릭하면 <strong>0.2·0.4·0.6점 단위의 세부 판정기준</strong>이 펼쳐집니다. 기존 세부기준의 번호와 배점은 유지하고, 빨간 LED·초록 LED·부저의 NEW 독립 동작에 맞게 설명을 수정했습니다.</p>
+          </div>
+        </div>
+        {!assessmentRubric.isSchoolApproved && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">안내: 기존 웹앱의 점수 배분(40+20+20+20)을 복원한 검토용 기준입니다. NEW 회로에 맞춘 판정 문구는 학교의 최종 확정 평가계획과 일치 여부를 확인한 후 적용하세요.</p>}
+        <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-950 text-white"><tr><th className="p-3 sm:p-4">실습 평가영역</th><th className="p-3 text-right sm:p-4">배점</th></tr></thead>
+            <tbody>
+              {assessmentRubric.rubric.map(area=>(
+                <tr key={area.id} className="border-t border-slate-100">
+                  <td className="p-3 font-bold sm:p-4">{area.id}. {area.name}</td>
+                  <td className="p-3 text-right font-black sm:p-4">{(area.maxUnits/10).toFixed(1)}점</td>
+                </tr>
+              ))}
+              <tr className="border-t-2 border-slate-300 bg-slate-50"><td className="p-3 font-black sm:p-4">실습활동 합계</td><td className="p-3 text-right font-black sm:p-4">20.0점</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-6 space-y-5">
+          {assessmentRubric.rubric.map(area=>(
+            <section key={area.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:p-5" aria-label={area.id+"영역 채점기준"}>
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-lg font-black">{area.id}. {area.name}</h3>
+                <strong className="shrink-0 text-lg">{(area.maxUnits/10).toFixed(1)}점</strong>
+              </div>
+              <div className="mt-3 space-y-2">
+                {area.items.map(item=>(
+                  <details key={item.id} className="group overflow-hidden rounded-xl border border-slate-200 bg-white">
+                    <summary className="flex cursor-pointer list-none items-start justify-between gap-3 px-4 py-3 hover:bg-cyan-50">
+                      <span className="min-w-0 text-sm font-bold leading-6"><span className="mr-2 font-mono text-cyan-800">{item.id}</span>{item.title}<span className="ml-2 text-xs font-semibold text-slate-500 group-open:hidden">세부기준 펼치기 +</span><span className="ml-2 hidden text-xs font-semibold text-slate-500 group-open:inline">접기 −</span></span>
+                      <strong className="shrink-0 text-sm">{(item.maxUnits/10).toFixed(1)}점</strong>
+                    </summary>
+                    <div className="border-t border-slate-100 px-3 py-3 sm:px-4">
+                      <p className="mb-2 text-xs font-bold text-slate-500">{item.mode} 평가 · 하위 기준별 충족 여부 확인</p>
+                      <div className="overflow-x-auto">
+                        <table className="w-full min-w-[490px] text-left text-sm">
+                          <thead className="bg-slate-100"><tr><th className="p-2">세부 ID</th><th className="p-2">세부 판정기준</th><th className="p-2 text-right">배점</th></tr></thead>
+                          <tbody>{item.subcriteria.map(sub=>(
+                            <tr key={sub.id} className="border-t border-slate-100"><td className="p-2 font-mono font-bold text-cyan-800">{sub.id}</td><td className="p-2 leading-6">{sub.criterion}</td><td className="p-2 text-right font-black">{(sub.units/10).toFixed(1)}점</td></tr>
+                          ))}</tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
       </section>
       <section className="rounded-[24px] border border-emerald-200 bg-emerald-50 p-5 sm:p-7"><h2 className="flex items-center gap-2 text-xl font-black"><CheckCircle2 className="size-6 text-emerald-700" /> 스스로 최종 확인</h2><p className="mt-2 leading-8">초음파 앞의 물체를 가까이/멀리 바꾸어 부저를 확인합니다. CDS를 가려 빨간 LED를 켜거나 끄고, 가변저항을 돌려 초록 LED 밝기를 바꿉니다. 세 실험은 다른 출력에 영향을 주지 않아야 합니다.</p></section>
     </main>
