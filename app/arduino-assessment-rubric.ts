@@ -1,6 +1,6 @@
-// NEW 회로 기준으로 기존 83개 세부기준의 ID와 배점은 유지하고 판정 문구만 갱신했습니다.
+// 수행평가 영역 및 항목별 채점기준.
 export const assessmentRubric = {
-  "version": "NEW-2026-10-15",
+  "version": "assessment-2026-10-15",
   "isSchoolApproved": false,
   "scoreGroups": [
     {
