@@ -25,10 +25,8 @@ void loop() {
   delayMicroseconds(10);
   digitalWrite(7, LOW);
 
-  float dist = pulseIn(8, HIGH, 25000) * 0.034 / 2;
-  if (dist == 0) {
-    dist = 999;
-  }
+  long duration = pulseIn(8, HIGH);
+  float dist = duration * 0.034 / 2;
 
   if (__10__) {
     __11__(2, 1000);
