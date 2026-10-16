@@ -33,6 +33,7 @@ jobs:
           node --check public/ai-agent-smart-life/lessons.js
           node --check public/ai-agent-smart-life/app.js
           node --check public/ai-agent-smart-life/agent-studio.js
+          node --check public/ai-agent-smart-life/teacher-dashboard.js
           node --check public/ai-agent-smart-life/code-challenges.js
           node --check public/ai-agent-smart-life/enrichment.js
           node --check public/ai-agent-smart-life/teacher.js
@@ -96,6 +97,8 @@ jobs:
           test -s dist/ai-agent-smart-life/lessons.js
           test -s dist/ai-agent-smart-life/app.js
           test -s dist/ai-agent-smart-life/agent-studio.html
+          test -s dist/ai-agent-smart-life/teacher-dashboard.html
+          test -s dist/ai-agent-smart-life/teacher-dashboard.js
           test -s dist/ai-agent-smart-life/agent-studio.js
           test -s dist/ai-agent-smart-life/code-challenges.js
           test -s dist/ai-agent-smart-life/project/agent_live_teacher.py
