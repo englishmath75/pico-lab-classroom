@@ -1,0 +1,44 @@
+name: AI AGENT SMART LIFE QA
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "public/ai-agent-*"
+      - "app/page.tsx"
+      - "scripts/validate-ai-agent-course.py"
+      - "docs/ai-agent-*"
+      - ".github/workflows/ai-agent-course-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get source
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Validate public lessons
+        run: |
+          python3 scripts/validate-ai-agent-course.py
+          node --check public/ai-agent-course-data.js
+          node --check public/ai-agent-smart-life.js
+          node --check public/ai-agent-python-worker.js
+      - name: Build PICO LAB
+        run: npm run build
+      - name: Verify course distribution
+        run: |
+          test -s dist/ai-agent-smart-life.html
+          test -s dist/ai-agent-smart-life.js
+          test -s dist/ai-agent-course-data.js
+          test -s dist/ai-agent-python-worker.js
+          test -s dist/ai-agent-smart-life.css
