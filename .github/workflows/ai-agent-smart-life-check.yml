@@ -30,6 +30,12 @@ jobs:
         run: |
           node --check public/ai-agent-smart-life/lessons.js
           node --check public/ai-agent-smart-life/app.js
+          node --check public/ai-agent-smart-life/enrichment.js
+          node --check public/ai-agent-smart-life/teacher.js
+          node --check public/ai-agent-smart-life/exam.js
+          node --check public/ai-agent-smart-life/test/smoke.cjs
+          python -m py_compile public/ai-agent-smart-life/project/study_agent.py
+          python public/ai-agent-smart-life/project/study_agent.py public/ai-agent-smart-life/project/study_scores.csv
       - name: Validate 12 lesson contents and quizzes
         run: |
           node <<'NODE'
@@ -38,12 +44,16 @@ jobs:
           const assert = require('node:assert/strict');
           const window = {};
           vm.runInNewContext(fs.readFileSync('public/ai-agent-smart-life/lessons.js','utf8'), {window});
+          vm.runInNewContext(fs.readFileSync('public/ai-agent-smart-life/enrichment.js','utf8'), {window});
           const lessons = window.AASL_LESSONS;
+          const deepDives = window.AASL_DEEP_DIVE;
+          assert.equal(deepDives.length, 12, 'all enrichment lessons present');
           assert.equal(lessons.length, 12);
           lessons.forEach((l, i) => {
             for (const key of ['title','tag','goal','concept','example','code','expect','task'])
               assert.ok(typeof l[key] === 'string' && l[key].trim(), 'Lesson '+(i+1)+': '+key);
             assert.ok(l.questions.length >= 2, 'Lesson '+(i+1)+' quizzes');
+            assert.equal(deepDives[i].extraQuestions.length, 3,'Lesson '+(i+1)+' enrichment quiz count');
             l.questions.forEach((q,j) => {
               assert.equal(q.length,4,'Question fields');
               assert.ok(q[1].length >= 2);
@@ -51,8 +61,9 @@ jobs:
             });
           });
           const html=fs.readFileSync('public/ai-agent-smart-life/index.html','utf8');
-          assert.ok(html.includes('src="./lessons.js"') && html.includes('src="./app.js"'));
-          console.log('Validated '+lessons.length+' lessons and '+lessons.reduce((x,l)=>x+l.questions.length,0)+' questions.');
+          assert.ok(html.includes('src="./lessons.js"') && html.includes('src="./enrichment.js"') && html.includes('src="./app.js"'));
+          assert.ok(html.includes('href="./teacher.html"') && html.includes('href="./exam.html"'));
+          console.log('Validated '+lessons.length+' lessons and '+lessons.reduce((x,l,i)=>x+l.questions.length+deepDives[i].extraQuestions.length,0)+' questions.');
           NODE
       - name: Prepare existing PICO LAB public assets
         run: |
@@ -67,4 +78,17 @@ jobs:
           test -s dist/ai-agent-smart-life/index.html
           test -s dist/ai-agent-smart-life/lessons.js
           test -s dist/ai-agent-smart-life/app.js
+          test -s dist/ai-agent-smart-life/enrichment.js
+          test -s dist/ai-agent-smart-life/teacher.html
+          test -s dist/ai-agent-smart-life/teacher.js
+          test -s dist/ai-agent-smart-life/exam.html
+          test -s dist/ai-agent-smart-life/exam.js
+          test -s dist/ai-agent-smart-life/project/study_agent.py
+          test -s dist/ai-agent-smart-life/project/study_scores.csv
           echo "Static AI classroom assets are packaged in dist/"
+      - name: Install Chromium smoke-test runner
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run real-browser functional smoke test
+        run: node public/ai-agent-smart-life/test/smoke.cjs
