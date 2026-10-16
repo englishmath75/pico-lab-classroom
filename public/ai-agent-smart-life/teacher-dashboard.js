@@ -23,7 +23,9 @@
     const nameMatch=file.name.toUpperCase().match(/(?:^|[-_])(A[0-9]{2,3})(?:[-_.]|$)/);
     const code=validCode(fromContent)?fromContent:nameMatch?nameMatch[1]:"익명-"+String(index+1).padStart(2,"0");
     const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*100):null;
-    return {code,completed,scores,avg,year,updatedAt:String(obj.updatedAt||""),updatedMs:timeValue(obj.updatedAt)};
+    const updatedMs=timeValue(obj.updatedAt);
+    const updatedAt=updatedMs?new Date(updatedMs).toISOString():"";
+    return {code,completed,scores,avg,year,updatedAt,updatedMs};
   };
   const csvCell=v=>'"'+String(v).replace(/"/g,'""')+'"';
   function draw() {
