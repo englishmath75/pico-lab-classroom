@@ -96,6 +96,7 @@ async function main() {
       {name:"B02-progress.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(sampleProgress("B02",[0,1,2],0.5)))}
     ]);
     await page.locator("#analyze").click();
+    await page.waitForFunction(() => document.getElementById("total").textContent === "2명", {timeout:12000});
     assert.equal(await page.locator("#total").innerText(),"2명","aggregate two anonymized files");
     assert.equal(await page.locator("#bars .bar").count(),12,"12 lesson completion bars");
     assert.equal(await page.locator("#rows tr").count(),2,"two student codes");
