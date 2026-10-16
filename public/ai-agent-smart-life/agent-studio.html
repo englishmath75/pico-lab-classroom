@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#101d35"/>
+<title>AI AGENT STUDIO · 나만의 AI 비서 만들기</title>
+<meta name="description" content="고2 소프트웨어와 생활: 목표, 입력 데이터, 도구 호출, 실행, 검증까지 체험하는 개인 AI 에이전트 스튜디오"/>
+<style>
+:root{color-scheme:light;font-family:system-ui,-apple-system,"Noto Sans KR","Malgun Gothic",sans-serif;color:#1d2e4d;background:#f2f6fc;line-height:1.6}*{box-sizing:border-box}body{margin:0}button,input,textarea,select{font:inherit}a{color:#2e59b8;text-decoration:none}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #857dea;outline-offset:2px}
+main{max-width:1220px;margin:auto;padding:28px 22px 80px}
+header{background:linear-gradient(120deg,#102441,#243d75 72%,#544e9a);border-radius:22px;color:#fff;padding:33px 37px;box-shadow:0 18px 45px #14336524}header h1{font-size:34px;line-height:1.2;margin:10px 0}header p{color:#d2ddf5;margin:0 0 10px;max-width:720px;font-size:14px}.back{color:#d3e2ff;font-size:13px;font-weight:750}.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.chip{background:#ffffff24;padding:5px 11px;border:1px solid #ffffff24;border-radius:40px;font-size:12px;font-weight:750}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 0.93fr;gap:18px;align-items:start;margin-top:20px}.panel{border:1px solid #dfe6f0;border-radius:17px;background:#fff;padding:25px;margin-bottom:16px;box-shadow:0 9px 23px #2037510a}.panel h2{font-size:19px;margin:0 0 12px}.eyebrow{color:#5568b4;font-size:12px;font-weight:850;letter-spacing:.6px}.hint{color:#63738c;font-size:13px}.field{display:block;margin:13px 0 5px;font-size:13px;font-weight:800}input[type=text],textarea,select{background:#fbfcff;border:1px solid #cbd6e7;border-radius:11px;padding:11px;width:100%;color:#21314c}textarea{resize:vertical;min-height:115px}input[type=checkbox]{width:17px;height:17px;accent-color:#4d54cb}button.primary{background:#3a59bf;color:white;border:0;border-radius:11px;padding:13px 19px;font-weight:850}.secondary{background:#fff;color:#253e7b;border:1px solid #c4cee6;border-radius:11px;padding:12px 17px;font-weight:750}.secondary:hover{background:#f5f7ff}.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.choices{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.choices label{background:#f6f8fe;border:1px solid #e1e7f4;padding:13px;border-radius:10px;display:flex;gap:10px;align-items:start;font-size:13px}.choices strong{display:block}.choices small{display:block;color:#6a7791}.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:16px 0}.flow div{background:#ecf0fb;border-radius:11px;text-align:center;padding:11px 4px;color:#4b5a82;font-size:11px;font-weight:800}.flow div b{display:block;font-size:20px;margin:0 auto 3px;color:#5162be}.trace{padding:16px;border:1px solid #dce6f5;border-radius:10px;background:#f8faff;min-height:110px;font-size:13px}.trace ol{margin:0;padding-left:24px}.trace li{padding:4px 0}.trace li.fail{color:#b13535}.output{padding:17px;background:#f0f6ff;border-left:4px solid #6474d0;border-radius:9px;font-size:14px;white-space:pre-wrap;margin-top:15px}.notice{padding:14px 17px;border-left:4px solid #d9a34d;background:#fff8e9;border-radius:9px;font-size:12px}.schema{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}.schema th,.schema td{border-bottom:1px solid #e5eaf3;padding:9px;text-align:left}.schema th{background:#f1f4f9}.label{font-size:11px;color:#4b5bbb;font-weight:800;letter-spacing:.4px}.checks{display:flex;flex-direction:column;gap:8px}.checks label{display:flex;align-items:flex-start;gap:8px;font-size:13px}.small{font-size:12px;color:#63738c}.hidden{display:none!important}.error{color:#b12f42;font-weight:750;font-size:13px}.success{color:#0b735e;font-weight:750;font-size:13px}.progress{height:7px;border-radius:99px;background:#e0e9f7;overflow:hidden}.progress span{display:block;height:100%;background:#5d6bc8;width:0%}.viz{display:flex;gap:5px;align-items:end;height:110px;margin-top:14px;padding:5px 5px 0;border-bottom:1px solid #bac9df}.viz .bar{flex:1;max-width:110px;background:linear-gradient(180deg,#7878de,#4b65ae);border-radius:6px 6px 0 0;min-height:3px;position:relative}.viz .bar span{position:absolute;bottom:100%;width:100%;text-align:center;font-size:11px;font-weight:750}.viz .bar small{position:absolute;top:100%;width:100%;text-align:center;font-size:10px;color:#56637d;overflow-wrap:anywhere}.viz-wrap{padding-bottom:24px}.footer{text-align:center;font-size:12px;color:#72829c;margin-top:30px}@media(max-width:850px){.grid{grid-template-columns:1fr}.panel{padding:20px}}@media(max-width:470px){main{padding:14px}.flow{grid-template-columns:repeat(2,1fr)}header{padding:24px}header h1{font-size:27px}.choices{grid-template-columns:1fr}}@media print{body{background:white}header{background:white;color:#111;box-shadow:none}.toolbar,.back{display:none}.grid{display:block}.panel{box-shadow:none;break-inside:avoid}}
+</style><script src="./agent-studio.js" defer></script></head>
+<body><main><header><a class="back" href="./index.html">← AI AGENT SMART LIFE 12차시 학습실</a>
+<h1>AI AGENT STUDIO</h1><p>기획하고, 도구를 선택하고, 실행하고, 검증하세요. 나만의 AI 비서를 설계하는 9~11차시 프로젝트 실습실입니다.</p>
+<div class="chips"><span class="chip">50분 수업 연계</span><span class="chip">무료 · 가입 불필요</span><span class="chip">실행 이력 시각화</span><span class="chip">개인 설계 저장</span></div></header>
+<div class="grid">
+<div>
+<section class="panel"><span class="eyebrow">STEP 01 · 목표 설정</span><h2>어떤 문제를 해결할까요?</h2>
+<label class="field" for="agent-name">에이전트 이름 (본명·학번은 입력하지 마세요)</label>
+<input type="text" id="agent-name" maxlength="50" value="나의 학습 도우미"/>
+<label class="field" for="agent-goal">목표</label><select id="agent-goal"><option value="weak">연습 점수가 낮은 과목 찾기</option><option value="mean">과목별 평균 계산하기</option><option value="plan" selected>복습 우선순위와 30분 계획 만들기</option></select>
+<label class="field" for="agent-request">사용자 요청</label><textarea id="agent-request" maxlength="300">가상 학습 데이터를 읽고, 취약 과목과 평균을 확인한 뒤 복습 계획을 만들어 줘.</textarea>
+<p class="hint">규칙 기반 학습 실습이므로 선택한 목표가 실행 흐름을 결정합니다. 자유 입력 문장은 작업 지시를 설명하기 위한 것입니다.</p></section>
+<section class="panel"><span class="eyebrow">STEP 02 · 데이터와 도구</span><h2>AI 직원에게 사용할 자료를 줍니다</h2>
+<label class="field" for="agent-csv">가상 학습 자료 · CSV (과목,점수)</label>
+<textarea id="agent-csv" spellcheck="false">subject,score
+Math,78
+English,90
+Science,62
+History,85</textarea>
+<p class="hint">표의 이름과 숫자를 직접 수정해 보세요. 반드시 가상 자료만 사용하세요.</p>
+<h3 style="font-size:15px;margin:18px 0 9px">허용 도구 설정</h3>
+<div class="choices">
+<label><input type="checkbox" id="tool-read" checked/><span><strong>read_csv</strong><small>CSV 자료 읽고 값 확인</small></span></label>
+<label><input type="checkbox" id="tool-analyze" checked/><span><strong>analyze</strong><small>평균·최저점·순위 분석</small></span></label>
+<label><input type="checkbox" id="tool-plan" checked/><span><strong>make_plan</strong><small>복습 일정 제안</small></span></label>
+<label><input type="checkbox" id="tool-verify" checked/><span><strong>verify</strong><small>도구 결과를 재검사</small></span></label>
+</div>
+</section>
+<section class="panel"><span class="eyebrow">STEP 03 · 실행</span><h2>에이전트 실행 흐름 보기</h2>
+<div class="flow"><div><b>①</b>목표 파악</div><div><b>②</b>도구 실행</div><div><b>③</b>결과 분석</div><div><b>④</b>검증·보고</div></div>
+<div class="toolbar"><button class="primary" id="agent-execute" type="button">▶ 에이전트 실행</button><button class="secondary" id="agent-reset" type="button">예제 복원</button></div>
+<p id="agent-status" class="hint" role="status">실행 버튼을 눌러 도구의 수행 기록을 확인하세요.</p>
+<div class="progress"><span id="agent-progress"></span></div>
+</section>
+</div>
+<div>
+<section class="panel"><span class="eyebrow">EXECUTION TRACE</span><h2>AI 직원의 작업 기록</h2><div id="agent-trace" class="trace" aria-live="polite">아직 실행 기록이 없습니다.</div>
+<div id="agent-output" class="output hidden" role="status"></div>
+<div id="agent-chart" class="viz-wrap hidden"><div class="viz" id="agent-bars"></div></div>
+<div class="toolbar"><button type="button" id="export-plan" class="secondary" disabled>학습 계획 CSV 저장</button><button type="button" id="export-trace" class="secondary" disabled>작업 보고서 저장</button></div></section>
+<section class="panel"><span class="eyebrow">STEP 04 · 나만의 설계 파일</span><h2>에이전트 설계도 만들기</h2>
+<p>목표와 허용된 도구, 데이터 구조, 검증 규칙을 JSON 형태로 내보내어 자신의 프로젝트로 확장합니다.</p>
+<div class="toolbar"><button type="button" id="export-blueprint" class="primary">설계도 JSON 저장</button><button type="button" id="copy-instruction" class="secondary">에이전트 지침 복사</button></div>
+<h3 style="font-size:15px;margin:20px 0 9px">자기 점검표</h3>
+<div class="checks"><label><input type="checkbox" data-check/> 목표를 한 문장으로 설명할 수 있다</label>
+<label><input type="checkbox" data-check/> 각 도구의 입력과 출력을 설명할 수 있다</label>
+<label><input type="checkbox" data-check/> 코드·자료의 오류를 확인할 수 있다</label>
+<label><input type="checkbox" data-check/> 규칙 기반 도구 실행과 생성형 AI 에이전트의 차이를 설명할 수 있다</label></div>
+<p id="check-status" class="hint">학습 성찰: 0 / 4</p></section>
+<section class="panel"><span class="eyebrow">선택 심화 · 실제 생성형 AI</span><h2>LLM은 무엇이 다른가요?</h2>
+<p class="small">이 웹 실습은 파이썬 함수를 도구로 사용하는 원리를 <strong>규칙 기반으로</strong> 재현합니다. 실제 생성형 AI가 도구를 직접 선택하게 하려면 교사가 관리하는 모델 연결 환경이 추가로 필요합니다.</p>
+<div class="notice"><b>비용·개인정보 안내</b><br/>무료 웹 실습은 API 키가 필요하지 않습니다. 실제 LLM 호출 실습은 교사가 별도 API 계정과 비용을 관리하는 선택 활동입니다. API 키를 공개 페이지, 코드 저장소 또는 학생 브라우저에 입력하지 마세요.</div>
+<p class="small" style="margin-top:14px"><a href="./project/agent_live_teacher.py" download>실제 모델 도구 호출 Python 예제 다운로드 ↗</a><br/><a href="./project/LIVE_AGENT_GUIDE.md">교사용 실제 에이전트 운영 안내 ↗</a></p></section>
+</div></div>
+<p class="footer">AI AGENT SMART LIFE · 학생 개인정보 입력 금지 · 저장하지 않고도 실습 가능 · 모델을 호출하지 않는 교육용 도구 흐름</p>
+</main></body></html>
