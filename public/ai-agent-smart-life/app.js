@@ -1,6 +1,10 @@
 (() => {
   "use strict";
   const lessons = window.AASL_LESSONS || [];
+  const deepDives = window.AASL_DEEP_DIVE || [];
+  deepDives.forEach((unit, i) => {
+    if (lessons[i] && Array.isArray(unit.extraQuestions)) lessons[i].questions = lessons[i].questions.concat(unit.extraQuestions);
+  });
   const $ = (id) => document.getElementById(id);
   if (!lessons.length) {
     $("lesson-content").textContent = "수업 데이터를 불러올 수 없습니다. 페이지를 새로고침해 주세요.";
@@ -76,6 +80,24 @@
       String.fromCharCode(9312+j) + ' ' + safe(opt) + '</span></label>').join("") +
       '</div><div class="quiz-feedback hidden" id="feedback-' + i + '"></div></div>').join("");
   }
+  function renderEnrichment(n) {
+    const unit = deepDives[n];
+    if (!unit) return "";
+    const concepts = unit.concepts.map((c,i)=>
+      '<div class="unit-card" style="margin:9px 0">' +
+      '<b>'+(i+1)+'. '+safe(c[0])+'</b><p>'+safe(c[1])+'</p>' +
+      '<p class="hint">예시: '+safe(c[2])+'</p></div>').join("");
+    const activities=unit.practice.map((a,i)=>'<li>'+safe(a)+'</li>').join("");
+    return '<section class="panel"><span class="pill">DEEP DIVE / 알아보기</span>' +
+      '<h3 style="margin-top:12px">생각을 여는 질문</h3>' +
+      '<div class="taskbox">'+safe(unit.hook)+'</div>' +
+      '<h3 style="margin-top:20px">핵심 개념 세 가지</h3>'+concepts +
+      '<h3 style="margin-top:20px">직접 탐구해 볼 활동</h3><ol>'+activities+'</ol>' +
+      '<details class="teacher"><summary>코드 오류 탐구 / 더 생각하기</summary><p>'+safe(unit.debug)+'</p></details>' +
+      '<details class="teacher"><summary>생성형 AI에 질문해 보기 — 선택 학습</summary><p class="hint">개인정보와 실제 성적을 업로드하지 마세요. 교사가 허용한 도구가 있을 때에만 사용하세요.</p>' +
+      '<p>'+safe(unit.prompt)+'</p>'+button("프롬프트 복사","action","copy-prompt")+'</details>' +
+      '</section>';
+  }
   function agentHtml() {
     return '<section class="panel"><span class="pill">RULE-BASED TOOL LAB</span>' +
       '<h3 style="margin-top:12px">도구를 실행하는 에이전트 흐름 체험</h3>' +
@@ -101,7 +123,7 @@
       '<section class="panel"><span class="pill">01 / UNDERSTAND</span>' +
       '<h3 style="margin-top:12px">핵심 개념</h3><p>' + safe(lesson.concept) + '</p>' +
       '<div class="unit-card"><b>생활 속 사례</b><p>' + safe(lesson.example) + '</p></div></section>' +
-      '<section class="panel"><span class="pill">02 / PYTHON LAB</span><h3 style="margin-top:12px">Python 코드를 수정하고 실행해 보세요</h3>' +
+      renderEnrichment(current) + '<section class="panel"><span class="pill">02 / PYTHON LAB</span><h3 style="margin-top:12px">Python 코드를 수정하고 실행해 보세요</h3>' +
       '<p class="hint">먼저 결과를 예측한 후 실행하세요. 처음 실행할 때에는 인터넷과 Python 패키지 다운로드가 필요합니다. 코드는 현재 브라우저에서 실행됩니다.</p>' +
       '<div class="lab"><div class="lab-top"><span>● python · lesson_' + String(current+1).padStart(2,"0") + '.py</span>' +
       button("원본 복원","","reset-code") + '</div><textarea id="code-editor" spellcheck="false" aria-label="Python 코드 편집기"></textarea>' +
@@ -119,6 +141,7 @@
       '<p id="quiz-score" class="lead" role="status"></p></section>' +
       '<section class="panel"><span class="pill">04 / REFLECT</span><h3 style="margin-top:12px">오늘의 학습 정리</h3>' +
       '<p class="hint">핵심 개념과 고친 오류를 2~3문장으로 작성하세요.</p>' +
+      '<div class="taskbox"><b>마무리 질문</b><div>'+safe((deepDives[current]||{}).exit||"오늘의 학습 목표를 다시 설명해 보세요.")+'</div></div>' +
       '<textarea id="reflection" class="notes" placeholder="오늘 새로 알게 된 것과 다음에 보완할 점"></textarea>' +
       '<p class="hint">메모는 현재 브라우저에만 자동 저장됩니다.</p>' +
       button(completed ? "✓ 완료 기록됨" : "학습 완료 표시","primary","mark-complete") +
@@ -131,6 +154,10 @@
       '45~50분: 형성평가 채점과 학습 정리</p>' +
       '<p><b>학습 목표:</b> ' + safe(lesson.goal) + '</p></details></section>';
     $("lesson-content").innerHTML = html;
+    if ($("copy-prompt")) $("copy-prompt").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(deepDives[current].prompt); notify("프롬프트를 복사했습니다."); }
+      catch (_) { notify("브라우저의 클립보드 권한을 확인하세요."); }
+    });
     $("code-editor").value = lesson.code;
     $("reflection").value = progress.notes[current] || "";
     $("reflection").addEventListener("input", (e) => { progress.notes[current] = e.target.value; persist(); });
