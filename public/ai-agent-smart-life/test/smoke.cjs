@@ -32,7 +32,12 @@ async function main() {
     assert.equal(await page.locator(".quiz-question").count(),5,"5 questions per lesson");
     assert.ok((await page.locator("#lesson-content").innerText()).includes("생각을 여는 질문"),"enrichment is rendered");
 
-    await page.locator("#run-code").click();
+    assert.equal(await page.locator(".challenge-input").count(),2,"two Python fill-in exercises");
+    await page.locator("#challenge-input-0").fill("min");
+    await page.locator("#challenge-input-1").fill("weak");
+    await page.locator("#check-challenge").click();
+    assert.ok((await page.locator("#challenge-score").innerText()).includes("2 / 2"),"code challenge grading");
+        await page.locator("#run-code").click();
     await page.getByText("브라우저 파이썬 연결 확인").waitFor();
     for(let i=0;i<5;i++)await page.locator('input[name="quiz-'+i+'"]').first().check();
     await page.locator("#grade-quiz").click();
@@ -63,7 +68,52 @@ async function main() {
       const result=await page.request.get(url+file);
       assert.equal(result.status(),200,"download "+file);
     }
-    console.log("Browser smoke OK: 12 lessons, 5 quizzes, progress persistence, agent demo, 12 teacher guides, exam, downloads.");
+    await page.goto(url+"agent-studio.html",{waitUntil:"domcontentloaded"});
+    await page.locator("#agent-execute").click();
+    assert.ok((await page.locator("#agent-trace").innerText()).includes("verify"),"trace contains verification");
+    assert.equal(await page.locator("#export-plan").isEnabled(),true,"validated plan available");
+    assert.ok((await page.locator("#agent-output").innerText()).includes("복습 우선순위"),"plan output");
+    await page.locator("#tool-verify").uncheck();
+    await page.locator("#agent-execute").click();
+    assert.equal(await page.locator("#export-plan").isDisabled(),true,"unverified plan cannot download");
+    await page.locator("#tool-read").uncheck();
+    await page.locator("#agent-execute").click();
+    assert.ok((await page.locator("#agent-trace").innerText()).includes("읽기 도구"),"missing tool rejection");
+    page.once("dialog",dialog=>dialog.accept());
+    await page.locator("#agent-reset").click();
+    // Restore manually as the preceding action can depend on native-dialog timing.
+    await page.locator("#tool-read").check();
+    await page.locator("#tool-verify").check();
+    await page.locator("#agent-execute").click();
+    assert.equal(await page.locator("#export-trace").isEnabled(),true,"trace report is available");
+    await page.goto(url+"teacher-dashboard.html",{waitUntil:"domcontentloaded"});
+    const sampleProgress=(code,completed,score)=>({
+      version:1,year:2026,studentCode:code,completed,
+      quizzes:{"0":{score}},notes:{},updatedAt:"2026-10-17T02:00:00.000Z"
+    });
+    await page.locator("#files").setInputFiles([
+      {name:"A01-progress.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(sampleProgress("A01",[0,1],1)))},
+      {name:"B02-progress.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(sampleProgress("B02",[0,1,2],0.5)))}
+    ]);
+    await page.locator("#analyze").click();
+    await page.waitForFunction(() => document.getElementById("total").textContent === "2명", {timeout:12000});
+    assert.equal(await page.locator("#total").innerText(),"2명","aggregate two anonymized files");
+    assert.equal(await page.locator("#bars .bar").count(),12,"12 lesson completion bars");
+    assert.equal(await page.locator("#rows tr").count(),2,"two student codes");
+    assert.equal(await page.locator("#average").innerText(),"75%","quiz aggregate");
+    const csvDownload=page.waitForEvent("download");
+    await page.locator("#download-csv").click();
+    assert.ok((await csvDownload).suggestedFilename().endsWith("_progress.csv"));
+
+    await page.goto(url+"index.html",{waitUntil:"domcontentloaded"});
+    await page.locator("#student-code").fill("A01");
+    const recordDownload=page.waitForEvent("download");
+    await page.locator("#export-progress").click();
+    assert.ok((await recordDownload).suggestedFilename().includes("A01"),"coded progress export");
+
+    const teacherFile=await page.request.get(url+"project/agent_live_teacher.py");
+    assert.equal(teacherFile.status(),200,"real model teacher script exists");
+        console.log("Browser smoke OK: 12 lessons, 5 quizzes, progress persistence, agent demo, 12 teacher guides, exam, Python challenges, Agent Studio, teacher LLM example and downloads.");
   } finally {
     await browser.close();
     await new Promise(resolve=>server.close(resolve));

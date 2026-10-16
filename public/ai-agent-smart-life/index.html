@@ -17,6 +17,7 @@
   <script src="https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js" defer></script>
   <script src="./lessons.js" defer></script>
   <script src="./enrichment.js" defer></script>
+  <script src="./code-challenges.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
 <body>
@@ -30,8 +31,8 @@
     </aside>
     <main class="main">
       <div class="top"><div class="crumb">HOME / EDUCATION / 12-LESSON COURSE</div><div class="top-tools">
-        <label class="year-box">학년도 <input id="school-year" inputmode="numeric" type="number" min="2026" max="2100" value="2026" aria-label="학년도"/></label>
-        <a href="./teacher.html" class="action" style="text-decoration:none">교사용 수업 지도안</a><a href="./exam.html" class="action" style="text-decoration:none">기말 모의고사</a><button type="button" id="export-progress" class="action">학습 기록 내보내기</button>
+        <label class="year-box">학년도 <input id="school-year" inputmode="numeric" type="number" min="2026" max="2100" value="2026" aria-label="학년도"/></label><label class="year-box" title="이름·학번 대신 A01과 같은 익명 코드를 사용합니다">익명 코드 <input id="student-code" type="text" placeholder="A01" maxlength="4" style="width:56px;text-transform:uppercase" aria-label="학생 익명 코드 (선택)"/></label>
+        <a href="./agent-studio.html" class="action" style="text-decoration:none;background:#e8ecff;color:#364fc0">🤖 AI 에이전트 스튜디오</a><a href="./teacher.html" class="action" style="text-decoration:none">교사용 수업 지도안</a><a href="./teacher-dashboard.html" class="action" style="text-decoration:none">교사용 진도 집계</a><a href="./exam.html" class="action" style="text-decoration:none">기말 모의고사</a><button type="button" id="export-progress" class="action">학습 기록 내보내기</button>
         <button type="button" id="import-progress" class="action">기록 가져오기</button>
         <input id="import-file" type="file" accept=".json,application/json" hidden/>
       </div></div>
@@ -42,11 +43,11 @@
       <div class="nextnav"><button id="previous" type="button" class="action">← 이전 차시</button><button id="next" type="button" class="primary">다음 차시 →</button></div>
       <section class="panel" id="project-downloads"><span class="pill">PROJECT FILES</span>
 <h3 style="margin-top:12px">10~11차시 Python 프로젝트 파일</h3>
-<p>학생용 규칙 기반 학습 비서 실습을 학교 PC에서 실행할 수 있도록 내려받으세요. 두 파일을 같은 폴더에 저장한 뒤 Python으로 실행합니다.</p>
+<p>9~11차시에는 <a href="./agent-studio.html">AI 에이전트 스튜디오</a>에서 개인별 설계와 도구 실행을 체험합니다. 학교 PC에서 직접 파이썬을 실행할 수도 있습니다.</p>
 <div class="top-tools" style="justify-content:flex-start">
 <a href="./project/study_agent.py" class="action" download style="text-decoration:none">Python 실습 프로그램(.py)</a>
 <a href="./project/study_scores.csv" class="action" download style="text-decoration:none">가상 점수 데이터(.csv)</a>
-<a href="./project/README.md" class="action" style="text-decoration:none">실습 안내서</a>
+<a href="./project/README.md" class="action" style="text-decoration:none">실습 안내서</a><a href="./project/agent_live_teacher.py" class="action" style="text-decoration:none" download>교사용 실제 AI 도구호출(.py)</a><a href="./project/LIVE_AGENT_GUIDE.md" class="action" style="text-decoration:none">교사용 API·비용 안내</a>
 </div><p class="hint">생성형 AI API를 호출하지 않는 무료 규칙 기반 예제입니다. 실제 성적이나 개인정보를 입력하지 마세요.</p>
 </section>
 <p class="footer">AI AGENT SMART LIFE · 학생 실습은 가상 자료만 사용합니다. AI 에이전트 체험실의 규칙 기반 흐름은 생성형 AI 호출과 다릅니다.</p>
