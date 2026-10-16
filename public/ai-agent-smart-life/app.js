@@ -1,6 +1,7 @@
 (() => {
   "use strict";
   const lessons = window.AASL_LESSONS || [];
+  const codeChallenges = window.AASL_CODE_CHALLENGES || [];
   const deepDives = window.AASL_DEEP_DIVE || [];
   deepDives.forEach((unit, i) => {
     if (lessons[i] && Array.isArray(unit.extraQuestions)) lessons[i].questions = lessons[i].questions.concat(unit.extraQuestions);
@@ -98,6 +99,40 @@
       '<p>'+safe(unit.prompt)+'</p>'+button("프롬프트 복사","action","copy-prompt")+'</details>' +
       '</section>';
   }
+  function challengeHtml(n) {
+    const bank = codeChallenges[n];
+    if (!bank || !Array.isArray(bank.items)) return "";
+    return '<section class="panel" id="code-challenge-section">' +
+      '<span class="pill">PYTHON CODE CHALLENGE</span><h3 style="margin-top:12px">지필시험 대비 · 빈칸 코드 완성</h3>' +
+      '<p class="hint">코드의 빈칸(___)에 들어갈 함수·키워드를 적어 보세요. 이 연습은 선택형 심화 활동입니다.</p>' +
+      bank.items.map((c,i)=>
+        '<div class="unit-card" style="margin-bottom:11px">' +
+        '<b>도전 '+(i+1)+'. '+safe(c.question)+'</b>' +
+        '<pre style="white-space:pre-wrap;overflow-wrap:anywhere;background:#14233a;color:#e6f7ff;border-radius:9px;padding:13px;font-size:12px">'+safe(c.code)+'</pre>' +
+        '<label for="challenge-input-'+i+'" class="hint">빈칸에 들어갈 코드</label>' +
+        '<input id="challenge-input-'+i+'" class="challenge-input" type="text" maxlength="60" autocomplete="off" spellcheck="false" placeholder="함수·연산자·예약어 입력" aria-label="'+(i+1)+'번 코드 빈칸"/>' +
+        '<div class="challenge-feedback" role="status" id="challenge-feedback-'+i+'"></div>' +
+        '<details><summary style="font-size:12px;margin-top:8px">힌트 확인</summary><p class="hint">'+safe(c.hint)+'</p></details></div>'
+      ).join("") +
+      button("빈칸 코드 채점하기","primary","check-challenge") +
+      '<p class="hint" id="challenge-score" role="status"></p></section>';
+  }
+  function gradeChallenges() {
+    const bank=codeChallenges[current];
+    if(!bank)return;
+    let correct=0;
+    bank.items.forEach((item,i)=>{
+      const value=$("challenge-input-"+i).value.trim().replace(/\s/g,"");
+      const ok=!!value && item.answers.some(answer=>answer.replace(/\s/g,"")===value);
+      const out=$("challenge-feedback-"+i);
+      if(ok)correct++;
+      out.style.color=ok?"#127553":"#9e4e1b";
+      out.style.fontWeight="700";
+      out.style.fontSize="12px";
+      out.textContent=(ok?"정답 · ":"다시 학습 · ")+item.explanation;
+    });
+    $("challenge-score").textContent="빈칸 코드 정답 "+correct+" / "+bank.items.length;
+  }
   function agentHtml() {
     return '<section class="panel"><span class="pill">RULE-BASED TOOL LAB</span>' +
       '<h3 style="margin-top:12px">도구를 실행하는 에이전트 흐름 체험</h3>' +
@@ -133,6 +168,7 @@
       '<div class="taskbox"><b>도전 과제</b><div>' + safe(lesson.task) + '</div></div>' +
       '<details class="teacher"><summary>원본 코드 예상 결과 확인</summary><p>먼저 스스로 결과를 예측한 뒤 비교하세요.</p><pre>' +
       safe(lesson.expect) + '</pre></details></section>';
+    html += challengeHtml(current);
     if (current === 0 || (current >= 8 && current <= 10)) html += agentHtml();
     html += '<section class="panel"><span class="pill">03 / CHECK</span>' +
       '<h3 style="margin-top:12px">형성평가 · ' + lesson.questions.length + '문항</h3>' +
@@ -167,6 +203,7 @@
       $("code-output").textContent = "원본 코드로 복원했습니다.";
     });
     $("run-code").addEventListener("click", runPython);
+    if ($("check-challenge")) $("check-challenge").addEventListener("click", gradeChallenges);
     $("grade-quiz").addEventListener("click", gradeQuiz);
     $("mark-complete").addEventListener("click", markCompleted);
     if ($("agent-run")) {
