@@ -1,7 +1,7 @@
 (() => {
   "use strict";
   const $ = id => document.getElementById(id);
-  const safe = value => String(value).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;":"&quot;","'":"&#39;"}[c]));
+  const safe = value => String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const initialCSV = "subject,score\nMath,78\nEnglish,90\nScience,62\nHistory,85";
   const tools = [
     ["read_csv","tool-read","CSV 자료를 읽고 점수가 0~100인지 검사"],
