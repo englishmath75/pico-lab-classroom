@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a1730">
+<meta name="description" content="고2 소프트웨어와 생활 · Python 데이터 분석에서 AI 에이전트까지 12차시 웹 실습 교실">
+<title>AI AGENT SMART LIFE | 12차시 실습 교실</title>
+<link rel="icon" href="./favicon.svg">
+<link rel="stylesheet" href="./ai-agent-smart-life.css">
+<script defer src="./ai-agent-course-data.js"></script>
+<script defer src="./ai-agent-smart-life.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">본문으로 바로가기</a>
+<div id="app">
+  <header class="topbar">
+    <a href="./" class="back-link" title="기존 PICO LAB 돌아가기">← PICO LAB</a>
+    <span class="header-label">SOFTWARE & LIFE · AI AGENT TRACK</span>
+    <div class="header-actions"><button id="export-btn" type="button" class="light-button">진도 내보내기</button><button id="import-btn" type="button" class="light-button">진도 가져오기</button><input id="import-file" type="file" accept=".json,application/json" hidden><button id="teacher-toggle" type="button" class="teacher-button" aria-pressed="false">교사용 보기</button></div>
+  </header>
+  <div class="app-layout">
+    <aside class="sidebar" aria-label="차시 선택">
+      <div class="sidebar-top"><span class="eyebrow">2026 → 매년 재사용</span><h1>AI AGENT<br><em>SMART LIFE</em></h1><p>Python 데이터 분석에서<br>나만의 AI 비서 제작까지</p></div>
+      <section class="overall-progress" aria-label="전체 학습 진도"><div class="progress-numbers"><b id="done-count">0 / 12</b><span id="done-percent">0%</span></div><div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div><p>진도는 이 브라우저에 저장됩니다.</p></section>
+      <nav id="lesson-navigation" class="lesson-navigation" aria-label="12차시 목록"></nav>
+      <div class="sidebar-bottom"><button id="download-csv-side" class="download-dataset" type="button">↓ 가상 학습 데이터 CSV</button><small>가상 데이터만 사용합니다.<br>실제 학생 정보와 성적은 입력하지 마세요.</small></div>
+    </aside>
+    <main id="main-content" class="main">
+      <div class="hero"><div><span class="hero-tag">12 LESSONS · 50 MIN EACH</span><h2>데이터를 읽고,<br><span>AI가 일을 하게 만들자.</span></h2><p>중간고사 Arduino의 <b>입력 → 판단 → 출력</b>을 기말에는 <b>데이터 → 분석 → 예측 → 도구 실행 → 검증</b>으로 확장합니다.</p><div class="hero-pills"><span>Python / Pandas</span><span>Matplotlib</span><span>Scikit-learn</span><span>AI 에이전트</span></div></div><div class="hero-art" aria-hidden="true"><div class="orb orb-a"></div><div class="orb orb-b"></div><div class="orb orb-c"></div><div class="orbit-line one"></div><div class="orbit-line two"></div><span class="art-center">AI</span><span class="art-node node-a">DATA</span><span class="art-node node-b">TOOLS</span><span class="art-node node-c">CHECK</span></div></div>
+      <section id="course-notice" class="notice" aria-live="polite"><strong>수업 안내</strong> · 모든 실습은 가상 데이터를 사용합니다. Python 코드는 복사하여 Colab에서 실행합니다. 웹앱의 모의 분석기는 Python이나 실제 생성형 AI가 아니라 <b>규칙 기반 시뮬레이터</b>입니다.</section>
+      <section class="course-heading" aria-labelledby="lesson-title"><div class="course-crumb" id="lesson-crumb">LESSON 01</div><div class="heading-row"><div><h2 id="lesson-title"></h2><p id="lesson-subtitle"></p></div><div class="duration-chip">◷ 50분</div></div><div class="textbook-chip" id="textbook-link"></div></section>
+      <section class="tab-wrapper">
+        <div id="section-tabs" class="tabs" role="tablist" aria-label="학습 단계">
+          <button type="button" role="tab" aria-selected="true" data-tab="concept">① 원리 이해</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="python">② Python 실습</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="agent">③ AI 실습</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="quiz">④ 확인·기말 대비</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="teacher" id="teacher-tab">⑤ 교사 안내</button>
+        </div>
+        <div id="lesson-content" role="tabpanel" aria-live="polite"></div>
+      </section>
+      <nav class="footer-nav" aria-label="이전 차시와 다음 차시"><button id="prev-lesson" class="secondary-btn" type="button">← 이전 차시</button><button id="next-lesson" class="primary-btn" type="button">다음 차시 →</button></nav>
+      <footer class="foot-note">AI AGENT SMART LIFE · 소프트웨어와 생활 · 학생용 형성평가(실제 기말시험 원안 아님)<br>© 수업용 프로젝트. 교사용 안내는 공개 학습 자료이며 비밀 시험문제·정답을 포함하지 않습니다.</footer>
+    </main>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite" class="toast" hidden></div>
+</body>
+</html>
