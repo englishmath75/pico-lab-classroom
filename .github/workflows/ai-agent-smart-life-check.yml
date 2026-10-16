@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - feature/ai-agent-smart-life-plan
+      - feature/ai-agent-smart-life-v2
     paths:
       - "public/ai-agent-smart-life/**"
       - "docs/ai-agent-smart-life/**"
+      - "tests/ai-agent-smart-life/**"
       - ".github/workflows/ai-agent-smart-life-check.yml"
   pull_request:
     paths:
@@ -30,10 +32,13 @@ jobs:
         run: |
           node --check public/ai-agent-smart-life/lessons.js
           node --check public/ai-agent-smart-life/app.js
+          node --check public/ai-agent-smart-life/agent-studio.js
+          node --check public/ai-agent-smart-life/code-challenges.js
           node --check public/ai-agent-smart-life/enrichment.js
           node --check public/ai-agent-smart-life/teacher.js
           node --check public/ai-agent-smart-life/exam.js
           node --check public/ai-agent-smart-life/test/smoke.cjs
+          python -m py_compile public/ai-agent-smart-life/project/agent_live_teacher.py
           python -m py_compile public/ai-agent-smart-life/project/study_agent.py
           python public/ai-agent-smart-life/project/study_agent.py public/ai-agent-smart-life/project/study_scores.csv
       - name: Validate 12 lesson contents and quizzes
@@ -45,7 +50,11 @@ jobs:
           const window = {};
           vm.runInNewContext(fs.readFileSync('public/ai-agent-smart-life/lessons.js','utf8'), {window});
           vm.runInNewContext(fs.readFileSync('public/ai-agent-smart-life/enrichment.js','utf8'), {window});
+          vm.runInNewContext(fs.readFileSync('public/ai-agent-smart-life/code-challenges.js','utf8'), {window});
+          const challenges = window.AASL_CODE_CHALLENGES;
           const lessons = window.AASL_LESSONS;
+          assert.equal(challenges.length, 12, 'all Python challenge lessons');
+          assert.ok(challenges.every(c=>c.items.length===2 && c.items.every(x=>x.code.includes('___') && x.answers.length>=1)));
           const deepDives = window.AASL_DEEP_DIVE;
           assert.equal(deepDives.length, 12, 'all enrichment lessons present');
           assert.equal(lessons.length, 12);
@@ -62,9 +71,17 @@ jobs:
           });
           const html=fs.readFileSync('public/ai-agent-smart-life/index.html','utf8');
           assert.ok(html.includes('src="./lessons.js"') && html.includes('src="./enrichment.js"') && html.includes('src="./app.js"'));
-          assert.ok(html.includes('href="./teacher.html"') && html.includes('href="./exam.html"'));
+          assert.ok(html.includes('href="./teacher.html"') && html.includes('href="./exam.html"') && html.includes('href="./agent-studio.html"'));
+          fs.writeFileSync('/tmp/aasl-lesson-examples.json',JSON.stringify(lessons));
+
           console.log('Validated '+lessons.length+' lessons and '+lessons.reduce((x,l,i)=>x+l.questions.length+deepDives[i].extraQuestions.length,0)+' questions.');
           NODE
+      - name: Verify genuine agent tool safety in offline tests
+        run: python -m unittest discover -s tests/ai-agent-smart-life -p 'test_*.py' -v
+      - name: Install scientific Python test libraries
+        run: python -m pip install pandas==2.2.3 matplotlib==3.10.1 scikit-learn==1.6.1
+      - name: Execute all 12 real Python lesson examples
+        run: python tests/ai-agent-smart-life/check_lessons.py /tmp/aasl-lesson-examples.json
       - name: Prepare existing PICO LAB public assets
         run: |
           mkdir -p public/downloads
@@ -78,6 +95,11 @@ jobs:
           test -s dist/ai-agent-smart-life/index.html
           test -s dist/ai-agent-smart-life/lessons.js
           test -s dist/ai-agent-smart-life/app.js
+          test -s dist/ai-agent-smart-life/agent-studio.html
+          test -s dist/ai-agent-smart-life/agent-studio.js
+          test -s dist/ai-agent-smart-life/code-challenges.js
+          test -s dist/ai-agent-smart-life/project/agent_live_teacher.py
+          test -s dist/ai-agent-smart-life/project/LIVE_AGENT_GUIDE.md
           test -s dist/ai-agent-smart-life/enrichment.js
           test -s dist/ai-agent-smart-life/teacher.html
           test -s dist/ai-agent-smart-life/teacher.js
