@@ -86,6 +86,30 @@ async function main() {
     await page.locator("#tool-verify").check();
     await page.locator("#agent-execute").click();
     assert.equal(await page.locator("#export-trace").isEnabled(),true,"trace report is available");
+    await page.goto(url+"teacher-dashboard.html",{waitUntil:"domcontentloaded"});
+    const sampleProgress=(code,completed,score)=>({
+      version:1,year:2026,studentCode:code,completed,
+      quizzes:{"0":{score}},notes:{},updatedAt:"2026-10-17T02:00:00.000Z"
+    });
+    await page.locator("#files").setInputFiles([
+      {name:"A01-progress.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(sampleProgress("A01",[0,1],1)))},
+      {name:"B02-progress.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(sampleProgress("B02",[0,1,2],0.5)))}
+    ]);
+    await page.locator("#analyze").click();
+    assert.equal(await page.locator("#total").innerText(),"2명","aggregate two anonymized files");
+    assert.equal(await page.locator("#bars .bar").count(),12,"12 lesson completion bars");
+    assert.equal(await page.locator("#rows tr").count(),2,"two student codes");
+    assert.equal(await page.locator("#average").innerText(),"75%","quiz aggregate");
+    const csvDownload=page.waitForEvent("download");
+    await page.locator("#download-csv").click();
+    assert.ok((await csvDownload).suggestedFilename().endsWith("_progress.csv"));
+
+    await page.goto(url+"index.html",{waitUntil:"domcontentloaded"});
+    await page.locator("#student-code").fill("A01");
+    const recordDownload=page.waitForEvent("download");
+    await page.locator("#export-progress").click();
+    assert.ok((await recordDownload).suggestedFilename().includes("A01"),"coded progress export");
+
     const teacherFile=await page.request.get(url+"project/agent_live_teacher.py");
     assert.equal(teacherFile.status(),200,"real model teacher script exists");
         console.log("Browser smoke OK: 12 lessons, 5 quizzes, progress persistence, agent demo, 12 teacher guides, exam, Python challenges, Agent Studio, teacher LLM example and downloads.");
