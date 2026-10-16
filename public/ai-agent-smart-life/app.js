@@ -25,13 +25,13 @@
     return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   }
   const key = () => "aasl-progress-v1-" + year;
-  const emptyProgress = () => ({ version: 1, year, completed: [], quizzes: {}, notes: {}, updatedAt: null });
+  const emptyProgress = () => ({ version: 1, year, studentCode: "", completed: [], quizzes: {}, notes: {}, updatedAt: null });
   function load() {
     try {
       const raw = JSON.parse(localStorage.getItem(key()));
       if (!raw || !Array.isArray(raw.completed) || typeof raw.quizzes !== "object" || typeof raw.notes !== "object")
         return emptyProgress();
-      return { version: 1, year, completed: [...new Set(raw.completed.filter(n => Number.isInteger(n) && n >= 0 && n < lessons.length))],
+      return { version: 1, year, studentCode: typeof raw.studentCode==="string" ? raw.studentCode.slice(0,6) : "", completed: [...new Set(raw.completed.filter(n => Number.isInteger(n) && n >= 0 && n < lessons.length))],
         quizzes: raw.quizzes || {}, notes: raw.notes || {}, updatedAt: raw.updatedAt || null };
     } catch (_) { return emptyProgress(); }
   }
@@ -384,8 +384,13 @@
     setTimeout(()=>URL.revokeObjectURL(url),1000);
   }
   function exportProgress() {
+    const proposed = $("student-code").value.trim().toUpperCase();
+    if (proposed && !/^[A-Z][0-9]{2,3}$/.test(proposed)) {
+      notify("익명 코드 형식은 A01, A02, B123처럼 영문 대문자 1자+숫자 2~3자리입니다.");return;
+    }
+    progress.studentCode = proposed;
     persist();
-    download("ai-agent-smart-life-"+year+"-progress.json",JSON.stringify(progress,null,2));
+    download("ai-agent-smart-life-"+year+"-"+(proposed||"anonymous")+"-progress.json",JSON.stringify(progress,null,2));
     notify("학습 기록을 JSON 파일로 내려받았습니다.");
   }
   function importProgress(file) {
@@ -408,7 +413,9 @@
         }
         for(const [k,v] of Object.entries(imported.notes))
           if(/^(?:[0-9]|1[01])$/.test(k) && typeof v==="string") clean.notes[k]=v.slice(0,4000);
+        clean.studentCode=typeof imported.studentCode==="string" && /^[A-Z][0-9]{2,3}$/.test(imported.studentCode) ? imported.studentCode : "";
         progress=clean;
+        $("student-code").value=progress.studentCode;
         persist();
         renderNavigation();
         renderLesson();
@@ -424,7 +431,7 @@
     if(!Number.isInteger(proposed)||proposed<2026||proposed>2100){
       this.value=year;notify("2026~2100 사이의 학년도를 입력하세요.");return;
     }
-    year=proposed;progress=load();selectLesson(0);
+    year=proposed;progress=load();$("student-code").value=progress.studentCode;selectLesson(0);
     notify(year+"학년도 학습 기록을 불러왔습니다.");
   });
   $("export-progress").addEventListener("click",exportProgress);
@@ -438,6 +445,13 @@
   });
 
   progress=load();
+  $("student-code").value=progress.studentCode;
+  $("student-code").addEventListener("change",function(){
+    const code=this.value.trim().toUpperCase();
+    if (code && !/^[A-Z][0-9]{2,3}$/.test(code)) {notify("익명 코드 예시: A01, A29, B103");return;}
+    this.value=code;
+    progress.studentCode=code;persist();
+  });
   const match=window.location.hash.match(/^#lesson-(\d+)$/);
   if(match) current=Math.min(lessons.length-1,Math.max(0,Number(match[1])-1));
   renderNavigation();
