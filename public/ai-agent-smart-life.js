@@ -8,7 +8,7 @@
   }
   const lessons = course.lessons;
   const KEY = "ai-agent-smart-life:progress:v1";
-  const defaultState = {selected:1,tab:"concept",mode:"student",checks:{},answers:{},notes:{},completed:[]};
+  const defaultState = {selected:1,tab:"concept",mode:"student",checks:{},answers:{},notes:{},savedCodes:{},completed:[]};
   let state = JSON.parse(JSON.stringify(defaultState));
   function validId(id) { return Number.isInteger(id) && id >= 1 && id <= 12; }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
@@ -29,6 +29,9 @@
     }
     if (p.notes && typeof p.notes === "object") for (let i=1; i<=12; i++) {
       if (typeof p.notes[i] === "string") safe.notes[i] = p.notes[i].slice(0,4000);
+    }
+    if (p.savedCodes && typeof p.savedCodes === "object") for (let i=1; i<=12; i++) {
+      if (typeof p.savedCodes[i] === "string") safe.savedCodes[i] = p.savedCodes[i].slice(0,12000);
     }
     if (Array.isArray(p.completed)) safe.completed = [...new Set(p.completed.filter(validId))].sort((a,b)=>a-b);
     return safe;
@@ -115,7 +118,13 @@
     html+='<div class="tool-note">아래 코드는 <b>실제로 실행 가능한 Python 예제</b>입니다. 웹앱에서 보이는 예상 결과는 실제 실행 로그가 아닙니다. Colab을 사용할 수 없다면 학교 PC의 Python 환경에서 실행하세요.</div>';
     html+='<div class="codebar"><span>PYTHON · '+(l.usesData?"Pandas·가상 CSV 포함":"기본 Python")+'</span><div class="codebar-actions"><button id="copy-code" type="button">코드 복사</button><a href="https://colab.research.google.com/" target="_blank" rel="noopener noreferrer">Colab 열기 ↗</a></div></div>';
     html+='<pre class="codeblock"><code>'+esc(codeOf(l))+'</code></pre>';
-    html+='<div class="result-hint"><b>예상 결과 (시뮬레이션 설명)</b><br>'+esc(l.expected)+'</div>';
+    html+='<div class="result-hint"><b>예상 결과 (실행 전 예측)</b><br>'+esc(l.expected)+'</div>';
+    html+='<details class="editor-panel"><summary>✍️ 코드 직접 고쳐 보기 · 브라우저 Python 실행 (선택)</summary>';
+    html+='<p class="editor-description">코드를 수정한 다음 실행하세요. 외부 Pyodide 패키지가 처음 로딩되므로 학교 인터넷에서 제한될 수 있습니다. 필요한 경우 Colab이나 로컬 Python을 사용하세요.</p>';
+    html+='<label class="term" for="python-editor">내가 수정하는 Python 코드</label>';
+    html+='<textarea id="python-editor" class="python-editor" spellcheck="false" maxlength="12000" aria-label="수정할 Python 코드"></textarea>';
+    html+='<div class="editor-actions"><button type="button" id="run-python" class="primary-btn">▶ 이 브라우저에서 실제 실행</button><button type="button" id="stop-python" class="secondary-btn">실행 취소</button><button type="button" id="reset-python" class="secondary-btn">원본 코드 복원</button></div>';
+    html+='<div id="python-run-output" class="python-run-output" role="status" aria-live="polite">Python 실행 버튼을 누르면 여기에 실제 출력이 나타납니다.</div></details>';
     html+='<div class="panel"><h4>✍️ 오늘의 실습 미션</h4>'+list(l.tasks,true)+'</div>';
     if(l.usesData) {
       html+='<div class="panel"><h4>📊 데이터 탐색기 · 브라우저에서 실시간 계산</h4>';
@@ -215,6 +224,7 @@
     const c=document.getElementById("lesson-content");
     c.innerHTML=state.tab==="concept"?concepts():state.tab==="python"?python():state.tab==="agent"?agent():state.tab==="quiz"?quiz():teacher();
     const textarea=document.getElementById("written-note"); if(textarea)textarea.value=state.notes[l.id]||"";
+    const editor=document.getElementById("python-editor");if(editor)editor.value=state.savedCodes[l.id]===undefined?codeOf(l):state.savedCodes[l.id];
     document.getElementById("teacher-toggle").setAttribute("aria-pressed",String(state.mode==="teacher"));
     document.getElementById("teacher-toggle").textContent=state.mode==="teacher"?"학생용으로 전환":"교사용 보기";
     document.getElementById("prev-lesson").disabled=state.selected===1;
@@ -262,10 +272,53 @@
     if(b.dataset.tab==="teacher"&&state.mode!=="teacher")return;
     state.tab=b.dataset.tab;render();
   });
+  let pythonWorker=null, pythonRunId=0;
+  function stopPython() {
+    if(pythonWorker){pythonWorker.terminate();pythonWorker=null;}
+    pythonRunId++;
+    const out=document.getElementById("python-run-output");
+    if(out)out.textContent="실행을 취소했습니다. 다시 실행할 수 있습니다.";
+  }
+  function runPython() {
+    const editor=document.getElementById("python-editor");
+    const out=document.getElementById("python-run-output");
+    if(!editor||!out)return;
+    const code=editor.value;
+    if(!code.trim()){toast("Python 코드를 입력해 주세요.");return;}
+    if(pythonWorker){pythonWorker.terminate();pythonWorker=null;}
+    const runId=++pythonRunId;
+    const lessonId=state.selected;
+    out.textContent="실행 환경 연결 중. 라이브러리 다운로드에 시간이 걸리면 Colab을 사용하세요.";
+    pythonWorker=new Worker("./ai-agent-python-worker.js");
+    pythonWorker.onmessage=function(event){
+      const data=event.data||{};
+      if(data.id!==runId||state.selected!==lessonId||!document.getElementById("python-run-output"))return;
+      const target=document.getElementById("python-run-output");
+      if(data.type==="status"){target.textContent=data.message;return;}
+      if(data.type==="error"){target.textContent="실행 오류: "+data.message;return;}
+      if(data.type==="done"){
+        target.textContent="실제 Python 출력:\n"+data.output;
+        if(data.svg){
+          const blob=new Blob([data.svg],{type:"image/svg+xml"});
+          const url=URL.createObjectURL(blob);
+          const image=document.createElement("img");
+          image.src=url;image.alt="Python Matplotlib 실행 결과 그래프";
+          image.className="executed-chart";
+          image.onload=function(){URL.revokeObjectURL(url);};
+          target.appendChild(image);
+        }
+      }
+    };
+    pythonWorker.onerror=function(){const target=document.getElementById("python-run-output");if(target)target.textContent="Python 실행 환경을 불러오지 못했습니다. 학교 PC에서 Colab 또는 로컬 Python을 이용하세요.";};
+    pythonWorker.postMessage({id:runId,code:code});
+  }
   document.getElementById("lesson-content").addEventListener("click",function(e){
     const el=e.target, btn=el.closest("button"); if(!btn)return;
     if(btn.dataset.nextTab){state.tab=btn.dataset.nextTab;render();return;}
-    if(btn.id==="copy-code"){copyText(codeOf(lesson()));return;}
+    if(btn.id==="copy-code"){const editor=document.getElementById("python-editor");copyText(editor?editor.value:codeOf(lesson()));return;}
+    if(btn.id==="run-python"){runPython();return;}
+    if(btn.id==="stop-python"){stopPython();return;}
+    if(btn.id==="reset-python"){delete state.savedCodes[state.selected];save();render();toast("원본 코드로 되돌렸습니다.");return;}
     if(btn.id==="copy-prompt"){copyText(lesson().prompt);return;}
     if(btn.id==="download-csv-inline"){downloadCsv();return;}
     if(btn.id==="print-guide"){window.print();return;}
@@ -297,6 +350,7 @@
   });
   document.getElementById("lesson-content").addEventListener("input",function(e){
     if(e.target.id==="written-note"){state.notes[state.selected]=e.target.value.slice(0,4000);save();}
+    if(e.target.id==="python-editor"){state.savedCodes[state.selected]=e.target.value.slice(0,12000);save();}
   });
   document.getElementById("teacher-toggle").addEventListener("click",function(){
     state.mode=state.mode==="teacher"?"student":"teacher";
