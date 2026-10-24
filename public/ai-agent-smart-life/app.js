@@ -19,6 +19,8 @@
   let toastTimer;
   let running = false;
   let latestAgentCSV = "";
+  // Visible public practice items only; the original 60 questions are never mutated.
+  let displayedQuestions = [];
   const SAMPLE_CSV = "subject,score\nMath,72\nEnglish,88\nScience,64\nHistory,81";
 
   function safe(s) {
@@ -73,8 +75,8 @@
         $("mobile-menu").setAttribute("aria-expanded", "false");
       }));
   }
-  function quizHtml(lesson) {
-    return lesson.questions.map((q,i) =>
+  function quizHtml(questions) {
+    return questions.map((q,i) =>
       '<div class="quiz-question"><b>Q' + (i+1) + '. ' + safe(q[0]) + '</b>' +
       '<div class="quiz-options">' + q[1].map((opt,j) =>
       '<label><input type="radio" name="quiz-' + i + '" value="' + j + '"/><span>' +
@@ -149,6 +151,7 @@
   function renderLesson() {
     const lesson = lessons[current];
     const completed = progress.completed.includes(current);
+    displayedQuestions = lesson.questions.map(q => window.AASL_shuffleQuestion(q).question);
     $("lesson-heading").textContent = "LESSON " + String(current+1).padStart(2,"0") + " · " + lesson.title;
     $("lesson-subheading").textContent = lesson.tag + " · 50분";
     let html = '<section class="panel"><span class="pill">' + safe(lesson.tag) + '</span>' +
@@ -173,7 +176,7 @@
     html += '<section class="panel"><span class="pill">03 / CHECK</span>' +
       '<h3 style="margin-top:12px">형성평가 · ' + lesson.questions.length + '문항</h3>' +
       '<p class="hint">전부 응답한 뒤 채점하세요. 결과는 현재 학년도에 저장됩니다.</p>' +
-      quizHtml(lesson) + button("정답 확인·채점","primary","grade-quiz") +
+      quizHtml(displayedQuestions) + button("정답 확인·채점","primary","grade-quiz") +
       '<p id="quiz-score" class="lead" role="status"></p></section>' +
       '<section class="panel"><span class="pill">04 / REFLECT</span><h3 style="margin-top:12px">오늘의 학습 정리</h3>' +
       '<p class="hint">핵심 개념과 고친 오류를 2~3문장으로 작성하세요.</p>' +
@@ -230,15 +233,15 @@
     window.scrollTo({top:0,behavior:"smooth"});
   }
   function gradeQuiz() {
-    const lesson=lessons[current];
+    const questions=displayedQuestions;
     const answers=[];
-    for (let i=0;i<lesson.questions.length;i++) {
+    for (let i=0;i<questions.length;i++) {
       const selected=document.querySelector('input[name="quiz-'+i+'"]:checked');
       if (!selected) { notify("모든 문항에 답한 뒤 채점해 주세요."); return; }
       answers.push(Number(selected.value));
     }
     let right=0;
-    lesson.questions.forEach((q,i)=>{
+    questions.forEach((q,i)=>{
       const yes=answers[i]===q[2];
       if (yes) right++;
       const feedback=$("feedback-"+i);
@@ -247,10 +250,10 @@
       feedback.style.background=yes?"#eff9f4":"#fff4e5";
       feedback.style.color=yes?"#0b634d":"#9b4b0c";
     });
-    const score=right/lesson.questions.length;
+    const score=right/questions.length;
     progress.quizzes[current]={score,answers,at:new Date().toISOString()};
     persist();
-    $("quiz-score").textContent="이번 채점 결과: "+right+" / "+lesson.questions.length+"문항 ("+Math.round(score*100)+"점)";
+    $("quiz-score").textContent="이번 채점 결과: "+right+" / "+questions.length+"문항 ("+Math.round(score*100)+"점)";
     notify("채점 결과가 저장되었습니다.");
     refreshStats();
   }
