@@ -63,6 +63,29 @@ async function main() {
     for(let i=0;i<20;i++)await page.locator('input[name="mc-'+i+'"]').first().check();
     await page.locator("#grade").click();
     assert.ok((await page.locator("#summary").innerText()).includes("28 문항"));
+    // Public practice only: prove shuffled option labels still grade against the original answer text.
+    await page.locator("#refresh").click();
+    const remapResults = await page.evaluate(() => {
+      const bank = window.AASL_LESSONS.flatMap((lesson, i) =>
+        lesson.questions.concat(((window.AASL_DEEP_DIVE[i] || {}).extraQuestions) || []));
+      return [...document.querySelectorAll("#multiple .q")].map(card => {
+        const prompt = card.querySelector("h3").textContent.replace(/^객관식 \d+\.\s*/, "");
+        const source = bank.find(question => question[0] === prompt);
+        if (!source) return { found: false, matched: false };
+        const originalCorrectText = source[1][source[2]];
+        const labels = [...card.querySelectorAll(".options label")];
+        const answerIndex = labels.findIndex(label =>
+          label.querySelector("span").textContent.replace(/^[①②③④]\s*/, "") === originalCorrectText);
+        if (answerIndex >= 0) labels[answerIndex].querySelector("input").checked = true;
+        return { found: true, matched: answerIndex >= 0 };
+      });
+    });
+    assert.equal(remapResults.length, 20, "20 shuffled questions");
+    assert.ok(remapResults.every(result => result.found && result.matched),
+      "the original correct text is visible in each shuffled question");
+    await page.locator("#grade").click();
+    assert.ok((await page.locator("#summary").innerText()).includes("객관식 20/20"),
+      "all original correct options must score 20/20 after remapping");
 
     for(const file of ["project/study_agent.py","project/study_scores.csv","project/README.md"]) {
       const result=await page.request.get(url+file);
