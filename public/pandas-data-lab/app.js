@@ -55,6 +55,6 @@ function renderExam(){$("examQuiz").innerHTML=quizMarkup(exam,"eq",state.exam);$
 $("gradeExam").onclick=()=>{const n=scoreQuiz(exam,"eq",state.exam);$("examResult").textContent=n+" / 20점";save()};
 $("retryExam").onclick=()=>{state.exam={};renderExam();save()};
 $("teacherRows").innerHTML=LESSONS.map((l,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(l[0])+'</td><td>'+esc(l[7])+'</td></tr>').join("");
-function init(){updateProgress();renderMap();selectLesson(state.lesson);if(!DATA[state.dataset])state.dataset="sports";$("datasetSelect").value=state.dataset;$("datasetNote").textContent=DATA[state.dataset].note;$("csvInput").value=state.csv;$("pythonCode").value=state.code||LESSONS[state.lesson][5];renderExam();screen("home")}
+function init(){updateProgress();renderMap();selectLesson(state.lesson);if(!DATA[state.dataset])state.dataset="sports";$("datasetSelect").value=state.dataset;$("datasetNote").textContent=DATA[state.dataset].note;$("csvInput").value=state.csv;$("pythonCode").value=state.code||LESSONS[state.lesson][5];renderExam();const requested=new URLSearchParams(window.location.search).get("page");screen(requested==="lab"?"lab":requested==="data"?"data":"home");if(new URLSearchParams(window.location.search).get("from")==="simulation"&&requested==="lab")$("runStatus").textContent="✓ 4단원 실험 CSV와 분석 코드를 불러왔습니다. ▶ Python 실행을 누르세요."}
 init();
 })();
