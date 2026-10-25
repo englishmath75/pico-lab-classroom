@@ -132,7 +132,41 @@ async function main() {
     await page.locator("#student-code").fill("A01");
     const recordDownload=page.waitForEvent("download");
     await page.locator("#export-progress").click();
-    assert.ok((await recordDownload).suggestedFilename().includes("A01"),"coded progress export");
+    const exportedDownload=await recordDownload;
+    assert.ok(exportedDownload.suggestedFilename().includes("A01"),"coded progress export");
+    const backupBytes=fs.readFileSync(await exportedDownload.path());
+    const backup=JSON.parse(backupBytes.toString("utf8"));
+    assert.equal(backup.version,1,"backup format version");
+    assert.equal(backup.year,2026,"backup academic year");
+    assert.equal(backup.studentCode,"A01","anonymous code in export");
+    assert.deepEqual(backup.completed,[0],"completed lesson in export");
+    assert.ok(Number.isFinite(backup.quizzes["0"].score),"quiz score included in backup");
+
+    // A fresh browser session must be able to restore an exported record without network or student identity.
+    await page.evaluate(()=>localStorage.removeItem("aasl-progress-v1-2026"));
+    await page.reload({waitUntil:"domcontentloaded"});
+    assert.ok((await page.locator("#stat-complete").innerText()).includes("0 / 12"),"fresh session starts empty");
+    page.once("dialog",dialog=>dialog.accept());
+    await page.locator("#import-file").setInputFiles({
+      name:"A01-progress.json",mimeType:"application/json",buffer:backupBytes
+    });
+    await page.waitForFunction(()=>document.getElementById("stat-complete").textContent.includes("1 / 12"));
+    assert.equal(await page.locator("#student-code").inputValue(),"A01","anonymous code restored");
+    const restored=await page.evaluate(()=>JSON.parse(localStorage.getItem("aasl-progress-v1-2026")));
+    assert.deepEqual(restored.completed,[0],"completed lessons restored");
+    assert.equal(restored.quizzes["0"].score,backup.quizzes["0"].score,"quiz score restored");
+
+    // Wrong-year and invalid-lesson backups must be rejected without overwriting the valid local record.
+    for(const invalidBackup of [{...backup,year:2025},{...backup,completed:[99]}]) {
+      await page.locator("#import-file").setInputFiles({
+        name:"invalid-progress.json",mimeType:"application/json",
+        buffer:Buffer.from(JSON.stringify(invalidBackup))
+      });
+      await page.getByText("가져오기 실패:",{exact:false}).waitFor();
+      const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem("aasl-progress-v1-2026")));
+      assert.deepEqual(saved.completed,[0],"invalid import cannot overwrite completed lessons");
+      assert.equal(saved.quizzes["0"].score,backup.quizzes["0"].score,"invalid import cannot overwrite scores");
+    }
 
     const teacherFile=await page.request.get(url+"project/agent_live_teacher.py");
     assert.equal(teacherFile.status(),200,"real model teacher script exists");
