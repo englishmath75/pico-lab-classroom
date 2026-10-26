@@ -61,7 +61,7 @@ async function main() {
     await page.locator("#agent-export").click();
     const safeCsv=fs.readFileSync(await (await safeCsvDownload).path(),"utf8").replace(/^\uFEFF/,"");
     assert.ok(safeCsv.includes("\"'=2+2\""),"equals-prefixed subject guarded in CSV");
-    assert.ok(safeCsv.includes("\"' +A1\""),"plus-prefixed formula guarded in CSV");
+    assert.ok(safeCsv.includes("\"'+A1\""),"plus-prefixed formula guarded in CSV");
     assert.ok(safeCsv.includes("\"'@SUM\""),"at-prefixed formula guarded in CSV");
     assert.ok(safeCsv.includes("\"Normal\""),"regular subject preserved in CSV");
 
