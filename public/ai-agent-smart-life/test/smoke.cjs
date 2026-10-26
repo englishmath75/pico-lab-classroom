@@ -54,6 +54,18 @@ async function main() {
     await page.locator("#agent-run").click();
     assert.equal(await page.locator("#agent-export").isVisible(),true,"CSV export visible");
 
+    // Regression: spreadsheet formula-like subject labels must export as inert text.
+    await page.locator("#csv-data").fill("subject,score\n=2+2,40\n +A1,60\n@SUM,65\nNormal,70");
+    await page.locator("#agent-run").click();
+    const safeCsvDownload=page.waitForEvent("download");
+    await page.locator("#agent-export").click();
+    const safeCsv=fs.readFileSync(await (await safeCsvDownload).path(),"utf8").replace(/^\uFEFF/,"");
+    assert.ok(safeCsv.includes("\"'=2+2\""),"equals-prefixed subject guarded in CSV");
+    assert.ok(safeCsv.includes("\"' +A1\""),"whitespace-prefixed formula guarded in CSV");
+    assert.ok(safeCsv.includes("\"'@SUM\""),"at-prefixed formula guarded in CSV");
+    assert.ok(safeCsv.includes("\"Normal\""),"regular subject preserved in CSV");
+
+
     await page.goto(url+"teacher.html",{waitUntil:"domcontentloaded"});
     assert.equal(await page.locator("article").count(),12,"teacher lesson guides");
 
