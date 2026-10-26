@@ -348,6 +348,12 @@
     });
     return rows;
   }
+  function csvSafeSubject(subject) {
+    const text=String(subject);
+    // Spreadsheet apps may evaluate formula-like CSV cells even when quoted.
+    const guarded=/^[\u0000-\u0020]*[=+\-@]/.test(text) ? "'"+text : text;
+    return '"'+guarded.replace(/"/g,'""')+'"';
+  }
   function runAgentDemo() {
     const output=$("agent-steps");
     latestAgentCSV="";
@@ -367,7 +373,7 @@
         const sorted=[...rows].sort((a,b)=>a.score-b.score);
         message+="4. 실행 결과 → 복습 우선순위: "+sorted.map(x=>x.subject).join(" → ")+"\n";
         latestAgentCSV="priority,subject,score,plan_minutes\n"+
-          sorted.map((r,i)=>[i+1,'"'+r.subject.replace(/"/g,'""')+'"',r.score,30].join(",")).join("\n")+"\n";
+          sorted.map((r,i)=>[i+1,csvSafeSubject(r.subject),r.score,30].join(",")).join("\n")+"\n";
         $("agent-export").classList.remove("hidden");
       }
       message+="5. 결과 검증 → 점수 0~100 확인, 가상 입력에 근거한 결과\n";
