@@ -1,0 +1,58 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>화면 좌표·속도·중력의 원리 | 영수쌤의 Python 교실</title><style>
+:root{font-family:system-ui,"Malgun Gothic",sans-serif;background:#f3f6fa;color:#183248;line-height:1.7}*{box-sizing:border-box}body{margin:0}main{max-width:1070px;padding:26px;margin:auto}.hero{background:linear-gradient(115deg,#122f44,#087b85);color:white;padding:35px;border-radius:17px}.hero h1{font-size:clamp(26px,4vw,38px);line-height:1.4;margin:10px 0}.hero p{color:#e1f5f2}.pill{font-size:12px;font-weight:800;background:#e4f7f4;border-radius:18px;padding:6px 12px;color:#146b76;display:inline-block}section{background:white;border:1px solid #d8e5ec;border-radius:15px;padding:25px;margin-top:16px}h2{font-size:22px;margin:5px 0 12px}h3{font-size:17px;margin:10px 0}p{margin:6px 0 14px}a{color:#087381}.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.sub{border:1px solid #dce7ec;border-radius:10px;padding:18px}.sub strong{font-size:16px}.call{background:#e9f7f5;border-left:4px solid #15988c;padding:12px 16px;border-radius:8px}.note{background:#fff6e4;border-left:4px solid #d6a241;padding:13px;border-radius:8px}.code{background:#102b40;color:#e7faf5;padding:17px;overflow-x:auto;border-radius:10px;font:14px/1.85 Consolas,monospace;white-space:pre;tab-size:4}table{border-collapse:collapse;width:100%;font-size:13px}th,td{border:1px solid #dce5eb;padding:10px;text-align:left}th{background:#e9f3f5}.viz{width:100%;height:auto;background:#0a1c2d;border-radius:10px}.buttons{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:15px 0}button{background:#087e85;color:white;border:0;border-radius:9px;font:inherit;font-weight:800;padding:10px 17px;cursor:pointer}button.secondary{background:#e8f0f6;color:#275068}output{font-weight:800;color:#057a85}.origin{background:#f1f6fa;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;padding:18px;border-radius:9px;font:13px/1.8 "Malgun Gothic",system-ui,sans-serif;max-height:650px;overflow:auto}summary{font-weight:800;cursor:pointer}.footer{font-size:13px;margin:26px 0;color:#687b8e}@media(max-width:720px){main{padding:12px}.grid{grid-template-columns:1fr}section{padding:16px}}</style></head><body><main><header class="hero"><a href="./python-review.html#physics" style="color:white">← 00차시 Python 핵심 복습으로</a><p><span class="pill">수업 보충 · 4단계 설명</span></p><h1>컴퓨터 화면에서 공은 왜 아래로 떨어질까?</h1><p>화면 좌표계 → 위치·속도 → 중력과 저항 → 프레임별 계산까지 순서대로 이해합니다. 아래에는 이전에 작성한 4단계 설명 원문도 그대로 보존했습니다.</p></header>
+<section><span class="pill">1단계 · 화면 좌표계</span><h2>수학 좌표계와 컴퓨터 화면 좌표계 비교</h2><div class="grid"><div class="sub"><strong>수학 좌표계</strong><p>위쪽이 +y, 아래쪽이 −y입니다.</p><svg class="viz" viewBox="0 0 390 220" role="img" aria-label="수학 좌표계, y 플러스는 위쪽"><path d="M195 200V18M195 18l-8 12m8-12l8 12 M25 110H365" stroke="#bed2dd" stroke-width="3" fill="none"/><path d="M195 110V36" stroke="#64d5cd" stroke-width="8"/><text x="210" y="35" fill="white" font-size="17">+y ↑</text><text x="210" y="186" fill="#a8baca" font-size="17">−y ↓</text><text x="325" y="98" fill="white">+x →</text></svg></div><div class="sub"><strong>컴퓨터 화면 좌표계</strong><p>아래쪽이 +y, 위쪽이 −y입니다.</p><svg class="viz" viewBox="0 0 390 220" role="img" aria-label="컴퓨터 화면 좌표계, y 플러스는 아래쪽"><path d="M195 18V200 M195 200l-8-12m8 12l8-12 M25 110H365" stroke="#bed2dd" stroke-width="3" fill="none"/><path d="M195 110V185" stroke="#64d5cd" stroke-width="8"/><text x="210" y="35" fill="#a8baca" font-size="17">−y ↑</text><text x="210" y="186" fill="white" font-size="17">+y ↓</text><text x="325" y="98" fill="white">+x →</text></svg></div></div><p class="call"><b>학생에게 질문:</b> “공을 위로 쏘아 올리려면 y 속도(vy)를 양수로 해야 할까요, 음수로 해야 할까요?”<br><b>정답:</b> 화면에서 y가 줄어야 위로 움직이므로 <code>vy = -3</code>처럼 음수로 지정합니다.</p></section>
+<section><span class="pill">2단계 · 위치와 속도</span><h2>네 줄의 코드로 이해하는 움직임</h2><pre class="code">x += vx
+y += vy
+vy += 0.15
+vx *= 0.96</pre><div class="grid"><div class="sub"><h3>① x += vx, y += vy</h3><p>현재 위치에 이번 프레임에 이동할 거리를 더합니다. vx=6이면 오른쪽으로 6픽셀, vy=-3이면 위쪽으로 3픽셀 움직입니다.</p></div><div class="sub"><h3>② vy += 0.15</h3><p>화면 아래 방향(+y)으로 속도가 매 프레임 0.15씩 증가합니다. 위로 가는 음수 속도가 줄어들고, 나중에는 아래 방향으로 바뀝니다.</p></div><div class="sub"><h3>③ vx *= 0.96</h3><p>수평 속도가 직전 프레임의 96%가 됩니다. 감소율 4%를 여러 번 적용하는 단순한 저항 모델입니다.</p></div><div class="sub"><h3>④ 코드를 반복 실행하면?</h3><p>속도가 다음 프레임의 위치를 결정합니다. 화면은 계산을 여러 번 반복하면서 부드럽게 움직이는 듯 보입니다.</p></div></div></section>
+<section><span class="pill">3단계 · 숫자 직접 계산</span><h2>프레임마다 어떤 값이 달라질까요?</h2><p>초기값: <code>x=0, y=0, vx=6, vy=-3</code>. 한 프레임에서 먼저 위치를 바꾸고, 이어서 중력·저항을 적용합니다.</p><div class="buttons"><button type="button" id="advance">다음 프레임 계산</button><button type="button" class="secondary" id="reset">처음부터</button><output id="frame">0프레임 완료</output></div><div style="overflow:auto"><table><thead><tr><th>프레임</th><th>x 위치</th><th>y 위치</th><th>vx</th><th>vy</th></tr></thead><tbody id="values"><tr><td>초기</td><td>0</td><td>0</td><td>6</td><td>−3</td></tr></tbody></table></div><canvas class="viz" width="900" height="260" id="motion" aria-label="프레임별 위치를 보여주는 캔버스" style="margin-top:15px"></canvas><p class="note">교사용 수치표에서 1프레임 종료 시 (x, y)=(6,−3), (vx, vy)=(5.76,−2.85)이며 두 번째 종료 시 (11.76,−5.85), (약 5.53,−2.70)입니다. 수치는 소수 둘째 자리로 표시할 수 있습니다.</p></section>
+<section><span class="pill">4단계 · 학생 발문</span><h2>값을 바꿔 생각하기</h2><div class="sub"><h3>Q1. <code>vx *= 0.96</code>을 <code>vx *= 1.0</code>으로 바꾸면?</h3><details><summary>정답 보기</summary><p>수평 속도가 감소하지 않으므로 이 모형에서는 매 프레임 같은 수평 거리를 이동합니다.</p></details></div><div class="sub" style="margin-top:10px"><h3>Q2. <code>vy += 0.15</code>를 없애면?</h3><details><summary>정답 보기</summary><p>초기 음수 수직 속도가 그대로 유지되므로, 이 네 줄만 사용하는 모형에서는 공이 계속 위로 움직입니다. 수평 방향에는 저항이 적용됩니다.</p></details></div><div class="sub" style="margin-top:10px"><h3>Q3. 폭죽 입자 효과는 어떻게 만들까요?</h3><details><summary>정답 보기</summary><p>입자마다 방향과 초기 속도를 다르게 정해 생성하고, 같은 업데이트 규칙을 반복 적용하면 됩니다.</p></details></div></section>
+<section><h2>원본 4단계 설명 전체</h2><p>보관된 「파이썬 중력설명.pdf」의 설명을 수업 참고용으로 옮겼습니다. 수치와 발문을 원문과 비교할 수 있습니다.</p><details><summary>원본 설명 펼쳐 보기</summary><div class="origin">학생들에게 게임이나 그래픽의 물리 엔진이 작동하는 원리를 설명할 때는 &quot;컴퓨터 화면 좌표계&quot;의 특성을 먼저 짚어주고, &quot;위치 →
+     속도 → 중력/저항&quot;의 3단계 흐름으로 설명하는 것이 가장 효과적입니다.
+     수업 시간에 바로 활용하실 수 있도록 4단계 설명 가이드를 정리했습니다.
+     1단계: 컴퓨터 화면의 좌표계 다듬기 (선행 개념)
+     수학 시간의 y축과 컴퓨터 화면의 y축이 다르다는 점을 먼저 짚어줍니다.
+        수학 좌표계: 위로 갈수록 +y, 아래로 갈수록 −y
+        컴퓨터 화면: 아래로 갈수록 +y
+        핵심 질문: &quot;공을 위로 쏘아 올리려면 y 속도(vy)를 양수로 해야 할까요, 음수로 해야 할까요?&quot;
+           👉 정답: 위로 가려면 y 가 줄어들어야 하므로 음수(vy = -3)여야 합니다.
+
+     2단계: 코드 한 줄씩 쉽게 비유하기 (개념 연결)
+     x += vx       # 1. 위치 이동 (수평)
+     y += vy       # 2. 위치 이동 (수직)
+
+              설명: &quot;현재 위치에 속도(1프레임 동안 움직일 거리)를 계속 더해주는 거야. vx = 6이면 오른쪽으로 6픽셀씩, vy = -3이면 위쪽으로 3픽셀
+              씩 이동해.&quot;
+     vy += 0.15 # 3. 중력 적용
+
+              설명: &quot;지구가 밑에서 끌어당기니까 아래쪽(+y 방향)으로 속도가 점점 늘어나. 위로 올라가던 속도(-3)가 +0.15씩 더해지면서 점점 느려지
+              다가, 결국 양수가 되어 아래로 떨어지게 돼.&quot;
+     vx *= 0.96 # 4. 공기 저항 적용
+
+              설명: &quot;공기 때문에 오른쪽으로 가는 속도가 매 순간 96%(0.96)로 줄어들어. 1보다 작은 수를 계속 곱하면 속도가 줄어들어서 결국 멈추게
+              되지.&quot;
+     3단계: 프레임별 값 변화 표로 직접 손으로 풀어보기
+     학생들이 코드의 실행 과정을 눈으로 확인할 수 있도록 첫 2~3프레임의 계산 과정을 함께 따라가 보는 것이 좋습니다.
+        초기 상태: 위치 (0, 0), 속도 vx = 6, vy = -3
+               프레임 1. 위치 계산 (x, y)                   2. 속도 업데이트 (vx, vy)            비고
+               0번 x = 0 + 6 = 6                      vx = 6 × 0.96 = 5.76           위로 올라가는 중
+
+               프레임 1. 위치 계산 (x, y)                   2. 속도 업데이트 (vx, vy)       비고
+
+                        y = 0 + (−3) = −3            vy = −3 + 0.15 = −2.85
+
+                        x = 6 + 5.76 = 11.76         vx = 5.76 × 0.96 = 5.53
+
+               1번                                                              여전히 위로 올라가지만 수직 속도가 줄어듦
+                        y = −3 + (−2.85) = −5.85 vy = −2.85 + 0.15 = −2.70
+
+     4단계: 학생 호기심 유발을 위한 질문 던지기 (실습/발문)
+        1. &quot;만약 vx *= 0.96 에서 0.96 을 1.0 으로 바꾸면 공은 어떻게 움직일까?&quot;
+              👉 공기 저항이 없어져서 오른쪽으로 가는 속도가 줄어들지 않고 영원히 앞으로 날아갑니다.
+        2. &quot;중력 효과(vy += 0.15 )를 없애고(0 으로 만들고) 공을 쏘면 어떻게 될까?&quot;
+              👉 대각선 위로 일직선으로 날아가다가 공기 저항 때문에 천천히 멈춥니다.
+        3. &quot;폭죽 터지는 이펙트를 만들려면 이 코드를 어떻게 응용하면 될까?&quot;
+              👉 여러 개의 입자(파티클)를 만들고, 각 입자의 초기 vx, vy를 랜덤한 방향으로 뿌려주면 됩니다.</div></details><p class="note">위 수업용 풀이와 원본 문장의 모형이 조금 다른 경우, 실제 코드의 업데이트 순서를 기준으로 계산하세요. Pygame 원본에는 수직 속도의 저항(<code>vy *= 0.96</code>)도 있지만 여기서는 핵심 네 줄만 분리해 학습합니다.</p></section><footer class="footer"><a href="./graphics-gallery.html">08. 그래픽 작품 체험실 →</a> · <a href="./python-review.html#physics">00차시 수업으로 돌아가기</a></footer></main>
+<script>
+(()=>{const c=document.getElementById('motion'),ctx=c.getContext('2d'),body=document.getElementById('values');let state={x:0,y:0,vx:6,vy:-3},frame=0;function draw(){ctx.fillStyle='#0a1c2d';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#4e7386';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(25,180);ctx.lineTo(870,180);ctx.moveTo(40,20);ctx.lineTo(40,240);ctx.stroke();ctx.fillStyle='#8ae7de';ctx.font='18px sans-serif';ctx.fillText('화면의 아래쪽이 +y',55,29);const x=70+state.x*11,y=140+state.y*11;ctx.fillStyle='#f6c966';ctx.beginPath();ctx.arc(Math.max(20,Math.min(875,x)),Math.max(20,Math.min(245,y)),12,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f4fcff';ctx.fillText('현재 위치 ('+state.x.toFixed(2)+', '+state.y.toFixed(2)+')',60,238);}function reset(){state={x:0,y:0,vx:6,vy:-3};frame=0;body.innerHTML='<tr><td>초기</td><td>0</td><td>0</td><td>6</td><td>−3</td></tr>';document.getElementById('frame').textContent='0프레임 완료';draw();}document.getElementById('reset').addEventListener('click',reset);document.getElementById('advance').addEventListener('click',()=>{state.x+=state.vx;state.y+=state.vy;state.vy+=.15;state.vx*=.96;frame++;const tr=document.createElement('tr');for(const value of [frame,state.x.toFixed(2),state.y.toFixed(2),state.vx.toFixed(2),state.vy.toFixed(2)]){const td=document.createElement('td');td.textContent=String(value);tr.append(td);}body.append(tr);document.getElementById('frame').textContent=frame+'프레임 완료';draw();});reset();})();
+</script></body></html>
