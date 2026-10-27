@@ -1,0 +1,13 @@
+﻿order_id,day,menu,quantity,unit_price,revenue
+O001,1,Tteokbokki,2.0,3500,7000.0
+O002,2,Tteokbokki,3.0,3500,10500.0
+O003,3,Tteokbokki,1.0,3500,3500.0
+O004,4,Tteokbokki,4.0,3500,14000.0
+O005,1,Waffle,1.0,4500,4500.0
+O006,2,Waffle,2.0,4500,9000.0
+O007,3,Waffle,3.0,4500,13500.0
+O008,4,Waffle,2.0,4500,9000.0
+O009,1,Lemonade,3.0,2500,7500.0
+O010,2,Lemonade,2.0,2500,5000.0
+O011,3,Lemonade,4.0,2500,10000.0
+O012,4,Lemonade,3.0,2500,7500.0
