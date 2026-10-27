@@ -1,0 +1,126 @@
+[
+  {
+    "element": "a",
+    "href": "./"
+  },
+  {
+    "element": "a",
+    "href": "./"
+  },
+  {
+    "element": "a",
+    "href": "./lesson01-guide.html",
+    "id": "conceptLink"
+  },
+  {
+    "element": "a",
+    "href": "./step-by-step.html?lesson=8",
+    "id": "optionalSkip"
+  },
+  {
+    "element": "button",
+    "id": "hintButton",
+    "type": "button"
+  },
+  {
+    "element": "button",
+    "id": "addExample",
+    "type": "button"
+  },
+  {
+    "element": "button",
+    "id": "fullExample"
+  },
+  {
+    "element": "button",
+    "id": "resetLesson",
+    "type": "button"
+  },
+  {
+    "element": "textarea",
+    "id": "predictInput"
+  },
+  {
+    "element": "textarea",
+    "aria-label": "학생의 Python 코드",
+    "id": "editor"
+  },
+  {
+    "element": "button",
+    "id": "warmPython"
+  },
+  {
+    "element": "button",
+    "id": "run",
+    "type": "button"
+  },
+  {
+    "element": "button",
+    "id": "stop"
+  },
+  {
+    "element": "button",
+    "id": "prev",
+    "type": "button"
+  },
+  {
+    "element": "button",
+    "id": "next",
+    "type": "button"
+  },
+  {
+    "element": "button",
+    "id": "savePy",
+    "type": "button"
+  },
+  {
+    "element": "a",
+    "id": "graphDownload"
+  },
+  {
+    "element": "textarea",
+    "id": "reflection"
+  },
+  {
+    "element": "button",
+    "id": "exportJson",
+    "type": "button"
+  },
+  {
+    "element": "input",
+    "id": "restoreJson",
+    "type": "file"
+  },
+  {
+    "element": "button",
+    "id": "saveFullPy"
+  },
+  {
+    "element": "button",
+    "id": "downloadCsv",
+    "type": "button"
+  },
+  {
+    "element": "a",
+    "href": "#",
+    "id": "csvFileLink"
+  },
+  {
+    "element": "button",
+    "id": "gradeQuiz"
+  },
+  {
+    "element": "a",
+    "href": "./kosis-project.html",
+    "id": "projectLink"
+  },
+  {
+    "element": "a",
+    "href": "./?page=report",
+    "id": "reportLink"
+  },
+  {
+    "element": "a",
+    "href": "./"
+  }
+]

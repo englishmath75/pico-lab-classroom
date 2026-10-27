@@ -1,0 +1,20 @@
+{
+  "video": "h264",
+  "audio": "aac",
+  "subtitles": "mov_text",
+  "size": [
+    1920,
+    1080
+  ],
+  "duration": 1109.8,
+  "sceneCount": 22,
+  "subtitleCues": 174,
+  "hlsSegments": 56,
+  "fullDecode": "PASS",
+  "codeExampleVerification": "tests/pandas_video_pilot_check.py",
+  "visualMode": "labelled reconstruction",
+  "voice": "AI ko-KR-SunHiNeural, edge-tts 7.3.1",
+  "mp4Sha256": "329b7995a43dacb21ae3906c369a6bd82af8e2bfb907a6f35701de9f3cc5097e",
+  "browserPlayback": "pending deployment",
+  "humanFullContinuousReview": false
+}

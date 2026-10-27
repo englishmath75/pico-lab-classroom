@@ -1,0 +1,2 @@
+# MP4 master is delivered separately; the same encoded streams are deployed as HLS.
+*.mp4
