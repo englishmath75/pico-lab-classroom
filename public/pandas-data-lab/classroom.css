@@ -4,3 +4,51 @@
 @media(max-width:1000px){.classroom-hero{grid-template-columns:1fr;padding:28px}.table-illustration{max-width:500px}.resource-grid{grid-template-columns:1fr}.main{padding:24px}.course-map{grid-template-columns:1fr}}
 @media(max-width:850px){.layout{display:block}.side,.sidebar{position:static;height:auto}.side{padding:15px 18px}.side>.brand{display:flex;gap:17px;align-items:center;margin:0 0 13px}.brand img{width:70px;height:52px;margin:0}.brand strong{font-size:18px}.brand span{font-size:11px;margin-top:3px}.side>p,.side .meter,.side .side-foot{display:none}.side nav{display:flex;flex-wrap:wrap;gap:5px}.side .nav{font-size:13px;width:auto;margin:0;padding:9px 10px}.top{margin-bottom:20px}.top .badge{margin-top:10px}.classroom-hero h3{font-size:32px}.course-card{padding:18px}.teacher-wrap{padding:18px 13px}.teacher-hero{padding:24px}.teacher-hero h1{font-size:26px}.teach-steps{grid-template-columns:1fr}.table-wrap{overflow-x:auto}.sidebar .brand img{width:70px;height:52px}.sidebar .brand{display:flex;align-items:center;gap:15px}.teacher-wrap .panel{padding:18px}.breadcrumb{font-size:13px;padding:13px}.main{padding:22px 14px}.table-illustration{padding:18px}.classroom-hero{gap:22px}}
 @media print{.side,.sidebar,.breadcrumb,.actions,button,.archive{display:none!important}.layout{display:block}.teacher-wrap{padding:0}.panel,section{break-inside:avoid}details>*{display:block!important}body{background:white!important;color:black!important}.teacher-hero{background:white!important;color:black!important;border:1px solid #aaa}.teacher-hero p{color:black}.teacher-wrap pre{color:black;background:#f5f5f5}}
+
+/* One classroom shell for all five student menus. */
+.classroom-page{font-family:system-ui,"Noto Sans KR","Malgun Gothic",sans-serif;background:#f5f6f8;color:#172d40}
+.classroom-page .layout{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh}
+.classroom-page .side{position:sticky;top:0;height:100vh;overflow:auto;padding:25px 18px;background:#122c40;color:#eefbff}
+.classroom-page .side .brand{display:block;margin:0 0 24px;text-align:center}
+.classroom-page .side .brand img{display:block;width:180px;max-width:100%;height:auto;aspect-ratio:2048/1529;object-fit:contain;background:#fff;border-radius:10px;margin:0 auto 20px}
+.classroom-page .side .brand strong{font-size:22px;letter-spacing:-.6px;line-height:1.35;display:block}
+.classroom-page .side .brand span{font-size:13px;letter-spacing:0;display:block;margin-top:8px;color:#bad0dd}
+.classroom-page .side>p{font-size:13px!important;line-height:1.75;color:#b2cfda;margin:0 0 24px}
+.classroom-page .side .nav{display:block;box-sizing:border-box;width:100%;border:0;border-radius:10px;background:transparent;color:#d1e5eb;text-align:left;font:400 16px/1.75 system-ui,"Noto Sans KR","Malgun Gothic",sans-serif;margin:6px 0;padding:13px 15px;text-decoration:none;cursor:pointer}
+.classroom-page .side .nav:hover,.classroom-page .side .nav.active{background:#2d5665;color:#fff}
+.classroom-page .side .meter{margin:35px 8px 20px;border-top:1px solid #3c5867;padding-top:16px;font-size:13px}
+.classroom-page .side .meter p{font-size:13px;line-height:2.3;color:#b2cfda;margin:6px 9px 25px}
+.classroom-page .side-foot{margin:22px 8px;color:#a8c8d3;font-size:12px;line-height:1.75}
+.classroom-page .main{min-width:0;width:100%;max-width:1360px;margin:auto;padding:35px clamp(22px,4vw,64px) 60px}
+.classroom-page .top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:32px}
+.classroom-page .top .eyebrow{font-size:12px;letter-spacing:.3px;font-weight:850;color:#137d80}
+.classroom-page .top h2{font-size:24px;line-height:1.3;margin:6px 0}
+.classroom-page .top p{font-size:14px;line-height:1.75;margin:0;color:#647b8c}
+.classroom-page .top .badge{display:inline-block;border-radius:25px;padding:8px 12px;background:#deedf3;color:#176373;font-weight:800;font-size:12px;line-height:1.75;white-space:nowrap}
+.classroom-page .practice-hero{background:#122f44;border-radius:18px;padding:42px;margin-bottom:18px;color:#fff}
+.classroom-page .practice-hero .eyebrow{color:#d4bd81;font-size:12px;letter-spacing:.3px}
+.classroom-page .practice-hero h3{font-size:clamp(25px,3vw,34px);line-height:1.35;margin:14px 0}
+.classroom-page .practice-hero p{font-size:16px;line-height:1.9;color:#e1f5f4;margin:8px 0}
+.classroom-page .lesson-picker{padding:14px 20px;margin-bottom:18px}
+.classroom-page .lesson-picker summary{font-size:15px;color:#25475b;font-weight:700}
+.classroom-page .lesson-picker .lesson-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}
+.classroom-page .lesson-picker .lesson-nav{font-family:inherit;font-size:14px;font-weight:400;line-height:1.5;display:block;width:100%;margin:0;padding:12px;text-align:left;border:1px solid #dce3e8;border-radius:9px;background:#f5f7f9;color:#25475b;cursor:pointer}
+.classroom-page .lesson-picker .lesson-nav small{display:block;font-size:12px;color:#627687}
+.classroom-page .lesson-picker .lesson-nav.active{background:#2d5665;color:#fff;border-color:#2d5665}
+.classroom-page .lesson-picker .lesson-nav.active small{color:#d1e5eb}
+.classroom-page .lesson-picker .lesson-nav:hover{border-color:#137d80}
+.classroom-page .skip{position:absolute;top:-100px}.classroom-page .skip:focus{top:8px;left:8px;z-index:8;background:white;padding:8px}
+@media(min-width:1450px){.classroom-page .main{max-width:1450px}.classroom-page .practice-hero{padding:50px}}
+@media(max-width:1000px){.classroom-page .main{padding:24px}.classroom-page .practice-hero{padding:28px}}
+@media(max-width:850px){
+ .classroom-page .layout{display:block}.classroom-page .side{position:static;height:auto;padding:18px}
+ .classroom-page .side .brand{display:block;text-align:center;margin:0 0 18px}.classroom-page .side .brand img{width:140px;height:auto;margin:0 auto 12px}
+ .classroom-page .side .brand strong{font-size:20px}.classroom-page .side .brand span{font-size:12px}
+ .classroom-page .side>p,.classroom-page .side .meter,.classroom-page .side-foot{display:none}
+ .classroom-page .side nav{display:flex;justify-content:center;flex-wrap:wrap;gap:5px}
+ .classroom-page .side .nav{width:auto;margin:0;padding:9px 10px;font-size:13px}
+ .classroom-page .main{padding:22px 14px 60px}.classroom-page .top{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}.classroom-page .top .badge{margin:0}
+ .classroom-page .practice-hero{padding:24px}.classroom-page .practice-hero h3{font-size:25px}
+ .classroom-page .lesson-picker .lesson-list{grid-template-columns:1fr}
+}
+@media print{.classroom-page .side,.classroom-page .lesson-picker{display:none!important}.classroom-page .layout{display:block}}
