@@ -52,3 +52,15 @@
  .classroom-page .lesson-picker .lesson-list{grid-template-columns:1fr}
 }
 @media print{.classroom-page .side,.classroom-page .lesson-picker{display:none!important}.classroom-page .layout{display:block}}
+
+/* Creator identity directly beneath the logo, shared by student pages. */
+.classroom-page .side .brand{padding-bottom:22px;margin-bottom:18px;border-bottom:1px solid #ffffff24}
+.classroom-page .side .brand img{margin-bottom:20px}
+.classroom-page .side .brand .classroom-name{color:#e8cd8b;font-size:22px;font-weight:800;line-height:1.5;letter-spacing:-.65px;word-break:keep-all}
+.classroom-page .side .brand .classroom-unit{color:#f2f7fa;font-size:18px;font-weight:700;line-height:1.5;letter-spacing:-.4px;margin-top:18px}
+.classroom-page .side .brand .classroom-subject{color:#b6cbd6;font-size:12px;font-weight:400;line-height:1.6;margin-top:5px}
+@media(max-width:850px){
+ .classroom-page .side .brand{padding-bottom:18px;margin-bottom:14px}
+ .classroom-page .side .brand .classroom-name{font-size:21px}
+ .classroom-page .side .brand .classroom-unit{font-size:16px;margin-top:12px}
+}
