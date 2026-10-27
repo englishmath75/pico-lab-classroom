@@ -6,14 +6,14 @@
     {
       "original": 99,
       "title": "1편에서 2편으로 이어가기",
-      "speech": "2차시의 두 번째 영상입니다. 첫 번째 영상에서는 이름과 책 수로 표를 만들고 평균을 계산했습니다. 이번에는 기존 웹앱의 매점 가격 실습을 그대로 따라갑니다. 표에서 일부 행을 살펴보고, 열 이름을 확인하고, 한 열을 골라 평균을 구하겠습니다. 코드 입력 화면은 학습용 재현 장면이며 실제 화면 녹화가 아닙니다. 출력은 실제 파이썬으로 실행해 검증했습니다. 해설은 선생님 목소리를 복제하지 않은 기본 한국어 합성 음성입니다.",
+      "speech": "2차시의 두 번째 영상입니다. 첫 번째 영상에서는 이름과 책 수로 표를 만들고 평균을 계산했습니다. 이번에는 기존 웹앱의 매점 가격 실습을 그대로 따라갑니다. 표에서 일부 행을 살펴보고, 열 이름을 확인하고, 한 열을 골라 평균을 구하겠습니다.",
       "pause": 2,
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df)",
       "note": "2차시 2편 · 매점 가격으로 표 살펴보기",
       "kind": "code",
       "start": 0,
-      "duration": 41.266666666666666,
-      "audioDuration": 39.264,
+      "duration": 24.733333333333334,
+      "audioDuration": 22.704,
       "output": "  item  price\n0    A   1000\n1    B   1500\n2    C   2000"
     },
     {
@@ -24,7 +24,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df)\nprint(df.shape)",
       "note": "목표: 일부 행 확인 → 열 선택 → 평균 계산",
       "kind": "code",
-      "start": 41.266666666666666,
+      "start": 24.733333333333334,
       "duration": 46.3,
       "audioDuration": 44.28,
       "output": "  item  price\n0    A   1000\n1    B   1500\n2    C   2000\n(3, 2)"
@@ -37,7 +37,7 @@
       "code": "import pandas as pd",
       "note": "정규 실습 1단계와 같은 명령",
       "kind": "code",
-      "start": 87.56666666666666,
+      "start": 71.03333333333333,
       "duration": 45.266666666666666,
       "audioDuration": 43.248,
       "output": ""
@@ -50,7 +50,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df)",
       "note": "정규 실습 2단계 · 3행 2열",
       "kind": "code",
-      "start": 132.83333333333331,
+      "start": 116.3,
       "duration": 53.43333333333333,
       "audioDuration": 51.432,
       "output": "  item  price\n0    A   1000\n1    B   1500\n2    C   2000"
@@ -63,7 +63,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df.head(2))",
       "note": "head(2): 원본을 지우지 않고 앞 두 행 반환",
       "kind": "code",
-      "start": 186.26666666666665,
+      "start": 169.73333333333332,
       "duration": 44.833333333333336,
       "audioDuration": 42.816,
       "output": "  item  price\n0    A   1000\n1    B   1500"
@@ -76,7 +76,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df.head(2))\nprint(df.shape)",
       "note": "정규 실습 3단계 · 예상 출력 (3, 2)",
       "kind": "code",
-      "start": 231.1,
+      "start": 214.56666666666666,
       "duration": 49.2,
       "audioDuration": 47.184,
       "output": "  item  price\n0    A   1000\n1    B   1500\n(3, 2)"
@@ -89,7 +89,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df.head())\nprint(df.shape)",
       "note": "head(): 기본 최대 5행 / shape: 괄호 없음",
       "kind": "code",
-      "start": 280.3,
+      "start": 263.76666666666665,
       "duration": 44.2,
       "audioDuration": 42.192,
       "output": "  item  price\n0    A   1000\n1    B   1500\n2    C   2000\n(3, 2)"
@@ -102,7 +102,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df.columns.tolist())",
       "note": "정규 실습 4단계 · ['item', 'price']",
       "kind": "code",
-      "start": 324.5,
+      "start": 307.96666666666664,
       "duration": 50.666666666666664,
       "audioDuration": 48.648,
       "output": "['item', 'price']"
@@ -115,7 +115,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df['price'])",
       "note": "df['price'] → Series",
       "kind": "code",
-      "start": 375.1666666666667,
+      "start": 358.6333333333333,
       "duration": 49.6,
       "audioDuration": 47.592,
       "output": "0    1000\n1    1500\n2    2000\nName: price, dtype: int64"
@@ -128,7 +128,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df[['price']])\nprint(df[['price']].shape)",
       "note": "df[['price']] → 3행 1열 DataFrame",
       "kind": "code",
-      "start": 424.7666666666667,
+      "start": 408.23333333333335,
       "duration": 50.266666666666666,
       "audioDuration": 48.264,
       "output": "   price\n0   1000\n1   1500\n2   2000\n(3, 1)"
@@ -141,7 +141,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\ns = df['price']\nt = df[['price']]\nprint(type(s).__name__)\nprint(type(t).__name__)",
       "note": "보충 비교 · 값이 같아도 자료구조는 다릅니다.",
       "kind": "code",
-      "start": 475.03333333333336,
+      "start": 458.5,
       "duration": 48.8,
       "audioDuration": 46.8,
       "output": "Series\nDataFrame"
@@ -154,7 +154,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df['price'].mean())",
       "note": "정규 실습 5단계 · 평균 1500.0",
       "kind": "code",
-      "start": 523.8333333333334,
+      "start": 507.3,
       "duration": 51.86666666666667,
       "audioDuration": 49.848,
       "output": "1500.0"
@@ -167,7 +167,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df.head(2))\nprint(df['price'].mean())\nprint(df.head(2)['price'].mean())",
       "note": "전체 평균 1500.0 / 앞 2행 평균 1250.0",
       "kind": "code",
-      "start": 575.7,
+      "start": 559.1666666666666,
       "duration": 44.96666666666667,
       "audioDuration": 42.96,
       "output": "  item  price\n0    A   1000\n1    B   1500\n1500.0\n1250.0"
@@ -180,7 +180,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 3000]\n})\n\nprint(df['price'].mean())",
       "note": "2000 → 3000 / 평균 약 1833.33",
       "kind": "changed",
-      "start": 620.6666666666667,
+      "start": 604.1333333333333,
       "duration": 51.3,
       "audioDuration": 49.272,
       "output": "1833.3333333333333"
@@ -193,7 +193,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df.head(2))\nprint(df.shape)\nprint(df.columns.tolist())\nprint(df['price'])\nprint(df['price'].mean())",
       "note": "직접 실습 · 완료한 뒤 다시 재생",
       "kind": "practice",
-      "start": 671.9666666666667,
+      "start": 655.4333333333333,
       "duration": 74.9,
       "audioDuration": 49.872,
       "output": "[출력의 마지막 8줄]\n1    B   1500\n(3, 2)\n['item', 'price']\n0    1000\n1    1500\n2    2000\nName: price, dtype: int64\n1500.0"
@@ -206,7 +206,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df['Price'].mean())",
       "note": "KeyError · 실제 열 이름은 'price'",
       "kind": "code",
-      "start": 746.8666666666667,
+      "start": 730.3333333333333,
       "duration": 51.8,
       "audioDuration": 49.8,
       "output": "KeyError: 'Price'"
@@ -220,7 +220,7 @@
       "note": "shape에는 () 없음 / mean에는 () 필요",
       "kind": "syntax",
       "correctionCode": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df.shape)\nprint(df['price'].mean())",
-      "start": 798.6666666666666,
+      "start": 782.1333333333332,
       "duration": 50.666666666666664,
       "audioDuration": 48.648,
       "output": "TypeError: 'tuple' object is not callable"
@@ -233,7 +233,7 @@
       "code": "① df.head(2) 후 원본 행 수는?\n\n② df['price']의 자료구조는?\n\n③ 1000, 1500, 2000의 평균은?",
       "note": "정답 공개 전 · 이유까지 설명하세요.",
       "kind": "question",
-      "start": 849.3333333333333,
+      "start": 832.7999999999998,
       "duration": 59.266666666666666,
       "audioDuration": 39.264,
       "output": "영상을 멈추고\n먼저 답과 이유를 적으세요."
@@ -246,7 +246,7 @@
       "code": "① 원본은 3행 그대로\n\n② Series / 두 겹이면 DataFrame\n\n③ (1000 + 1500 + 2000) / 3 = 1500.0",
       "note": "확인 문제 해설",
       "kind": "answer",
-      "start": 908.5999999999999,
+      "start": 892.0666666666665,
       "duration": 48.9,
       "audioDuration": 46.896,
       "output": "① 3행 그대로\n② Series\n③ 1500.0"
@@ -254,14 +254,14 @@
     {
       "original": 99,
       "title": "VS Code에서 같은 파일 다시 실행",
-      "speech": "웹에서 완성한 누적 코드를 파이썬 파일로 저장하겠습니다. 이 장면은 비주얼 스튜디오 코드에서 실행하는 순서를 재현한 안내입니다. 실제 프로그램을 촬영한 장면은 아닙니다. 웹앱의 파이썬 저장 버튼을 누르고, 저장한 파일을 수업 폴더에서 엽니다. 수업용 파이썬 인터프리터를 선택하고 터미널에서 파이썬과 파일 이름을 입력해 실행합니다. 같은 코드와 같은 값이라면 앞 두 행, 크기 삼 행 이 열, price 열의 값과 평균 천오백 점 영이 같아야 합니다. 파일을 찾지 못하면 폴더와 파일 이름을 확인하고, pandas가 없으면 선생님과 실행 환경을 점검하세요.",
+      "speech": "웹에서 완성한 누적 코드를 파이썬 파일로 저장하겠습니다. 웹앱의 파이썬 저장 버튼을 누르고, 저장한 파일을 수업 폴더에서 엽니다. 수업용 파이썬 인터프리터를 선택하고 터미널에서 파이썬과 파일 이름을 입력해 실행합니다. 같은 코드와 같은 값이라면 앞 두 행, 크기 삼 행 이 열, price 열의 값과 평균 천오백 점 영이 같아야 합니다. 파일을 찾지 못하면 폴더와 파일 이름을 확인하고, pandas가 없으면 선생님과 실행 환경을 점검하세요.",
       "pause": 2,
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df.head(2))\nprint(df.shape)\nprint(df.columns.tolist())\nprint(df['price'])\nprint(df['price'].mean())",
       "note": "VS Code 사용 순서 재현 · 출력은 실제 Python 검증값",
       "kind": "terminal",
-      "start": 957.4999999999999,
-      "duration": 50.0,
-      "audioDuration": 47.976,
+      "start": 940.9666666666665,
+      "duration": 40.03333333333333,
+      "audioDuration": 38.016,
       "output": "[출력의 마지막 8줄]\n1    B   1500\n(3, 2)\n['item', 'price']\n0    1000\n1    1500\n2    2000\nName: price, dtype: int64\n1500.0"
     },
     {
@@ -272,11 +272,11 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df['price'].mean())",
       "note": "매점 판매 CSV와 오늘의 가격 표는 서로 다른 확장 자료입니다.",
       "kind": "code",
-      "start": 1007.4999999999999,
+      "minimumDuration": 42.8,
+      "start": 980.9999999999998,
       "duration": 42.8,
       "audioDuration": 38.784,
-      "output": "1500.0",
-      "minimumDuration": 42.8
+      "output": "1500.0"
     },
     {
       "original": 99,
@@ -286,7 +286,7 @@
       "code": "import pandas as pd\n\ndf = pd.DataFrame({\n    'item': ['A', 'B', 'C'],\n    'price': [1000, 1500, 2000]\n})\n\nprint(df.head(2))\nprint(df.shape)\nprint(df.columns.tolist())\nprint(df['price'].mean())",
       "note": "head(2) · shape · columns.tolist() · Series · mean()",
       "kind": "code",
-      "start": 1050.3,
+      "start": 1023.7999999999997,
       "duration": 48.13333333333333,
       "audioDuration": 46.128,
       "output": "  item  price\n0    A   1000\n1    B   1500\n(3, 2)\n['item', 'price']\n1500.0"

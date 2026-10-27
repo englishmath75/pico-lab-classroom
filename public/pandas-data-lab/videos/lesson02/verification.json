@@ -6,35 +6,15 @@
     1920,
     1080
   ],
-  "duration": 1109.8,
+  "duration": 1071.2333333333333,
   "sceneCount": 22,
-  "subtitleCues": 174,
-  "hlsSegments": 56,
+  "subtitleCues": 169,
+  "hlsSegments": 54,
   "fullDecode": "PASS",
   "codeExampleVerification": "tests/pandas_video_pilot_check.py",
   "visualMode": "labelled reconstruction",
   "voice": "AI ko-KR-SunHiNeural, edge-tts 7.3.1",
-  "mp4Sha256": "329b7995a43dacb21ae3906c369a6bd82af8e2bfb907a6f35701de9f3cc5097e",
-  "browserPlayback": {
-    "url": "https://englishmath75.github.io/pico-lab-classroom/pandas-data-lab/video-player.html?episode=lesson02",
-    "durationObserved": 1109.800011,
-    "videoSizeObserved": [
-      1920,
-      1080
-    ],
-    "playing": true,
-    "error": null,
-    "muted": false,
-    "koreanCaptionsVisuallyObserved": true,
-    "chapterSeek": "score example at 9:10 passed",
-    "playbackRate": 1.5,
-    "fullscreen": "cloud browser restriction; fallback message shown",
-    "captionsToggle": "pending final button test"
-  },
-  "humanFullContinuousReview": false,
-  "deployment": {
-    "run": 40505744655,
-    "conclusion": "success",
-    "commit": "5ee5f26762660d0b11235c6b503575cc2a51866e"
-  }
+  "mp4Sha256": "466470c1a17a5baf966c5569ff7da5b2b766eedc17f559c649eecd13934eb0ce",
+  "browserPlayback": "pending deployment",
+  "humanFullContinuousReview": false
 }

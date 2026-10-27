@@ -33,12 +33,12 @@ for block in sections:
  n=int(block.split(' · ')[0]);title=block.split('\n')[0].split(' · ')[-1]
  for j,line in enumerate(re.findall(r'(?m)^(?:정답 )?음성: “(.+?)”',block)):
   scenes.append({'original':n,'title':title if j==0 else '확인 문제 해설','speech':line,'pause':15 if n in [6,9,11] or (n==14 and j==0) else 2})
-# Explicitly present limitations and the distinction between reconstructed screen and captured output.
-scenes.insert(0,{'original':0,'title':'수업 화면 안내','speech':'이 영상의 코드 입력과 편집기 화면은 학습을 위한 재현 장면입니다. 실제 웹브라우저나 비주얼 스튜디오 코드의 연속 화면 녹화가 아닙니다. 화면의 실행 결과는 영상 제작 과정에서 실제 파이썬과 판다스로 실행해 확인했습니다. 한국어 해설은 기본 합성 음성이며 선생님의 목소리를 복제하지 않았습니다. 영상을 멈추고 기존 수업 웹앱에서 같은 코드를 직접 실행하세요.','pause':2})
+# Begin with the learning task; production disclosures stay in management records.
+scenes.insert(0,{'original':0,'title':'표 만들기와 평균 구하기','speech':'이번 시간에는 이름과 독서량으로 표를 만들고 평균을 구합니다. 행과 열, 인덱스를 구별하고, 값을 바꾸면 평균이 어떻게 달라지는지 직접 확인하겠습니다.','pause':2})
 vs=[
-('같은 코드를 VS Code에서 실행하기','이제 같은 코드를 비주얼 스튜디오 코드에서도 실행하는 방법을 살펴보겠습니다. 이 장면은 사용 순서를 재현한 안내 화면입니다. 실제 비주얼 스튜디오 코드에서 촬영한 화면이 아닙니다. 학교 컴퓨터에 파이썬과 확장 기능이 준비되어 있는지 먼저 선생님과 확인하세요. 웹 실습에서 파이썬 파일 저장을 누르면 현재 입력한 코드를 파일로 내려받습니다. 독서량 코드는 lesson02_books 점 파이로 구분해서 저장하겠습니다.'),
+('같은 코드를 VS Code에서 실행하기','이제 같은 코드를 비주얼 스튜디오 코드에서도 실행하는 방법을 살펴보겠습니다. 학교 컴퓨터에 파이썬과 확장 기능이 준비되어 있는지 먼저 선생님과 확인하세요. 웹 실습에서 파이썬 파일 저장을 누르면 현재 입력한 코드를 파일로 내려받습니다. 독서량 코드는 lesson02_books 점 파이로 구분해서 저장하겠습니다.'),
 ('폴더와 Python 환경 확인','비주얼 스튜디오 코드에서 파일, 폴더 열기를 선택하고 수업 폴더를 엽니다. 저장한 파이썬 파일을 열어 첫 줄부터 마지막 줄까지 코드가 같은지 확인합니다. 파이썬 인터프리터 선택에서 수업용 파이썬을 고릅니다. pandas가 없다는 오류가 나면 터미널에서 화면의 설치 명령을 실행합니다. 설치 권한이 필요한 학교 컴퓨터에서는 선생님께 문의하세요. CSV 파일은 오늘의 직접 생성 코드에는 필요하지 않습니다.'),
-('터미널 출력 비교','터미널에서 파이썬, 파일 이름을 입력해 실행합니다. 독서량 파일의 표와 평균은 웹 실습에서 본 결과와 같아야 합니다. 점수 파일에서는 평균 80 점 영을 확인합니다. 명령이 인식되지 않거나 파일을 찾지 못하면 인터프리터와 현재 폴더, 파일 이름을 확인하세요. 영상의 터미널 결과는 실제 파이썬 실행값을 바탕으로 재현했으며, 이 환경에서 비주얼 스튜디오 코드 자체를 실행한 것은 아닙니다. 두 환경에서 실행하는 원리는 같습니다.')]
+('터미널 출력 비교','터미널에서 파이썬, 파일 이름을 입력해 실행합니다. 독서량 파일의 표와 평균은 웹 실습에서 본 결과와 같아야 합니다. 점수 파일에서는 평균 80 점 영을 확인합니다. 명령이 인식되지 않거나 파일을 찾지 못하면 인터프리터와 현재 폴더, 파일 이름을 확인하세요. 두 환경에서 실행하는 원리는 같습니다.')]
 idx=next(i for i,s in enumerate(scenes) if s['original']==14)
 for title,speech in reversed(vs):scenes.insert(idx,{'original':18,'title':title,'speech':speech,'pause':6})
 # Replace interaction descriptions that would falsely imply a live recording.
@@ -71,8 +71,9 @@ def visual(s):
 
 async def synth(i,s,sem):
  async with sem:
-  mp3=WORK/f'audio-{i:02}.mp3';meta=WORK/f'audio-{i:02}.json'
-  if mp3.exists() and meta.exists():
+  mp3=WORK/f'audio-{i:02}.mp3';meta=WORK/f'audio-{i:02}.json';signature=WORK/f'audio-{i:02}.speech.sha256'
+  digest=hashlib.sha256((VOICE+'|-8%|'+s['speech']).encode()).hexdigest()
+  if mp3.exists() and meta.exists() and signature.exists() and signature.read_text()==digest:
    cached=json.loads(meta.read_text());measured=duration(mp3)
    if cached and max((e['offset']+e['duration'])/1e7 for e in cached)<=measured+.05:return
   events=[]
@@ -83,7 +84,7 @@ async def synth(i,s,sem):
     elif chunk['type']=='WordBoundary':events.append({k:chunk[k] for k in ['offset','duration','text']})
   measured=duration(mp3)
   assert events and max((e['offset']+e['duration'])/1e7 for e in events)<=measured+.05, ('voice boundary exceeds audio',i)
-  meta.write_text(json.dumps(events,ensure_ascii=False));print('VOICE',i,round(duration(mp3),2),flush=True)
+  meta.write_text(json.dumps(events,ensure_ascii=False));signature.write_text(digest);print('VOICE',i,round(duration(mp3),2),flush=True)
 async def voices():
  sem=asyncio.Semaphore(3)
  await asyncio.gather(*(synth(i,s,sem) for i,s in enumerate(scenes)))
@@ -165,7 +166,16 @@ def build():
   frames=max(8,min(36,len(code.splitlines())*3));pieces=[]
   for k in range(frames):
    t=k/frames;shown=min(len(code.splitlines()),max(1,int(t*len(code.splitlines())*2.3)+1));active=min(len(code.splitlines())-1,max(0,shown-1))
-   path=WORK/f'frame-{i:02}-{k:02}.png';frame(s,i,len(scenes),code,out,note,shown,active,t).save(path)
+   path=WORK/f'frame-{i:02}-{k:02}.png'
+   image=frame(s,i,len(scenes),code,out,note,shown,active,t)
+   for attempt in range(5):
+    image.save(path)
+    try:
+     with Image.open(path) as check:check.verify()
+     with Image.open(path) as check:check.load()
+     break
+    except Exception:
+     if attempt==4:raise
    concat += [f"file '{path.as_posix()}'",'option framerate 30',f'duration {span/frames:.9f}']
   timeline.append(s);clock+=span
  concat += [concat[-3],'option framerate 30']
@@ -189,9 +199,11 @@ def build():
    assert len(raw)<=count
    master.writeframes(raw+b'\0'*(count-len(raw)))
  with wave.open(str(WORK/'narration.wav')) as master:assert abs(master.getnframes()/48000-clock)<.001
- args=['ffmpeg','-nostdin','-hide_banner','-y','-f','concat','-safe','0','-i',str(WORK/'scenes.ffconcat'),'-i',str(WORK/'narration.wav'),'-i',str(OUT/'captions.srt'),'-map','0:v:0','-map','1:a:0','-map','2:s:0','-vf','fps=30,setsar=1','-t',str(clock),'-c:v','libx264','-preset','ultrafast','-crf','25','-pix_fmt','yuv420p','-threads','4','-c:a','aac','-b:a','96k','-c:s','mov_text','-metadata:s:s:0','language=kor','-movflags','+faststart',str(OUT/'lesson02.mp4')]
+ args=['ffmpeg','-nostdin','-hide_banner','-xerror','-y','-f','concat','-safe','0','-i',str(WORK/'scenes.ffconcat'),'-i',str(WORK/'narration.wav'),'-i',str(OUT/'captions.srt'),'-map','0:v:0','-map','1:a:0','-map','2:s:0','-vf','fps=30,setsar=1','-t',str(clock),'-c:v','libx264','-preset','ultrafast','-crf','25','-pix_fmt','yuv420p','-threads','4','-c:a','aac','-b:a','96k','-c:s','mov_text','-metadata:s:s:0','language=kor','-movflags','+faststart',str(OUT/'lesson02.mp4')]
  with (WORK/'render.log').open('w') as log:subprocess.run(args,stdout=log,stderr=log,check=True)
- subprocess.run(['ffmpeg','-nostdin','-v','error','-y','-i',str(OUT/'lesson02.mp4'),'-map','0:v:0','-map','0:a:0','-c','copy','-hls_time','20','-hls_playlist_type','vod','-hls_segment_filename',str(OUT/'part-%03d.ts'),str(OUT/'index.m3u8')],check=True)
+ rendered=probe(OUT/'lesson02.mp4')
+ assert all(abs(float(stream['duration'])-clock)<.05 for stream in rendered['streams'] if stream['codec_type'] in ['video','audio'])
+ subprocess.run(['ffmpeg','-nostdin','-v','error','-y','-i',str(OUT/'lesson02.mp4'),'-map','0:v:0','-map','0:a:0','-c','copy','-hls_time','20','-hls_playlist_type','vod','-hls_segment_filename',str(OUT/'part-lesson-only-%03d.ts'),str(OUT/'index.m3u8')],check=True)
  subprocess.run(['ffmpeg','-nostdin','-v','error','-y','-ss','40','-i',str(OUT/'lesson02.mp4'),'-frames:v','1','-update','1',str(OUT/'poster.jpg')],check=True)
  print('DONE',clock,OUT/'lesson02.mp4',flush=True)
 if __name__=='__main__':build()
