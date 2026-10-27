@@ -1,0 +1,104 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>00. Python 핵심 복습 | 영수쌤의 Python 교실</title><meta name="description" content="Python import와 패키지, 자료구조, 반복문, Turtle 그래픽, 사인 코사인 탄젠트, 속도와 중력까지 직접 실습하는 특별 수업"><style>
+:root{font:15px/1.75 system-ui,'Malgun Gothic',sans-serif;color:#173047;background:#f3f6fa}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer}a{color:#136e90}.layout{display:grid;grid-template-columns:248px 1fr;min-height:100vh}.side{background:#102e42;color:white;padding:22px 15px;position:sticky;top:0;height:100vh;overflow:auto}.side h2{font-size:21px;line-height:1.3}.side small{color:#90d8db}.side a{display:block;text-decoration:none;color:#cce7ee;padding:10px 8px;border-radius:8px;font-size:13px}.side a:hover{background:#24596b}.main{max-width:1160px;width:100%;padding:26px 25px 70px;margin:auto}header{background:linear-gradient(110deg,#102f46,#137d85);color:white;border-radius:19px;padding:32px;margin-bottom:16px}header h1{font-size:clamp(26px,4vw,37px);margin:9px 0}header p{color:#dcf7f4}.card{background:white;border-radius:14px;border:1px solid #d9e5ec;margin:15px 0;padding:24px}h2{font-size:23px;margin:3px 0 14px}h3{font-size:17px;margin:19px 0 8px}.muted{color:#647b8c}.pill{display:inline-block;background:#e5f6f3;color:#087b7e;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:800}.note{background:#fff7e8;border-left:4px solid #daa53d;border-radius:8px;padding:13px}.ok{background:#ecf9f6;border-left:4px solid #168778;border-radius:8px;padding:13px}pre{white-space:pre-wrap;overflow:auto;background:#112a3e;color:#ecf9fc;border-radius:10px;padding:17px;font:13px/1.65 Consolas,monospace;tab-size:4}code{font-family:Consolas,monospace}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.btn{border:0;border-radius:9px;background:#087d83;color:white;padding:9px 15px;font-weight:750}.btn.alt{background:#e6eef6;color:#1c455e}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.demo{width:100%;max-width:100%;height:250px;background:#0b1628;border-radius:10px;display:block}.chart{height:320px}.label{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.label input[type=range]{flex:1;min-width:130px;accent-color:#087d83}.lesson{padding:15px;border:1px solid #e0e8ee;border-radius:12px;margin-top:13px}.lesson summary{font-weight:750;cursor:pointer}.quiz{border-top:1px solid #e1e9ef;padding:12px 0}.quiz label{display:block;margin:5px 0}.feedback{color:#087c78;font-weight:700}.table{border-collapse:collapse;width:100%;font-size:13px}.table td,.table th{border:1px solid #d8e4e9;padding:8px;text-align:left}.table th{background:#eef5f7}.fine{font-size:12px;color:#647b8c}.check{margin:10px 0}footer{text-align:center;font-size:12px;color:#647b8c;margin-top:35px}@media(max-width:840px){.layout{display:block}.side{position:static;height:auto}.side a{display:inline-block}.main{padding:14px}.grid,.grid3{grid-template-columns:1fr}}</style></head><body><div class="layout"><aside class="side"><small>고2 · 소프트웨어와 생활</small><h2>영수쌤의<br>Python 교실</h2><p>00. Python 핵심 복습</p><a href="./">← 3단원 수업 안내</a><a href="#setup">01. import·설치·오류</a><a href="#structures">02. 리스트·튜플·딕셔너리</a><a href="#turtle">03. Turtle 그래픽</a><a href="#trig">04. 사인·코사인·탄젠트</a><a href="#physics">05. 속도·중력 실험</a><a href="#showcase">06. 그래픽 심화 보기</a><a href="#exam">07. 문제·정답·해설</a><a href="./step-by-step.html?lesson=1">→ 다음: Pandas 실습</a></aside><main class="main"><header><span class="pill">00차시 · 데이터 분석 전 핵심 복습</span><h1>Python으로 그리는 수학과 움직임</h1><p>모듈을 불러오고, 자료를 저장하고, 반복문으로 그림을 그리며, 삼각함수와 속도·중력의 원리를 직접 눈으로 확인합니다. 이후 Pandas 데이터 분석에서 반복해서 사용할 Python 기초를 정리합니다.</p></header>
+<section class="card"><h2>오늘 배우는 세 가지 핵심</h2><div class="grid3"><div class="ok"><b>직접 실행</b><p>import, 오류 해결, 자료구조, turtle 그래픽</p></div><div class="ok"><b>변수를 바꿔 탐구</b><p>사인·코사인·탄젠트, 속도·중력</p></div><div class="ok"><b>이해·확장</b><p>고급 그래픽의 원리와 데이터 분석 연결</p></div></div><p class="fine">교사가 2~3시간 범위에서 속도를 조정할 수 있도록 각 영역을 독립적으로 구성했습니다. 고급 구현 전체는 감상·심화이며, 기초와 핵심 계산 문제를 구분합니다.</p></section>
+<section class="card" id="setup"><span class="pill">01 · 실습 필수</span><h2>import와 패키지 설치·삭제</h2><p><b>모듈</b>은 Python 코드 파일 또는 기능 묶음입니다. <code>import</code>는 그 기능을 현재 프로그램에서 사용하도록 불러오는 명령입니다. <b>pip 설치</b>는 필요한 외부 패키지를 Python 환경에 준비하는 별개 과정입니다.</p><div class="grid"><div><h3>설치 없이 먼저 확인할 모듈</h3><pre>import random
+import math
+import turtle
+
+print(random.randint(1, 6))
+print(math.sin(math.radians(30)))</pre><p class="fine">일반적인 PC Python 환경에서 random·math·turtle은 별도 pip 설치 대상이 아닙니다. turtle에는 Tk 창을 띄울 수 있는 GUI 환경이 필요합니다.</p></div><div><h3>외부 패키지 예시</h3><pre>import pandas as pd
+import matplotlib.pyplot as plt
+import pygame</pre><p>pandas, matplotlib, pygame은 선택한 Python 환경에 설치돼 있어야 합니다. Python 파일을 <code>pygame.py</code>처럼 모듈명과 똑같이 저장하면 충돌할 수 있습니다.</p></div></div><h3>VS Code 터미널에서 순서대로 실행</h3><pre>py --version
+py -m pip --version
+py -m pip install pygame
+py -m pip install pandas matplotlib
+py -m pip show pygame
+py -m pip uninstall pygame</pre><p><b>py 명령이 없는 환경</b>에서는 같은 명령을 <code>python -m pip ...</code>로 바꿔 실행합니다. macOS·Linux에서는 보통 <code>python3 -m pip ...</code>를 사용합니다.</p><div class="note"><b>에러가 나면 이렇게 진단하세요.</b><ol><li><code>ModuleNotFoundError</code>: 현재 실행 중인 Python 환경에 패키지가 있는지 확인하고, VS Code 오른쪽 아래 Python 인터프리터를 선택합니다.</li><li><code>No module named pip</code>: 설치한 Python 환경과 pip 구성을 확인합니다.</li><li><code>No matching distribution found</code>: 패키지명·Python 버전·플랫폼 호환성을 확인합니다. <code>pygame-ce</code>는 대안 프로젝트이며 반드시 최신 버전에서 pygame이 실패한다는 뜻은 아닙니다. 필요한 경우 <code>py -m pip install pygame-ce</code>를 검토합니다.</li><li><code>python is not recognized</code>: Python 설치와 실행 경로를 확인합니다. <code>py</code>와 <code>python</code> 중 되는 명령을 사용합니다.</li><li><code>externally-managed-environment</code>나 권한 오류: 가상환경을 만들어 설치하는 편이 안전합니다.</li></ol></div><details class="lesson"><summary>심화: 가상환경 만들기와 모듈 이름 충돌</summary><pre>py -m venv .venv
+.venv\Scripts\python -m pip install pygame matplotlib pandas
+# PowerShell에서는 가상환경의 python 경로를 직접 지정해도 됩니다.</pre><p>프로젝트별로 서로 다른 패키지 버전을 관리하고, <code>import pygame</code>이 어느 인터프리터에서 실행되는지 점검합니다.</p></details></section>
+<section class="card" id="structures"><span class="pill">02 · 시험 핵심</span><h2>리스트·튜플·딕셔너리 이해</h2><table class="table"><thead><tr><th>자료구조</th><th>기호</th><th>특징</th><th>Pandas 연결</th></tr></thead><tbody><tr><td>리스트</td><td><code>[ ]</code></td><td>순서 있음, 항목 변경 가능</td><td>여러 관측값을 열 데이터로 사용</td></tr><tr><td>튜플</td><td><code>( )</code></td><td>순서 있음, 항목 변경 불가</td><td><code>df.shape</code>의 <code>(행, 열)</code></td></tr><tr><td>딕셔너리</td><td><code>{ }</code></td><td>키와 값으로 구성</td><td><code>pd.DataFrame(data)</code></td></tr></tbody></table><pre>books = [3, 5, 2]                 # 리스트
+size = (3, 2)                    # 튜플
+student = {"name": "A", "books": 3}  # 딕셔너리
+print(books[0])     # 3
+print(size[1])      # 2
+print(student["books"])  # 3
+
+import pandas as pd
+data = {"name": ["A", "B", "C"], "books": [3, 5, 2]}
+df = pd.DataFrame(data)
+print(df.shape)      # (3, 2) / 인덱스 열은 별도 계산 안 함
+print(df["books"].mean())</pre><p>빈 튜플 <code>()</code>과 원소 한 개짜리 튜플 <code>(3,)</code>도 구분합니다. 괄호가 보인다고 무조건 튜플은 아닙니다. <code>(3 + 2)</code>는 계산을 묶는 괄호입니다.</p><h3>반복문·나머지·복합 대입도 함께 복습</h3><pre>colors = ["red", "green", "blue"]
+for i in range(6):
+    print(i, colors[i % 3])
+
+x = 10
+x += 3         # x = x + 3
+x *= 0.5       # x = x * 0.5</pre></section>
+<section class="card" id="turtle"><span class="pill">03 · 직접 실행</span><h2>Turtle 그래픽으로 반복문과 각도 확인</h2><p>첨부하신 Turtle 세 예제의 핵심 구조를 간단하게 유지했습니다. 각 코드를 <code>.py</code> 파일로 저장해 VS Code에서 실행합니다. <b>회전 각도와 반복 횟수를 바꾼 결과</b>를 비교하세요.</p><div class="grid3">
+<article class="lesson"><h3>① 회전하는 무지개 원</h3><pre>import turtle
+
+t = turtle.Turtle()
+t.speed(0)
+turtle.bgcolor("black")
+colors = ["red","yellow","cyan","green"]
+for i in range(36):
+    t.pencolor(colors[i % 4])
+    t.circle(90)
+    t.left(10)
+turtle.done()</pre><p class="fine">36 × 10° = 360°. 나머지 연산으로 색을 반복합니다.</p></article>
+<article class="lesson"><h3>② 별 모양 회오리</h3><pre>import turtle
+
+t = turtle.Turtle()
+t.speed(0)
+colors = ["red","yellow","cyan"]
+for i in range(90):
+    t.pencolor(colors[i % 3])
+    t.forward(i * 2)
+    t.left(144)
+turtle.done()</pre><p class="fine">이동 거리는 증가하고, 144° 회전이 별 모양의 특징을 만듭니다.</p></article>
+<article class="lesson"><h3>③ 사각 나선</h3><pre>import turtle
+
+t = turtle.Turtle()
+t.speed(0)
+colors = ["magenta","cyan","yellow"]
+for i in range(120):
+    t.pencolor(colors[i % 3])
+    t.forward(i * 2)
+    t.right(91)
+turtle.done()</pre><p class="fine">90° 대신 91°를 사용하면 선이 조금씩 비틀려 나선이 됩니다.</p></article></div><p class="ok">확인 활동: 위 세 코드에서 <code>range()</code>, <code>%</code>, <code>forward()</code>, <code>left()</code>, <code>right()</code>의 의미를 말하고 수치를 변경해 비교합니다.</p></section>
+<section class="card" id="trig"><span class="pill">04 · 실시간 시각화</span><h2>사인·코사인·탄젠트 그래프 직접 탐구</h2><p><b>sin</b>과 <b>cos</b>는 회전하는 점의 세로·가로 좌표를 설명하고, <b>tan = sin/cos</b>는 기울기와 연결됩니다. 90°·270°에서는 cos=0이므로 tan 값이 정의되지 않습니다. Python의 <code>math.sin</code>, <code>math.cos</code>, <code>math.tan</code>은 각도를 <b>라디안</b>으로 입력합니다.</p><div class="grid"><div><canvas class="demo chart" id="trigGraph" width="690" height="330" aria-label="sin cos tan 함수의 그래프"></canvas></div><div><canvas class="demo chart" id="unitCircle" width="420" height="330" aria-label="단위원과 sin cos tan 좌표"></canvas><p id="trigValues" class="ok" role="status"></p></div></div><div class="label"><b>각도 조절</b><input type="range" id="degree" min="0" max="360" value="45" step="1"><output id="degreeValue">45°</output></div><div class="buttons"><label><input type="checkbox" id="sinOn" checked> sin</label><label><input type="checkbox" id="cosOn" checked> cos</label><label><input type="checkbox" id="tanOn" checked> tan</label></div><pre>import math
+angle = math.radians(30)  # 도를 라디안으로 변환
+print(round(math.sin(angle), 2))  # 0.5
+print(round(math.cos(angle), 2))  # 0.87
+print(round(math.tan(angle), 2))  # 0.58</pre><div class="note"><b>심화 적용:</b> 원 위의 점은 <code>x = 중심x + 반지름 * cos(각도)</code>, <code>y = 중심y + 반지름 * sin(각도)</code>로 구합니다. 파동은 <code>sin(시간 + 위치)</code>로 만들 수 있습니다. 화면 좌표에서는 아래로 갈수록 y가 커진다는 점에 주의하세요.</div></section>
+<section class="card" id="physics"><span class="pill">05 · 실시간 실험</span><h2>속도·중력·공기 저항으로 파티클 만들기</h2><p>첨부한 고급 Pygame 입자 코드를 학습하기 쉬운 **좌표·속도·중력 3단계**로 단순화했습니다. 공의 움직임을 관찰한 후 코드를 보고 결과를 계산해 봅니다.</p><div class="grid"><canvas class="demo chart" id="motionCanvas" width="690" height="340" aria-label="중력과 수평 속도를 적용한 공의 운동"></canvas><div><label class="label">수평 속도 <input type="range" id="vx" min="1" max="12" step="1" value="6"><output id="vxValue"></output></label><label class="label">중력 <input type="range" id="gravity" min="0" max="0.7" step="0.05" value="0.15"><output id="gValue"></output></label><label class="label">공기 저항 계수 <input type="range" id="drag" min="0.85" max="1" step="0.01" value="0.96"><output id="dragValue"></output></label><div class="buttons"><button class="btn" id="restart">처음부터</button><button class="btn alt" id="pause">일시정지</button><button class="btn alt" id="burst">클릭 파티클 30개</button></div><p id="motionReadout" class="ok"></p></div></div><pre># 복잡한 클래스 없이 기본 원리만 알아봅시다.
+x, y = 0, 0
+vx, vy = 6, -3
+for frame in range(5):
+    x += vx           # x 좌표는 수평 속도만큼 이동
+    y += vy           # y 좌표는 수직 속도만큼 이동
+    vy += 0.15        # 아래 방향 중력
+    vx *= 0.96        # 수평 속도 감쇠
+    print(frame, round(x, 2), round(y, 2))</pre><p class="fine">화면의 물리 모형은 교육용 단순화 모델입니다. 중력은 프레임마다 수직 속도를 일정량 증가시키는 가정으로 구현했습니다. 실제 중력가속도 9.8m/s²와 동일한 물리 단위가 아닙니다.</p><h3>파티클 수명과 리스트 순회</h3><pre>life = 255
+life -= 4.5
+print(life)        # 250.5
+
+particles = [1, 2, 3]
+for p in particles[:]:  # 리스트의 복사본 순회
+    if p % 2 == 0:
+        particles.remove(p)
+print(particles)   # [1, 3]</pre><p>게임 코드의 <code>for _ in range(30)</code>은 반복 횟수 30번만 필요할 때 쓰는 표기입니다. <code>_</code>는 특별한 키워드가 아니라 사용하지 않을 변수 이름 관례입니다.</p></section>
+<section class="card" id="showcase"><span class="pill">06 · 시연·선택 심화</span><h2>첨부 고급 그래픽의 원리 이해</h2><p>첨부 PDF 4~6번은 실무에서 응용되는 그래픽의 개념을 이해하기 위한 참고입니다. 그대로 따라 적게 하기보다는, 학생이 쉽게 설명할 수 있는 작은 코드로 재구성했습니다.</p><div class="grid3"><article class="lesson"><h3>④ 파동: sin의 적용</h3><canvas class="demo" id="waveCanvas" width="380" height="250"></canvas><pre>import math
+for x in range(0, 181, 30):
+    y = math.sin(math.radians(x)) * 40
+    print(x, round(y, 1))</pre><p>파동이 시간과 위치에 따라 변화합니다. 원본은 HTML·JavaScript 프로그램이므로 Python 파일로 실행하지 않습니다.</p></article><article class="lesson"><h3>⑤ 입자: 방향·속도·중력</h3><canvas class="demo" id="particlesCanvas" width="380" height="250"></canvas><pre>import math
+angle = math.radians(30)
+speed = 10
+vx = math.cos(angle) * speed
+vy = -math.sin(angle) * speed
+print(round(vx, 2), round(vy, 2))</pre><p>한 입자의 속도를 x, y 방향으로 나눕니다. 원본은 Pygame 예제이며 이 화면의 미리보기는 브라우저 그래픽으로 별도 구현했습니다.</p></article><article class="lesson"><h3>⑥ 오로라: 겹치는 파동</h3><canvas class="demo" id="auroraCanvas" width="380" height="250"></canvas><pre>import math
+x = math.radians(30)
+a = math.sin(x) * 60
+b = math.cos(x) * 20
+print(round(a + b, 2))</pre><p>서로 다른 진폭·위상의 파동을 더하면 복합적인 움직임이 나타납니다. 원본은 Tkinter 예제입니다.</p></article></div><p class="fine">미리보기는 참고 원본의 정확한 렌더링이 아니라 같은 수학적 원리를 바탕으로 만든 학생용 교육 시뮬레이션입니다.</p></section>
+<section class="card" id="exam"><span class="pill">07 · 코드 해석</span><h2>핵심 개념·코드 결과 예측</h2><p>문항을 먼저 풀고 ‘채점 및 해설’을 누르세요. 필수 기초와 그래픽 심화는 구분되어 있습니다. 실제 시험 출제 범위는 학교의 최종 안내를 따릅니다.</p><div id="quizItems"></div><button class="btn" id="grade">채점·해설 확인</button><button class="btn alt" id="resetQuiz">선택 초기화</button><p id="score" class="feedback" role="status"></p></section><section class="card"><h2>다음 시간: Pandas 데이터 분석</h2><p>오늘 복습한 <code>import</code>, 리스트, 튜플, 딕셔너리, 반복문은 Pandas에서 계속 등장합니다. 다음 시간부터 DataFrame으로 표를 만들고 CSV 자료를 분석합니다.</p><a class="btn" href="./step-by-step.html?lesson=1">Pandas 첫 실습으로 이동 →</a><a class="btn alt" href="./">3단원 수업 안내로 이동</a></section><footer>영수쌤의 Python 교실 · 00. Python 핵심 복습 · 2026 · 다음 학년도에도 활용 가능한 독립 복습 자료</footer></main></div><script src="./python-review.js" defer></script></body></html>
