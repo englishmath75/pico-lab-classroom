@@ -1,0 +1,24 @@
+(()=>{"use strict";
+const ROOT="./graphics-original/";
+const works=[
+ {id:"p1",file:"zero01.html",title:"3D 파티클 웨이브",type:"html",icon:"〰",topic:"마우스 반응·삼각함수·원근 표현",about:"마우스를 움직이면 사인 함수로 계산한 파동이 변합니다. HTML 파일을 브라우저에서 실행합니다.",task:"마우스를 위아래로 움직여 파동이 바뀌는지 관찰해 보세요.",tone:"violet"},
+ {id:"p2",file:"zero02.py",title:"네온 파티클 폭발",type:"python",icon:"✹",topic:"수평·수직 속도, 중력, 수명 감쇠",about:"클릭하면 다수의 입자가 생성되고 시간이 지나면서 퍼졌다가 사라집니다. Pygame 설치가 필요합니다.",task:"클릭 시 입자가 몇 개 생성되는지, vy·vx·life 변수의 역할을 찾아보세요.",tone:"violet"},
+ {id:"p3",file:"zero03.py",title:"오로라 시각화",type:"python",icon:"≋",topic:"sin·cos 파동 겹치기·Tkinter",about:"서로 다른 진폭·주기·위상으로 움직이는 선을 겹쳐 오로라를 그립니다.",task:"코드에서 sin과 cos의 역할, 그리고 layer 딕셔너리 네 개를 찾아보세요.",tone:"aurora"},
+ {id:"p4",file:"zero04.py",title:"초공간 워프 터널",type:"python",icon:"◎",topic:"원근·거리·속도·회전",about:"별의 깊이(z)를 줄이고 위치를 원근 변환해 전진하는 터널처럼 보이게 합니다.",task:"z 값이 작아질 때 별이 화면에서 어떻게 변하는지 관찰하세요.",tone:"warp"},
+ {id:"p5",file:"zero05.html",title:"블랙홀 입자 시뮬레이션",type:"html",icon:"✺",topic:"마우스 위치·거리·끌림·회전력",about:"1,800개의 입자가 마우스 위치를 중심으로 움직입니다. 클릭 상태에 따라 끌어당김 효과가 달라집니다.",task:"마우스를 움직이고 클릭한 채 드래그했을 때 효과를 비교하세요.",tone:"violet"},
+ {id:"p6",file:"zero06.py",title:"로렌츠 카오스 홀로그램",type:"python",icon:"∞",topic:"반복 계산·좌표 변화·3차원 회전",about:"이전 좌표를 이용해 다음 좌표를 계산하고 궤적을 축적하는 카오스 시뮬레이션입니다.",task:"x, y, z의 변화량을 계산하는 세 줄을 찾아보세요.",tone:"lorenz"}
+];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const view=work=>'<div class="poster '+esc(work.tone)+'"><div class="symbol">'+esc(work.icon)+'</div><strong>'+esc(work.title)+'</strong><small>'+(work.type==="html"?"버튼을 누르면 원본 HTML 프로그램이 실행됩니다.":"원본은 다운로드하여 VS Code의 Python으로 실행합니다.")+'</small></div>';
+const gallery=$("gallery");
+gallery.innerHTML=works.map((w,i)=>'<article class="art" id="'+w.id+'"><span class="tag '+(w.type==="html"?"html":"py")+'">'+(w.type==="html"?"HTML · 브라우저":"Python · VS Code")+'</span><h3>'+String(i+1).padStart(2,"0")+'. '+esc(w.title)+'</h3><p>'+esc(w.about)+'</p><div class="stage" id="stage-'+w.id+'">'+view(w)+'</div><div class="buttons">'+(w.type==="html"?'<button class="btn" data-action="play" data-id="'+w.id+'">▶ 웹에서 실행</button><button class="btn light" data-action="stop" data-id="'+w.id+'" disabled>■ 종료</button>':'')+'<button class="btn light" data-action="copy" data-id="'+w.id+'">원본 코드 복사</button><a class="btn" href="'+ROOT+w.file+'" download="'+w.file+'">원본 파일 다운로드 ↓</a></div><p class="hint"><b>관찰 포인트:</b> '+esc(w.task)+'</p><details class="source" id="source-'+w.id+'"><summary>원본 코드 전체 보기 ('+esc(w.file)+')</summary><pre><code id="code-'+w.id+'">코드를 불러오는 중입니다.</code></pre></details><div class="status" id="status-'+w.id+'" role="status"></div></article>').join("");
+const cache={};
+async function getSource(w){if(Object.prototype.hasOwnProperty.call(cache,w.id))return cache[w.id];const resp=await fetch(ROOT+w.file,{cache:"force-cache"});if(!resp.ok)throw Error("원본 파일을 읽을 수 없습니다 ("+resp.status+")");const text=await resp.text();cache[w.id]=text;return text;}
+for(const w of works){const el=$("source-"+w.id);el.addEventListener("toggle",async()=>{if(!el.open)return;try{$("code-"+w.id).textContent=await getSource(w)}catch(e){$("code-"+w.id).textContent="파일을 불러올 수 없습니다. 다운로드 버튼을 사용해 주세요."; $("status-"+w.id).textContent=e.message;}});}
+gallery.addEventListener("click",async e=>{const btn=e.target.closest("button[data-action]");if(!btn)return;const w=works.find(x=>x.id===btn.dataset.id);if(!w)return;const act=btn.dataset.action,status=$("status-"+w.id),stage=$("stage-"+w.id);
+if(act==="play"){if(w.type!=="html")return;stage.replaceChildren();const frame=document.createElement("iframe");frame.title=w.title+" 실제 실행 미리보기";frame.loading="eager";frame.setAttribute("sandbox","allow-scripts");frame.src=ROOT+w.file;stage.append(frame);stage.classList.add("running");gallery.querySelector('[data-action="stop"][data-id="'+w.id+'"]').disabled=false;status.textContent="원본 HTML 실행 중. 종료 버튼을 누르면 동작이 멈춥니다. 컴퓨터가 느리면 실행 작품 수를 줄이세요.";return;}
+if(act==="stop"){stage.replaceChildren();stage.innerHTML=view(w);stage.classList.remove("running");btn.disabled=true;status.textContent="미리보기 종료됨";return;}
+if(act==="copy"){try{const source=await getSource(w);try{await navigator.clipboard.writeText(source)}catch(_){const temporary=document.createElement("textarea");temporary.value=source;document.body.append(temporary);temporary.select();const ok=document.execCommand("copy");temporary.remove();if(!ok)throw Error("복사 권한 없음");}status.textContent=w.file+" 원본 코드 복사 완료. VS Code에 붙여 넣고 같은 확장자로 저장하세요.";}catch(err){status.textContent="클립보드 복사가 차단됐습니다. '원본 코드 전체 보기'에서 선택하거나 파일을 내려받으세요.";}return;}
+});
+})();
