@@ -1,0 +1,15 @@
+{
+  "duration": 1098.4333333333334,
+  "scenes": 22,
+  "subtitleCues": 175,
+  "hlsSegments": 55,
+  "video": "1920x1080 H.264 30fps",
+  "audio": "AAC Korean AI narration, ko-KR-SunHiNeural",
+  "subtitles": "SRT/VTT and MP4 mov_text",
+  "fullMp4AndHlsDecode": "PASS",
+  "teachingCode": "tests/pandas_lesson02_part2_check.py PASS",
+  "visuals": "labelled reconstruction, not live screen recording",
+  "humanContinuousFullReview": false,
+  "sha256": "6d2a14cbd19fefadbaea4c11b53f9cf8365c4f00ce064014bebf4ff65671fc2d",
+  "browser": "pending deployment"
+}

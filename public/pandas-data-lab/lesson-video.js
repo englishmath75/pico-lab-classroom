@@ -24,15 +24,21 @@ function supplement(lesson){
 }
 async function render(lesson){
  const current=++revision;host.replaceChildren();host.hidden=true;supplement(lesson);
- const item=catalog.find(v=>v.lesson===lesson&&v.status==='verified');
- if(!item||!allowedPath(item.src)||!allowedPath(item.captions))return;
- try{const results=await Promise.all([fetch(item.src,{method:'HEAD'}),fetch(item.captions,{method:'HEAD'})]);if(current!==revision||results.some(r=>!r.ok))return;}catch(_){return;}
- host.append(node('h3',lesson+'차시 · 한국어 해설 영상'));
+ const candidates=catalog.filter(v=>v.lesson===lesson&&v.status==='verified'&&allowedPath(v.src)&&allowedPath(v.captions));
+ if(!candidates.length)return;
+ const valid=await Promise.all(candidates.map(async item=>{try{const r=await Promise.all([fetch(item.src,{method:'HEAD'}),fetch(item.captions,{method:'HEAD'})]);return r.every(x=>x.ok)?item:null;}catch(_){return null;}}));
+ if(current!==revision)return;const items=valid.filter(Boolean);if(!items.length)return;
+ host.append(node('h3',lesson+'차시 · 한국어 해설 영상 '+items.length+'편'));
  host.append(node('p','코드 입력과 VS Code 사용 순서를 재현한 강의입니다. 영상의 실행값은 실제 Python으로 검증했습니다.'));
- const frame=node('iframe');frame.src='./video-player.html?episode=lesson02&embed=1';frame.title='2차시 한국어 강의 영상';frame.allow='fullscreen';frame.allowFullscreen=true;frame.style.cssText='width:100%;height:880px;border:0;border-radius:12px';host.append(frame);
- const link=node('a','영상 화면 크게 열기');link.href='./video-player.html?episode=lesson02';link.target='_blank';link.rel='noopener';host.append(link);host.hidden=false;
+ const buttons=node('div');buttons.className='controls';buttons.setAttribute('aria-label','강의 편 선택');host.append(buttons);
+ const frame=node('iframe');frame.title=lesson+'차시 한국어 강의 영상';frame.allow='fullscreen';frame.allowFullscreen=true;frame.style.cssText='width:100%;height:880px;border:0;border-radius:12px';host.append(frame);
+ const link=node('a','영상 화면 크게 열기');link.target='_blank';link.rel='noopener';host.append(link);
+ const controls=[];const select=index=>{const ep=items[index].episode||'lesson02';if(!/^[a-z0-9-]+$/.test(ep))return;frame.src='./video-player.html?episode='+ep+'&embed=1';link.href='./video-player.html?episode='+ep;controls.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));};
+ items.forEach((item,i)=>{const button=node('button',item.title||((i+1)+'편'));button.type='button';button.className='btn secondary';button.onclick=()=>select(i);controls.push(button);buttons.append(button);});
+ select(0);host.hidden=false;
 }
+
 const selected=()=>Number(new URLSearchParams(location.search).get('lesson'))||1;
 window.addEventListener('classroom:lesson',e=>render(e.detail.lesson));
-fetch('./lesson-videos.json').then(r=>{if(!r.ok)throw Error();return r.json();}).then(c=>{catalog=Array.isArray(c.lessons)?c.lessons:[];render(selected());}).catch(()=>render(selected()));
+fetch('./lesson-videos.json?v=20261027-part2',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json();}).then(c=>{catalog=Array.isArray(c.lessons)?c.lessons:[];render(selected());}).catch(()=>render(selected()));
 })();

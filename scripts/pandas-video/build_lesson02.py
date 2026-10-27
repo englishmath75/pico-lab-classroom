@@ -72,13 +72,17 @@ def visual(s):
 async def synth(i,s,sem):
  async with sem:
   mp3=WORK/f'audio-{i:02}.mp3';meta=WORK/f'audio-{i:02}.json'
-  if mp3.exists() and meta.exists():return
+  if mp3.exists() and meta.exists():
+   cached=json.loads(meta.read_text());measured=duration(mp3)
+   if cached and max((e['offset']+e['duration'])/1e7 for e in cached)<=measured+.05:return
   events=[]
   communicate=edge_tts.Communicate(s['speech'],VOICE,rate='-8%',boundary='WordBoundary',connect_timeout=15,receive_timeout=60)
   with mp3.open('wb') as f:
    async for chunk in communicate.stream():
     if chunk['type']=='audio':f.write(chunk['data'])
     elif chunk['type']=='WordBoundary':events.append({k:chunk[k] for k in ['offset','duration','text']})
+  measured=duration(mp3)
+  assert events and max((e['offset']+e['duration'])/1e7 for e in events)<=measured+.05, ('voice boundary exceeds audio',i)
   meta.write_text(json.dumps(events,ensure_ascii=False));print('VOICE',i,round(duration(mp3),2),flush=True)
 async def voices():
  sem=asyncio.Semaphore(3)
@@ -146,7 +150,7 @@ def timestamp(t,comma=False):
 def build():
  asyncio.run(voices());timeline=[];cues=[];concat=['ffconcat version 1.0'];audio=[];clock=0
  for i,s in enumerate(scenes):
-  mp3=WORK/f'audio-{i:02}.mp3';length=duration(mp3);span=math.ceil((length+s['pause'])*30)/30
+  mp3=WORK/f'audio-{i:02}.mp3';length=duration(mp3);span=math.ceil(max(length+s['pause'],s.get('minimumDuration',0))*30)/30
   s.update(start=clock,duration=span,audioDuration=length)
   code,out,note=visual(s);s.update(code=code,output=out,note=note)
   # Reuse Arduino FFmpeg ffconcat, integer-frame scene boundaries and independent audio assembly.
@@ -170,7 +174,7 @@ def build():
  vtt='WEBVTT\n\n'+'\n\n'.join(timestamp(a)+' --> '+timestamp(b)+'\n'+text for a,b,text in cues)+'\n'
  (OUT/'captions.vtt').write_text(vtt)
  srt='\n\n'.join(str(i+1)+'\n'+timestamp(a,True)+' --> '+timestamp(b,True)+'\n'+text for i,(a,b,text) in enumerate(cues))+'\n';(OUT/'captions.srt').write_text(srt)
- # Burn accurate, audio-derived Korean subtitles in the dedicated bottom band as well as provide VTT.
+ # Preserve an audio-derived ASS sidecar for optional fixed captions; the published MP4 uses selectable captions.
  ass='[Script Info]\nPlayResX: 1920\nPlayResY: 1080\n[V4+ Styles]\nFormat: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding\nStyle: Default,Noto Sans CJK KR,34,&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,1,0,2,60,60,32,1\n[Events]\nFormat: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text\n'
  def ass_time(t):
   h=int(t//3600);m=int(t//60)%60;sec=t%60;return f'{h}:{m:02}:{sec:05.2f}'
