@@ -1,0 +1,19 @@
+"""Register only the successfully rendered lesson 6 and write timed teaching materials."""
+from pathlib import Path
+import json
+R=Path(__file__).resolve().parents[2];S=R/'public/pandas-data-lab';O=S/'videos/lesson06'
+assert json.loads((O/'verification.json').read_text())['fullMp4AndHlsDecode']=='PASS'
+ss=json.loads((O/'timeline.json').read_text())['scenes'];d=sum(s['duration'] for s in ss);chapters=[{'at':round(s['start'],3),'title':s['title']} for s in ss]
+episode={'id':'lesson06','lesson':6,'title':'6차시 · groupby로 팀별 평균 비교','duration':d,'poster':'./videos/lesson06/poster.jpg','variants':[{'id':'narrated','label':'강의','src':'./videos/lesson06/index.m3u8','captions':'./videos/lesson06/captions.vtt'}],'chapters':chapters}
+p=S/'video-catalog.json';c=json.loads(p.read_text());c['episodes']=[e for e in c['episodes'] if e['id']!='lesson06']+[episode];p.write_text(json.dumps(c,ensure_ascii=False,indent=2)+'\n')
+p=S/'lesson-videos.json';c=json.loads(p.read_text());c['lessons']=[e for e in c['lessons'] if e.get('episode')!='lesson06']+[{'lesson':6,'episode':'lesson06','title':'groupby로 팀별 평균 비교','status':'verified','src':episode['variants'][0]['src'],'captions':episode['variants'][0]['captions'],'duration':d,'chapters':chapters}];p.write_text(json.dumps(c,ensure_ascii=False,indent=2)+'\n')
+def stamp(t):return f'{int(t//60):02}:{int(t%60):02}'
+lines=['# 6차시 · groupby로 팀별 평균 비교','',f'재생 시간: {d:.3f}초','']
+for s in ss:
+ lines += ['## '+stamp(s['start'])+' · '+s['title'],'',s['speech'],'','화면 표시: '+s['note'],'','```'+('python' if s['kind']=='code' else 'text'),s['code'],'```','','출력 또는 확인할 내용:','```text',s['output'],'```','',f"직접 실습을 위한 휴지: {s['pause']}초",'']
+(O/'transcript.md').write_text('\n'.join(lines)+'\n')
+lines=['# 6차시 수업 운영 자료','', '교사용 일반 지도 자료. 학생 화면에는 연결하지 않는다.','', '| 수업 시간 | 활동 | 지도 포인트 |','|---|---|---|','| 0~5분 | 6차시 접속·전시 복습 | 결측을 제외한 평균과 개수의 의미 |','| 5~15분 | 원본 표·groupby·평균 | 묶는 기준 team, 계산할 열 points 구별 |','| 15~23분 | 평균·합계·개수 실습 | A 15·30·2 / B 20·40·2 확인 |','| 23~33분 | 값 변경·결측 비교 | B 35로 변경 시 평균 25, count와 size 차이 |','| 33~40분 | 인원이 다른 팀·CSV 확장 | 평균만으로 합계·실력·원인 단정 금지 |','| 40~46분 | 형성평가·오류 수정 | 실제 열 이름 및 분모 설명 |','| 46~50분 | VS Code·기록 저장 | 기본 코드 CSV 불필요, 확장 코드 파일 위치 |','','## 실제 영상 구간','']
+for s in ss:lines.append(f"- {stamp(s['start'])}~{stamp(s['start']+s['duration'])} · {s['title']}"+(' · 일시정지 후 직접 실습' if s['pause']>=20 else ''))
+lines+=['','## 순회 지도 포인트','','- team 목록과 points 목록 길이는 모두 4개다. 한 행의 의미가 선수 1명임을 확인한다.','- groupby만 입력한 뒤 평균이 나오지 않는 학생에게 묶기·열 선택·집계의 세 부분을 구분시킨다.','- count는 득점이 기록된 개수다. 한 선수당 한 행이어도 결측이 있으면 선수 수와 다르다.','- 평균·합계·개수를 차례로 누적 출력하면 길어지므로 결과 창을 내려 확인한다.','','## 자주 틀리는 코드','','- Team 대문자: KeyError. df.columns.tolist()로 실제 team 철자를 확인한다.','- mean의 () 누락: 함수를 호출하지 않은 상태. 빈 괄호를 추가한다.','- team과 points 뒤바꿈: 묶는 기준과 계산할 숫자가 바뀐다.','- CSV 이름·폴더 오류: 기본 코드는 직접 생성하므로 파일 불필요. 확장에서는 sports_fictional.csv 필요.','','## 보충·심화','','- 보충: A 10·20, B 15·25를 종이에 나누고 합계/개수로 평균을 계산한다.','- 느린 학생: 기본 다섯 단계만 완성하고 agg·size는 교사와 비교한다.','- 빠른 학생: agg로 mean·sum·count를 한 표에 모으고 다른 인원수의 표에서 전체 평균을 구한다.','- 심화 근거: A [30], B [10,20,30]에서 팀 평균의 단순 평균은 25, 전체 기록 평균은 22.5다.','','## 형성평가 정답·해설','','1. A 10·20 평균 15.0. 합계 30을 2개로 나눈다.','2. count는 선택한 열의 결측이 아닌 값의 개수다.','3. A [10,None]이면 count 1, size 2다.','4. 평균이 높아도 합계가 반드시 높지는 않다. 인원이 다른 반례로 설명한다.','','## CSV 검증','','- sports_fictional.csv: 8행·6열. 파랑 mean 16.5·sum 66·count 4, 빨강 mean 15·sum 60·count 4.','- points 기록값을 그대로 집계한다. games로 나눈 경기당 득점으로 설명하지 않는다.','','## 제작 관리 기록','','- 코드 장면은 실제 화면 녹화가 아닌 학습 장면이다. 출력은 실제 pandas 실행값이며 음성은 ko-KR-SunHiNeural 기본 AI 합성 음성이다. 교사 목소리 복제가 아니다. 이 기록은 낭독하지 않는다.']
+(R/'docs/video-production/lesson06-teacher-guide.md').write_text('\n'.join(lines)+'\n')
+print('REGISTERED',d,len(ss))

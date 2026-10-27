@@ -1,0 +1,13 @@
+{
+  "duration": 1116.5666666666666,
+  "scenes": 26,
+  "subtitleCues": 164,
+  "fullMp4AndHlsDecode": "PASS",
+  "teachingCode": "tests/pandas_lesson06_check.py PASS",
+  "video": "1920x1080 H264 30fps",
+  "audio": "AAC Korean AI ko-KR-SunHiNeural (not teacher clone)",
+  "visuals": "code animation and instructional reconstruction, not screen recording",
+  "subtitles": "Korean VTT/SRT and MP4 selectable subtitles",
+  "sha256": "7271f5bca87d612a3e046daf52cb6a26ea7e079195d9bc0c6dd80d189dad5a7d",
+  "browser": "pending deployment"
+}
