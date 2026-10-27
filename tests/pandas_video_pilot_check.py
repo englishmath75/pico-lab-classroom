@@ -48,5 +48,6 @@ _, output = run(scores.replace('.mean()', '.mean'))
 assert 'bound method' in output and output.strip() != '80.0'
 media=json.loads((SITE/'lesson-videos.json').read_text())['lessons']
 assert any(m['lesson']==2 for m in media)
-for key in ['src','captions']:assert (SITE/media[0][key]).is_file()
-print('PASS: pilot examples, CSV equality, changed values, shape/index, real error cases; registered media count = 1 (decode checks recorded separately)')
+for item in media:
+    for key in ['src','captions']:assert (SITE/item[key]).is_file()
+print(f'PASS: pilot examples, CSV equality, changed values, shape/index, real error cases; registered media count = {len(media)} (decode checks recorded separately)')
