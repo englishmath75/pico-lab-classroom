@@ -33,7 +33,7 @@ async function render(lesson){
  const buttons=node('div');buttons.className='video-tabs';buttons.setAttribute('aria-label','강의 편 선택');host.append(buttons);
  const frame=node('iframe');frame.title=lesson+'차시 한국어 강의 영상';frame.allow='fullscreen';frame.allowFullscreen=true;frame.className='lesson-video-frame';frame.style.height='760px';host.append(frame);activeFrame=frame;
  const link=node('a','큰 화면으로 보기 ↗');link.className='video-open';link.target='_blank';link.rel='noopener';host.append(link);
- const controls=[];const select=index=>{const ep=items[index].episode||'lesson02';if(!/^[a-z0-9-]+$/.test(ep))return;frame.src='./video-player.html?episode='+ep+'&embed=1';link.href='./video-player.html?episode='+ep;controls.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));};
+ const controls=[];const select=index=>{const ep=items[index].episode||'lesson02';if(!/^[a-z0-9-]+$/.test(ep))return;frame.src='./video-player.html?episode='+ep+'&embed=1&layout=2';link.href='./video-player.html?episode='+ep;controls.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));};
  items.forEach((item,i)=>{const button=node('button',item.title||((i+1)+'편'));button.type='button';button.className='btn secondary';button.onclick=()=>select(i);controls.push(button);buttons.append(button);});
  select(0);host.hidden=false;
 }
