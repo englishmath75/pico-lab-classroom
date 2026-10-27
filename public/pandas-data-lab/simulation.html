@@ -1,9 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="소프트웨어와 생활 4단원 모의 실험하는 소프트웨어 — 생물 다양성 보전 정책을 모델링하고 3단원 Pandas와 연결하는 3차시 실험실">
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="소프트웨어와 생활 4단원 모의 실험하는 소프트웨어 — 생물 다양성 보전 정책을 모델링하고 3단원 Pandas와 연결하는 3차시 실험실" name="description"/>
 <title>SIMULATION LAB | 4단원 모의 실험하는 소프트웨어</title>
 <style>
 :root{font-family:system-ui,"Noto Sans KR","Malgun Gothic",sans-serif;color:#183448;background:#f4f8fb;font-size:16px}
@@ -11,12 +12,12 @@
 header{background:linear-gradient(110deg,#103949,#117a77);color:#f4ffff;padding:25px max(20px,calc((100vw - 1080px)/2));}header a{color:#b6ffeb}header h1{font-size:clamp(27px,4vw,40px);line-height:1.25;margin:12px 0}header p{max-width:760px;color:#e2f7f8}.tags{display:flex;flex-wrap:wrap;gap:9px}.tag{background:#ffffff29;padding:4px 12px;border-radius:30px;font-size:12px;font-weight:800}
 main{max-width:1130px;margin:24px auto 80px;padding:0 18px}.panel{background:#fff;border:1px solid #d7e5ec;border-radius:15px;padding:24px;margin:18px 0;box-shadow:0 5px 15px #0d2d4111}.panel h2{margin:0 0 15px;font-size:23px}.panel h3{font-size:18px;margin:17px 0 8px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.step{background:#e9f5f3;border-radius:12px;padding:14px}.step strong{color:#006a6e}.note{background:#fff5de;border-left:4px solid #cb9533;padding:11px 15px;border-radius:7px}.controls label{display:block;margin:15px 0;font-weight:750}.controls label small{display:block;font-size:13px;color:#58707e;font-weight:400}.controls .range{display:flex;align-items:center;gap:13px}.controls input{width:100%;accent-color:#087c81}.controls output{min-width:34px;text-align:center;background:#def0ed;border-radius:8px;padding:2px 7px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.numbers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.number{background:#e9f5f3;padding:14px;border-radius:10px;text-align:center}.number strong{display:block;font-size:25px;color:#0a6971}.number span{font-size:12px;color:#486772}.chartwrap{overflow:auto}canvas{width:100%;height:auto;border:1px solid #dce8ed;border-radius:9px;max-width:980px}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%}th,td{border:1px solid #d6e3eb;text-align:right;padding:8px 10px;font-size:13px}th:first-child,td:first-child{text-align:left}th{background:#eaf5f5}textarea{width:100%;min-height:96px;resize:vertical;padding:12px;border:1px solid #bbced9;border-radius:9px}label.writing{display:block;margin:13px 0;font-weight:750}label.writing textarea{display:block;margin-top:5px;font-weight:400}.code{white-space:pre;overflow:auto;background:#102f3e;color:#eafff8;border-radius:11px;padding:17px;font:13px/1.6 Consolas,monospace}fieldset{border:1px solid #d4e4e8;margin:12px 0;border-radius:9px}fieldset label{display:block;padding:4px 8px}legend{font-weight:700}.result{font-weight:800;color:#0b6e6e;min-height:22px}.muted{font-size:13px;color:#56717b}footer{font-size:13px;color:#54717a;margin-top:30px}.teacher{border-top:2px solid #d2e6e7;margin-top:17px;padding-top:12px}@media(max-width:760px){.grid,.steps,.numbers{grid-template-columns:1fr}header{padding:23px 20px}.panel{padding:17px}header h1{font-size:28px}}
 </style>
-</head>
-<body>
+<link href="./classroom.css" rel="stylesheet"/></head>
+<body><div class="breadcrumb"><a href="./">← DATA DETECTIVE 수업 홈</a><span>별도 단원 · 4단원 모의실험</span></div>
 <header>
 <a href="./">← 3단원 Pandas 데이터 탐정 실습실</a>
 <div class="tags"><span class="tag">씨마스 4단원 연계</span><span class="tag">모의 실험하는 소프트웨어</span><span class="tag">3차시 확장 과정</span></div>
-<h1>생물 다양성 구조대<br>정책을 바꾸면 생태계는 어떻게 될까?</h1>
+<h1>생물 다양성 구조대<br/>정책을 바꾸면 생태계는 어떻게 될까?</h1>
 <p>예측 → 모의실험 → 결과 비교 → CSV 저장 → Pandas 분석까지. 3단원에서 배운 데이터 분석을 4단원의 시뮬레이션과 연결합니다.</p>
 </header>
 <main>
@@ -29,7 +30,7 @@ main{max-width:1130px;margin:24px auto 80px;padding:0 18px}.panel{background:#ff
 </div>
 <p class="note"><strong>교과서와의 관계:</strong> 생물 다양성 보전을 위한 정책 모의실험이라는 4단원 프로젝트 주제를 활용한 <strong>별도 자체 제작 모델</strong>입니다. 교과서 원본 프로그램이나 실제 생태 연구 결과가 아닙니다. 모든 수치는 학습용 가정이며 현실을 예측하지 않습니다.</p>
 </section>
-<section class="panel" aria-labelledby="predictHead">
+<section aria-labelledby="predictHead" class="panel">
 <h2 id="predictHead">1. 실험 전에 생각해 보기</h2>
 <p>10년 동안 생물 개체군이 변하는 가상의 도시 생태공원이 있습니다. 환경 개발을 줄이고 생태 통로를 늘리면 개체군 지수가 올라갈까요? 다른 조건은 같을까요?</p>
 <label class="writing">나의 가설 (실험 전에 먼저 작성)<textarea id="hypothesis" placeholder="예: 생태 통로가 많아지면 서식지 수용력이 커지므로 ..."></textarea></label>
@@ -39,10 +40,10 @@ main{max-width:1130px;margin:24px auto 80px;padding:0 18px}.panel{background:#ff
 <h2>2. 정책 조정판</h2>
 <div class="grid"><div class="controls">
 <p><strong>정책 B</strong>의 조건을 바꾸세요. <strong>기준 A</strong>는 비교를 위해 고정합니다.</p>
-<label for="road">도로·개발 압력 <span class="range"><input id="road" type="range" min="0" max="10" step="1" value="3"><output id="roadValue">3</output></span><small>높을수록 서식지 손실과 사망률 증가</small></label>
-<label for="corridor">생태 통로·서식지 연결 <span class="range"><input id="corridor" type="range" min="0" max="10" step="1" value="8"><output id="corridorValue">8</output></span><small>높을수록 서식지 수용력 증가·위험 감소</small></label>
-<label for="invasive">외래종 피해 수준 <span class="range"><input id="invasive" type="range" min="0" max="10" step="1" value="3"><output id="invasiveValue">3</output></span><small>높을수록 매년 감소 요인 증가</small></label>
-<label for="drought">가뭄 위험 <span class="range"><input id="drought" type="range" min="0" max="10" step="1" value="3"><output id="droughtValue">3</output></span><small>높을수록 서식지 수용력 감소</small></label>
+<label for="road">도로·개발 압력 <span class="range"><input id="road" max="10" min="0" step="1" type="range" value="3"/><output id="roadValue">3</output></span><small>높을수록 서식지 손실과 사망률 증가</small></label>
+<label for="corridor">생태 통로·서식지 연결 <span class="range"><input id="corridor" max="10" min="0" step="1" type="range" value="8"/><output id="corridorValue">8</output></span><small>높을수록 서식지 수용력 증가·위험 감소</small></label>
+<label for="invasive">외래종 피해 수준 <span class="range"><input id="invasive" max="10" min="0" step="1" type="range" value="3"/><output id="invasiveValue">3</output></span><small>높을수록 매년 감소 요인 증가</small></label>
+<label for="drought">가뭄 위험 <span class="range"><input id="drought" max="10" min="0" step="1" type="range" value="3"/><output id="droughtValue">3</output></span><small>높을수록 서식지 수용력 감소</small></label>
 <div class="actions"><button id="run">▶ 10년 시뮬레이션</button><button class="alt" id="reset">조건 초기화</button></div>
 </div>
 <div>
@@ -59,13 +60,13 @@ main{max-width:1130px;margin:24px auto 80px;padding:0 18px}.panel{background:#ff
              - 0.005×생태통로)</div>
 <p class="note"><strong>모델의 한계:</strong> 출생·사망·기후·이동 등의 복잡한 생태 현상을 임의의 식으로 단순화한 교육용 실험입니다. 수치의 정확성이나 실제 정책 효과를 주장하지 마세요.</p>
 </div></div>
-<div class="numbers" aria-live="polite">
+<div aria-live="polite" class="numbers">
 <div class="number"><strong id="scoreBase">-</strong><span>10년 후 기준 A 지수</span></div>
 <div class="number"><strong id="scorePolicy">-</strong><span>10년 후 정책 B 지수</span></div>
 <div class="number"><strong id="scoreDifference">-</strong><span>정책 B − 기준 A</span></div>
 </div>
-<p id="simulationStatus" class="result" role="status"></p>
-<div class="chartwrap"><canvas id="chart" width="960" height="410" role="img" aria-label="10년간 기준 A와 정책 B의 개체군 지수 변화 추세"></canvas></div>
+<p class="result" id="simulationStatus" role="status"></p>
+<div class="chartwrap"><canvas aria-label="10년간 기준 A와 정책 B의 개체군 지수 변화 추세" height="410" id="chart" role="img" width="960"></canvas></div>
 <div class="table-wrap"><table><thead><tr><th>연도</th><th>기준 A 개체군 지수</th><th>정책 B 개체군 지수</th><th>B−A 차이</th></tr></thead><tbody id="rows"></tbody></table></div>
 <div class="actions"><button id="downloadCsv">실험 결과 CSV 내려받기</button><button class="alt" id="sendToLab">→ 3단원 Pandas 실험실로 보내기</button></div>
 </section>
