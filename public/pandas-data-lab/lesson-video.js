@@ -1,7 +1,8 @@
 /* Only verified, completed media may be listed in lesson-videos.json. */
 (()=>{'use strict';
 const host=document.getElementById('lessonVideo'),practice=document.getElementById('pilotPractice');
-let catalog=[],revision=0;
+let catalog=[],revision=0,activeFrame=null;
+window.addEventListener('message',event=>{if(!activeFrame||event.origin!==location.origin||event.source!==activeFrame.contentWindow||event.data?.type!=='pandas-video-height')return;const height=Number(event.data.height);if(Number.isFinite(height))activeFrame.style.height=Math.min(3000,Math.max(240,height))+'px';});
 const node=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const allowedPath=value=>typeof value==='string'&&/^\.\/[\w./-]+$/.test(value)&&!value.split('/').includes('..');
 function supplement(lesson){
@@ -23,16 +24,15 @@ function supplement(lesson){
  const q=node('details');q.append(node('summary','보충 확인 문제: df.shape와 평균은 어떻게 구하나요?'),node('p',"독서량 표의 df.shape는 (3, 2)입니다. 평균은 df['books'].mean()으로 구합니다. df['books']는 1차원 Series입니다. mean 뒤의 괄호를 빠뜨리지 마세요."));practice.append(q);
 }
 async function render(lesson){
- const current=++revision;host.replaceChildren();host.hidden=true;supplement(lesson);
+ const current=++revision;host.replaceChildren();activeFrame=null;host.hidden=true;supplement(lesson);
  const candidates=catalog.filter(v=>v.lesson===lesson&&v.status==='verified'&&allowedPath(v.src)&&allowedPath(v.captions));
  if(!candidates.length)return;
  const valid=await Promise.all(candidates.map(async item=>{try{const r=await Promise.all([fetch(item.src,{method:'HEAD'}),fetch(item.captions,{method:'HEAD'})]);return r.every(x=>x.ok)?item:null;}catch(_){return null;}}));
  if(current!==revision)return;const items=valid.filter(Boolean);if(!items.length)return;
- host.append(node('h3',lesson+'차시 · 한국어 해설 영상 '+items.length+'편'));
- host.append(node('p','코드 입력과 VS Code 사용 순서를 재현한 강의입니다. 영상의 실행값은 실제 Python으로 검증했습니다.'));
- const buttons=node('div');buttons.className='controls';buttons.setAttribute('aria-label','강의 편 선택');host.append(buttons);
- const frame=node('iframe');frame.title=lesson+'차시 한국어 강의 영상';frame.allow='fullscreen';frame.allowFullscreen=true;frame.style.cssText='width:100%;height:880px;border:0;border-radius:12px';host.append(frame);
- const link=node('a','영상 화면 크게 열기');link.target='_blank';link.rel='noopener';host.append(link);
+ host.append(node('h3','강의 영상'));
+ const buttons=node('div');buttons.className='video-tabs';buttons.setAttribute('aria-label','강의 편 선택');host.append(buttons);
+ const frame=node('iframe');frame.title=lesson+'차시 한국어 강의 영상';frame.allow='fullscreen';frame.allowFullscreen=true;frame.className='lesson-video-frame';frame.style.height='760px';host.append(frame);activeFrame=frame;
+ const link=node('a','큰 화면으로 보기 ↗');link.className='video-open';link.target='_blank';link.rel='noopener';host.append(link);
  const controls=[];const select=index=>{const ep=items[index].episode||'lesson02';if(!/^[a-z0-9-]+$/.test(ep))return;frame.src='./video-player.html?episode='+ep+'&embed=1';link.href='./video-player.html?episode='+ep;controls.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));};
  items.forEach((item,i)=>{const button=node('button',item.title||((i+1)+'편'));button.type='button';button.className='btn secondary';button.onclick=()=>select(i);controls.push(button);buttons.append(button);});
  select(0);host.hidden=false;
@@ -40,5 +40,5 @@ async function render(lesson){
 
 const selected=()=>Number(new URLSearchParams(location.search).get('lesson'))||1;
 window.addEventListener('classroom:lesson',e=>render(e.detail.lesson));
-fetch('./lesson-videos.json?v=20261027-part2',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json();}).then(c=>{catalog=Array.isArray(c.lessons)?c.lessons:[];render(selected());}).catch(()=>render(selected()));
+fetch('./lesson-videos.json?v=20261028-simple',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json();}).then(c=>{catalog=Array.isArray(c.lessons)?c.lessons:[];render(selected());}).catch(()=>render(selected()));
 })();
