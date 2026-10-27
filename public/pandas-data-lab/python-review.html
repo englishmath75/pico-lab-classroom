@@ -34,38 +34,59 @@ for i in range(6):
 x = 10
 x += 3         # x = x + 3
 x *= 0.5       # x = x * 0.5</pre></section>
-<section class="card" id="turtle"><span class="pill">03 · 직접 실행</span><h2>Turtle 그래픽으로 반복문과 각도 확인</h2><p>첨부하신 Turtle 세 예제의 핵심 구조를 간단하게 유지했습니다. 각 코드를 <code>.py</code> 파일로 저장해 VS Code에서 실행합니다. <b>회전 각도와 반복 횟수를 바꾼 결과</b>를 비교하세요.</p><div class="grid3">
-<article class="lesson"><h3>① 회전하는 무지개 원</h3><pre>import turtle
+<section class="card" id="turtle"><span class="pill">03 · 직접 실행</span><h2>Turtle 그래픽으로 반복문과 각도 확인</h2><p>아래 세 예제는 제공해주신 코드의 반복 횟수·회전 각도·색상 순서를 반영했습니다. 각각 <code>01_mandala.py</code>, <code>02_star_spiral.py</code>, <code>03_square_spiral.py</code>로 저장해 VS Code에서 실행하세요. <b>각 파일은 따로 실행합니다.</b></p><div class="grid3">
+<article class="lesson"><h3>① 무지개 원형 만다라</h3><pre>import turtle
 
-t = turtle.Turtle()
-t.speed(0)
-turtle.bgcolor("black")
-colors = ["red","yellow","cyan","green"]
+# 화면 및 거북이 설정
+
+turtle.bgcolor("black")  # 배경색을 검은색으로 설정하여 색상을 더 선명하게 연출
+turtle.speed(0)          # 최고 속도
+turtle.pensize(2)
+
+# 무지개 색상 리스트
+colors = ["red", "yellow", "green", "cyan", "blue", "magenta"]
+
+# 36개의 원을 10도씩 돌려가며 그리기
 for i in range(36):
-    t.pencolor(colors[i % 4])
-    t.circle(90)
-    t.left(10)
-turtle.done()</pre><p class="fine">36 × 10° = 360°. 나머지 연산으로 색을 반복합니다.</p></article>
-<article class="lesson"><h3>② 별 모양 회오리</h3><pre>import turtle
+    turtle.pencolor(colors[i % 6])  # 색상 번갈아 선택
+    turtle.circle(100)              # 반지름 100인 원 그리기
+    turtle.left(10)                 # 10도씩 제자리 회전
 
-t = turtle.Turtle()
-t.speed(0)
-colors = ["red","yellow","cyan"]
-for i in range(90):
-    t.pencolor(colors[i % 3])
-    t.forward(i * 2)
-    t.left(144)
-turtle.done()</pre><p class="fine">이동 거리는 증가하고, 144° 회전이 별 모양의 특징을 만듭니다.</p></article>
-<article class="lesson"><h3>③ 사각 나선</h3><pre>import turtle
+turtle.done()</pre><p class="fine">반복문 36회 × 회전 10° = 360°. 색상 6개를 <code>i % 6</code>으로 순환합니다.</p></article>
+<article class="lesson"><h3>② 별빛 은하수 회오리</h3><pre>import turtle
 
-t = turtle.Turtle()
-t.speed(0)
-colors = ["magenta","cyan","yellow"]
-for i in range(120):
-    t.pencolor(colors[i % 3])
-    t.forward(i * 2)
-    t.right(91)
-turtle.done()</pre><p class="fine">90° 대신 91°를 사용하면 선이 조금씩 비틀려 나선이 됩니다.</p></article></div><p class="ok">확인 활동: 위 세 코드에서 <code>range()</code>, <code>%</code>, <code>forward()</code>, <code>left()</code>, <code>right()</code>의 의미를 말하고 수치를 변경해 비교합니다.</p></section>
+# 화면 및 거북이 설정
+turtle.bgcolor("black")
+turtle.speed(0)
+
+colors = ["purple", "blue", "cyan", "green", "yellow", "orange", "red"]
+
+# 선이 늘어나면서 별 모양 각도로 회전
+for x in range(150):
+    turtle.pencolor(colors[x % 7])
+    turtle.pensize(x / 40 + 1)      # 중심에서 멀어질수록 선이 점점 두꺼워짐
+    turtle.forward(x * 2)           # 갈수록 이동 거리 증가
+    turtle.left(144)                # 별을 만드는 각도(144도)로 회전
+
+turtle.done()</pre><p class="fine"><code>x * 2</code>로 이동 거리가 늘어나고, <code>x / 40 + 1</code>로 선 두께가 증가합니다. <code>144°</code> 회전으로 별 모양 패턴을 만듭니다.</p></article>
+<article class="lesson"><h3>③ 입체적인 사각형 착시 나선</h3><pre>import turtle
+
+# 화면 및 거북이 설정
+turtle.bgcolor("black")
+turtle.speed(0)
+
+# 헥사코드 색상 지정으로 더 화려한 컬러 연출
+colors = ["#33FF33", "#33FF57", "#3357FF", "#F3FF33", "#FF33F3", "#00FFFF"]
+
+for i in range(200):
+    turtle.pencolor(colors[i % 6])
+    turtle.pensize(i // 50 + 1)     # 일정 단계마다 펜 두께 증가
+    turtle.forward(i * 1.5)         # 이동 거리 증가
+    turtle.right(91)                # 91도로 회전하여 엇갈린 입체 패턴 형성
+
+turtle.done()</pre><p class="fine"><code>i // 50 + 1</code>은 50번마다 굵기가 1씩 증가한다는 뜻입니다. <code>91°</code> 회전으로 나선이 비틀립니다.</p></article></div>
+<p class="note"><b>③ 색상 코드 한 곳만 실행 오류를 수정했습니다.</b> 보내주신 <code>#33FF33AC</code>는 8자리 알파(투명도) 표기이며 Python Turtle의 <code>pencolor()</code>에서 일반적으로 지원하지 않습니다. 그림이 오류 없이 나오도록 해당 항목만 <code>#33FF33</code>으로 바꾸었습니다. 나머지 코드와 주석·반복 횟수·회전 각도는 요청하신 그대로입니다.</p>
+<p class="ok">확인 활동: 세 예제에서 <code>range()</code>, <code>%</code>, <code>//</code>, <code>forward()</code>, <code>circle()</code>, <code>left()</code>, <code>right()</code>의 역할을 설명하고 회전 각도나 반복 횟수를 바꾸어 패턴 변화를 관찰하세요.</p></section>
 <section class="card" id="trig"><span class="pill">04 · 실시간 시각화</span><h2>사인·코사인·탄젠트 그래프 직접 탐구</h2><p><b>sin</b>과 <b>cos</b>는 회전하는 점의 세로·가로 좌표를 설명하고, <b>tan = sin/cos</b>는 기울기와 연결됩니다. 90°·270°에서는 cos=0이므로 tan 값이 정의되지 않습니다. Python의 <code>math.sin</code>, <code>math.cos</code>, <code>math.tan</code>은 각도를 <b>라디안</b>으로 입력합니다.</p><div class="grid"><div><canvas class="demo chart" id="trigGraph" width="690" height="330" aria-label="sin cos tan 함수의 그래프"></canvas></div><div><canvas class="demo chart" id="unitCircle" width="420" height="330" aria-label="단위원과 sin cos tan 좌표"></canvas><p id="trigValues" class="ok" role="status"></p></div></div><div class="label"><b>각도 조절</b><input type="range" id="degree" min="0" max="360" value="45" step="1"><output id="degreeValue">45°</output></div><div class="buttons"><label><input type="checkbox" id="sinOn" checked> sin</label><label><input type="checkbox" id="cosOn" checked> cos</label><label><input type="checkbox" id="tanOn" checked> tan</label></div><pre>import math
 angle = math.radians(30)  # 도를 라디안으로 변환
 print(round(math.sin(angle), 2))  # 0.5
