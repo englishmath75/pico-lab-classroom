@@ -180,6 +180,19 @@ async function main() {
       assert.equal(saved.quizzes["0"].score,backup.quizzes["0"].score,"invalid import cannot overwrite scores");
     }
 
+    // Malformed progress backup must not overwrite previously restored learning data.
+    await page.locator("#import-file").setInputFiles({
+      name:"truncated-progress.json",mimeType:"application/json",
+      buffer:Buffer.from('{"version":1,"year":2026,"completed":[')
+    });
+    await page.waitForFunction(()=>document.getElementById("import-file").value === "");
+    await page.getByText("가져오기 실패:",{exact:false}).waitFor();
+    const afterMalformed=await page.evaluate(()=>JSON.parse(localStorage.getItem("aasl-progress-v1-2026")));
+    assert.deepEqual(afterMalformed.completed,restored.completed,
+      "malformed JSON cannot destroy restored lesson progress");
+    assert.deepEqual(afterMalformed.quizzes,restored.quizzes,
+      "malformed JSON cannot destroy restored quiz results");
+
     const teacherFile=await page.request.get(url+"project/agent_live_teacher.py");
     assert.equal(teacherFile.status(),200,"real model teacher script exists");
         console.log("Browser smoke OK: 12 lessons, 5 quizzes, progress persistence, agent demo, 12 teacher guides, exam, Python challenges, Agent Studio, teacher LLM example and downloads.");
