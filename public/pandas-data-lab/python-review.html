@@ -1,5 +1,5 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>00. Python 핵심 복습 | 영수쌤의 Python 교실</title><meta name="description" content="Python import와 패키지, 자료구조, 반복문, Turtle 그래픽, 사인 코사인 탄젠트, 속도와 중력까지 직접 실습하는 특별 수업"><style>
-:root{font:15px/1.75 system-ui,'Malgun Gothic',sans-serif;color:#173047;background:#f3f6fa}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer}a{color:#136e90}.layout{display:grid;grid-template-columns:248px 1fr;min-height:100vh}.side{background:#102e42;color:white;padding:22px 15px;position:sticky;top:0;height:100vh;overflow:auto}.side h2{font-size:21px;line-height:1.3}.side small{color:#90d8db}.side a{display:block;text-decoration:none;color:#cce7ee;padding:10px 8px;border-radius:8px;font-size:13px}.side a:hover{background:#24596b}.main{max-width:1160px;width:100%;padding:26px 25px 70px;margin:auto}header{background:linear-gradient(110deg,#102f46,#137d85);color:white;border-radius:19px;padding:32px;margin-bottom:16px}header h1{font-size:clamp(26px,4vw,37px);margin:9px 0}header p{color:#dcf7f4}.card{background:white;border-radius:14px;border:1px solid #d9e5ec;margin:15px 0;padding:24px}h2{font-size:23px;margin:3px 0 14px}h3{font-size:17px;margin:19px 0 8px}.muted{color:#647b8c}.pill{display:inline-block;background:#e5f6f3;color:#087b7e;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:800}.note{background:#fff7e8;border-left:4px solid #daa53d;border-radius:8px;padding:13px}.ok{background:#ecf9f6;border-left:4px solid #168778;border-radius:8px;padding:13px}pre{white-space:pre-wrap;overflow:auto;background:#112a3e;color:#ecf9fc;border-radius:10px;padding:17px;font:13px/1.65 Consolas,monospace;tab-size:4}code{font-family:Consolas,monospace}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.btn{border:0;border-radius:9px;background:#087d83;color:white;padding:9px 15px;font-weight:750}.btn.alt{background:#e6eef6;color:#1c455e}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.demo{width:100%;max-width:100%;height:250px;background:#0b1628;border-radius:10px;display:block}.chart{height:320px}.label{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.label input[type=range]{flex:1;min-width:130px;accent-color:#087d83}.lesson{padding:15px;border:1px solid #e0e8ee;border-radius:12px;margin-top:13px}.lesson summary{font-weight:750;cursor:pointer}.quiz{border-top:1px solid #e1e9ef;padding:12px 0}.quiz label{display:block;margin:5px 0}.feedback{color:#087c78;font-weight:700}.table{border-collapse:collapse;width:100%;font-size:13px}.table td,.table th{border:1px solid #d8e4e9;padding:8px;text-align:left}.table th{background:#eef5f7}.fine{font-size:12px;color:#647b8c}.check{margin:10px 0}footer{text-align:center;font-size:12px;color:#647b8c;margin-top:35px}@media(max-width:840px){.layout{display:block}.side{position:static;height:auto}.side a{display:inline-block}.main{padding:14px}.grid,.grid3{grid-template-columns:1fr}}</style></head><body><div class="layout"><aside class="side"><small>고2 · 소프트웨어와 생활</small><h2>영수쌤의<br>Python 교실</h2><p>00. Python 핵심 복습</p><a href="./">← 3단원 수업 안내</a><a href="#setup">01. import·설치·오류</a><a href="#structures">02. 리스트·튜플·딕셔너리</a><a href="#turtle">03. Turtle 그래픽</a><a href="#trig">04. 사인·코사인·탄젠트</a><a href="#physics">05. 속도·중력 실험</a><a href="#showcase">06. 그래픽 심화 보기</a><a href="#exam">07. 문제·정답·해설</a><a href="./step-by-step.html?lesson=1">→ 다음: Pandas 실습</a></aside><main class="main"><header><span class="pill">00차시 · 데이터 분석 전 핵심 복습</span><h1>Python으로 그리는 수학과 움직임</h1><p>모듈을 불러오고, 자료를 저장하고, 반복문으로 그림을 그리며, 삼각함수와 속도·중력의 원리를 직접 눈으로 확인합니다. 이후 Pandas 데이터 분석에서 반복해서 사용할 Python 기초를 정리합니다.</p></header>
+:root{font:15px/1.75 system-ui,'Malgun Gothic',sans-serif;color:#173047;background:#f3f6fa}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer}a{color:#136e90}.layout{display:grid;grid-template-columns:248px 1fr;min-height:100vh}.side{background:#102e42;color:white;padding:22px 15px;position:sticky;top:0;height:100vh;overflow:auto}.side h2{font-size:21px;line-height:1.3}.side small{color:#90d8db}.side a{display:block;text-decoration:none;color:#cce7ee;padding:10px 8px;border-radius:8px;font-size:13px}.side a:hover{background:#24596b}.main{max-width:1160px;width:100%;padding:26px 25px 70px;margin:auto}header{background:linear-gradient(110deg,#102f46,#137d85);color:white;border-radius:19px;padding:32px;margin-bottom:16px}header h1{font-size:clamp(26px,4vw,37px);margin:9px 0}header p{color:#dcf7f4}.card{background:white;border-radius:14px;border:1px solid #d9e5ec;margin:15px 0;padding:24px}h2{font-size:23px;margin:3px 0 14px}h3{font-size:17px;margin:19px 0 8px}.muted{color:#647b8c}.pill{display:inline-block;background:#e5f6f3;color:#087b7e;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:800}.note{background:#fff7e8;border-left:4px solid #daa53d;border-radius:8px;padding:13px}.ok{background:#ecf9f6;border-left:4px solid #168778;border-radius:8px;padding:13px}pre{white-space:pre-wrap;overflow:auto;background:#112a3e;color:#ecf9fc;border-radius:10px;padding:17px;font:13px/1.65 Consolas,monospace;tab-size:4}code{font-family:Consolas,monospace}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.btn{border:0;border-radius:9px;background:#087d83;color:white;padding:9px 15px;font-weight:750}.btn.alt{background:#e6eef6;color:#1c455e}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.demo{width:100%;max-width:100%;height:250px;background:#0b1628;border-radius:10px;display:block}.chart{height:320px}.label{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.label input[type=range]{flex:1;min-width:130px;accent-color:#087d83}.lesson{padding:15px;border:1px solid #e0e8ee;border-radius:12px;margin-top:13px}.lesson summary{font-weight:750;cursor:pointer}.quiz{border-top:1px solid #e1e9ef;padding:12px 0}.quiz label{display:block;margin:5px 0}.feedback{color:#087c78;font-weight:700}.table{border-collapse:collapse;width:100%;font-size:13px}.table td,.table th{border:1px solid #d8e4e9;padding:8px;text-align:left}.table th{background:#eef5f7}.fine{font-size:12px;color:#647b8c}.check{margin:10px 0}footer{text-align:center;font-size:12px;color:#647b8c;margin-top:35px}@media(max-width:840px){.layout{display:block}.side{position:static;height:auto}.side a{display:inline-block}.main{padding:14px}.grid,.grid3{grid-template-columns:1fr}}.turtle-examples{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}.turtle-examples .lesson{min-width:0;margin-top:0}.turtle-examples pre,.turtle-color pre{white-space:pre;overflow-x:auto;overflow-y:hidden;font:14px/1.85 Consolas,'Courier New',monospace;tab-size:4;padding:20px 24px;margin:12px 0}.turtle-examples pre code,.turtle-color pre code{white-space:inherit}.turtle-color{margin-top:20px}</style></head><body><div class="layout"><aside class="side"><small>고2 · 소프트웨어와 생활</small><h2>영수쌤의<br>Python 교실</h2><p>00. Python 핵심 복습</p><a href="./">← 3단원 수업 안내</a><a href="#setup">01. import·설치·오류</a><a href="#structures">02. 리스트·튜플·딕셔너리</a><a href="#turtle">03. Turtle 그래픽</a><a href="#trig">04. 사인·코사인·탄젠트</a><a href="#physics">05. 속도·중력 실험</a><a href="#showcase">06. 그래픽 심화 보기</a><a href="#exam">07. 문제·정답·해설</a><a href="./step-by-step.html?lesson=1">→ 다음: Pandas 실습</a></aside><main class="main"><header><span class="pill">00차시 · 데이터 분석 전 핵심 복습</span><h1>Python으로 그리는 수학과 움직임</h1><p>모듈을 불러오고, 자료를 저장하고, 반복문으로 그림을 그리며, 삼각함수와 속도·중력의 원리를 직접 눈으로 확인합니다. 이후 Pandas 데이터 분석에서 반복해서 사용할 Python 기초를 정리합니다.</p></header>
 <section class="card"><h2>오늘 배우는 세 가지 핵심</h2><div class="grid3"><div class="ok"><b>직접 실행</b><p>import, 오류 해결, 자료구조, turtle 그래픽</p></div><div class="ok"><b>변수를 바꿔 탐구</b><p>사인·코사인·탄젠트, 속도·중력</p></div><div class="ok"><b>이해·확장</b><p>고급 그래픽의 원리와 데이터 분석 연결</p></div></div><p class="fine">교사가 2~3시간 범위에서 속도를 조정할 수 있도록 각 영역을 독립적으로 구성했습니다. 고급 구현 전체는 감상·심화이며, 기초와 핵심 계산 문제를 구분합니다.</p></section>
 <section class="card" id="setup"><span class="pill">01 · 실습 필수</span><h2>import와 패키지 설치·삭제</h2><p><b>모듈</b>은 Python 코드 파일 또는 기능 묶음입니다. <code>import</code>는 그 기능을 현재 프로그램에서 사용하도록 불러오는 명령입니다. <b>pip 설치</b>는 필요한 외부 패키지를 Python 환경에 준비하는 별개 과정입니다.</p><div class="grid"><div><h3>설치 없이 먼저 확인할 모듈</h3><pre>import random
 import math
@@ -34,59 +34,59 @@ for i in range(6):
 x = 10
 x += 3         # x = x + 3
 x *= 0.5       # x = x * 0.5</pre></section>
-<section class="card" id="turtle"><span class="pill">03 · 직접 실행</span><h2>Turtle 그래픽으로 반복문과 각도 확인</h2><p>아래 세 예제는 제공해주신 코드의 반복 횟수·회전 각도·색상 순서를 반영했습니다. 각각 <code>01_mandala.py</code>, <code>02_star_spiral.py</code>, <code>03_square_spiral.py</code>로 저장해 VS Code에서 실행하세요. <b>각 파일은 따로 실행합니다.</b></p><div class="grid3">
-<article class="lesson"><h3>① 무지개 원형 만다라</h3><pre>import turtle
+<section class="card" id="turtle"><span class="pill">03 · 직접 실행</span><h2>Turtle 그래픽으로 반복문과 각도 확인</h2><p>아래 코드는 모두 <b>주석을 제외한 실행 코드</b>입니다. 각 예제를 별도의 <code>.py</code> 파일로 저장해 VS Code에서 실행하세요. 코드 창의 줄은 자동으로 꺾이지 않으며, 긴 줄은 가로 스크롤로 확인할 수 있습니다.</p>
+<div class="turtle-examples"><article class="lesson"><h3>① 무지개 원형 만다라</h3><pre><code>import turtle
 
-# 화면 및 거북이 설정
-
-turtle.bgcolor("black")  # 배경색을 검은색으로 설정하여 색상을 더 선명하게 연출
-turtle.speed(0)          # 최고 속도
+turtle.bgcolor("black")
+turtle.speed(0)
 turtle.pensize(2)
 
-# 무지개 색상 리스트
 colors = ["red", "yellow", "green", "cyan", "blue", "magenta"]
 
-# 36개의 원을 10도씩 돌려가며 그리기
 for i in range(36):
-    turtle.pencolor(colors[i % 6])  # 색상 번갈아 선택
-    turtle.circle(100)              # 반지름 100인 원 그리기
-    turtle.left(10)                 # 10도씩 제자리 회전
+    turtle.pencolor(colors[i % 6])
+    turtle.circle(100)
+    turtle.left(10)
 
-turtle.done()</pre><p class="fine">반복문 36회 × 회전 10° = 360°. 색상 6개를 <code>i % 6</code>으로 순환합니다.</p></article>
-<article class="lesson"><h3>② 별빛 은하수 회오리</h3><pre>import turtle
+turtle.done()</code></pre><p class="fine">36번 반복하며 원을 10도씩 회전합니다. 여섯 색은 나머지 연산으로 순서대로 바뀝니다.</p></article>
+<article class="lesson"><h3>② 별빛 은하수 회오리</h3><pre><code>import turtle
 
-# 화면 및 거북이 설정
 turtle.bgcolor("black")
 turtle.speed(0)
 
 colors = ["purple", "blue", "cyan", "green", "yellow", "orange", "red"]
 
-# 선이 늘어나면서 별 모양 각도로 회전
 for x in range(150):
     turtle.pencolor(colors[x % 7])
-    turtle.pensize(x / 40 + 1)      # 중심에서 멀어질수록 선이 점점 두꺼워짐
-    turtle.forward(x * 2)           # 갈수록 이동 거리 증가
-    turtle.left(144)                # 별을 만드는 각도(144도)로 회전
+    turtle.pensize(x / 40 + 1)
+    turtle.forward(x * 2)
+    turtle.left(144)
 
-turtle.done()</pre><p class="fine"><code>x * 2</code>로 이동 거리가 늘어나고, <code>x / 40 + 1</code>로 선 두께가 증가합니다. <code>144°</code> 회전으로 별 모양 패턴을 만듭니다.</p></article>
-<article class="lesson"><h3>③ 입체적인 사각형 착시 나선</h3><pre>import turtle
+turtle.done()</code></pre><p class="fine">이동 거리와 선 굵기가 점점 증가하고, 144도 회전으로 별 모양을 만듭니다.</p></article>
+<article class="lesson"><h3>③ 입체적인 사각형 착시 나선</h3><pre><code>import turtle
 
-# 화면 및 거북이 설정
 turtle.bgcolor("black")
 turtle.speed(0)
 
-# 헥사코드 색상 지정으로 더 화려한 컬러 연출
 colors = ["#33FF33", "#33FF57", "#3357FF", "#F3FF33", "#FF33F3", "#00FFFF"]
 
 for i in range(200):
     turtle.pencolor(colors[i % 6])
-    turtle.pensize(i // 50 + 1)     # 일정 단계마다 펜 두께 증가
-    turtle.forward(i * 1.5)         # 이동 거리 증가
-    turtle.right(91)                # 91도로 회전하여 엇갈린 입체 패턴 형성
+    turtle.pensize(i // 50 + 1)
+    turtle.forward(i * 1.5)
+    turtle.right(91)
 
-turtle.done()</pre><p class="fine"><code>i // 50 + 1</code>은 50번마다 굵기가 1씩 증가한다는 뜻입니다. <code>91°</code> 회전으로 나선이 비틀립니다.</p></article></div>
-<p class="note"><b>③ 색상 코드 한 곳만 실행 오류를 수정했습니다.</b> 보내주신 <code>#33FF33AC</code>는 8자리 알파(투명도) 표기이며 Python Turtle의 <code>pencolor()</code>에서 일반적으로 지원하지 않습니다. 그림이 오류 없이 나오도록 해당 항목만 <code>#33FF33</code>으로 바꾸었습니다. 나머지 코드와 주석·반복 횟수·회전 각도는 요청하신 그대로입니다.</p>
-<p class="ok">확인 활동: 세 예제에서 <code>range()</code>, <code>%</code>, <code>//</code>, <code>forward()</code>, <code>circle()</code>, <code>left()</code>, <code>right()</code>의 역할을 설명하고 회전 각도나 반복 횟수를 바꾸어 패턴 변화를 관찰하세요.</p></section>
+turtle.done()</code></pre><p class="fine">200번 반복하며 91도씩 회전합니다. <code>//</code>로 선 굵기를 단계적으로 늘립니다.</p></article></div>
+<div class="lesson turtle-color"><h3>④ Turtle 선 색깔을 지정하는 두 가지 방법</h3><p><b>Hex 색상 코드:</b> <code>turtle.pencolor("#FF5733")</code> — <code>#RRGGBB</code> 형식으로 RGB 색을 지정합니다.</p><p><b>영문 색상 이름:</b> <code>turtle.pencolor("cyan")</code> — Turtle에서 지원하는 색상 이름을 지정합니다.</p><pre><code>import turtle
+
+turtle.pencolor("#FF5733")
+turtle.forward(100)
+
+turtle.pencolor("cyan")
+turtle.forward(100)
+
+turtle.done()</code></pre><p class="fine">두 방법 모두 동일한 <code>pencolor()</code> 함수입니다. 위 예제는 앞 100만큼은 주황 계열 Hex 색, 다음 100만큼은 cyan으로 그립니다. Turtle의 Hex 코드는 일반적으로 <code>#RRGGBB</code>의 6자리로 사용합니다.</p></div>
+<div class="ok">확인 활동: 세 예제에서 <code>range()</code>, <code>%</code>, <code>//</code>, <code>forward()</code>, <code>circle()</code>, <code>left()</code>, <code>right()</code>의 역할을 설명하고 회전 각도나 반복 횟수를 바꾸어 결과를 비교해 보세요.</div></section>
 <section class="card" id="trig"><span class="pill">04 · 실시간 시각화</span><h2>사인·코사인·탄젠트 그래프 직접 탐구</h2><p><b>sin</b>과 <b>cos</b>는 회전하는 점의 세로·가로 좌표를 설명하고, <b>tan = sin/cos</b>는 기울기와 연결됩니다. 90°·270°에서는 cos=0이므로 tan 값이 정의되지 않습니다. Python의 <code>math.sin</code>, <code>math.cos</code>, <code>math.tan</code>은 각도를 <b>라디안</b>으로 입력합니다.</p><div class="grid"><div><canvas class="demo chart" id="trigGraph" width="690" height="330" aria-label="sin cos tan 함수의 그래프"></canvas></div><div><canvas class="demo chart" id="unitCircle" width="420" height="330" aria-label="단위원과 sin cos tan 좌표"></canvas><p id="trigValues" class="ok" role="status"></p></div></div><div class="label"><b>각도 조절</b><input type="range" id="degree" min="0" max="360" value="45" step="1"><output id="degreeValue">45°</output></div><div class="buttons"><label><input type="checkbox" id="sinOn" checked> sin</label><label><input type="checkbox" id="cosOn" checked> cos</label><label><input type="checkbox" id="tanOn" checked> tan</label></div><pre>import math
 angle = math.radians(30)  # 도를 라디안으로 변환
 print(round(math.sin(angle), 2))  # 0.5
