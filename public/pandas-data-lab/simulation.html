@@ -5,28 +5,28 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="소프트웨어와 생활 4단원 모의 실험하는 소프트웨어 — 생물 다양성 보전 정책을 모델링하고 3단원 Pandas와 연결하는 3차시 실험실" name="description"/>
-<title>SIMULATION LAB | 4단원 모의 실험하는 소프트웨어</title>
+<title>별도 단원 · 4단원 생태계 모의실험 | 소프트웨어와 생활</title>
 <style>
 :root{font-family:system-ui,"Noto Sans KR","Malgun Gothic",sans-serif;color:#183448;background:#f4f8fb;font-size:16px}
 *{box-sizing:border-box}body{margin:0;line-height:1.65}a{color:#076d77}button,input,textarea{font:inherit}button,a.button{cursor:pointer;border:0;border-radius:9px;padding:10px 14px;font-weight:750;background:#087c81;color:#fff;text-decoration:none;display:inline-block}button.alt,a.alt{background:#e0eff0;color:#14545e}button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid #f3b544;outline-offset:2px}
 header{background:linear-gradient(110deg,#103949,#117a77);color:#f4ffff;padding:25px max(20px,calc((100vw - 1080px)/2));}header a{color:#b6ffeb}header h1{font-size:clamp(27px,4vw,40px);line-height:1.25;margin:12px 0}header p{max-width:760px;color:#e2f7f8}.tags{display:flex;flex-wrap:wrap;gap:9px}.tag{background:#ffffff29;padding:4px 12px;border-radius:30px;font-size:12px;font-weight:800}
 main{max-width:1130px;margin:24px auto 80px;padding:0 18px}.panel{background:#fff;border:1px solid #d7e5ec;border-radius:15px;padding:24px;margin:18px 0;box-shadow:0 5px 15px #0d2d4111}.panel h2{margin:0 0 15px;font-size:23px}.panel h3{font-size:18px;margin:17px 0 8px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.step{background:#e9f5f3;border-radius:12px;padding:14px}.step strong{color:#006a6e}.note{background:#fff5de;border-left:4px solid #cb9533;padding:11px 15px;border-radius:7px}.controls label{display:block;margin:15px 0;font-weight:750}.controls label small{display:block;font-size:13px;color:#58707e;font-weight:400}.controls .range{display:flex;align-items:center;gap:13px}.controls input{width:100%;accent-color:#087c81}.controls output{min-width:34px;text-align:center;background:#def0ed;border-radius:8px;padding:2px 7px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.numbers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.number{background:#e9f5f3;padding:14px;border-radius:10px;text-align:center}.number strong{display:block;font-size:25px;color:#0a6971}.number span{font-size:12px;color:#486772}.chartwrap{overflow:auto}canvas{width:100%;height:auto;border:1px solid #dce8ed;border-radius:9px;max-width:980px}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%}th,td{border:1px solid #d6e3eb;text-align:right;padding:8px 10px;font-size:13px}th:first-child,td:first-child{text-align:left}th{background:#eaf5f5}textarea{width:100%;min-height:96px;resize:vertical;padding:12px;border:1px solid #bbced9;border-radius:9px}label.writing{display:block;margin:13px 0;font-weight:750}label.writing textarea{display:block;margin-top:5px;font-weight:400}.code{white-space:pre;overflow:auto;background:#102f3e;color:#eafff8;border-radius:11px;padding:17px;font:13px/1.6 Consolas,monospace}fieldset{border:1px solid #d4e4e8;margin:12px 0;border-radius:9px}fieldset label{display:block;padding:4px 8px}legend{font-weight:700}.result{font-weight:800;color:#0b6e6e;min-height:22px}.muted{font-size:13px;color:#56717b}footer{font-size:13px;color:#54717a;margin-top:30px}.teacher{border-top:2px solid #d2e6e7;margin-top:17px;padding-top:12px}@media(max-width:760px){.grid,.steps,.numbers{grid-template-columns:1fr}header{padding:23px 20px}.panel{padding:17px}header h1{font-size:28px}}
 </style>
-<link href="./classroom.css?v=20261027-1" rel="stylesheet"/></head>
-<body><div class="breadcrumb"><a href="./">← DATA DETECTIVE 수업 홈</a><span>별도 단원 · 4단원 모의실험</span></div>
+<link href="./classroom.css?v=20261028-ko" rel="stylesheet"/></head>
+<body><div class="breadcrumb"><a href="./">← 01. 수업 안내</a><span>별도 단원 · 4단원 모의실험</span></div>
 <header>
-<a href="./">← 3단원 Pandas 데이터 탐정 실습실</a>
+<a href="./">← 01. 수업 안내</a>
 <div class="tags"><span class="tag">씨마스 4단원 연계</span><span class="tag">모의 실험하는 소프트웨어</span><span class="tag">3차시 확장 과정</span></div>
-<h1>생물 다양성 구조대<br/>정책을 바꾸면 생태계는 어떻게 될까?</h1>
+<h1>4단원 · 생태계 정책 모의실험</h1>
 <p>예측 → 모의실험 → 결과 비교 → CSV 저장 → Pandas 분석까지. 3단원에서 배운 데이터 분석을 4단원의 시뮬레이션과 연결합니다.</p>
 </header>
 <main>
 <section class="panel">
 <h2>이번 수업의 목표</h2>
 <div class="steps">
-<div class="step"><strong>8차시 · 모델 만들기</strong><p>현실과 모델을 구분하고 변수·가정·규칙을 이해합니다. 결과를 먼저 예측해 봅니다.</p></div>
-<div class="step"><strong>9차시 · 정책 비교</strong><p>개발과 생태 통로, 외래종 관리, 가뭄 정도를 바꿔 두 시나리오를 비교합니다.</p></div>
-<div class="step"><strong>10차시 · 데이터 분석</strong><p>실험 결과를 CSV로 저장하고 Pandas로 분석한 뒤 정책 제안서를 작성합니다.</p></div>
+<div class="step"><strong>4단원 1차시 · 모델 만들기</strong><p>현실과 모델을 구분하고 변수·가정·규칙을 이해합니다. 결과를 먼저 예측해 봅니다.</p></div>
+<div class="step"><strong>4단원 2차시 · 정책 비교</strong><p>개발과 생태 통로, 외래종 관리, 가뭄 정도를 바꿔 두 시나리오를 비교합니다.</p></div>
+<div class="step"><strong>4단원 3차시 · 데이터 분석</strong><p>실험 결과를 CSV로 저장하고 Pandas로 분석한 뒤 정책 제안서를 작성합니다.</p></div>
 </div>
 <p class="note"><strong>교과서와의 관계:</strong> 생물 다양성 보전을 위한 정책 모의실험이라는 4단원 프로젝트 주제를 활용한 <strong>별도 자체 제작 모델</strong>입니다. 교과서 원본 프로그램이나 실제 생태 연구 결과가 아닙니다. 모든 수치는 학습용 가정이며 현실을 예측하지 않습니다.</p>
 </section>
@@ -68,13 +68,13 @@ main{max-width:1130px;margin:24px auto 80px;padding:0 18px}.panel{background:#ff
 <p class="result" id="simulationStatus" role="status"></p>
 <div class="chartwrap"><canvas aria-label="10년간 기준 A와 정책 B의 개체군 지수 변화 추세" height="410" id="chart" role="img" width="960"></canvas></div>
 <div class="table-wrap"><table><thead><tr><th>연도</th><th>기준 A 개체군 지수</th><th>정책 B 개체군 지수</th><th>B−A 차이</th></tr></thead><tbody id="rows"></tbody></table></div>
-<div class="actions"><button id="downloadCsv">실험 결과 CSV 내려받기</button><button class="alt" id="sendToLab">→ 3단원 Pandas 실험실로 보내기</button></div>
+<div class="actions"><button id="downloadCsv">실험 결과 CSV 내려받기</button><button class="alt" id="sendToLab">→ 3단원 파이썬 자유 실습로 보내기</button></div>
 </section>
 <section class="panel">
 <h2>3. Pandas로 결과 분석하기</h2>
-<p>위 버튼을 눌러 3단원 Python 실험실에 결과와 분석 코드를 한꺼번에 전송할 수 있습니다. 별도로 파일을 내려받아 Colab에서도 실행할 수 있습니다.</p>
+<p>위 버튼을 눌러 3단원 파이썬 자유 실습에 결과와 분석 코드를 한꺼번에 전송할 수 있습니다. 별도로 파일을 내려받아 Colab에서도 실행할 수 있습니다.</p>
 <pre class="code" id="codeExample"></pre>
-<p class="muted">Pandas 실험실에서 CSV 데이터는 <code>COURSE_CSV</code> 변수로 제공됩니다. Google Colab에서는 CSV를 업로드한 뒤 <code>pd.read_csv("simulation-results.csv")</code>를 사용하세요.</p>
+<p class="muted">파이썬 자유 실습에서 CSV 데이터는 <code>COURSE_CSV</code> 변수로 제공됩니다. Google Colab에서는 CSV를 업로드한 뒤 <code>pd.read_csv("simulation-results.csv")</code>를 사용하세요.</p>
 <p><strong>생각해 볼 문제:</strong> 두 정책의 마지막 해 차이만으로 어느 정책이 '무조건 옳다'고 결론 낼 수 있을까요? 초기 가정, 비용, 측정 자료, 불확실성을 함께 살펴야 합니다.</p>
 </section>
 <section class="panel">
@@ -93,12 +93,12 @@ main{max-width:1130px;margin:24px auto 80px;padding:0 18px}.panel{background:#ff
 </section>
 <section class="panel">
 <h2>교사용 3·4단원 통합 운영 안내</h2>
-<p><strong>총 10차시 권장:</strong> 기존 3단원 미션 1~6, 8차시(시각화)까지 7차시를 활용하고, 이 실험실 8~10차시를 이어서 운영합니다. 기존 Pandas 미션 7, 9, 10은 추가·선택 심화로 남겨두어 삭제하지 않습니다.</p>
-<p><strong>수업 흐름:</strong> 도입 5분 → 모델/코드 설명 10분 → 학생 실험 20분 → 그래프·결과 해석 10분 → 질문 5분. CSV 분석 차시에는 3단원 Python 실험실을 활용합니다.</p>
+<p>별도 3차시 운영: 3단원 정규 10차시와 구분합니다. 4단원 1차시에는 모델을 만들고, 2차시에는 정책을 비교하며, 3차시에는 결과를 분석합니다. 수업 시수에 맞추어 선택적으로 운영합니다.</p>
+<p><strong>수업 흐름:</strong> 도입 5분 → 모델/코드 설명 10분 → 학생 실험 20분 → 그래프·결과 해석 10분 → 질문 5분. CSV 분석 차시에는 3단원 파이썬 자유 실습을 활용합니다.</p>
 <p><strong>평가 예시:</strong> 데이터 이해 15%, Pandas 코드 이해·결과 예측 40%, 그래프 해석 25%, 시뮬레이션 15%, 데이터 윤리 5%. 실제 기말고사 출제 범위와 비율은 학교 확정 평가계획에 맞추어 조정해야 합니다.</p>
 <p class="muted">이 페이지의 탐구 모델과 문제는 자체 제작 자료입니다. 씨마스 교과서 원문 문제를 복제하거나 일치한다고 표시하지 않습니다. 5단원 내용은 이 페이지의 수업·연습문제에 포함하지 않았습니다.</p>
 </section>
-<footer><a href="./">3단원 Pandas로 돌아가기</a> · 2026 「소프트웨어와 생활」 수업용 모의실험 · 교사용 자체 제작 모델</footer>
+<footer><a href="./">← 01. 수업 안내</a> · 2026 「소프트웨어와 생활」 수업용 모의실험 · 교사용 자체 제작 모델</footer>
 </main>
 <script>
 (function(){
