@@ -1,0 +1,82 @@
+[
+  {
+    "element": "a",
+    "href": "./"
+  },
+  {
+    "element": "a",
+    "href": "./"
+  },
+  {
+    "element": "textarea",
+    "id": "hypothesis"
+  },
+  {
+    "element": "input",
+    "id": "road",
+    "type": "range"
+  },
+  {
+    "element": "input",
+    "id": "corridor",
+    "type": "range"
+  },
+  {
+    "element": "input",
+    "id": "invasive",
+    "type": "range"
+  },
+  {
+    "element": "input",
+    "id": "drought",
+    "type": "range"
+  },
+  {
+    "element": "button",
+    "id": "run"
+  },
+  {
+    "element": "button",
+    "id": "reset"
+  },
+  {
+    "element": "button",
+    "id": "downloadCsv"
+  },
+  {
+    "element": "button",
+    "id": "sendToLab"
+  },
+  {
+    "element": "button",
+    "id": "grade"
+  },
+  {
+    "element": "textarea",
+    "id": "design"
+  },
+  {
+    "element": "textarea",
+    "id": "interpretation"
+  },
+  {
+    "element": "textarea",
+    "id": "limitations"
+  },
+  {
+    "element": "textarea",
+    "id": "proposal"
+  },
+  {
+    "element": "button",
+    "id": "downloadReport"
+  },
+  {
+    "element": "button",
+    "id": "resetReport"
+  },
+  {
+    "element": "a",
+    "href": "./"
+  }
+]

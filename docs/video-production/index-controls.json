@@ -1,0 +1,220 @@
+[
+  {
+    "element": "a",
+    "href": "#main"
+  },
+  {
+    "element": "a",
+    "aria-label": "01. 수업 안내",
+    "href": "./"
+  },
+  {
+    "element": "button",
+    "data-page": "home"
+  },
+  {
+    "element": "a",
+    "href": "./step-by-step.html?lesson=1"
+  },
+  {
+    "element": "button",
+    "data-page": "data"
+  },
+  {
+    "element": "button",
+    "data-page": "exam"
+  },
+  {
+    "element": "button",
+    "data-page": "report"
+  },
+  {
+    "element": "a",
+    "href": "./lesson01-guide.html"
+  },
+  {
+    "element": "a",
+    "href": "./step-by-step.html?lesson=1",
+    "id": "resumeLesson"
+  },
+  {
+    "element": "a",
+    "href": "./textbook-classroom.html"
+  },
+  {
+    "element": "a",
+    "href": "./kosis-project.html"
+  },
+  {
+    "element": "button",
+    "data-page": "lab"
+  },
+  {
+    "element": "button",
+    "type": "button"
+  },
+  {
+    "element": "button",
+    "data-page": "lesson"
+  },
+  {
+    "element": "a",
+    "href": "./mastery.html"
+  },
+  {
+    "element": "select",
+    "id": "final-selector"
+  },
+  {
+    "element": "textarea",
+    "aria-label": "오늘의 Python 코드",
+    "id": "final-code"
+  },
+  {
+    "element": "button",
+    "id": "final-run"
+  },
+  {
+    "element": "button",
+    "id": "final-copy"
+  },
+  {
+    "element": "button",
+    "id": "final-download-code"
+  },
+  {
+    "element": "a",
+    "href": "#",
+    "id": "final-csv"
+  },
+  {
+    "element": "textarea",
+    "id": "final-note"
+  },
+  {
+    "element": "button",
+    "id": "final-grade"
+  },
+  {
+    "element": "button",
+    "id": "final-prev"
+  },
+  {
+    "element": "button",
+    "id": "final-done"
+  },
+  {
+    "element": "button",
+    "id": "final-next"
+  },
+  {
+    "element": "select",
+    "id": "lessonSelect"
+  },
+  {
+    "element": "button",
+    "id": "gradeLesson"
+  },
+  {
+    "element": "button",
+    "id": "markDone"
+  },
+  {
+    "element": "button",
+    "id": "prevLesson"
+  },
+  {
+    "element": "button",
+    "id": "nextLesson"
+  },
+  {
+    "element": "select",
+    "id": "codeSelect"
+  },
+  {
+    "element": "button",
+    "id": "loadCode"
+  },
+  {
+    "element": "button",
+    "id": "copyCode"
+  },
+  {
+    "element": "textarea",
+    "id": "pythonCode"
+  },
+  {
+    "element": "button",
+    "id": "runPython"
+  },
+  {
+    "element": "button",
+    "id": "stopPython"
+  },
+  {
+    "element": "select",
+    "id": "datasetSelect"
+  },
+  {
+    "element": "button",
+    "id": "useDataset"
+  },
+  {
+    "element": "button",
+    "id": "downloadCsv"
+  },
+  {
+    "element": "input",
+    "id": "uploadCsv",
+    "type": "file"
+  },
+  {
+    "element": "textarea",
+    "id": "csvInput"
+  },
+  {
+    "element": "button",
+    "id": "inspectCsv"
+  },
+  {
+    "element": "select",
+    "id": "xCol"
+  },
+  {
+    "element": "select",
+    "id": "yCol"
+  },
+  {
+    "element": "select",
+    "id": "chartType"
+  },
+  {
+    "element": "button",
+    "id": "drawChart"
+  },
+  {
+    "element": "a",
+    "href": "https://kosis.kr/"
+  },
+  {
+    "element": "button",
+    "id": "downloadReport"
+  },
+  {
+    "element": "button",
+    "id": "backupJson"
+  },
+  {
+    "element": "input",
+    "id": "restoreJson",
+    "type": "file"
+  },
+  {
+    "element": "button",
+    "id": "gradeExam"
+  },
+  {
+    "element": "button",
+    "id": "retryExam"
+  }
+]

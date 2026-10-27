@@ -1,0 +1,55 @@
+[
+  {
+    "element": "a",
+    "href": "./"
+  },
+  {
+    "element": "a",
+    "href": "./textbook-guide.html"
+  },
+  {
+    "element": "a",
+    "href": "./"
+  },
+  {
+    "element": "button",
+    "id": "grade"
+  },
+  {
+    "element": "textarea",
+    "aria-label": "Python 편집기",
+    "id": "code"
+  },
+  {
+    "element": "button",
+    "id": "run"
+  },
+  {
+    "element": "button",
+    "id": "reset"
+  },
+  {
+    "element": "button",
+    "id": "copy"
+  },
+  {
+    "element": "textarea",
+    "id": "note"
+  },
+  {
+    "element": "button",
+    "id": "done"
+  },
+  {
+    "element": "button",
+    "id": "export"
+  },
+  {
+    "element": "button",
+    "id": "prev"
+  },
+  {
+    "element": "button",
+    "id": "next"
+  }
+]

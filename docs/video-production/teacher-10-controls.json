@@ -1,0 +1,78 @@
+[
+  {
+    "element": "a",
+    "href": "./"
+  },
+  {
+    "element": "a",
+    "href": "./"
+  },
+  {
+    "element": "a",
+    "href": "#prepare"
+  },
+  {
+    "element": "a",
+    "href": "#tomorrow"
+  },
+  {
+    "element": "a",
+    "href": "#lesson-notes"
+  },
+  {
+    "element": "a",
+    "href": "#page-map"
+  },
+  {
+    "element": "a",
+    "href": "#check"
+  },
+  {
+    "element": "a",
+    "href": "./lesson01-guide.html"
+  },
+  {
+    "element": "a",
+    "href": "./step-by-step.html?lesson=1"
+  },
+  {
+    "element": "select",
+    "id": "teacherLesson"
+  },
+  {
+    "element": "a",
+    "href": "./"
+  },
+  {
+    "element": "a",
+    "href": "./lesson01-guide.html"
+  },
+  {
+    "element": "a",
+    "href": "./step-by-step.html?lesson=1"
+  },
+  {
+    "element": "a",
+    "href": "./textbook-classroom.html"
+  },
+  {
+    "element": "a",
+    "href": "./kosis-project.html"
+  },
+  {
+    "element": "a",
+    "href": "./mastery.html"
+  },
+  {
+    "element": "a",
+    "href": "./textbook-guide.html"
+  },
+  {
+    "element": "a",
+    "href": "./simulation.html"
+  },
+  {
+    "element": "a",
+    "href": "./downloads/classroom-python-files.zip"
+  }
+]

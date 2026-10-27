@@ -1,0 +1,85 @@
+[
+  {
+    "element": "a",
+    "href": "./"
+  },
+  {
+    "element": "a",
+    "href": "#main"
+  },
+  {
+    "element": "a",
+    "href": "./"
+  },
+  {
+    "element": "a",
+    "href": "https://kosis.kr/"
+  },
+  {
+    "element": "a",
+    "href": "https://kosis.kr/ext/kosisGuide/pdf/KOSIS_search.pdf"
+  },
+  {
+    "element": "input",
+    "aria-label": "다운받은 KOSIS CSV 선택",
+    "id": "file",
+    "type": "file"
+  },
+  {
+    "element": "select",
+    "id": "encoding"
+  },
+  {
+    "element": "select",
+    "id": "headerRow"
+  },
+  {
+    "element": "button",
+    "id": "inspect",
+    "type": "button"
+  },
+  {
+    "element": "button",
+    "id": "code-download"
+  },
+  {
+    "element": "button",
+    "id": "code-copy"
+  },
+  {
+    "element": "input",
+    "type": "checkbox"
+  },
+  {
+    "element": "input",
+    "type": "checkbox"
+  },
+  {
+    "element": "input",
+    "type": "checkbox"
+  },
+  {
+    "element": "input",
+    "type": "checkbox"
+  },
+  {
+    "element": "input",
+    "type": "checkbox"
+  },
+  {
+    "element": "input",
+    "type": "checkbox"
+  },
+  {
+    "element": "textarea",
+    "id": "report"
+  },
+  {
+    "element": "button",
+    "id": "report-download"
+  },
+  {
+    "element": "a",
+    "href": "./"
+  }
+]
