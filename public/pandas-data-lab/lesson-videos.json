@@ -1,4 +1,102 @@
 {
   "schemaVersion": 1,
-  "lessons": []
+  "lessons": [
+    {
+      "lesson": 2,
+      "status": "verified",
+      "src": "./videos/lesson02/index.m3u8",
+      "captions": "./videos/lesson02/captions.vtt",
+      "duration": 1109.8,
+      "chapters": [
+        {
+          "at": 0,
+          "title": "수업 화면 안내"
+        },
+        {
+          "at": 34.333,
+          "title": "A 오늘의 목표"
+        },
+        {
+          "at": 87.3,
+          "title": "B 표의 구조"
+        },
+        {
+          "at": 145.6,
+          "title": "C 도구 준비"
+        },
+        {
+          "at": 192.2,
+          "title": "C 딕셔너리 입력"
+        },
+        {
+          "at": 270.833,
+          "title": "C DataFrame 생성"
+        },
+        {
+          "at": 327.067,
+          "title": "D 직접 입력"
+        },
+        {
+          "at": 384.1,
+          "title": "C 열 선택"
+        },
+        {
+          "at": 437.9,
+          "title": "C 평균 계산"
+        },
+        {
+          "at": 491.7,
+          "title": "D 값 변경 예측"
+        },
+        {
+          "at": 550.867,
+          "title": "C 점수 예제"
+        },
+        {
+          "at": 597.967,
+          "title": "D 점수 수정"
+        },
+        {
+          "at": 649.1,
+          "title": "E 오류 해결"
+        },
+        {
+          "at": 711.133,
+          "title": "E CSV와 저장"
+        },
+        {
+          "at": 755.533,
+          "title": "같은 코드를 VS Code에서 실행하기"
+        },
+        {
+          "at": 797.633,
+          "title": "폴더와 Python 환경 확인"
+        },
+        {
+          "at": 839.767,
+          "title": "터미널 출력 비교"
+        },
+        {
+          "at": 884.167,
+          "title": "F 먼저 생각하기"
+        },
+        {
+          "at": 933.9,
+          "title": "확인 문제 해설"
+        },
+        {
+          "at": 968.967,
+          "title": "F 기존 확인 문제 연결"
+        },
+        {
+          "at": 1012.267,
+          "title": "G 기록과 백업"
+        },
+        {
+          "at": 1057.067,
+          "title": "G 정리"
+        }
+      ]
+    }
+  ]
 }

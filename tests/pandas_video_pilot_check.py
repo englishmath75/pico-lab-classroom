@@ -46,5 +46,7 @@ else:
     raise AssertionError('Expected AttributeError for wrong constructor case')
 _, output = run(scores.replace('.mean()', '.mean'))
 assert 'bound method' in output and output.strip() != '80.0'
-assert json.loads((SITE/'lesson-videos.json').read_text())['lessons'] == [], 'Unproduced media must remain unlisted'
-print('PASS: pilot examples, CSV equality, changed values, shape/index, real error cases; verified media count = 0')
+media=json.loads((SITE/'lesson-videos.json').read_text())['lessons']
+assert any(m['lesson']==2 for m in media)
+for key in ['src','captions']:assert (SITE/media[0][key]).is_file()
+print('PASS: pilot examples, CSV equality, changed values, shape/index, real error cases; registered media count = 1 (decode checks recorded separately)')

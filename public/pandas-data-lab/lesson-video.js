@@ -25,18 +25,12 @@ function supplement(lesson){
 async function render(lesson){
  const current=++revision;host.replaceChildren();host.hidden=true;supplement(lesson);
  const item=catalog.find(v=>v.lesson===lesson&&v.status==='verified');
- if(!item||!allowedPath(item.src)||!allowedPath(item.captions)||!Number.isFinite(item.duration)||item.duration<=0)return;
- // Do not display a player until both the media and subtitle files actually exist.
+ if(!item||!allowedPath(item.src)||!allowedPath(item.captions))return;
  try{const results=await Promise.all([fetch(item.src,{method:'HEAD'}),fetch(item.captions,{method:'HEAD'})]);if(current!==revision||results.some(r=>!r.ok))return;}catch(_){return;}
- host.append(node('h3',lesson+'차시 강의 영상'));
- const video=node('video');video.controls=true;video.preload='metadata';video.playsInline=true;video.style.cssText='width:100%;aspect-ratio:16/9;background:#102633';video.src=item.src;
- const track=node('track');track.kind='subtitles';track.srclang='ko';track.label='한국어';track.src=item.captions;track.default=true;video.append(track);host.append(video);
- const controls=node('div');controls.className='controls';const label=node('label','재생 속도 '),speed=node('select');[0.75,1,1.25,1.5,2].forEach(rate=>{const o=node('option',rate+'배');o.value=rate;o.selected=rate===1;speed.append(o);});speed.onchange=()=>video.playbackRate=Number(speed.value);label.append(speed);controls.append(label);
- for(const c of item.chapters||[]){if(!Number.isFinite(c.at)||c.at<0||c.at>=item.duration)continue;const b=node('button',c.title);b.type='button';b.className='btn secondary';b.onclick=()=>{video.currentTime=c.at;};controls.append(b);}
- const quiz=node('a','차시 확인 문제로 이동');quiz.href='#lessonQuiz';controls.append(quiz);
- if(lesson>1){const a=node('a','이전 차시');a.href='?lesson='+(lesson-1);controls.append(a);}if(lesson<10){const a=node('a','다음 차시');a.href='?lesson='+(lesson+1);controls.append(a);}
- host.append(controls);host.hidden=false;
- video.addEventListener('error',()=>{host.replaceChildren(node('p','영상 파일을 읽지 못했습니다. 아래 코드 실습을 계속 이용할 수 있습니다.'));});
+ host.append(node('h3',lesson+'차시 · 한국어 해설 영상'));
+ host.append(node('p','코드 입력과 VS Code 사용 순서를 재현한 강의입니다. 영상의 실행값은 실제 Python으로 검증했습니다.'));
+ const frame=node('iframe');frame.src='./video-player.html?episode=lesson02&embed=1';frame.title='2차시 한국어 강의 영상';frame.allow='fullscreen';frame.allowFullscreen=true;frame.style.cssText='width:100%;height:880px;border:0;border-radius:12px';host.append(frame);
+ const link=node('a','영상 화면 크게 열기');link.href='./video-player.html?episode=lesson02';link.target='_blank';link.rel='noopener';host.append(link);host.hidden=false;
 }
 const selected=()=>Number(new URLSearchParams(location.search).get('lesson'))||1;
 window.addEventListener('classroom:lesson',e=>render(e.detail.lesson));
