@@ -1,0 +1,27 @@
+"""Register lesson 9 only after Python and full media decode verification."""
+from pathlib import Path
+import json,re
+R=Path(__file__).resolve().parents[2];S=R/'public/pandas-data-lab';O=S/'videos/lesson09'
+assert json.loads((O/'verification.json').read_text())['fullMp4AndHlsDecode']=='PASS'
+ss=json.loads((O/'timeline.json').read_text())['scenes'];d=sum(s['duration'] for s in ss);chapters=[{'at':round(s['start'],3),'title':s['title']} for s in ss]
+episode={'id':'lesson09','lesson':9,'title':'9차시 · 인구 변화 데이터 분석','duration':d,'poster':'./videos/lesson09/poster.jpg','variants':[{'id':'narrated','label':'강의','src':'./videos/lesson09/index.m3u8','captions':'./videos/lesson09/captions.vtt'}],'chapters':chapters}
+p=S/'video-catalog.json';c=json.loads(p.read_text());c['episodes']=[e for e in c['episodes'] if e['id']!='lesson09'];at=next((i for i,e in enumerate(c['episodes']) if e['id']=='first-analysis'),len(c['episodes']));c['episodes'].insert(at,episode);p.write_text(json.dumps(c,ensure_ascii=False,indent=2)+'\n')
+p=S/'lesson-videos.json';c=json.loads(p.read_text());c['lessons']=[e for e in c['lessons'] if e.get('episode')!='lesson09']+[{'lesson':9,'episode':'lesson09','title':'인구 변화 데이터 분석','status':'verified','src':episode['variants'][0]['src'],'captions':episode['variants'][0]['captions'],'duration':d,'chapters':chapters}];p.write_text(json.dumps(c,ensure_ascii=False,indent=2)+'\n')
+def stamp(t):return f'{int(t//60):02}:{int(t%60):02}'
+lines=['# 9차시 · 인구 변화 데이터 분석','',f'재생 시간: {d:.3f}초','']
+for s in ss:
+ lines+=['## '+stamp(s['start'])+' · '+s['title'],'',s['speech'],'','화면 표시: '+s['note'],'','```'+('python' if s['kind'] in ['code','graph'] else 'text'),s['code'],'```','','출력 또는 확인할 내용:','```text',s['output'],'```','',f"직접 실습을 위한 휴지: {s['pause']}초",'']
+ if s.get('runCode'):lines+=['앞 단계부터 연결한 전체 코드:','','```python',s['runCode'],'```','']
+(O/'transcript.md').write_text('\n'.join(lines)+'\n')
+lines=['# 9차시 수업 운영 자료','','교사용 일반 지도 자료. 학생 화면에는 연결하지 않는다.','','| 수업 시간 | 활동 | 지도 포인트 |','|---|---|---|','| 0~5분 | 전시 복습·9차시 접속 | 숫자·그래프에서 변화 지표로 연결 |','| 5~14분 | 표·diff·NaN | 1000→950, -50명, 첫 행은 이전 값 없음 |','| 14~23분 | pct_change·마지막 값·직접 실습 | -0.05와 -5% 구별, 분모는 이전 값 |','| 23~31분 | 값 변경·비교 기준·오류 해결 | 1100이면+100·+10%, 역순·기준0 |','| 31~39분 | CSV 선택 확장 또는 기본 보충 | 지역·연도·천 명 단위, groupby |','| 39~45분 | VS Code·선택 그래프·기록 | 기본 CSV 불필요, 확장은 같은 폴더 |','| 45~50분 | 형성평가·해석·백업 | 기간·단위·기준·한계 |','','## 실제 영상 구간','']
+for s in ss:lines.append(f"- {stamp(s['start'])}~{stamp(s['start']+s['duration'])} · {s['title']}"+(' · 일시정지 후 직접 실습' if s['pause']>=8 else ''))
+lines+=['','## 순회 지도·오류 해결','','- 기본 코드 5단계의 기존 원본을 유지한다. df의 year=[2023,2024], population=[1000,950].','- diff 마지막 값 -50.0은 명, pct_change 마지막 값 -0.05는 비율, ×100이면 -5.0%.','- 첫 행 NaN은 비교할 이전 값이 없는 계산 결과다. 원래 인구 1000명이 누락되거나 0명인 것이 아니다. 임의로 0을 채우지 않는다.','- 기본 자료에는 실제 누락 인구가 없다. 실제 누락이 있는 확장 자료라면 보간/전방 채움 여부를 따로 정한다. CSV 확장 코드에는 fill_method=None을 명시했다.','- .iloc[-1]은 마지막 위치. round(값,2)는 소수 둘째 자리 반올림이며 두 자리 고정 문자열이 아니다.','- 950→1100 수정 결과 +100명·약+10%. 복원 후 -50명·약-5%.','- 같은 -50명이어도 기준1000명은 -5%, 기준200명은 -25%.','- 역순 비교는 +50·약+5.26%. year 정렬 뒤 -5%. 함수는 연도 의미가 아니라 행의 앞뒤를 비교한다.','- 이전 값0이면 증감량10을 계산해도 일반 증감률은 해석할 수 없다. inf를 정상 수치로 복사하지 않는다.','- pctchange는 AttributeError, 정상 pct_change(). 열 이름 오타는 KeyError일 수 있다.','','## 보충·심화','','- 느린 학생: 두 행을 종이에 적고 현재−이전, 차이÷이전×100을 먼저 수기로 계산한다. 기초 5단계를 완성한 뒤 CSV 확장은 선택한다.','- 빠른 학생: 증가와 감소에서 기준을 바꾸어 비율이 대칭이 아닌 이유를 설명한다. 1000→950은 -5%,950→1000은 약+5.26%.','- CSV 9행·3열, population_thousand는 천 명. 502는502명이 아닌502000명.','- 한 지역 조건 선택 → year 정렬 → diff/pct_change. 지역 전체는 region/year 정렬 후 groupby(region)로 따로 계산.','- 각 지역 첫 행 NaN은3개. groupby.first()는 NaN을 건너뛰므로 첫 행 검토에는 groupby.head(1)을 사용한다.','- 2024년 change(천 명): 가람시 -6, 누리시 +4, 하람군 -5. rate_pct는 각각 약-1.21%,+1.27%,-4.03%.','- 감소 인원이 더 큰 곳은 가람시, 감소 비율이 더 큰 곳은 하람군.','- 선택 그래프의 Garam/Nuri/Haram은 가람시/누리시/하람군. y값은 인구수가 아닌증감률이고0기준선을 표시한다.','- VS Code: 기본은 pandas만 필요, 선택 그래프는 matplotlib. CSV 확장은 파일을 같은 수업 폴더에 두고 그 폴더에서 실행.','','## 형성평가 정답·해설','','1. -50명·-5%. (950−1000)/1000×100.','2. 비교할 이전 값이 없음. 원래 인구가0명인 뜻이 아님.','3. -0.05×100=-5%.','4. (150−200)/200×100=-25%.','5. 지역별 묶기·연도 정렬·열 단위 확인.','- 기존 웹 확인 문제 정답: -5% / 비교할 이전 값이 없음.','- 인구 변화 원인을 이 가상 자료만으로 단정하지 않는다. 실제 조사·기간·정의·행정 구역 경계 등을 추가 검토한다.','','## 제작 관리 기록','','- 학습용 코드·사용 순서 장면이며 실제 화면 녹화가 아니다. 표·오류·그래프는 실제 Python 실행에서 생성했다.','- ko-KR-SunHiNeural 기본 AI 한국어 합성 음성. 교사 목소리를 복제하지 않는다. 이 기록은 낭독하지 않는다.','- 원본은 pico-lab-classroom에 보존한다. 현재 /sw/ 게시기는 그 원본을 읽어 자동 게시하는 기존 배포 구조이며 이 작업에서 새 저장소나 사이트를 만들지 않는다.']
+(R/'docs/video-production/lesson09-teacher-guide.md').write_text('\n'.join(lines)+'\n')
+p=S/'video-player.js';x=p.read_text()
+if "ep.lesson===9?'인구 변화 데이터 분석'" not in x:x=x.replace("ep.lesson===8?'Matplotlib 기후 시각화'", "ep.lesson===9?'인구 변화 데이터 분석':ep.lesson===8?'Matplotlib 기후 시각화'")
+if "ep.lesson===9?'./datasets/population_fictional.csv'" not in x:x=x.replace("ep.lesson===8?'./datasets/climate_fictional.csv'", "ep.lesson===9?'./datasets/population_fictional.csv':ep.lesson===8?'./datasets/climate_fictional.csv'")
+x=x.replace("n.textContent=`0${i+1}`","n.textContent=String(i+1).padStart(2,'0')")
+p.write_text(x)
+for name,needle in [('video-player.html','video-player.js'),('step-by-step.html','step-by-step.js'),('step-by-step.html','lesson-video.js')]:
+ p=S/name;x=p.read_text();x=re.sub(r'('+re.escape(needle)+r')\?v=[^"\s]+',r'\1?v=20261028-lesson09',x);p.write_text(x)
+print('REGISTERED',d,len(ss))
