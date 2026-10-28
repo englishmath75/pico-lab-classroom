@@ -99,6 +99,18 @@ async function main() {
     assert.ok((await page.locator("#summary").innerText()).includes("객관식 20/20"),
       "all original correct options must score 20/20 after remapping");
 
+    // A new public practice attempt must not carry over selected answers or a previous score.
+    await page.locator("#refresh").click();
+    assert.equal(await page.locator('#multiple input[type="radio"]:checked').count(),0,
+      "refresh starts with no previously selected answers");
+    assert.equal((await page.locator("#summary").innerText()).trim(),"",
+      "refresh clears the score from the previous attempt");
+    assert.equal(await page.locator("#multiple .q").count(),20,
+      "refresh keeps 20 publicly sampled practice questions");
+    await page.locator("#grade").click();
+    assert.ok((await page.locator("#summary").innerText()).includes("객관식 0/20"),
+      "unanswered fresh attempt must score 0/20");
+
     for(const file of ["project/study_agent.py","project/study_scores.csv","project/README.md"]) {
       const result=await page.request.get(url+file);
       assert.equal(result.status(),200,"download "+file);
