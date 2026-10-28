@@ -22,7 +22,7 @@ function graph(){const {ctx,w,h}=crisp($('numpyGraph'));clear(ctx,w,h);const typ
  cos:{min:-2*Math.PI,max:2*Math.PI,fn:x=>a*Math.cos(x)+b,color:'#ff78be',title:'코사인 · y = a×cos(x)+b'}
 }[type];
 const points=[];if(type==='circle'){for(let i=0;i<=360;i++){let angle=i*Math.PI/180;points.push([a*Math.cos(angle),a*Math.sin(angle)]);} }else{for(let i=0;i<=399;i++){let x=cfg.min+(cfg.max-cfg.min)*i/399;points.push([x,cfg.fn(x)]);}}
-const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);let xmin=Math.min(...xs),xmax=Math.max(...xs),ymin=Math.min(...ys),ymax=Math.max(...ys);if(type==='circle'){xmin=-a*1.35;xmax=a*1.35;ymin=-a*1.35;ymax=a*1.35;}else{const mx=(xmax-xmin)*.08||1,my=(ymax-ymin)*.15||1;xmin-=mx;xmax+=mx;ymin-=my;ymax+=my;}
+const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);let xmin=Math.min(...xs),xmax=Math.max(...xs),ymin=Math.min(...ys),ymax=Math.max(...ys);if(type==='circle'){const ratio=(h-32-46)/(w-70-28);xmin=-a*1.35;xmax=a*1.35;ymin=-a*1.35*ratio;ymax=a*1.35*ratio;}else{const mx=(xmax-xmin)*.08||1,my=(ymax-ymin)*.15||1;xmin-=mx;xmax+=mx;ymin-=my;ymax+=my;}
 const {tx,ty}=axes(ctx,w,h,{xMin:xmin,xMax:xmax,yMin:ymin,yMax:ymax});
 ctx.save();ctx.beginPath();ctx.rect(70,32,w-98,h-78);ctx.clip();path(ctx,points.map(([x,y])=>[tx(x),ty(y)]),cfg.color,3.3);ctx.restore();
 ctx.fillStyle='#e8f4fb';ctx.font='bold 15px sans-serif';ctx.fillText(cfg.title,82,25);
