@@ -8,9 +8,11 @@ SCRIPT = '''<script id="sw-address-migration">
   if(location.hostname!=='englishmath75.github.io'||!location.pathname.startsWith(oldBase))return;
   const rest=location.pathname.slice(oldBase.length);
   const course='pandas-data-lab/';
-  const next=rest.startsWith(course)?'/sw/'+rest.slice(course.length):
-    (!rest||rest==='index.html'?'/sw/pico.html':'/sw/'+rest);
-  // Only move when the destination is actually published; otherwise the old lesson stays usable.
+  const path=rest.startsWith(course)?'/'+rest.slice(course.length):
+    (!rest||rest==='index.html'?'/pico.html':'/'+rest);
+  const next='https://sw.englishmath.kr'+path;
+  // Probe the final HTTPS destination, not an intermediate alias that can return 200 while its target is unavailable.
+  // Certificate, network or CORS failures leave the original HTTPS lesson usable.
   fetch(next,{method:'HEAD',cache:'no-cache',signal:AbortSignal.timeout(5000)})
     .then(response=>{if(response.ok)location.replace(next+location.search+location.hash);})
     .catch(()=>{});
