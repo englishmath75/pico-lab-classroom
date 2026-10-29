@@ -1,0 +1,153 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#6732d4"><title>C. 네 마리 거북이로 함수 그래프 그리기 (시험예상) | 영수쌤의 Python 교실</title><meta name="description" content="네 Turtle 객체로 다항·지수·로그·원 그래프를 한 반복문 안에서 교차해 그리는 주관식 코드 작성 수업. 실행 미리보기, 한 줄 해설, 답안 연습과 예시 채점표."><link rel="stylesheet" href="./radians-lab.css?v=20261030-1"><link rel="stylesheet" href="./inquiry-nav.css?v=20261030-1"><link rel="stylesheet" href="./four-turtles.css?v=20261030-1"><script type="module" src="./four-turtles.js?v=20261030-1"></script></head><body class="c-lesson"><a class="skip" href="#main">본문으로 이동</a><div class="layout"><aside class="sidebar" aria-label="보충 학습 메뉴">
+<a class="brand" href="./" aria-label="영수쌤의 Python 교실 홈페이지"><img src="./assets/englishmath-logo.png?v=20261028-original" alt="englishmath 로고"><div><strong>영수쌤의 Python 교실</strong><br><small>3단원 데이터 분석 · 소프트웨어와 생활</small></div></a>
+<nav class="course" aria-label="3단원 수업과 탐구실">
+<a href="./python-review.html#basics">00. Python 핵심 복습</a><a href="./?page=home">01. 수업 안내</a><a href="./step-by-step.html?lesson=1">02. 차시별 실습</a><a href="./?page=data">03. 실습 자료</a><a href="./?page=exam">04. 복습 문제</a><a href="./?page=report">05. 탐구 보고서</a>
+<div class="inquiry-tree"><a class="inquiry-title" href="./questions-supplement.html">★ 궁금증을 파헤치는 탐구실</a>
+<a class="topic-title" href="./questions-supplement.html">A. 진법표현</a>
+<a class="topic-title" href="./radians.html#question">B. 호도법(라디안)</a>
+<a class="topic-title is-open" href="./four-turtles.html#goals" aria-current="page">C. 네 마리 거북이로 함수 그래프 그리기 (시험예상)</a>
+<div class="topic-toc" aria-label="C. 네 마리 거북이 목차">
+<a href="#goals" aria-current="location">0. 오늘의 학습 목표</a><a href="#compare">1. 한 마리와 네 마리 비교</a><a href="#objects">2. pen1~pen4 객체 생성</a><a href="#colors">3. 네 거북이의 색상 지정</a><a href="#functions">4. 네 함수와 변수 설정</a><a href="#loop">5. 한 반복문으로 교차 그리기</a><a href="#execution">6. 전체 정답 코드와 그래픽 실행</a><a href="#practice">7. 기말고사 주관식 예상문제</a><a href="#rubric">8. 채점 기준과 자세한 해설</a>
+</div></div></nav><p class="side-caption">기말고사 주관식 코드 작성 대비입니다. 실제 시험 문항과 배점은 선생님의 최종 안내를 따릅니다.</p>
+</aside><main id="main">
+<header class="c-hero" id="goals"><span class="exam-chip">C · 기말고사 주관식 코드 작성 · 시험예상</span><h1>네 마리 거북이로<br><em>함수 그래프 그리기</em></h1><p>색깔이 다른 네 곡선이 함께 자라나는 화면. 그 안에서는 <b>하나의 반복문이 네 거북이를 차례로 움직입니다.</b> 그림을 보고, 각 줄의 역할을 설명하고, 코드를 스스로 다시 작성해 봅시다.</p><div class="pen-tags"><span class="pen-tag" style="--pen:cyan"><b>pen1</b> 다항함수</span><span class="pen-tag" style="--pen:magenta"><b>pen2</b> 지수함수</span><span class="pen-tag" style="--pen:yellow"><b>pen3</b> 로그함수</span><span class="pen-tag" style="--pen:lime"><b>pen4</b> 원</span></div><div class="answer-navigation"><a class="btn secondary" href="#execution">그래픽부터 살펴보기 →</a><a class="btn secondary" href="#practice">주관식 답안 작성하기 →</a></div></header>
+<section class="lesson-card"><div class="section-head"><span class="section-no">0</span><h2>오늘의 학습 목표</h2></div><ol class="goal-list"><li>한 거북이를 재사용하는 방식과 네 객체를 사용하는 방식의 차이를 설명합니다.</li><li>색상 설정과 좌표 계산을 구분하고, 함수별 계산 구간을 I의 조건으로 바꿉니다.</li><li><code>penup → goto → pendown</code>과 <code>S.update()</code>의 순서를 설명합니다.</li><li>모범답안 없이 네 그래프를 그리는 코드를 작성하고 VS Code에서 실행합니다.</li></ol><p class="note">이 페이지는 선생님이 안내한 <b>기말고사 주관식 예상 유형</b>을 연습합니다. 아래 20점은 예시 채점 기준이며, 실제 시험 문항·출제 범위·배점은 최종 수업 안내를 따릅니다.</p><div class="small-steps"><span>① 화면 관찰</span><span>② 원리 이해</span><span>③ 직접 작성</span><span>④ 실행·수정</span><span>⑤ 다시 작성</span></div></section>
+<noscript><p class="note warn">학습 설명은 읽을 수 있지만 애니메이션·답안 저장·정답 공개·객관식 채점에는 JavaScript가 필요합니다.</p></noscript>
+<section class="lesson-card" id="compare"><div class="section-head"><span class="section-no">1</span><h2>한 마리로 차례차례, 네 마리로 번갈아</h2></div><p>기존 예제는 하나의 거북이가 다항함수를 끝까지 그린 뒤, 색을 바꾸고 지수함수·로그함수·원을 이어서 그립니다. 새 예제는 <b>네 거북이가 각각 자기 곡선의 마지막 위치를 기억</b>합니다. 그래서 한 번의 반복에서 각 곡선을 조금씩 연장할 수 있습니다.</p><div class="two"><article class="compare-card"><h3>한 마리 · 네 개의 그리기 반복문</h3><div class="code-block"><pre><code>pen1 = turtle.Turtle()
+
+pen1.color("cyan")
+for X in range(-200, 201):
+    # 다항함수 계산과 이동
+    ...
+
+pen1.color("magenta")
+for X in range(-150, 60):
+    # 지수함수 계산과 이동
+    ...</code></pre></div><p>같은 객체의 색상과 위치를 계속 바꿉니다. 함수가 바뀔 때 펜을 들지 않으면 서로 다른 그래프 사이에 연결선이 생길 수 있습니다.</p></article><article class="compare-card"><h3>네 마리 · 하나의 공통 그리기 반복문</h3><div class="code-block"><pre><code>pen1 = turtle.Turtle()
+pen2 = turtle.Turtle()
+pen3 = turtle.Turtle()
+pen4 = turtle.Turtle()
+
+for I in range(401):
+    # pen1: 다항함수 계산과 이동
+    # pen2: 지수함수 계산과 이동
+    # pen3: 로그함수 계산과 이동
+    # pen4: 원의 좌표 계산과 이동
+    S.update()</code></pre></div><p>색은 한 번 지정합니다. X, Y를 다음 함수 계산에 재사용해도 각 객체의 위치가 덮어써지지 않습니다.</p></article></div><p class="caption">위 코드는 구조 비교용 발췌입니다. 생략된 부분이 있어 그대로 실행하는 완성 코드가 아닙니다. <a href="./math-function-graphs.html#math-turtle">기존 한 마리 예제 전체 보기</a> · 기존 예제의 본문과 원본 파일은 그대로 유지합니다.</p><p class="note">수학식·계수·구간·색은 기존 Turtle 예제를 따릅니다. 주신 새 모범답안에는 기존 예제의 흰색 좌표축을 그리는 부분이 없습니다. 아래 기본 미리보기도 <b>좌표축 없이</b> 네 곡선을 보여 주며, 좌표축은 설명용 옵션으로만 켤 수 있습니다.</p><div class="takeaway">독립적인 것은 거북이의 상태입니다. 프로그램 실행 순서는 하나입니다.</div></section>
+<section class="lesson-card" id="objects"><div class="section-head"><span class="section-no">2</span><h2>이름 네 개가 아니라, 객체 네 개를 만듭니다</h2></div><div class="code-block"><pre><code>pen1 = turtle.Turtle()
+pen2 = turtle.Turtle()
+pen3 = turtle.Turtle()
+pen4 = turtle.Turtle()</code></pre></div><p><code>turtle.Turtle()</code>을 호출할 때마다 새 거북이 객체가 만들어집니다. <code>pen1</code>~<code>pen4</code>는 각각 다른 객체를 가리키는 이름입니다. 각 거북이는 현재 위치, 색상, 펜을 들었는지를 따로 기억합니다.</p><p class="question">“pen2 = pen1이라고 쓰면 두 마리가 되나요?”</p><p>아닙니다. 두 이름이 <b>같은 객체</b>를 가리킵니다. 그 상태에서 <code>pen2.color("magenta")</code>를 실행하면 pen1로 부르던 그 거북이의 색도 바뀝니다. 독립된 네 거북이를 만들려면 <code>Turtle()</code>을 네 번 호출해야 합니다.</p><div class="code-block"><pre><code>for P in (pen1, pen2, pen3, pen4):
+    P.speed(0)
+    P.pensize(2)
+    P.hideturtle()
+    P.penup()</code></pre></div><p><code>P</code>는 공통 설정을 적용할 때 각 거북이를 잠시 가리키는 짧은 이름입니다. 주신 모범답안의 보조 반복 변수이며, 그래프를 그리는 반복 변수 <code>I</code>와 역할이 다릅니다. 이 설정 반복문은 네 번 실행되고, 뒤의 그리기 반복문은 401번 실행됩니다.</p><p><code>hideturtle()</code>은 커서 모양만 숨깁니다. “거북이가 안 보인다”는 것은 객체가 없다는 뜻이 아닙니다. 선은 그대로 그려집니다. <code>speed(0)</code>도 정지가 아니라 가장 빠른 이동 설정입니다.</p><div class="takeaway">Turtle() 네 번 → 네 객체. pen2 = pen1 → 한 객체에 이름 두 개.</div></section>
+<section class="lesson-card" id="colors"><div class="section-head"><span class="section-no">3</span><h2>색은 역할을 알려 주는 이름표입니다</h2></div><div class="code-block"><pre><code>pen1.color("cyan")
+pen2.color("magenta")
+pen3.color("yellow")
+pen4.color("lime")</code></pre></div><div class="table-wrap"><table class="table"><thead><tr><th>객체</th><th>색상</th><th>담당 그래프</th><th>식</th></tr></thead><tbody><tr><td>pen1</td><td>cyan · 청록</td><td>다항함수</td><td>Y = AX² + B</td></tr><tr><td>pen2</td><td>magenta · 자홍</td><td>지수함수</td><td>Y = Ce^(X/20) + D</td></tr><tr><td>pen3</td><td>yellow · 노랑</td><td>로그함수</td><td>Y = E ln(X/10) + F</td></tr><tr><td>pen4</td><td>lime · 밝은 초록</td><td>원</td><td>X² + Y² = R²</td></tr></tbody></table></div><p>cyan이 원래 다항함수를 뜻하는 것은 아닙니다. 이 프로그램에서 <b>pen1의 색을 cyan으로 정하고, pen1에게 다항함수 좌표를 넘겼기 때문에</b> 청록색 포물선이 생깁니다. 색상 명령은 계산식과 독립적입니다. 색 문자열만 바꾸면 모양과 좌표는 그대로이고 색만 달라집니다.</p><p>실습에서는 색을 바꾸며 확인해도 좋지만, <b>이번 예상문제의 답안에서는 지정된 네 색상 조건을 지킵니다.</b></p><div class="takeaway">color()는 어떻게 보일지, X·Y 계산과 goto()는 어디에 그릴지를 정합니다.</div></section>
+<section class="lesson-card" id="functions"><div class="section-head"><span class="section-no">4</span><h2>짧은 변수로, 네 계산식을 정확하게</h2></div><div class="code-block"><pre><code>A = 0.01
+B = -50
+C = 5
+D = -100
+E = 50
+F = 0
+R = 100</code></pre></div><p>A·B는 다항함수, C·D는 지수함수, E·F는 로그함수에 사용합니다. R은 원의 반지름입니다. <code>math.exp()</code>는 자연상수 e를 밑으로 하는 지수함수, 인수가 하나인 <code>math.log()</code>는 자연로그입니다.</p><div class="table-wrap"><table class="table formula-table"><thead><tr><th>담당</th><th>계산식</th><th>공통 I의 조건</th><th>X 또는 각도 범위</th></tr></thead><tbody><tr><td>pen1</td><td><code>X = I - 200<br>Y = A * X**2 + B</code></td><td>모든 I: 0~400</td><td>X: −200~200, 401개 후보</td></tr><tr><td>pen2</td><td><code>X = I - 150<br>Y = C * math.exp(X / 20) + D</code></td><td><code>I &lt; 210</code>: 0~209</td><td>X: −150~59, 210개</td></tr><tr><td>pen3</td><td><code>X = I + 1<br>Y = E * math.log(X / 10) + F</code></td><td><code>I &lt; 299</code>: 0~298</td><td>X: 1~299, 299개</td></tr><tr><td>pen4</td><td><code>T = math.radians(I)<br>X = R * math.cos(T)<br>Y = R * math.sin(T)</code></td><td><code>I &lt;= 360</code>: 0~360</td><td>각도: 0~360°, 361개</td></tr></tbody></table></div><p>변수 X와 Y는 네 식에서 재사용합니다. 하지만 <code>pen1.goto(X, Y)</code>는 그 순간의 좌표값으로 pen1을 이동시킵니다. 다음 줄에서 X와 Y를 다른 값으로 계산해도, pen1이 저절로 따라 움직이지 않습니다.</p><p class="note">로그는 <b>입력이 양수</b>여야 합니다. X=I+1로 시작하면 첫 입력 X/10은 0.1입니다. 원의 좌표 계산에서는 I를 도에서 라디안으로 바꾼 T를 sin·cos에 넣습니다. <a href="./radians.html#trig">B. 호도법에서 다시 확인하기 →</a></p><p>다항함수의 후보는 401개지만 <code>abs(Y) &lt;= 300</code>을 통과하는 점은 X=−187~187의 <b>375개</b>입니다. 첫 점은 펜을 든 채 이동하므로 선분은 374개입니다. 지수·로그의 주어진 구간은 모두 높이 조건을 통과하고, 원은 361개 좌표와 360개 선분으로 닫힙니다.</p><div class="takeaway">범위의 끝값과 if 조건을 함께 읽으세요. 반복 횟수, 이동 횟수, 선분 개수는 서로 다를 수 있습니다.</div></section>
+<section class="lesson-card" id="loop"><div class="section-head"><span class="section-no">5</span><h2>한 번 반복할 때, 네 거북이는 무엇을 할까요?</h2></div><div class="flow" aria-label="한 반복의 실행 순서"><span>I 값 결정</span><span>① pen1</span><span>② pen2</span><span>③ pen3</span><span>④ pen4</span><span class="refresh">S.update()</span></div><p><code>for I in range(401):</code> 안에서 Python은 위에서 아래로 실행합니다. pen1 블록을 처리하고, 조건이 맞으면 pen2, pen3, pen4를 차례로 이동시킵니다. 마지막으로 S.update()가 화면을 한 번 갱신합니다. 그다음 I가 1 증가해 같은 과정을 반복합니다.</p><p class="question">“네 마리가 정말 동시에 계산하나요?”</p><p><b>아닙니다.</b> 네 개의 독립 스레드에서 병렬 실행되는 프로그램이 아닙니다. 하나의 실행 흐름에서 각 객체를 순서대로 움직인 뒤 갱신하기 때문에 네 곡선이 함께 자라나는 것처럼 보입니다. 실제 PC의 성능에 따라 매우 빨리 완성될 수 있어, 미리보기에는 관찰용 속도 조절을 따로 제공합니다.</p><h3>I=0을 직접 따라가 봅시다</h3><div class="table-wrap"><table class="table"><thead><tr><th>순서</th><th>계산</th><th>동작</th></tr></thead><tbody><tr><td>pen1</td><td>X=−200, Y=350</td><td>높이 범위 밖 → penup, 이동 없음</td></tr><tr><td>pen2</td><td>X=−150, Y≈−99.9972</td><td>첫 점으로 이동하고 펜 내리기</td></tr><tr><td>pen3</td><td>X=1, Y≈−115.1293</td><td>첫 점으로 이동하고 펜 내리기</td></tr><tr><td>pen4</td><td>T=0, X=100, Y=0</td><td>첫 점으로 이동하고 펜 내리기</td></tr><tr><td>화면</td><td>S.update()</td><td>현재까지의 그리기를 화면에 반영</td></tr></tbody></table></div><p>첫 이동에서는 펜이 들려 있으므로 선분이 생기지 않습니다. 커서도 숨겼기 때문에 처음 한 번 갱신한 화면이 검게 보여도 오류가 아닙니다. 다음 이동부터 점 사이를 연결합니다.</p><h3>goto와 pendown의 순서를 바꾸면?</h3><div class="code-block"><pre><code>if abs(Y) &lt;= 300:
+    pen1.goto(X, Y)
+    pen1.pendown()
+else:
+    pen1.penup()</code></pre></div><p>처음 유효한 점까지 펜을 든 채 이동한 뒤 내립니다. 먼저 pendown을 하고 goto를 하면 원점에서 첫 점까지 의도하지 않은 선이 생길 수 있습니다. 범위를 벗어나면 penup으로 연결을 끊습니다. 위의 조건은 점을 <b>계산하기 전에</b> 검사하는 것이 아니라 Y를 계산한 뒤 검사합니다.</p><p>각 함수의 조건은 서로 독립된 <code>if</code>입니다. 이를 하나의 <code>if / elif / elif</code> 사슬로 바꾸면 앞 조건이 참일 때 뒤 함수들을 건너뛰어 의도한 교차 그리기가 되지 않습니다. S.update()는 네 함수 블록 바깥이지만 공통 for 안에 둡니다.</p><div class="takeaway">계산 → 해당 거북이 이동 → 다음 거북이 → 화면 갱신. 이것이 한 번의 반복입니다.</div></section>
+<section class="lesson-card" id="execution"><div class="section-head"><span class="section-no">6</span><h2>전체 결과를 보고, 한 반복씩 되짚어 봅시다</h2></div><p>기본 화면은 완성 모습입니다. <b>처음부터 재생</b>을 누르면 네 곡선이 번갈아 연장됩니다. <b>한 반복 진행</b>은 네 거북이 블록과 S.update()까지 한 번 처리한 결과를 보여 줍니다.</p>
+<div class="play-controls"><button id="play" class="btn" type="button">처음부터 재생</button><button id="pause" class="btn secondary" type="button" disabled>일시정지</button><button id="restart" class="btn secondary" type="button">처음으로</button><button id="nextFrame" class="btn secondary" type="button">한 반복 진행</button><button id="finish" class="btn coral" type="button">전체 결과 보기</button><label for="speed">속도</label><select id="speed"><option value="10">천천히 · 초당 10회</option><option value="40" selected>보통 · 초당 40회</option><option value="120">빠르게 · 초당 120회</option></select></div>
+<div class="timeline"><label for="frameRange">실행 위치</label><input id="frameRange" type="range" min="0" max="401" step="1" value="401"><output id="frameOutput" for="frameRange">401 / 401</output></div><p id="frameStatus" class="frame-status" role="status">전체 결과</p>
+<div class="display-options"><label style="--pen:cyan"><input id="visible0" type="checkbox" checked><span class="dot"></span>pen1 다항</label><label style="--pen:magenta"><input id="visible1" type="checkbox" checked><span class="dot"></span>pen2 지수</label><label style="--pen:yellow"><input id="visible2" type="checkbox" checked><span class="dot"></span>pen3 로그</label><label style="--pen:lime"><input id="visible3" type="checkbox" checked><span class="dot"></span>pen4 원</label><label><input id="showAxes" type="checkbox">설명용 좌표축</label><label><input id="showMarkers" type="checkbox">설명용 현재 위치 점</label></div>
+<div class="graph-layout"><div class="graph-stage"><svg id="turtleGraph" viewBox="-330 -330 660 660" role="img" aria-label="네 마리 거북이 함수 그래프"><g id="axes" style="display:none"><path class="axis" d="M-320 0H320M0 -320V320"/><text class="tick" x="305" y="-9">X</text><text class="tick" x="8" y="-305">Y</text><text class="tick" x="5" y="13">0</text><text class="tick" x="100" y="13">100</text><text class="tick" x="-123" y="13">−100</text></g><g id="penGroup0"><path id="track0" class="track" stroke="cyan"/><circle id="marker0" r="4" fill="cyan" style="display:none"/></g><g id="penGroup1"><path id="track1" class="track" stroke="magenta"/><circle id="marker1" r="4" fill="magenta" style="display:none"/></g><g id="penGroup2"><path id="track2" class="track" stroke="yellow"/><circle id="marker2" r="4" fill="yellow" style="display:none"/></g><g id="penGroup3"><path id="track3" class="track" stroke="lime"/><circle id="marker3" r="4" fill="lime" style="display:none"/></g></svg></div><aside class="trace" aria-label="현재 반복의 네 거북이 상태"><h3>위에서 아래로 순서대로 실행</h3><div class="trace-grid"><div class="trace-item" style="--pen:cyan"><strong>1. pen1 · 다항함수</strong><code id="step0"></code><p id="coord0" class="trace-value"></p></div><div class="trace-item" style="--pen:magenta"><strong>2. pen2 · 지수함수</strong><code id="step1"></code><p id="coord1" class="trace-value"></p></div><div class="trace-item" style="--pen:yellow"><strong>3. pen3 · 로그함수</strong><code id="step2"></code><p id="coord2" class="trace-value"></p></div><div class="trace-item" style="--pen:lime"><strong>4. pen4 · 원</strong><code id="step3"></code><p id="coord3" class="trace-value"></p></div></div><p id="sharedState" class="trace-shared"></p><p class="caption">표시·숨기기는 미리보기의 보기 옵션입니다. Python 모범답안의 계산 결과나 코드를 바꾸지 않습니다.</p></aside></div>
+<p class="note">이 화면은 <b>교육용 브라우저 미리보기</b>이며 Python을 직접 실행하는 창은 아닙니다. 모범답안과 같은 좌표·색상·유효 구간·펜 상태로 그립니다. 관찰용 재생 속도와 현재 위치 점·좌표축은 보조 기능입니다. 기본 화면에서는 원본처럼 커서와 좌표축을 숨깁니다. 글꼴·선 가장자리·창 테두리는 실행 환경에 따라 다를 수 있습니다.</p><h3>VS Code에서 실제 실행하기</h3><ol class="explain-steps"><li>아래 예상문제에 먼저 답안을 작성합니다. 그 뒤 모범답안을 열어 <b>four_turtles.py</b>를 내려받거나 복사합니다.</li><li>VS Code에서 해당 파일을 열고 설치된 Python 인터프리터를 선택합니다. math와 turtle은 표준 모듈이므로 별도 pip 설치 대상이 아닙니다.</li><li>터미널에서 <code>python four_turtles.py</code>를 실행합니다. Windows에서 python 명령이 없고 py가 있다면 <code>py four_turtles.py</code>를 사용합니다.</li><li>검은 그래픽 창에서 네 곡선의 색과 모양을 확인합니다. 창을 닫으면 프로그램이 끝납니다.</li></ol><p class="caption">Turtle은 Tk 그래픽 창을 띄울 수 있는 Python 환경이 필요합니다. 파일명을 turtle.py 또는 math.py로 저장하면 표준 모듈과 충돌할 수 있습니다. 학교 PC의 VS Code에서 실행하세요.</p>
+<button class="btn" type="button" data-reveal-answer aria-controls="answerPanel" aria-expanded="false">직접 작성 후 모범답안·한 줄 해설 보기</button>
+<div id="answerPanel" class="answer-panel" hidden><h3>모범답안 전체 · 주어진 정답 코드</h3><p>자신이 작성한 코드와 비교하세요. 정답을 복사해 덮어쓰기 전에, 놓친 줄의 역할을 먼저 설명해 보세요.</p><div class="code-block"><div class="code-head"><span>four_turtles.py · 실제 Python Turtle 실행용</span><div class="code-actions"><button id="copyAnswer" type="button">전체 코드 복사</button><a href="./downloads/four_turtles.py" download>원본 .py 다운로드</a></div></div><pre><code id="answerCode">import math
+import turtle
+
+S = turtle.Screen()
+S.bgcolor(&quot;black&quot;)
+S.setup(760, 760)
+S.setworldcoordinates(-330, -330, 330, 330)
+S.tracer(0)
+
+pen1 = turtle.Turtle()
+pen2 = turtle.Turtle()
+pen3 = turtle.Turtle()
+pen4 = turtle.Turtle()
+
+pen1.color(&quot;cyan&quot;)
+pen2.color(&quot;magenta&quot;)
+pen3.color(&quot;yellow&quot;)
+pen4.color(&quot;lime&quot;)
+
+for P in (pen1, pen2, pen3, pen4):
+    P.speed(0)
+    P.pensize(2)
+    P.hideturtle()
+    P.penup()
+
+A = 0.01
+B = -50
+
+C = 5
+D = -100
+
+E = 50
+F = 0
+
+R = 100
+
+for I in range(401):
+
+    X = I - 200
+    Y = A * X**2 + B
+
+    if abs(Y) &lt;= 300:
+        pen1.goto(X, Y)
+        pen1.pendown()
+    else:
+        pen1.penup()
+
+    if I &lt; 210:
+        X = I - 150
+        Y = C * math.exp(X / 20) + D
+
+        if abs(Y) &lt;= 300:
+            pen2.goto(X, Y)
+            pen2.pendown()
+        else:
+            pen2.penup()
+
+    if I &lt; 299:
+        X = I + 1
+        Y = E * math.log(X / 10) + F
+
+        if abs(Y) &lt;= 300:
+            pen3.goto(X, Y)
+            pen3.pendown()
+        else:
+            pen3.penup()
+
+    if I &lt;= 360:
+        T = math.radians(I)
+        X = R * math.cos(T)
+        Y = R * math.sin(T)
+
+        pen4.goto(X, Y)
+        pen4.pendown()
+
+    S.update()
+
+turtle.done()
+</code></pre></div><p id="answerStatus" class="status" role="status"></p><h3>빈 줄을 제외한 모든 실행 줄의 의미</h3><p class="caption">왼쪽 숫자는 .py 파일의 실제 줄 번호입니다. 같은 명령도 어느 객체에 적용하는지 함께 읽으세요.</p><table class="line-explain"><thead><tr><th>줄</th><th>코드</th><th>의미</th></tr></thead><tbody><tr><td>1</td><td><code>import math</code></td><td>지수·로그·삼각함수와 각도 변환에 필요한 math 모듈을 불러옵니다.</td></tr><tr><td>2</td><td><code>import turtle</code></td><td>그래픽 창과 거북이 객체를 제공하는 turtle 모듈을 불러옵니다.</td></tr><tr><td>4</td><td><code>S = turtle.Screen()</code></td><td>그래픽 화면 객체를 만들고 S라는 이름으로 사용합니다.</td></tr><tr><td>5</td><td><code>S.bgcolor(&quot;black&quot;)</code></td><td>화면 배경을 검은색으로 설정합니다. 거북이의 선 색과는 별개의 설정입니다.</td></tr><tr><td>6</td><td><code>S.setup(760, 760)</code></td><td>창 크기를 가로 760, 세로 760으로 설정합니다. 좌표의 범위를 정하는 명령은 아닙니다.</td></tr><tr><td>7</td><td><code>S.setworldcoordinates(-330, -330, 330, 330)</code></td><td>왼쪽 아래 좌표와 오른쪽 위 좌표를 지정합니다. 이 코드에서는 가로·세로 범위를 모두 −330~330으로 맞춥니다.</td></tr><tr><td>8</td><td><code>S.tracer(0)</code></td><td>자동 화면 갱신을 끕니다. 이후 S.update()로 직접 화면을 갱신합니다. 계산이나 반복문을 중지하는 뜻은 아닙니다.</td></tr><tr><td>10</td><td><code>pen1 = turtle.Turtle()</code></td><td>pen1에 새로운 거북이 객체를 연결합니다. 다른 Turtle() 호출로 만든 객체와는 위치·펜 상태가 독립적입니다.</td></tr><tr><td>11</td><td><code>pen2 = turtle.Turtle()</code></td><td>pen2에 새로운 거북이 객체를 연결합니다. 다른 Turtle() 호출로 만든 객체와는 위치·펜 상태가 독립적입니다.</td></tr><tr><td>12</td><td><code>pen3 = turtle.Turtle()</code></td><td>pen3에 새로운 거북이 객체를 연결합니다. 다른 Turtle() 호출로 만든 객체와는 위치·펜 상태가 독립적입니다.</td></tr><tr><td>13</td><td><code>pen4 = turtle.Turtle()</code></td><td>pen4에 새로운 거북이 객체를 연결합니다. 다른 Turtle() 호출로 만든 객체와는 위치·펜 상태가 독립적입니다.</td></tr><tr><td>15</td><td><code>pen1.color(&quot;cyan&quot;)</code></td><td>pen1의 선 색과 채우기 색을 지정합니다. 이 명령은 X, Y 계산식을 바꾸지 않습니다.</td></tr><tr><td>16</td><td><code>pen2.color(&quot;magenta&quot;)</code></td><td>pen2의 선 색과 채우기 색을 지정합니다. 이 명령은 X, Y 계산식을 바꾸지 않습니다.</td></tr><tr><td>17</td><td><code>pen3.color(&quot;yellow&quot;)</code></td><td>pen3의 선 색과 채우기 색을 지정합니다. 이 명령은 X, Y 계산식을 바꾸지 않습니다.</td></tr><tr><td>18</td><td><code>pen4.color(&quot;lime&quot;)</code></td><td>pen4의 선 색과 채우기 색을 지정합니다. 이 명령은 X, Y 계산식을 바꾸지 않습니다.</td></tr><tr><td>20</td><td><code>for P in (pen1, pen2, pen3, pen4):</code></td><td>P에 네 거북이를 차례로 참조시켜 공통 설정을 적용합니다. 새 거북이 객체를 추가로 만드는 반복문은 아닙니다.</td></tr><tr><td>21</td><td><code>    P.speed(0)</code></td><td>거북이 자체의 이동 애니메이션 속도를 가장 빠르게 설정합니다. 0은 정지가 아닙니다.</td></tr><tr><td>22</td><td><code>    P.pensize(2)</code></td><td>선을 2 두께로 그립니다.</td></tr><tr><td>23</td><td><code>    P.hideturtle()</code></td><td>거북이 모양의 커서만 숨깁니다. 객체와 그린 선은 사라지지 않습니다.</td></tr><tr><td>24</td><td><code>    P.penup()</code></td><td>처음 이동에서 원점과 그래프의 첫 점 사이에 불필요한 선을 긋지 않도록 펜을 듭니다.</td></tr><tr><td>26</td><td><code>A = 0.01</code></td><td>다항함수의 X² 계수입니다. 양수이므로 위로 열린 포물선입니다.</td></tr><tr><td>27</td><td><code>B = -50</code></td><td>다항함수의 세로 이동량입니다. X=0이면 Y=−50입니다.</td></tr><tr><td>29</td><td><code>C = 5</code></td><td>지수함수 exp(X/20)에 곱하는 계수입니다.</td></tr><tr><td>30</td><td><code>D = -100</code></td><td>지수함수 전체를 아래로 100만큼 이동시킵니다.</td></tr><tr><td>32</td><td><code>E = 50</code></td><td>로그함수 log(X/10)에 곱하는 계수입니다.</td></tr><tr><td>33</td><td><code>F = 0</code></td><td>로그함수의 세로 이동량입니다. 이 예제에서는 추가 이동이 없습니다.</td></tr><tr><td>35</td><td><code>R = 100</code></td><td>원의 반지름을 100으로 정합니다.</td></tr><tr><td>37</td><td><code>for I in range(401):</code></td><td>공통 반복문입니다. I는 0~400까지 401개의 정수를 차례로 가집니다.</td></tr><tr><td>39</td><td><code>    X = I - 200</code></td><td>다항함수의 X를 −200~200으로 만듭니다.</td></tr><tr><td>40</td><td><code>    Y = A * X**2 + B</code></td><td>Y=0.01X²−50을 계산합니다. **2는 제곱이고 ^는 제곱 연산자가 아닙니다.</td></tr><tr><td>42</td><td><code>    if abs(Y) &lt;= 300:</code></td><td>Y의 절댓값이 300 이하인지 확인합니다. 즉 −300≤Y≤300인 점만 화면에 그립니다.</td></tr><tr><td>43</td><td><code>        pen1.goto(X, Y)</code></td><td>pen1만 계산된 (X, Y)로 이동합니다. 이동 직전에 펜이 내려가 있었다면 이전 위치부터 선이 생깁니다.</td></tr><tr><td>44</td><td><code>        pen1.pendown()</code></td><td>이동을 마친 뒤 펜을 내립니다. 이 호출 자체로 선이 생기지는 않고, 다음 이동부터 그려집니다.</td></tr><tr><td>45</td><td><code>    else:</code></td><td>바로 앞 if의 조건이 거짓인 경우입니다. 들여쓰기를 맞춰 연결해야 합니다.</td></tr><tr><td>46</td><td><code>        pen1.penup()</code></td><td>범위를 벗어난 점에서는 펜을 듭니다. goto가 없으므로 거북이의 위치는 그대로입니다.</td></tr><tr><td>48</td><td><code>    if I &lt; 210:</code></td><td>I=0~209에서만 지수함수 블록을 실행합니다. I=210부터는 마지막 위치를 유지합니다.</td></tr><tr><td>49</td><td><code>        X = I - 150</code></td><td>지수함수의 X를 −150~59로 만듭니다. 끝값 60은 포함하지 않습니다.</td></tr><tr><td>50</td><td><code>        Y = C * math.exp(X / 20) + D</code></td><td>Y=5e^(X/20)−100입니다. math.exp는 밑이 e인 지수함수이며 X/20은 가로 스케일을 조정합니다.</td></tr><tr><td>52</td><td><code>        if abs(Y) &lt;= 300:</code></td><td>Y의 절댓값이 300 이하인지 확인합니다. 즉 −300≤Y≤300인 점만 화면에 그립니다.</td></tr><tr><td>53</td><td><code>            pen2.goto(X, Y)</code></td><td>pen2만 계산된 (X, Y)로 이동합니다. 이동 직전에 펜이 내려가 있었다면 이전 위치부터 선이 생깁니다.</td></tr><tr><td>54</td><td><code>            pen2.pendown()</code></td><td>이동을 마친 뒤 펜을 내립니다. 이 호출 자체로 선이 생기지는 않고, 다음 이동부터 그려집니다.</td></tr><tr><td>55</td><td><code>        else:</code></td><td>바로 앞 if의 조건이 거짓인 경우입니다. 들여쓰기를 맞춰 연결해야 합니다.</td></tr><tr><td>56</td><td><code>            pen2.penup()</code></td><td>범위를 벗어난 점에서는 펜을 듭니다. goto가 없으므로 거북이의 위치는 그대로입니다.</td></tr><tr><td>58</td><td><code>    if I &lt; 299:</code></td><td>I=0~298에서만 로그함수 블록을 실행합니다.</td></tr><tr><td>59</td><td><code>        X = I + 1</code></td><td>로그함수의 X는 1~299가 됩니다. 첫 입력 X/10=0.1이 양수여서 로그를 계산할 수 있습니다.</td></tr><tr><td>60</td><td><code>        Y = E * math.log(X / 10) + F</code></td><td>Y=50 ln(X/10)입니다. 인수가 하나인 math.log는 자연로그입니다. X/10은 반드시 양수여야 합니다.</td></tr><tr><td>62</td><td><code>        if abs(Y) &lt;= 300:</code></td><td>Y의 절댓값이 300 이하인지 확인합니다. 즉 −300≤Y≤300인 점만 화면에 그립니다.</td></tr><tr><td>63</td><td><code>            pen3.goto(X, Y)</code></td><td>pen3만 계산된 (X, Y)로 이동합니다. 이동 직전에 펜이 내려가 있었다면 이전 위치부터 선이 생깁니다.</td></tr><tr><td>64</td><td><code>            pen3.pendown()</code></td><td>이동을 마친 뒤 펜을 내립니다. 이 호출 자체로 선이 생기지는 않고, 다음 이동부터 그려집니다.</td></tr><tr><td>65</td><td><code>        else:</code></td><td>바로 앞 if의 조건이 거짓인 경우입니다. 들여쓰기를 맞춰 연결해야 합니다.</td></tr><tr><td>66</td><td><code>            pen3.penup()</code></td><td>범위를 벗어난 점에서는 펜을 듭니다. goto가 없으므로 거북이의 위치는 그대로입니다.</td></tr><tr><td>68</td><td><code>    if I &lt;= 360:</code></td><td>I=0~360을 모두 포함하여 원의 좌표를 361번 계산합니다. 시작점과 끝점이 같은 위치여서 원이 닫힙니다.</td></tr><tr><td>69</td><td><code>        T = math.radians(I)</code></td><td>도 단위 I를 라디안으로 바꿔 T에 저장합니다. math의 sin·cos는 라디안을 입력받습니다.</td></tr><tr><td>70</td><td><code>        X = R * math.cos(T)</code></td><td>원의 가로 좌표 X=100 cos(T)를 계산합니다.</td></tr><tr><td>71</td><td><code>        Y = R * math.sin(T)</code></td><td>원의 세로 좌표 Y=100 sin(T)를 계산합니다. X²+Y²=100²를 만족합니다.</td></tr><tr><td>73</td><td><code>        pen4.goto(X, Y)</code></td><td>pen4만 계산된 (X, Y)로 이동합니다. 이동 직전에 펜이 내려가 있었다면 이전 위치부터 선이 생깁니다.</td></tr><tr><td>74</td><td><code>        pen4.pendown()</code></td><td>이동을 마친 뒤 펜을 내립니다. 이 호출 자체로 선이 생기지는 않고, 다음 이동부터 그려집니다.</td></tr><tr><td>76</td><td><code>    S.update()</code></td><td>네 거북이 블록을 순서대로 처리한 뒤 화면을 한 번 갱신합니다. 바깥 for 안이면서 각 if 밖에 있어야 합니다.</td></tr><tr><td>78</td><td><code>turtle.done()</code></td><td>그래프가 완성된 뒤에도 창을 열어 두고 이벤트를 기다립니다. 반복문 밖에서 한 번 호출합니다.</td></tr></tbody></table><button id="hideAnswer" class="btn secondary" type="button">정답 닫고 다시 작성하기</button></div></section>
+<section class="lesson-card" id="practice"><div class="section-head"><span class="section-no">7</span><h2>기말고사 주관식 예상문제</h2></div><p class="question">[주관식 · Python 코드 작성 · 시험예상]</p><p>기존 Turtle 프로그램은 한 마리의 거북이를 이용하여 다항함수, 지수함수, 로그함수, 원의 방정식을 순서대로 그립니다. 이를 수정하여 <b>pen1, pen2, pen3, pen4</b>를 각각 생성하고, 각 거북이가 하나의 함수 그래프를 담당하도록 작성하시오.</p><ol class="goal-list"><li>거북이 객체 네 개를 생성합니다.</li><li>각 거북이에 cyan, magenta, yellow, lime 색상을 순서대로 지정합니다.</li><li>다항함수·지수함수·로그함수·원을 각각 담당하게 합니다.</li><li>하나의 그리기 반복문 안에서 네 거북이를 교차하여 이동시킵니다.</li><li>함수별 좌표 계산과 Turtle 명령을 올바르게 작성합니다.</li><li>계수 A=0.01, B=−50, C=5, D=−100, E=50, F=0, R=100을 사용하고, I·X·Y·T·S처럼 짧은 변수명을 사용합니다.</li><li>S.tracer(0)과 S.update()를 이용하여 여러 그래프가 함께 그려지는 모습을 표현합니다.</li></ol><p>설정용 반복문에는 모범답안처럼 P를 사용할 수 있습니다. “하나의 반복문”은 <b>그래프를 그리는 공통 반복문</b>을 뜻하며, 객체들의 공통 속성을 설정하는 보조 반복문까지 금지하는 조건이 아닙니다.</p>
+<label class="practice-label" for="studentCode">나의 주관식 답안</label><textarea id="studentCode" class="answer-editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="practiceHelp saveStatus" placeholder="여기에 코드를 직접 작성하세요.&#10;Tab을 누르면 공백 4칸이 입력됩니다.&#10;작성한 답안은 내 답안 .py로 내려받아 VS Code에서 실행하세요."></textarea><p id="practiceHelp" class="answer-hint">이 입력창은 작성·저장 연습용입니다. 임의의 Python 코드를 실행하거나 정답 여부를 자동 판정하지 않습니다. 들여쓰기까지 확인하고 실제 실행은 VS Code에서 하세요.</p><div class="practice-toolbar"><button class="btn" id="saveDraft" type="button">답안 저장</button><button class="btn secondary" id="downloadDraft" type="button">내 답안 .py 다운로드</button><button class="btn secondary" id="copyDraft" type="button">내 답안 복사</button><button class="btn coral" type="button" data-reveal-answer aria-controls="answerPanel" aria-expanded="false">작성 후 모범답안 보기</button></div><p id="saveStatus" class="status" role="status"></p><p class="caption">로그인·교사에게 제출하는 기능은 아닙니다. 같은 브라우저에 저장되며, 브라우저 데이터 삭제나 다른 PC에서는 보장되지 않습니다. 파일로 내려받아 개인 실습 폴더에도 보관하세요.</p>
+<h3>정답을 보기 전, 개념 6문항으로 확인</h3><form id="knowledgeForm"><div id="knowledgeItems"></div><div class="inline-actions"><button class="btn" type="submit">개념 문제 채점·해설</button><button class="btn secondary" type="reset">개념 문제 다시 풀기</button></div><p id="knowledgeScore" class="status" role="status"></p></form></section>
+<section class="lesson-card" id="rubric"><div class="section-head"><span class="section-no">8</span><h2>채점 기준과 자세한 해설</h2></div><p>다음은 <b>20점 기준의 예시</b>입니다. 코드를 외워 적었는지보다 객체·조건·계산·그리기 순서를 연결했는지 확인합니다. 실제 학교 시험의 배점과 부분 점수는 선생님이 별도로 결정합니다.</p><div class="table-wrap"><table class="table"><thead><tr><th>평가 요소</th><th>배점</th><th>확인할 내용</th></tr></thead><tbody><tr><td>거북이 객체 네 개 생성</td><td>4점</td><code>Turtle()</code> 네 번, pen1~pen4가 서로 다른 객체인지</td></tr><tr><td>색상 네 개 정확히 지정</td><td>4점</td>pen1 cyan / pen2 magenta / pen3 yellow / pen4 lime</td></tr><tr><td>공통 반복문과 조건 구성</td><td>4점</td>range(401), 독립된 if, I&lt;210·I&lt;299·I≤360, 높이 제한</td></tr><tr><td>함수별 좌표 계산</td><td>4점</td>계수·X 변환·exp/log·도→라디안·sin/cos·R을 정확히 적용</td></tr><tr><td>Turtle 이동·그리기·화면 갱신</td><td>4점</td>초기 penup, goto 후 pendown, 범위 밖 penup, tracer와 update, done</td></tr><tr><th>합계</th><th>20점</th><td>예시이며 실제 시험 배점은 별도 안내</td></tr></tbody></table></div><h3>내 답안 자기 점검</h3><div id="selfCheck"><label class="rubric-check"><input type="checkbox"> 객체 네 개가 실제로 독립적으로 생성되었는지 확인했습니다.</label><label class="rubric-check"><input type="checkbox"> 네 객체의 색상과 역할을 확인했습니다.</label><label class="rubric-check"><input type="checkbox"> 반복 횟수·함수별 if·들여쓰기를 확인했습니다.</label><label class="rubric-check"><input type="checkbox"> 각 식의 계수·정의역·각도 단위를 확인했습니다.</label><label class="rubric-check"><input type="checkbox"> VS Code에서 이동·그리기·화면 갱신까지 확인했습니다.</label></div><p id="selfScore" class="status" role="status">자기 점검 0/5개 · 참고 점수 0/20점. 코드의 실행·정확성을 자동 채점한 점수가 아닙니다.</p>
+<h3>자주 생기는 오류를 원리로 해결하기</h3><div class="table-wrap"><table class="table error-table"><thead><tr><th>현상</th><th>원인</th><th>확인·수정</th></tr></thead><tbody><tr><td>한 거북이처럼 움직이거나 색이 모두 바뀜</td><td>pen2=pen1처럼 같은 객체를 참조</td><td>각 줄에서 turtle.Turtle()을 새로 호출</td></tr><tr><td>원점에서 그래프까지 긴 선이 생김</td><td>처음부터 펜을 내린 상태로 이동</td><td>공통 설정에서 penup, 첫 goto 다음 pendown</td></tr><tr><td>일부 그래프만 그려짐</td><td>독립 if를 elif 사슬로 바꿈</td><td>각 함수 조건을 독립된 if로 구성</td></tr><tr><td>math domain error</td><td>math.log에 0 또는 음수를 전달</td><td>X=I+1, X/10&gt;0인지 확인</td></tr><tr><td>원이 닫히지 않거나 이상한 궤적</td><td>도를 그대로 sin/cos에 넣거나 끝 각도 누락</td><td>T=math.radians(I), I&lt;=360, X=R*cos(T), Y=R*sin(T)</td></tr><tr><td>창이 검거나 마지막에만 갑자기 나타남</td><td>tracer(0) 이후 update가 없거나 반복문 밖에 있음</td><td>각 함수 블록 처리 후 공통 for 안에서 S.update()</td></tr><tr><td>IndentationError 또는 예상과 다른 실행</td><td>공통 for와 함수별 if의 들여쓰기 혼동</td><td>공백 4칸 단위로 정렬, update는 함수별 if 밖에 배치</td></tr><tr><td>화면이 빨리 완성되어 움직임을 보기 어려움</td><td>speed(0), tracer(0)으로 빠르게 처리</td><td>실행 오류가 아닙니다. 이 페이지의 느린 미리보기로 순서를 관찰</td></tr><tr><td>turtle 모듈 오류 또는 GUI 창 없음</td><td>파일명 충돌·Tk 없는 실행 환경</td><td>파일명 four_turtles.py, 학교 PC의 GUI 지원 Python에서 실행</td></tr></tbody></table></div>
+<p class="takeaway">객체 만들기 → 색 정하기 → 계수 준비 → 공통 반복과 범위 → 좌표 계산 → 이동·그리기 → 화면 갱신의 순서로 다시 작성하세요.</p><p>모범답안을 닫고 빈 파일에 다시 작성한 뒤, 완성한 그림만 보고도 각 명령이 필요한 이유를 설명할 수 있다면 이 유형의 핵심을 이해한 것입니다.</p></section>
+<div class="page-end"><a href="./radians.html#question">← B. 호도법(라디안)</a><a href="./python-review.html#basics">00차시 Python 핵심 복습 →</a></div><p class="sources">공식 참고: <a href="https://docs.python.org/3/library/turtle.html">Python Turtle</a><a href="https://docs.python.org/3/library/math.html">Python math</a></p><footer class="footer">영수쌤의 Python 교실 · 궁금증을 파헤치는 탐구실<br>C. 네 마리 거북이로 함수 그래프 그리기 (시험예상)</footer></main></div></body></html>

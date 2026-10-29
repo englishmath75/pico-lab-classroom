@@ -1,0 +1,35 @@
+name: C four-turtle verification
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/pandas-data-lab/four-turtles*'
+      - 'public/pandas-data-lab/downloads/four_turtles.py'
+      - 'tests/four-turtles/**'
+      - '.github/workflows/four-turtles.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-turtle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Tk graphics environment
+        run: sudo apt-get update -qq && sudo apt-get install -y python3-tk xvfb ghostscript
+      - name: Compile and execute the exact answer with real Turtle
+        run: |
+          python3 -m py_compile public/pandas-data-lab/downloads/four_turtles.py
+          xvfb-run -a python3 tests/four-turtles/verify_turtle.py
+      - name: Compare every real Turtle frame with the browser model
+        run: node tests/four-turtles/verify_model.mjs
+      - name: Export the actual Turtle canvas
+        run: gs -dSAFER -dBATCH -dNOPAUSE -dEPSCrop -sDEVICE=png16m -r96 -sOutputFile=test-results/four-turtles/actual-turtle.png test-results/four-turtles/actual-turtle.ps
+      - uses: actions/upload-artifact@v4
+        with:
+          name: four-turtles-actual-output
+          path: test-results/four-turtles/
