@@ -1,0 +1,12 @@
+/* Shared navigation only: the A lesson body remains unchanged. */
+.course .inquiry-tree{width:100%;min-width:0;margin-top:12px;border-top:1px solid #60708b;padding-top:10px}
+.course .inquiry-title{color:#ffe2a7;background:#3b3055;font-size:13px;font-weight:850;padding:12px 10px;border:1px solid #887158;line-height:1.55}
+.course .topic-title{font-size:13px;font-weight:800;padding:11px 10px;margin-top:6px;line-height:1.5}
+.course .topic-title::before{content:'▶';font-size:10px;margin-right:7px;color:#d1a7fc}
+.course .topic-title.is-open{background:#7848a9;color:#fff}
+.course .topic-title.is-open::before{content:'▼';color:#ffe2a7}
+.course .topic-toc{display:flex;flex-direction:column;gap:3px;margin:6px 0 10px 10px;padding-left:9px;border-left:2px solid #9972c6}
+.course .topic-toc a{font-size:11px;line-height:1.6;padding:7px 6px;overflow-wrap:anywhere}
+.course .topic-toc a[aria-current='location']{background:#efe4ff;color:#482278;font-weight:800}
+@media(max-width:950px){.course .inquiry-tree{flex-basis:100%}.course .topic-toc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.course .topic-toc a{min-width:0}}
+@media(max-width:600px){.course .topic-toc{grid-template-columns:repeat(2,minmax(0,1fr))}.course .inquiry-title{font-size:14px}}
