@@ -1,3 +1,25 @@
+/* Keep the review heading and its first topic on the same native anchor route. */
+(() => {
+  const topics = [...document.querySelectorAll('.curriculum-subnav a')];
+  const topicForHash = {
+    '#basics': '#basics', '#setup': '#basics', '#structures': '#basics',
+    '#turtle': '#turtle', '#trig': '#turtle',
+    '#physics': '#physics', '#physics-guide': '#physics'
+  };
+  function updateReviewSelection() {
+    const hash = location.hash || '#basics';
+    const selected = topicForHash[hash];
+    topics.forEach(link => {
+      const target = new URL(link.href, location.href);
+      const active = target.pathname === location.pathname && target.hash === selected;
+      link.classList.toggle('is-current', active);
+      if (active) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  }
+  window.addEventListener('hashchange', updateReviewSelection);
+  updateReviewSelection();
+})();
 (()=>{'use strict';const $=id=>document.getElementById(id),TAU=Math.PI*2,rad=d=>d*Math.PI/180;const drawCanvas=(id,draw)=>{const c=$(id);if(c&&c.getContext)draw(c.getContext('2d'),c.width,c.height)};const clear=(ctx,w,h)=>{ctx.fillStyle='#0b1628';ctx.fillRect(0,0,w,h)};const line=(ctx,pts,color,width=2)=>{ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke()};const dot=(ctx,x,y,color,r=5)=>{ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill()};
 function graph(){const d=+$('degree').value;$('degreeValue').textContent=d+'°';const sinOn=$('sinOn').checked,cosOn=$('cosOn').checked,tanOn=$('tanOn').checked;const sin=Math.sin(rad(d)),cos=Math.cos(rad(d)),tan=Math.abs(cos)<1e-10?null:sin/cos;$('trigValues').textContent='각도 '+d+'° · sin = '+sin.toFixed(3)+' · cos = '+cos.toFixed(3)+' · tan = '+(tan===null?'정의되지 않음':tan.toFixed(3));
 drawCanvas('trigGraph',(c,w,h)=>{clear(c,w,h);const left=35,right=w-14,top=26,bottom=h-38,mid=(top+bottom)/2,amp=(bottom-top)/4;
