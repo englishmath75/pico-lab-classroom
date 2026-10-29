@@ -4,7 +4,7 @@ on:
     branches: [main]
     paths:
       - 'public/pandas-data-lab/four-turtles*'
-      - 'public/pandas-data-lab/downloads/four_turtles.py'
+      - 'public/pandas-data-lab/downloads/four_turtles*.py'
       - 'tests/four-turtles/**'
       - '.github/workflows/four-turtles.yml'
   workflow_dispatch:
@@ -25,10 +25,14 @@ jobs:
         run: |
           python3 -m py_compile public/pandas-data-lab/downloads/four_turtles.py
           xvfb-run -a python3 tests/four-turtles/verify_turtle.py
+      - name: Verify object-focused answer against the original with real Turtle
+        run: xvfb-run -a python3 tests/four-turtles/verify_objects.py
       - name: Compare every real Turtle frame with the browser model
         run: node tests/four-turtles/verify_model.mjs
       - name: Export the actual Turtle canvas
-        run: gs -dSAFER -dBATCH -dNOPAUSE -dEPSCrop -sDEVICE=png16m -r96 -sOutputFile=test-results/four-turtles/actual-turtle.png test-results/four-turtles/actual-turtle.ps
+        run: |
+          gs -dSAFER -dBATCH -dNOPAUSE -dEPSCrop -sDEVICE=png16m -r96 -sOutputFile=test-results/four-turtles/actual-turtle.png test-results/four-turtles/actual-turtle.ps
+          gs -dSAFER -dBATCH -dNOPAUSE -dEPSCrop -sDEVICE=png16m -r96 -sOutputFile=test-results/four-turtles/objects-turtle.png test-results/four-turtles/objects-turtle.ps
       - uses: actions/upload-artifact@v4
         with:
           name: four-turtles-actual-output
