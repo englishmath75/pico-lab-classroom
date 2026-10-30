@@ -1,0 +1,82 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#6939D9"><meta name="description" content="리스트 튜플 딕셔너리를 하나의 Python 코드로 비교하는 영수쌤의 실습 수업"><title>D. 리스트·튜플·딕셔너리 한 파일로 배우기 | 영수쌤의 Python 교실</title><style>
+:root{font:15px/1.8 system-ui,"Malgun Gothic",sans-serif;background:#fff8f4;color:#302442}*{box-sizing:border-box}body{margin:0}a{color:#6233af}button{font:inherit;cursor:pointer}code,pre{font-family:Consolas,"Courier New",monospace}.wrap{width:min(100%,1030px);margin:auto;padding:23px 24px 65px}.top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:0 0 14px}.top a{font-size:13px;font-weight:750;text-decoration:none}.brand{color:#7234c5}.hero{padding:31px 34px;border-radius:20px;background:linear-gradient(120deg,#5136d0,#9538e3,#eb5e98);color:white}.hero h1{font-size:clamp(25px,4vw,38px);line-height:1.32;margin:10px 0}.hero p{color:#fff5fc;margin:8px 0}.tag{display:inline-block;padding:4px 12px;background:#ffe4ab;color:#6b3d73;font-size:12px;font-weight:800;border-radius:999px}.card{background:white;border:1px solid #eddef7;border-radius:16px;padding:24px 26px;margin:16px 0;box-shadow:0 7px 22px #874b9c0c}.card h2{font-size:22px;margin:0 0 11px}.card h3{font-size:17px;margin:18px 0 9px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.box{background:#f7f0ff;border:1px solid #ece0f9;border-radius:12px;padding:15px}.box strong{color:#693aac;font-size:17px}.box p{font-size:13px;margin:5px 0}.box code{font-size:12px;background:white;padding:2px 4px;border-radius:5px}.tablewrap{overflow-x:auto}table{border-collapse:collapse;min-width:530px;width:100%}th,td{border:1px solid #e6ddeb;padding:10px;text-align:left;font-size:13px}th{background:#f5edfb}.code{background:#112d40;color:#e9f8f8;padding:19px 22px;white-space:pre;overflow:auto;border-radius:12px;font:13px/1.78 Consolas,"Courier New",monospace;tab-size:4}.output{background:#eff8f5;color:#215649}.hint{background:#fff6e3;border-left:4px solid #efaf41;padding:13px 15px;border-radius:9px;margin:12px 0}.note{background:#eefbf6;border:1px solid #d2ebdf;padding:12px 15px;border-radius:10px;margin:12px 0}.buttons{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:12px 0}.btn{display:inline-block;border:0;border-radius:10px;background:#7639cf;color:white;padding:10px 16px;text-decoration:none;font-weight:800}.btn.alt{background:#eee6f9;color:#623ca5}.status{font-weight:750;font-size:12px;color:#117d73}.question{margin:10px 0;padding:12px 14px;border-radius:11px;background:#f9f2ff;border-left:4px solid #ad7ae4}.question summary{cursor:pointer;font-weight:800}.question p{margin:6px 0}.foot{font-size:12px;color:#736883;margin:22px 0}@media(max-width:690px){.wrap{padding:13px}.card,.hero{padding:18px}.grid{grid-template-columns:1fr}.code{padding:14px;font-size:12px}}
+</style></head><body><div class="wrap"><nav class="top"><a class="brand" href="./">영수쌤의 Python 교실</a><a href="./questions-supplement.html">← 궁금증을 파헤치는 탐구실</a></nav><header class="hero"><span class="tag">D. 오늘의 Python 실습 · 세 가지 자료구조</span><h1>리스트·튜플·딕셔너리<br>한 개의 코드로 비교해 봅시다</h1><p>1학년 때 배운 <b>리스트 명령어 여섯 가지</b>를 먼저 복습하고, 튜플과 딕셔너리의 차이를 이해합니다.</p></header>
+<section class="card"><h2>1. 세 가지 차이만 먼저 기억하세요</h2><div class="grid">
+<div class="box"><strong>A = [ ] · 리스트</strong><p>순서가 있고, 값을 <b>추가·수정·삭제</b>할 수 있습니다.</p><code>append / insert / remove</code></div>
+<div class="box"><strong>B = ( ) · 튜플</strong><p>리스트처럼 순서와 인덱스를 사용하지만 <b>원소 수정이 불가능</b>합니다.</p><code>count / index</code></div>
+<div class="box"><strong>C = { } · 딕셔너리</strong><p><b>키:값</b>으로 정보를 관리하며 데이터 분석에 매우 유용합니다.</p><code>get / keys / values / items</code></div></div>
+<div class="hint">튜플은 단순히 “괄호가 다른 리스트”가 아닙니다. 핵심은 <b>불변(immutable)</b>이라는 점입니다. <code>(3)</code>은 정수이지만, <code>(3,)</code>은 원소가 하나인 튜플입니다.</div></section>
+<section class="card" id="list"><h2>2. 배웠던 리스트 명령어 6개 복습</h2><p>리스트를 만들고 <b>추가 → 삽입 → 값 삭제 → 위치 삭제 → 정렬 → 역순</b>으로 차례대로 실행합니다. 출력 결과가 어떻게 달라지는지 확인하세요.</p><div class="tablewrap"><table><thead><tr><th>명령</th><th>의미</th><th>예시</th></tr></thead><tbody><tr><td><code>append()</code></td><td>맨 뒤에 원소 추가</td><td><code>A.append(100)</code></td></tr><tr><td><code>insert()</code></td><td>지정한 인덱스에 삽입</td><td><code>A.insert(1, 85)</code></td></tr><tr><td><code>remove()</code></td><td>해당 값의 첫 번째 항목 삭제</td><td><code>A.remove(70)</code></td></tr><tr><td><code>del</code></td><td>지정 위치의 원소 삭제</td><td><code>del A[0]</code></td></tr><tr><td><code>sort()</code></td><td>오름차순으로 정렬</td><td><code>A.sort()</code></td></tr><tr><td><code>reverse()</code></td><td>현재 순서를 거꾸로 뒤집기</td><td><code>A.reverse()</code></td></tr></tbody></table></div>
+<div class="note"><b>꼭 구분하세요.</b> <code>remove(70)</code>은 값이 70인 원소를 삭제하고, <code>del A[0]</code>은 0번 위치의 원소를 삭제합니다. <code>sort()</code>는 값 크기로 정렬하지만, <code>reverse()</code>는 크기와 관계없이 순서를 뒤집습니다. <code>del</code>은 <code>A.del()</code> 같은 메서드가 아니라 Python 문장입니다.</div></section>
+<section class="card" id="practice"><h2>3. 한 개의 Python 파일로 실습하기</h2><p>아래 전체 코드를 복사해 VS Code에서 <code>data_types.py</code>로 저장하고 실행하세요. 세 가지 자료구조의 변화가 차례대로 출력됩니다. <b>추가 패키지를 설치할 필요는 없습니다.</b></p><div class="buttons"><button type="button" class="btn" id="copyCode">전체 코드 복사</button><a class="btn alt" href="./downloads/list-tuple-dictionary.py" download="data_types.py">실습용 Python 파일 다운로드</a><span id="status" class="status" role="status"></span></div><pre class="code"><code id="source"># 리스트, 튜플, 딕셔너리 비교 - 한 파일로 실습
+A = [10, 20, 70, 40]
+B = (22, 55, 11, 99, 33)
+C = {"name": "민지", "gender": "여", "age": 17}
+
+print("=== 1. 리스트: 추가·수정·삭제 가능 ===")
+print("처음:", A)
+A.append(100)
+print("append:", A)
+A.insert(1, 85)
+print("insert:", A)
+A.remove(70)
+print("remove:", A)
+del A[0]
+print("del:", A)
+A.sort()
+print("sort:", A)
+A.reverse()
+print("reverse:", A)
+
+print("\n=== 2. 튜플: 읽기는 가능, 수정은 불가 ===")
+print("처음:", B)
+print("B[0]:", B[0])
+print("count(55):", B.count(55))
+print("index(11):", B.index(11))
+# B.append(100)   # 주석을 풀면 AttributeError
+# B[0] = 99       # 주석을 풀면 TypeError
+
+print("\n=== 3. 딕셔너리: 키(Key)와 값(Value) ===")
+print("처음:", C)
+print("이름:", C["name"])
+print("나이:", C.get("age"))
+C["age"] = 18
+C["job"] = "학생"
+print("수정·추가:", C)
+print("keys:", list(C.keys()))
+print("values:", list(C.values()))
+print("items:", list(C.items()))
+del C["gender"]
+print("del:", C)
+</code></pre><div class="hint"><b>실습 팁:</b> 튜플 부분에서 주석 처리된 <code>B.append(100)</code> 또는 <code>B[0] = 99</code>를 한 줄씩 풀어서 실행하면 오류를 확인할 수 있습니다. 오류를 확인한 후 다시 주석으로 바꾸세요.</div></section>
+<section class="card"><h2>4. 예상 출력으로 확인하기</h2><pre class="code output">=== 1. 리스트: 추가·수정·삭제 가능 ===
+처음: [10, 20, 70, 40]
+append: [10, 20, 70, 40, 100]
+insert: [10, 85, 20, 70, 40, 100]
+remove: [10, 85, 20, 40, 100]
+del: [85, 20, 40, 100]
+sort: [20, 40, 85, 100]
+reverse: [100, 85, 40, 20]
+
+=== 2. 튜플: 읽기는 가능, 수정은 불가 ===
+처음: (22, 55, 11, 99, 33)
+B[0]: 22
+count(55): 1
+index(11): 2
+
+=== 3. 딕셔너리: 키(Key)와 값(Value) ===
+처음: {'name': '민지', 'gender': '여', 'age': 17}
+이름: 민지
+나이: 17
+수정·추가: {'name': '민지', 'gender': '여', 'age': 18, 'job': '학생'}
+키: ['name', 'gender', 'age', 'job']
+값: ['민지', '여', 18, '학생']
+키·값 쌍: [('name', '민지'), ('gender', '여'), ('age', 18), ('job', '학생')]
+del: {'name': '민지', 'age': 18, 'job': '학생'}</pre></section>
+<section class="card"><h2>5. 튜플은 간단히, 딕셔너리는 Pandas와 연결하기</h2><p>튜플 <code>B</code>는 리스트처럼 <code>B[0]</code>으로 원소를 읽을 수 있지만 <code>append()</code>나 원소의 재할당은 지원하지 않습니다. <code>count()</code>와 <code>index()</code>는 조회할 때 사용하는 대표 메서드입니다.</p><p>딕셔너리 <code>C</code>는 번호가 아니라 <b>키</b>를 이용합니다. 예를 들어 <code>C["name"]</code>은 이름을, <code>C.get("age")</code>는 나이를 확인합니다. <code>C["age"] = 18</code>은 기존 값을 수정하고, <code>C["job"] = "학생"</code>은 새 키를 추가합니다.</p><p>이후 Pandas에서는 <b>열 이름을 키로 하고 여러 값을 리스트로 묶은 딕셔너리</b>를 <code>pd.DataFrame()</code>에 전달해 표를 만들 것입니다. 오늘은 이 연결만 이해하면 충분합니다.</p><div class="note"><b>수업 정리:</b> 데이터 분석에서 리스트는 여러 값을 나열할 때, 딕셔너리는 열 이름과 데이터를 연결할 때 중요합니다. 튜플은 특히 <code>df.shape</code>에서 <code>(행, 열)</code>처럼 결과를 반환할 때 다시 등장합니다.</div></section>
+<section class="card"><h2>6. 확인 질문 — 답을 생각한 뒤 열어 보세요</h2>
+<details class="question"><summary>A.sort()와 A.reverse()는 같은 명령인가요?</summary><p>아닙니다. <code>sort()</code>는 값의 순서로 정렬하고, <code>reverse()</code>는 현재 순서를 반대로 뒤집습니다.</p></details>
+<details class="question"><summary>튜플에 append()를 사용하면 어떻게 되나요?</summary><p>튜플에는 <code>append()</code>가 없으므로 <code>AttributeError</code>가 발생합니다. 튜플은 원소를 직접 추가하거나 변경할 수 없습니다.</p></details>
+<details class="question"><summary>딕셔너리에서 C[0]은 첫 번째 사람 정보인가요?</summary><p>아닙니다. 여기서는 숫자 인덱스 대신 <code>"name"</code>, <code>"age"</code> 같은 키를 사용해야 합니다. <code>C[0]</code>은 해당 키가 없으면 <code>KeyError</code>가 발생합니다.</p></details></section><p class="foot">영수쌤의 Python 교실 · 궁금증을 파헤치는 탐구실 · 학생용 한 파일 Python 실습</p></div><script>
+(()=>{const button=document.getElementById('copyCode');button.addEventListener('click',async()=>{const value=document.getElementById('source').textContent;try{await navigator.clipboard.writeText(value);document.getElementById('status').textContent='복사 완료. VS Code에 붙여 넣으세요.';}catch(e){document.getElementById('status').textContent='복사가 차단됐습니다. 코드를 선택해 Ctrl+C를 눌러 주세요.';}})})();
+</script></body></html>
