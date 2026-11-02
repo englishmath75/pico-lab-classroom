@@ -13,9 +13,7 @@ py -m pip --version
 py -m pip install pygame
 py -m pip install pandas matplotlib
 py -m pip show pygame
-py -m pip uninstall pygame</pre><p><b>py 명령이 없는 환경</b>에서는 같은 명령을 <code>python -m pip ...</code>로 바꿔 실행합니다. macOS·Linux에서는 보통 <code>python3 -m pip ...</code>를 사용합니다.</p><div class="note"><b>에러가 나면 이렇게 진단하세요.</b><ol><li><code>ModuleNotFoundError</code>: 현재 실행 중인 Python 환경에 패키지가 있는지 확인하고, VS Code 오른쪽 아래 Python 인터프리터를 선택합니다.</li><li><code>No module named pip</code>: 설치한 Python 환경과 pip 구성을 확인합니다.</li><li><code>No matching distribution found</code>: 패키지명·Python 버전·플랫폼 호환성을 확인합니다. <code>pygame-ce</code>는 대안 프로젝트이며 반드시 최신 버전에서 pygame이 실패한다는 뜻은 아닙니다. 필요한 경우 <code>py -m pip install pygame-ce</code>를 검토합니다.</li><li><code>python is not recognized</code>: Python 설치와 실행 경로를 확인합니다. <code>py</code>와 <code>python</code> 중 되는 명령을 사용합니다.</li><li><code>externally-managed-environment</code>나 권한 오류: 가상환경을 만들어 설치하는 편이 안전합니다.</li></ol></div><details class="lesson"><summary>심화: 가상환경 만들기와 모듈 이름 충돌</summary><pre>py -m venv .venv
-.venv\Scripts\python -m pip install pygame matplotlib pandas
-# PowerShell에서는 가상환경의 python 경로를 직접 지정해도 됩니다.</pre><p>프로젝트별로 서로 다른 패키지 버전을 관리하고, <code>import pygame</code>이 어느 인터프리터에서 실행되는지 점검합니다.</p></details></section>
+py -m pip uninstall pygame</pre></section>
 <section class="card" id="structures"><span class="pill">02 · 시험 핵심</span><h2>리스트·튜플·딕셔너리 이해</h2><table class="table"><thead><tr><th>자료구조</th><th>기호</th><th>특징</th><th>Pandas 연결</th></tr></thead><tbody><tr><td>리스트</td><td><code>[ ]</code></td><td>순서 있음, 항목 변경 가능</td><td>여러 관측값을 열 데이터로 사용</td></tr><tr><td>튜플</td><td><code>( )</code></td><td>순서 있음, 항목 변경 불가</td><td><code>df.shape</code>의 <code>(행, 열)</code></td></tr><tr><td>딕셔너리</td><td><code>{ }</code></td><td>키와 값으로 구성</td><td><code>pd.DataFrame(data)</code></td></tr></tbody></table><pre>books = [3, 5, 2]                 # 리스트
 size = (3, 2)                    # 튜플
 student = {"name": "A", "books": 3}  # 딕셔너리
