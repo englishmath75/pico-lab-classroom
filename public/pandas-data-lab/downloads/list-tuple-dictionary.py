@@ -1,40 +1,116 @@
-# 리스트, 튜플, 딕셔너리 비교 - 한 파일로 실습
-A = [10, 20, 70, 40]
-B = (22, 55, 11, 99, 33)
-C = {"name": "민지", "gender": "여", "age": 17}
+# ==========================================
+# 1. 리스트 (List)
+# ==========================================
+a = [30, 40, 50, 60, 70]
+print(a)
 
-print("=== 1. 리스트: 추가·수정·삭제 가능 ===")
-print("처음:", A)
-A.append(100)
-print("append:", A)
-A.insert(1, 85)
-print("insert:", A)
-A.remove(70)
-print("remove:", A)
-del A[0]
-print("del:", A)
-A.sort()
-print("sort:", A)
-A.reverse()
-print("reverse:", A)
+a.append(9)
+print(a)
 
-print("\n=== 2. 튜플: 읽기는 가능, 수정은 불가 ===")
-print("처음:", B)
-print("B[0]:", B[0])
-print("count(55):", B.count(55))
-print("index(11):", B.index(11))
-# B.append(100)   # 주석을 풀면 AttributeError
-# B[0] = 99       # 주석을 풀면 TypeError
+a.insert(2, 17)
+print(a)
 
-print("\n=== 3. 딕셔너리: 키(Key)와 값(Value) ===")
-print("처음:", C)
-print("이름:", C["name"])
-print("나이:", C.get("age"))
-C["age"] = 18
-C["job"] = "학생"
-print("수정·추가:", C)
-print("keys:", list(C.keys()))
-print("values:", list(C.values()))
-print("items:", list(C.items()))
-del C["gender"]
-print("del:", C)
+a.remove(60)
+print(a)
+
+del a[0]
+print(a)
+
+print(a[1:4])
+print(a[:3])
+print(a[2:])
+print(a[::2])
+print(a[::-1])
+
+a.sort()
+print(a)
+
+a.reverse()
+print(a)
+
+
+# ==========================================
+# 2. 튜플 (Tuple & 패킹/언패킹)
+# ==========================================
+t = (10, 20, 30, 20, 40)
+print(t)
+
+print(t[0])
+print(t[1:3])
+print(t.count(20))
+print(t.index(30))
+
+# 패킹(Packing) 확인
+box = 1, 2, 3
+print(box)
+print(type(box))
+
+# 언패킹(Unpacking) 확인
+x, y, z = box
+print(x, y, z)
+
+
+# ==========================================
+# 3. 딕셔너리 (Dictionary)
+# ==========================================
+d = {"name": "영수", "kor": 90, "eng": 85}
+print(d)
+
+print(d["name"])
+print(d.get("math", 0))
+
+d["math"] = 95
+print(d)
+
+d["kor"] = 100
+print(d)
+
+del d["eng"]
+print(d)
+
+val = d.pop("math")
+print(val)
+print(d)
+
+print(list(d.keys()))
+print(list(d.values()))
+print(list(d.items()))
+
+for k, v in d.items():
+    print(k, v)
+
+
+# ==========================================
+# 4. 반복문 실습 1: for item in ... (원소 직접 순회)
+# ==========================================
+
+# (1) 리스트 직접 순회
+for item in a:
+    print(item)
+
+# (2) 튜플 직접 순회
+for item in t:
+    print(item)
+
+# (3) 딕셔너리 직접 순회 (기본 순회는 Key 기준)
+for key in d:
+    print(key, d[key])
+
+
+# ==========================================
+# 5. 반복문 실습 2: for i in range(...) (인덱스/순번 순회)
+# ==========================================
+
+# (1) 리스트 인덱스 순회
+for i in range(len(a)):
+    print(i, a[i])
+
+# (2) 튜플 인덱스 순회
+for i in range(len(t)):
+    print(i, t[i])
+
+# (3) 딕셔너리 순번 순회 (Key 리스트 변환 후 접근)
+keys = list(d.keys())
+for i in range(len(keys)):
+    key = keys[i]
+    print(i, key, d[key])
