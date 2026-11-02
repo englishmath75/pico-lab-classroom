@@ -79,7 +79,7 @@ for angle in range(361):
 turtle.done()</code></pre><h3>Turtle 그래프 개념 미리보기</h3><canvas id="turtleGraph" class="graph" width="900" height="430" role="img" aria-label="Turtle 원본 값의 다항 지수 로그 원 그래프 미리보기"></canvas><div class="legend"><span><b style="background:cyan"></b>다항함수</span><span><b style="background:magenta"></b>지수함수</span><span><b style="background:#f4d02d"></b>로그함수</span><span><b style="background:lime"></b>원</span></div><p class="warning">그래프는 설명을 위한 웹 미리보기이며 실제 Turtle 창은 VS Code에서 Python 원본 파일을 실행해 확인합니다. 미리보기는 위 Turtle 코드의 구간과 계수를 사용합니다.</p></section>
 <section class="card" id="numpy-plot"><span class="pill">방법 ② · Matplotlib 실습</span><h2>NumPy와 Matplotlib — 일차·이차함수, 사인·코사인 그리기</h2>
 <p><code>np.linspace(시작, 끝, 개수)</code>로 x값을 만들고, <code>y</code>를 계산한 뒤 <code>plt.plot(x, y)</code>로 그래프를 그립니다. <code>plt.show()</code>로 창을 표시합니다.</p>
-<div class="subgrid"><div><b>실행 준비</b><pre class="code" style="max-height:none;padding:13px">py -m pip install numpy matplotlib</pre><p>VS Code 터미널에서 한 번 설치합니다. <code>py</code>가 없으면 <code>python -m pip install numpy matplotlib</code>를 사용하세요.</p></div><div><b>오늘 실습할 함수 네 가지</b><p>① 일차함수 <code>y = 2*x + 4</code><br>② 이차함수 <code>y = x**2</code><br>③ 사인함수 <code>np.sin(x)</code><br>④ 코사인함수 <code>np.cos(x)</code></p><p><b>어려운 지수·로그·원은 이번 Matplotlib 코드에서 제외</b>하여 먼저 기본에 집중합니다.</p></div></div>
+<div class="subgrid"><div><b>실행 준비</b><pre class="code" style="max-height:none;padding:13px">py -m pip install numpy matplotlib</pre><p>VS Code 터미널에서 한 번 설치합니다. <code>py</code>가 없으면 <code>python -m pip install numpy matplotlib</code>를 사용하세요.</p></div><div><b>오늘 실습할 함수 네 가지</b><p>① 일차함수 <code>y = 2*x + 4</code><br>② 이차함수 <code>y = x**2</code><br>③ 사인함수 <code>np.sin(x)</code><br>④ 코사인함수 <code>np.cos(x)</code></p></div></div>
 <h3>실습 1. 일차함수와 이차함수 (두 그래프 창)</h3>
 <p>먼저 x값 200개를 만든 뒤, 첫 번째에는 <code>y = 2*x + 4</code>, 두 번째에는 <code>y = x**2</code>를 계산합니다. <b>첫 번째 그래프 창을 닫으면 두 번째 그래프가 표시됩니다.</b> 코드가 끝까지 실행되는지 확인하세요.</p>
 <div class="steps"><a class="btn" href="./math-graph-code/matplotlib_linear_quadratic_easy.py" download="matplotlib_linear_quadratic_easy.py">① 일차·이차함수 .py 다운로드</a><button class="btn secondary" data-copy="linearQuadSource">① 코드 복사</button><span class="status" id="copyLinearStatus" role="status"></span></div>
@@ -116,7 +116,7 @@ plt.show()
 </code></pre>
 <div class="explain"><b>코드 읽기:</b> <code>np.linspace(-10, 10, 200)</code>은 -10부터 10까지 200개의 x값을 만듭니다. <code>x**2</code>의 <code>**</code>는 제곱을 뜻합니다. <code>plt.axhline(0)</code>은 가로 x축, <code>plt.axvline(0)</code>은 세로 y축을 표시합니다.</div>
 <h3>실습 2. 사인함수와 코사인함수 (한 그래프에 함께)</h3>
-<p>이번에는 <code>-2π</code>부터 <code>2π</code>까지 400개의 x값을 만들고 <code>np.sin(x)</code>, <code>np.cos(x)</code>를 계산합니다. <code>plt.plot()</code>을 두 번 실행하면 <b>하나의 그래프 창에 사인과 코사인이 함께 나타납니다.</b></p>
+<p><code>-2π</code>부터 <code>2π</code>까지 400개의 x값을 만들고 <code>np.sin(x)</code>, <code>np.cos(x)</code>를 계산합니다. <code>plt.plot()</code>을 두 번 실행하면 <b>하나의 그래프 창에 사인과 코사인이 함께 나타납니다.</b></p>
 <div class="steps"><a class="btn" href="./math-graph-code/matplotlib_sin_cos_easy.py" download="matplotlib_sin_cos_easy.py">② 사인·코사인 .py 다운로드</a><button class="btn secondary" data-copy="sinCosSource">② 코드 복사</button><span class="status" id="copyTrigStatus" role="status"></span></div>
 <pre class="code"><code id="sinCosSource">import numpy as np
 import matplotlib.pyplot as plt
@@ -153,11 +153,11 @@ plt.legend()
 # 6. 화면 출력
 plt.show()
 </code></pre>
-<div class="warning"><b>수업에서 꼭 알려주세요.</b> <code>plt.legend()</code>는 그래프에 <code>label</code>을 지정하고 <code>plt.plot()</code>으로 그린 <b>다음</b>에 실행해야 범례가 표시됩니다. 학생이 제시한 코드를 바탕으로 이 실행 순서만 바로잡았습니다. 사인·코사인은 <b>라디안</b>을 입력하며, <code>plt.xticks()</code>는 x축 눈금을 −2π, −π, 0, π, 2π로 보여 줍니다.</div>
-<h3>브라우저 그래프 미리보기</h3><p>아래 선택 메뉴에서 방금 배운 그래프를 하나씩 확인합니다. 사인·코사인은 한 좌표계에 함께 표시됩니다. 실제 수업은 위 Python 코드를 복사해 VS Code에서 실행하세요.</p>
+<div class="warning"><b>범례 표시 순서:</b> <code>plt.legend()</code>는 그래프에 <code>label</code>을 지정하고 <code>plt.plot()</code>으로 그린 <b>다음</b>에 실행해야 범례가 표시됩니다. 사인·코사인은 <b>라디안</b>을 입력하며, <code>plt.xticks()</code>는 x축 눈금을 −2π, −π, 0, π, 2π로 보여 줍니다.</div>
+<h3>브라우저 그래프 미리보기</h3><p>선택 메뉴에서 그래프를 하나씩 확인합니다. 사인·코사인은 한 좌표계에 함께 표시됩니다. 실제 수업은 위 Python 코드를 복사해 VS Code에서 실행하세요.</p>
 <div class="control"><label for="functionType">그래프 선택</label><select id="functionType"><option value="line">일차함수 y=2x+4</option><option value="square">이차함수 y=x²</option><option value="trig">사인·코사인 비교</option></select></div>
 <canvas id="numpyGraph" class="graph" width="900" height="430" role="img" aria-label="선택한 일차·이차·삼각함수의 그래프"></canvas><p id="plotExplain" class="explain" role="status"></p>
-<p class="warning">이 그래프는 <b>수업용 브라우저 미리보기</b>입니다. 정식 Matplotlib 창의 제목·눈금·범례는 두 개의 .py 파일을 직접 실행하여 확인합니다.</p></section>
+<p class="warning">브라우저 미리보기와 실제 Matplotlib 그래프 창은 표시 방식이 다를 수 있습니다. 제목·눈금·범례는 .py 파일을 실행해 확인하세요.</p></section>
 <section class="card"><h2>3. 두 방법의 차이 비교</h2><div style="overflow:auto"><table class="table"><thead><tr><th>비교</th><th>math + turtle</th><th>NumPy + Matplotlib</th></tr></thead><tbody><tr><td>계산</td><td>반복문의 x 또는 각도마다 직접 계산</td><td><code>np.linspace</code> 배열 전체를 계산</td></tr><tr><td>그리기</td><td><code>pen.goto(x,y)</code></td><td><code>plt.plot(x, y)</code></td></tr><tr><td>표준 Python 모듈</td><td><code>math, turtle</code></td><td>외부 라이브러리 설치 필요</td></tr><tr><td>장점</td><td>점 이동과 반복의 원리가 눈에 보임</td><td>함수·그래프를 간결하게 표현, 데이터 분석에 연결</td></tr></tbody></table></div><div class="warning"><b>그래프 실행 주의:</b> 일차·이차함수 파일은 <code>plt.show()</code>를 두 번 사용해 창이 순서대로 열립니다. 사인·코사인 파일은 <code>plt.plot()</code>을 두 번 사용하고 <code>plt.show()</code> 한 번으로 두 곡선을 함께 보여 줍니다.</div></section>
 <section class="card"><h2>4. VS Code 실행 안내</h2><div class="steps"><span>① Python 파일 다운로드</span><span>② VS Code에서 열기</span><span>③ 인터프리터 선택</span><span>④ 패키지 확인</span><span>⑤ 실행·그래프 확인</span></div><p>첫 번째 Turtle 파일은 Python GUI 환경에서 실행하면 그리기 창이 나타납니다. Matplotlib 실습 파일 두 개는 <code>numpy</code>와 <code>matplotlib</code>를 설치한 후 각각 실행하세요. <code>ModuleNotFoundError</code>가 나타나면 VS Code에서 선택한 Python 인터프리터와 터미널의 설치 환경이 같은지 확인합니다.</p><p>Turtle 파일과 Matplotlib 파일 두 개는 각각 별도로 실행하세요. 그래프가 보이지 않으면 저장 여부·실행 파일·Python 환경·그래픽 창이 뒤에 숨지 않았는지 확인합니다.</p></section>
 <section class="card" id="math-graph-quiz"><span class="pill exam">기말 대비</span><h2>5. 코드 해석·실행 결과 예측 문제</h2><p>학생이 직접 코드를 실행하고 결과를 확인한 다음 풀어 보세요. 정답을 제출하면 문항별 이유를 볼 수 있습니다.</p><div id="graphQuiz"></div><button class="btn" id="checkGraphQuiz" type="button">채점과 해설 보기</button><button class="btn secondary" id="resetGraphQuiz" type="button">처음부터 다시 풀기</button><p id="graphQuizResult" class="status" role="status"></p></section>
