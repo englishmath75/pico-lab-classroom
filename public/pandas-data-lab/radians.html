@@ -4,36 +4,20 @@
 <meta name="theme-color" content="#6732d4">
 <title>B. 호도법(라디안) | 궁금증을 파헤치는 탐구실</title>
 <meta name="description" content="왜 Python은 각도를 라디안으로 받을까요? 호의 길이와 반지름, 30도와 π/6, 단위원과 sin·cos를 직접 움직이며 배우는 고2 Python 보충 수업.">
-<link rel="stylesheet" href="./radians-lab.css?v=20261030-1"><link rel="stylesheet" href="./inquiry-nav.css?v=20261104-visibility2">
+<link rel="stylesheet" href="./radians-lab.css?v=20261030-1"><link rel="stylesheet" href="./inquiry-nav.css?v=20261104-accordion4">
 <script type="module" src="./radians-lab.js?v=20261030-1"></script>
-</head><body>
+<script src="./inquiry-nav.js?v=20261104-accordion4" defer></script></head><body>
 <a class="skip" href="#main">본문으로 이동</a><div class="layout">
 <aside class="sidebar" aria-label="보충 학습 메뉴">
 <a class="brand" href="./" aria-label="영수쌤의 Python 교실 홈페이지"><img src="./assets/englishmath-logo.png?v=20261028-original" alt="englishmath 로고"><div><strong>영수쌤의 Python 교실</strong><br><small>3단원 데이터 분석 · 소프트웨어와 생활</small></div></a>
 <nav class="course" aria-label="3단원 수업과 탐구실">
-<div class="inquiry-tree"><a class="inquiry-title" href="./questions-supplement.html">★ 궁금증을 파헤치는 탐구실</a>
-<a class="topic-title" href="./questions-supplement.html">A. 진법표현</a>
-<a class="topic-title is-open" href="./radians.html#question" aria-current="page">B. 호도법(라디안)</a>
-
-<a class="topic-title" href="./four-turtles.html#goals">C. 네 마리 거북이로 함수 그래프 그리기 (시험예상)</a>
-<a class="topic-title" href="./list-tuple-dictionary.html">D. 리스트·튜플·딕셔너리 비교 실습</a>
-
-<div class="topic-toc" aria-label="B. 호도법 목차">
-<a href="#question" aria-current="location">00. 오늘의 질문</a><a href="#angles">01. 각도와 라디안</a><a href="#definition">02. 라디안의 정의</a><a href="#thirty">03. 30도는 왜 π/6일까?</a><a href="#full-turn">04. 원 한 바퀴는 왜 2π일까?</a><a href="#python">05. Python math.radians()</a><a href="#trig">06. sin·cos와 라디안</a><a href="#experiment">07. 직접 실험하기</a><a href="#quiz">08. 확인 문제</a>
-</div>
-</div>
-
+<div class="inquiry-tree"><button type="button" class="inquiry-title" aria-expanded="true">★ 궁금증을 파헤치는 탐구실</button><div class="inquiry-items"><div class="inquiry-item"><a class="topic-title" href="./list-tuple-dictionary.html">A. 리스트·튜플·딕셔너리 비교 실습</a><button type="button" class="inquiry-toggle" aria-expanded="false" aria-label="목차 열기 또는 닫기">⌄</button><div class="topic-toc" hidden><a href="./list-tuple-dictionary.html#list">00. list</a><a href="./list-tuple-dictionary.html#practice">01. practice</a><a href="./list-tuple-dictionary.html#packing">02. packing</a></div></div><div class="inquiry-item"><a class="topic-title" href="./questions-supplement.html#top">B. 진법표현</a><button type="button" class="inquiry-toggle" aria-expanded="false" aria-label="목차 열기 또는 닫기">⌄</button><div class="topic-toc" hidden><a href="./questions-supplement.html#top">00. top</a><a href="./questions-supplement.html#bits">01. bits</a><a href="./questions-supplement.html#hex">02. hex</a><a href="./questions-supplement.html#python">03. python</a><a href="./questions-supplement.html#rgb">04. rgb</a><a href="./questions-supplement.html#arduino">05. arduino</a><a href="./questions-supplement.html#live">06. live</a><a href="./questions-supplement.html#quiz">07. quiz</a><a href="./questions-supplement.html#record">08. record</a></div></div><div class="inquiry-item"><a class="topic-title is-open" href="./radians.html#question" aria-current="page">C. 호도법(라디안)</a><button type="button" class="inquiry-toggle" aria-expanded="true" aria-label="목차 열기 또는 닫기">⌄</button><div class="topic-toc"><a href="#question">00. question</a><a href="#angles">01. angles</a><a href="#definition">02. definition</a><a href="#thirty">03. thirty</a><a href="#full-turn">04. full-turn</a><a href="#python">05. python</a><a href="#trig">06. trig</a><a href="#experiment">07. experiment</a><a href="#quiz">08. quiz</a></div></div><div class="inquiry-item"><a class="topic-title" href="./four-turtles.html#goals">D. 네 마리 거북이로 함수 그래프 그리기 (시험예상)</a><button type="button" class="inquiry-toggle" aria-expanded="false" aria-label="목차 열기 또는 닫기">⌄</button><div class="topic-toc" hidden><a href="./four-turtles.html#goals">00. goals</a><a href="./four-turtles.html#compare">01. compare</a><a href="./four-turtles.html#objects">02. objects</a><a href="./four-turtles.html#colors">03. colors</a><a href="./four-turtles.html#practice">04. practice</a><a href="./four-turtles.html#answer">05. answer</a><a href="./four-turtles.html#execution">06. execution</a><a href="./four-turtles.html#rubric">07. rubric</a></div></div></div></div>
 <a href="./python-review.html#basics">00. Python 핵심 복습</a><a href="./?page=home">01. 수업 안내</a><a href="./step-by-step.html?lesson=1">02. 차시별 실습</a><a href="./?page=data">03. 실습 자료</a><a href="./?page=exam">04. 복습 문제</a><a href="./?page=report">05. 탐구 보고서</a>
 </nav><p class="side-caption">00차시 Python 핵심 복습을 돕는 보충 학습입니다. 시험 출제 여부와 범위는 선생님의 최종 안내를 따릅니다.</p>
 </aside>
 <main id="main">
-<nav class="inquiry-quickbar" aria-label="A부터 D까지 탐구실 바로가기">
-<a href="./questions-supplement.html">A. 진법표현</a>
-<a href="./radians.html#question" aria-current="page">B. 호도법(라디안)</a>
-<a href="./four-turtles.html#goals">C. 네 마리 거북이로 함수 그래프 그리기</a>
-<a href="./list-tuple-dictionary.html">D. 리스트·튜플·딕셔너리 비교 실습</a>
-</nav>
-<header class="hero" id="question"><div class="hero-grid"><div><span class="eyebrow">B. 호도법(라디안) · 00. 오늘의 질문</span>
+<nav class="inquiry-quickbar" aria-label="탐구실 A부터 D까지"><a href="./list-tuple-dictionary.html">A. 리스트·튜플·딕셔너리 비교 실습</a><a href="./questions-supplement.html#top">B. 진법표현</a><a href="./radians.html#question" aria-current="page">C. 호도법(라디안)</a><a href="./four-turtles.html#goals">D. 네 마리 거북이로 함수 그래프 그리기 (시험예상)</a></nav>
+<header class="hero" id="question"><div class="hero-grid"><div><span class="eyebrow">C. 호도법(라디안) · 00. 오늘의 질문</span>
 <h1>30도를 넣었는데,<br>왜 <em>0.5236</em>이 나올까요?</h1>
 <p><code>math.radians(30)</code>은 각도를 작게 만드는 명령일까요? 같은 각도를 다른 단위로 읽는 방법입니다. 원 위를 따라간 길이와 반지름을 비교하면, 낯선 소수 안에 담긴 뜻이 보입니다.</p><p class="route">길이를 비교하고 → 각도를 바꾸고 → 코드로 확인합니다.</p></div>
 <svg class="hero-dial" viewBox="0 0 280 260" role="img" aria-label="30도와 π/6 라디안은 같은 중심각"><circle cx="130" cy="135" r="90" fill="#ffffff10" stroke="#ffffff66" stroke-width="2"/><path d="M130 135 L220 135 A90 90 0 0 0 207.94 90 Z" fill="#ffe9a333"/><path d="M220 135 A90 90 0 0 0 207.94 90" fill="none" stroke="#ffe5a2" stroke-width="8" stroke-linecap="round"/><path d="M130 135 H220 M130 135 L207.94 90" stroke="white" stroke-width="2" fill="none"/><circle cx="207.94" cy="90" r="6" fill="#ffe5a2"/><text x="151" y="125" font-size="15">30°</text><text x="88" y="245" font-size="24">π/6 rad</text></svg>
