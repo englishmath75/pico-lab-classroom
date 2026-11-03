@@ -1,7 +1,6 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#6732d4"><title>C. 네 마리 거북이로 함수 그래프 그리기 (시험예상) | 영수쌤의 Python 교실</title><meta name="description" content="한 거북이 원본 코드를 네 독립 객체로 수정하는 수업. 원본 코드 수정, 클래스와 객체, 객체 생성·설정 중심의 주관식 연습."><link rel="stylesheet" href="./radians-lab.css?v=20261030-1"><link rel="stylesheet" href="./inquiry-nav.css?v=20261030-1"><link rel="stylesheet" href="./four-turtles.css?v=20261030-objects"><script type="module" src="./four-turtles.js?v=20261030-objects"></script></head><body class="c-lesson"><a class="skip" href="#main">본문으로 이동</a><div class="layout"><aside class="sidebar" aria-label="보충 학습 메뉴">
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#6732d4"><title>C. 네 마리 거북이로 함수 그래프 그리기 (시험예상) | 영수쌤의 Python 교실</title><meta name="description" content="한 거북이 원본 코드를 네 독립 객체로 수정하는 수업. 원본 코드 수정, 클래스와 객체, 객체 생성·설정 중심의 주관식 연습."><link rel="stylesheet" href="./radians-lab.css?v=20261030-1"><link rel="stylesheet" href="./inquiry-nav.css?v=20261104-visibility2"><link rel="stylesheet" href="./four-turtles.css?v=20261030-objects"><script type="module" src="./four-turtles.js?v=20261030-objects"></script></head><body class="c-lesson"><a class="skip" href="#main">본문으로 이동</a><div class="layout"><aside class="sidebar" aria-label="보충 학습 메뉴">
 <a class="brand" href="./" aria-label="영수쌤의 Python 교실 홈페이지"><img src="./assets/englishmath-logo.png?v=20261028-original" alt="englishmath 로고"><div><strong>영수쌤의 Python 교실</strong><br><small>3단원 데이터 분석 · 소프트웨어와 생활</small></div></a>
 <nav class="course" aria-label="3단원 수업과 탐구실">
-<a href="./python-review.html#basics">00. Python 핵심 복습</a><a href="./?page=home">01. 수업 안내</a><a href="./step-by-step.html?lesson=1">02. 차시별 실습</a><a href="./?page=data">03. 실습 자료</a><a href="./?page=exam">04. 복습 문제</a><a href="./?page=report">05. 탐구 보고서</a>
 <div class="inquiry-tree"><a class="inquiry-title" href="./questions-supplement.html">★ 궁금증을 파헤치는 탐구실</a>
 <a class="topic-title" href="./questions-supplement.html">A. 진법표현</a>
 <a class="topic-title" href="./radians.html#question">B. 호도법(라디안)</a>
@@ -9,8 +8,17 @@
 <a class="topic-title" href="./list-tuple-dictionary.html">D. 리스트·튜플·딕셔너리 비교 실습</a>
 
 <div class="topic-toc" aria-label="C. 네 마리 거북이 목차"><a href="#goals">0. 오늘의 질문</a><a href="#compare">1. 원본 전체 코드</a><a href="#objects">2. 클래스와 네 객체</a><a href="#colors">3. 설정과 역할 나누기</a><a href="#practice">4. 원본 수정 예상문제</a><a href="#answer">5. 모범답안 확인</a><a href="#execution">6. 함께 그리기 · 참고</a><a href="#rubric">7. 채점 기준</a></div>
-</div></nav><p class="side-caption">이번 문제의 핵심: 클래스에서 객체 여러 개 만들기 · 객체별 역할 나누기</p>
-</aside><main id="main"><header class="c-hero" id="goals"><span class="exam-chip">C · 기말고사 주관식 예상 · 클래스와 객체</span><h1>한 마리에게 맡겼던 일을,<br><em>네 마리에게 나누려면?</em></h1><p>원본은 <code>pen = turtle.Turtle()</code>로 만든 거북이 한 마리가 네 그래프를 그립니다. <b>각 그래프를 맡을 거북이를 따로 만들려면, 코드의 어느 부분을 어떻게 바꾸어야 할까요?</b></p><div class="answer-navigation"><a class="btn secondary" href="#compare">원본 코드부터 보기 →</a><a class="btn secondary" href="#practice">직접 수정해서 풀기 →</a></div></header>
+</div>
+
+<a href="./python-review.html#basics">00. Python 핵심 복습</a><a href="./?page=home">01. 수업 안내</a><a href="./step-by-step.html?lesson=1">02. 차시별 실습</a><a href="./?page=data">03. 실습 자료</a><a href="./?page=exam">04. 복습 문제</a><a href="./?page=report">05. 탐구 보고서</a>
+</nav><p class="side-caption">이번 문제의 핵심: 클래스에서 객체 여러 개 만들기 · 객체별 역할 나누기</p>
+</aside><main id="main">
+<nav class="inquiry-quickbar" aria-label="A부터 D까지 탐구실 바로가기">
+<a href="./questions-supplement.html">A. 진법표현</a>
+<a href="./radians.html#question">B. 호도법(라디안)</a>
+<a href="./four-turtles.html#goals" aria-current="page">C. 네 마리 거북이로 함수 그래프 그리기</a>
+<a href="./list-tuple-dictionary.html">D. 리스트·튜플·딕셔너리 비교 실습</a>
+</nav><header class="c-hero" id="goals"><span class="exam-chip">C · 기말고사 주관식 예상 · 클래스와 객체</span><h1>한 마리에게 맡겼던 일을,<br><em>네 마리에게 나누려면?</em></h1><p>원본은 <code>pen = turtle.Turtle()</code>로 만든 거북이 한 마리가 네 그래프를 그립니다. <b>각 그래프를 맡을 거북이를 따로 만들려면, 코드의 어느 부분을 어떻게 바꾸어야 할까요?</b></p><div class="answer-navigation"><a class="btn secondary" href="#compare">원본 코드부터 보기 →</a><a class="btn secondary" href="#practice">직접 수정해서 풀기 →</a></div></header>
 <section class="lesson-card"><h2>오늘 설명할 수 있어야 하는 한 가지</h2><p class="question">“같은 Turtle 클래스로 객체를 여러 개 만들고, 각 객체에 다른 일을 맡길 수 있다.”</p><p>이번 문제는 <b>객체를 만드는 코드와 그 객체를 사용하는 방법</b>에 집중합니다. 함수식과 계산 구간은 원본에 주어져 있으므로 그대로 활용하세요.</p><p class="note">여러 객체를 만드는 일과 실행 순서를 정하는 일은 다릅니다. 객체를 네 개 만들어도 원본의 네 반복문을 그대로 두면 그래프는 차례대로 그려집니다. 함께 자라나는 모습은 아래 참고 실험에서 확인하고, 이번 답안에서는 <b>객체 생성·설정·담당 지정·이유 설명</b>을 연습합니다.</p><div class="small-steps"><span>① 원본 확인</span><span>② 객체 이해</span><span>③ 수정 작성</span><span>④ 이유 설명</span></div></section><section class="lesson-card" id="compare"><div class="section-head"><span class="section-no">1</span><h2>수정의 출발점 · 원본 전체 코드</h2></div><p>아래는 한 마리의 <code>pen</code>이 좌표축과 네 그래프를 그리는 <b>기본 원본</b>입니다. 먼저 상단의 객체 생성·설정 부분을 찾고, 아래쪽에서 <code>pen.</code>이 반복되는 위치를 살펴보세요.</p><div class="code-block original-block"><div class="code-head"><span>원본 · 한 마리로 순서대로 그리기</span><div class="code-actions"><button type="button" data-copy-code="originalCode" data-copy-status="originalStatus">원본 코드 복사</button><a href="./math-graph-code/math_turtle_original.py" download>원본 .py 다운로드</a></div></div><pre><code id="originalCode"># math 모듈과 반복문을 사용해 여러 수학 함수를 그리는 코드
 
 import math

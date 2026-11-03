@@ -10,3 +10,11 @@
 .course .topic-toc a[aria-current='location']{background:#efe4ff;color:#482278;font-weight:800}
 @media(max-width:950px){.course .inquiry-tree{flex-basis:100%}.course .topic-toc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.course .topic-toc a{min-width:0}}
 @media(max-width:600px){.course .topic-toc{grid-template-columns:repeat(2,minmax(0,1fr))}.course .inquiry-title{font-size:14px}}
+
+/* Keep A–D visible without scrolling the sidebar, and offer direct links above the lesson. */
+.course .inquiry-tree{margin-top:0;padding-top:0;border-top:0;margin-bottom:10px;padding-bottom:12px;border-bottom:1px solid #60708b}
+.inquiry-quickbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px;margin:0 0 14px;border:1px solid #e0d1f3;border-radius:14px;background:#f5efff}
+.inquiry-quickbar a{display:flex;align-items:center;min-width:0;border-radius:9px;padding:10px 11px;background:#fff;color:#57338a;text-decoration:none;font-weight:750;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+.inquiry-quickbar a:hover,.inquiry-quickbar a:focus-visible{background:#e6d7f9}
+.inquiry-quickbar a[aria-current="page"]{background:#713fc2;color:#fff}
+@media(max-width:780px){.inquiry-quickbar{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:8px}.inquiry-quickbar a{padding:9px;font-size:12px}}
