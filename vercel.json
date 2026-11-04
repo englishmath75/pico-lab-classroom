@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/videos/:path*",
+      "destination": "https://sw.englishmath.kr/videos/:path*"
+    },
+    {
+      "source": "/learning-videos/:path*",
+      "destination": "https://sw.englishmath.kr/learning-videos/:path*"
+    },
+    {
+      "source": "/pandas-data-lab/:path*",
+      "destination": "/:path*"
+    }
+  ]
+}
