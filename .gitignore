@@ -40,3 +40,10 @@ next-env.d.ts
 /.sites-runtime/
 /outputs/
 /work/
+
+# Generated SDK bundle and local emulator/test output
+public/pandas-data-lab/student-cloud.bundle.js
+*-debug.log
+.firebase/
+playwright-report/
+test-results/

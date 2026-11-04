@@ -1,0 +1,73 @@
+# 학생 개인 학습실 V1 — 운영 및 검증 기록
+
+기준일: 2026-11-04 (한국 시각). 원본 수업 저장소는 `englishmath75/pico-lab-classroom`, 공식 도메인 게시자는 `englishmath75/sw`입니다. 기존 수업 목차와 탐구실 A~D 제목은 유지합니다.
+
+## Firebase 실사
+
+| 관리 계정 | 확인된 결과 |
+| --- | --- |
+| englishmath@muhak-g-h.gne.go.kr | 실제 재인증 후 Console 접근. 아래 기존 3개 프로젝트 접근 및 소유자 권한 확인 |
+| englishmath6003@gmail.com | 실제 로그인 확인. 현재 프로젝트 목록 없음. somni-school 설정 접근 권한 없음 |
+
+| 기존 프로젝트 ID | 웹앱 | 인증 | Firestore | 요금제 |
+| --- | --- | --- | --- | --- |
+| muhak-school-alimi | 학교알리미 웹 | Google 활성화 | 기존 DB, asia-northeast3 | Spark |
+| somni-school | somni-web | Google 및 이메일/비밀번호 활성화 | 기존 DB, asia-northeast3 | Spark |
+| ebs-vocabulary-ranking | ebs-vocabulary-web | 익명 활성화, Google 미활성화 | 추가 확인 대상 | Spark |
+
+알리미 OAuth 허용 도메인에는 해당 Firebase 기본 도메인, localhost, 기존 Vercel 운영·미리보기 도메인이 있습니다. Somni에는 localhost와 기본 firebaseapp.com/web.app 도메인이 확인되었습니다. 연결된 GitHub 저장소 목록과 Somni 코드 검색에서 Somni 저장소는 확인되지 않았습니다. Firebase의 실제 프로젝트 식별과 저장소 식별은 구분합니다.
+
+기존 프로젝트를 재사용하면 인증·읽기/쓰기 할당량·규칙을 다른 서비스와 공유합니다. 이번 기능은 전용 **englishmath-python-classroom** 프로젝트로 분리했습니다. 학교 계정이 관리하며, Spark 무료 요금제를 유지합니다. 웹앱 닉네임은 `영수쌤의 Python 교실 웹`, Firestore `(default)` 리전은 **asia-northeast3 (Seoul)**입니다. Gemini, Analytics, 유료 예약 백업은 켜지 않았습니다. 기존 3개 프로젝트의 데이터와 규칙은 수정하지 않았습니다.
+
+학교 도메인의 기존 Google 로그인 사용 이력은 확인했지만, Google Workspace 관리 콘솔의 OU별 외부 앱 정책은 별도 검증이 필요합니다. 새 OAuth 앱의 실제 학생 계정 로그인 성공과 관리자 정책 확인을 구분해야 합니다.
+
+## 데이터와 권한
+
+- `users/{uid}`: Google 이메일, 표시 이름, 학급 ID, 승인 상태, 생성/변경 시각. 가입은 허용 도메인/명시적 이메일의 Google 인증만 허용하고 항상 pending으로 시작합니다.
+- `users/{uid}/workspaces/{id}`: 현재 코드와 제목, 차시, 마지막 실행 상태, 학생이 표시한 완료 여부, 저장 시각, 충돌 방지 버전.
+- `users/{uid}/revisions/{id}__{slot}`: 최근 10개 저장본을 고정 슬롯에 순환 보관합니다.
+- `users/{uid}/progress/{id}`: 코드 본문이 없는 학습 진행 정보. 승인된 담당 학급 교사만 조회합니다.
+- `users/{uid}/submissions/{id}`: 학생이 명시적으로 제출한 코드. 자동 저장본과 독립되어 있으며 담당 교사에게만 공개합니다.
+- `users/{uid}/limits/state`: 서버 시각과 원자적 트랜잭션을 사용하는 저장·제출 제한.
+- `classes/{classId}`: 학급 제목과 활성 상태.
+- `staff/{uid}`: 신뢰된 Console/Admin 경로에서만 설정하는 담당 학급 목록. 이메일 도메인으로 교사 권한을 부여하지 않습니다.
+- `config/access`: 허용 학교 도메인과 별도 승인 이메일. 클라이언트 쓰기는 금지합니다.
+
+운영 규칙의 원본은 루트 `firestore.rules`입니다. 학생은 다른 UID의 초안·수정 이력·제출본을 읽을 수 없습니다. 교사도 학생의 비공개 자동 저장 코드와 수정 이력을 읽을 수 없습니다. 학생은 본인의 승인 상태·학급·staff 역할을 바꿀 수 없습니다. 비밀번호·OAuth 토큰·서비스 계정 키는 문서에 저장하지 않습니다.
+
+## 공용 PC와 Python 격리
+
+Firebase Authentication은 메모리 지속성, Firestore는 메모리 캐시를 사용합니다. 새로고침과 탭 종료 후에는 다시 로그인해야 합니다. 로그인 때마다 Google 계정 선택 화면을 요청합니다. 15분 미사용 시 저장을 시도하고 로그아웃합니다. 실패하면 경고하고 .py 다운로드를 시도한 뒤 화면을 지웁니다. 브라우저의 자동 다운로드 차단 가능성 때문에 학생은 연결 오류 안내가 뜨면 직접 .py 파일을 내려받아야 합니다.
+
+계정 또는 실습 변경 시 세대 번호를 바꿔 늦게 도착한 이전 읽기·저장·실행 결과를 화면에 반영하지 않습니다. 로그아웃은 같은 브라우저의 다른 수업 탭에도 전달됩니다. 기존 익명 수업 실습은 현재 탭에만 유효한 15분 임시 보관으로 바꾸며, 소유자를 알 수 없는 예전 localStorage 코드는 자동으로 불러오거나 업로드하지 않습니다.
+
+개인 실습실은 `sandbox="allow-scripts"`의 불투명 출처 iframe 안에서 새 Worker를 만들고, 실행 후 iframe과 Worker를 폐기합니다. 코드와 가상 CSV만 전달하며 계정·토큰은 전달하지 않습니다. 실행 시간 20초, 준비 시간 120초, 출력 80,000자 제한이 있습니다. 기존 수업 실행기도 요청 완료 후 Worker를 종료합니다. Turtle은 기존 전용 시뮬레이션 또는 VS Code용 .py로 안내합니다.
+
+## 사용량 제한
+
+- 코드 최대 20,000자, 고정 실습 25개.
+- 자동 저장은 변경 시 60초 간격. 서버 규칙은 UID당 최소 15초 간격, 하루 150회 코드 저장·제출·삭제 동작으로 제한합니다.
+- 한 번의 코드 저장은 현재본·수정 이력·진도·제한 기록의 4개 쓰기입니다. 29명 각 150회 저장의 상한은 하루 17,400개 쓰기입니다. 가입·운영 문서와 추가 사용은 별도로 고려합니다.
+- 수정 이력 10개, 작업실 25개, 제출본 분리로 문서 수 증가를 제한합니다. 코드 본문은 단일 필드 색인에서 제외하도록 `firestore.indexes.json`을 제공합니다.
+- Spark에서 무료 할당량을 넘으면 기능이 제한될 수 있습니다. 자동 유료 전환이나 Blaze 연결은 하지 않습니다. 읽기 요청에 대한 전역 속도 제한은 Security Rules만으로 완전히 구현할 수 없으며, 향후 사용량에 따라 App Check 등 추가 통제를 검토해야 합니다.
+
+공식 무료 할당량 문서: https://firebase.google.com/docs/firestore/quotas
+
+## 검증 상태
+
+| 검증 | 결과 | 구분 |
+| --- | --- | --- |
+| 권한 분리·학생 역할 위조·담당 학급 제한·교사 초안 차단·쓰기 제한·충돌·이력 | 13개 테스트 PASS | Firebase Firestore Emulator |
+| 29명 동시 저장·개별 재조회·교차 UID 차단 | 각 29건 PASS | Emulator, 실제 학생 개인정보 사용 없음 |
+| 가상 Google A/B 로그인·공용 PC 교체·독립 브라우저 문맥 재조회 | PASS | Auth + Firestore Emulator, Chromium |
+| 실제 Pyodide 출력 1+2=3 | PASS | 샌드박스 iframe + 새 Worker |
+| 오프라인 경고·초안 유지·복원·자동 저장·미사용 로그아웃·390px 화면 | PASS | 브라우저 자동화; 후속 공용 PC 보강은 재검증 진행 |
+| 기존 수업 코드·문제·자료·링크 | 50개 누적 Python 실행, 20개 문제 정의, 다운로드 검사 PASS | 기존 회귀 테스트 |
+| Pages 경로 패키징 | 527개 내부 링크 및 동영상 목록 파일 PASS | 기존 sw 패키징/검사 도구 |
+| 운영 Firebase Rules 게시·학교 OAuth·실제 저장·실제 다른 기기 재조회 | 진행 중 | 운영 도메인 완료 증거 확보 전 완료 선언 금지 |
+
+## 개발 및 게시
+
+`npm ci` 후 `npm run build:student`로 공개용 Firebase SDK 번들을 생성합니다. 이 번들은 Git에 중복 저장하지 않으며 `npm run build`의 prebuild에서도 생성됩니다. `npm run test:student:rules`, `npm run test:student:browser`는 demo 프로젝트만 사용합니다. 운영 서비스 계정 키는 필요하지 않습니다.
+
+기존 `sw` Pages 워크플로가 원본 main의 변경을 가져와 게시합니다. 운영 설정과 서버 규칙, 초기 학급/교사 UID를 모두 준비한 후 `student-config.json`의 enabled를 켭니다. 운영 Firestore 배포는 반드시 전용 프로젝트 ID를 명시하고 기존 알리미/Somni 프로젝트에는 적용하지 않습니다.

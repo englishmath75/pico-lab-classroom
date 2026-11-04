@@ -1,0 +1,11 @@
+{
+  "enabled": false,
+  "firebase": {
+    "apiKey": "AIzaSyBCVPe5i_cZW3FwAdLrMRIA8TOqpJlyD_A",
+    "authDomain": "englishmath-python-classroom.firebaseapp.com",
+    "projectId": "englishmath-python-classroom",
+    "storageBucket": "englishmath-python-classroom.firebasestorage.app",
+    "messagingSenderId": "222468469874",
+    "appId": "1:222468469874:web:ff0d5935413fc5b2bafeeb"
+  }
+}

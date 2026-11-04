@@ -1,0 +1,135 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signed() {
+      return request.auth != null && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+    function own(uid) { return signed() && request.auth.uid == uid; }
+    function staff() {
+      return signed() && exists(/databases/$(database)/documents/staff/$(request.auth.uid));
+    }
+    function teaches(classId) {
+      return staff() && classId in get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.classIds;
+    }
+    function approved(uid) {
+      return own(uid) && get(/databases/$(database)/documents/users/$(uid)).data.status == 'approved';
+    }
+    function allowedEmail() {
+      let access = get(/databases/$(database)/documents/config/access).data;
+      return signed() && (request.auth.token.email in access.allowedEmails
+        || request.auth.token.email.split('@')[1] in access.allowedDomains);
+    }
+    function workspaceId(id) {
+      return id.matches('lesson-(0[0-9]|10)|scratch-(0[1-9]|10)|inquiry-[a-d]');
+    }
+    function validCode(d) {
+      return d.code is string && d.code.size() <= 20000 && d.title is string
+        && d.title.size() > 0 && d.title.size() <= 80 && workspaceId(d.workspaceId)
+        && d.lessonId == d.workspaceId && d.runState in ['idle', 'success', 'error']
+        && d.completed is bool && d.version is int && d.version >= 1
+        && d.version <= 1000000 && d.savedAt == request.time;
+    }
+    // A server-time quota document must be committed with every code mutation.
+    // Fixed workspace IDs and a 10-slot revision ring bound storage growth.
+    function ticket(uid, id, kind) {
+      let t = getAfter(/databases/$(database)/documents/users/$(uid)/limits/state).data;
+      return t.updatedAt == request.time && t.workspaceId == id && t.kind == kind;
+    }
+    match /config/access { allow read: if signed(); allow write: if false; }
+    match /staff/{uid} { allow get: if own(uid); allow list, write: if false; }
+    match /classes/{classId} {
+      allow read: if signed();
+      allow update: if teaches(classId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'active'])
+        && request.resource.data.title is string && request.resource.data.title.size() <= 80
+        && request.resource.data.active is bool;
+      allow create, delete: if false;
+    }
+    match /users/{uid} {
+      allow get: if own(uid) || teaches(resource.data.classId);
+      allow list: if teaches(resource.data.classId) && request.query.limit <= 100;
+      allow create: if own(uid) && allowedEmail()
+        && request.resource.data.keys().hasOnly(['email','displayName','classId','status','createdAt','updatedAt'])
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.displayName is string && request.resource.data.displayName.size() <= 80
+        && request.resource.data.status == 'pending'
+        && get(/databases/$(database)/documents/classes/$(request.resource.data.classId)).data.active == true
+        && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
+      allow update: if teaches(resource.data.classId) && request.auth.uid != uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+        && request.resource.data.status in ['pending','approved','blocked']
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+      match /limits/state {
+        allow read: if own(uid) || teaches(get(/databases/$(database)/documents/users/$(uid)).data.classId);
+        allow create, update: if approved(uid)
+          && request.resource.data.keys().hasOnly(['day','count','workspaceId','kind','updatedAt'])
+          && request.resource.data.day == request.time.date()
+          && request.resource.data.updatedAt == request.time
+          && workspaceId(request.resource.data.workspaceId)
+          && request.resource.data.kind in ['save','submit','delete']
+          && request.resource.data.count is int && request.resource.data.count <= 150
+          && ((!exists(/databases/$(database)/documents/users/$(uid)/limits/state)
+                && request.resource.data.count == 1)
+            || (exists(/databases/$(database)/documents/users/$(uid)/limits/state)
+              && request.time >= resource.data.updatedAt + duration.value(15,'s')
+              && ((resource.data.day == request.time.date() && request.resource.data.count == resource.data.count + 1)
+                || (resource.data.day < request.time.date() && request.resource.data.count == 1))))
+          && ((request.resource.data.kind == 'save'
+                && getAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+            || (request.resource.data.kind == 'submit'
+                && getAfter(/databases/$(database)/documents/users/$(uid)/submissions/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+            || (request.resource.data.kind == 'delete'
+                && exists(/databases/$(database)/documents/users/$(uid)/workspaces/$(request.resource.data.workspaceId))
+                && !existsAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(request.resource.data.workspaceId))));
+        allow delete: if false;
+      }
+      match /workspaces/{id} {
+        allow read: if approved(uid);
+        allow create, update: if approved(uid) && workspaceId(id)
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt'])
+          && request.resource.data.workspaceId == id && validCode(request.resource.data)
+          && ticket(uid,id,'save')
+          && ((!exists(/databases/$(database)/documents/users/$(uid)/workspaces/$(id)) && request.resource.data.version == 1)
+            || (exists(/databases/$(database)/documents/users/$(uid)/workspaces/$(id)) && request.resource.data.version == resource.data.version + 1));
+        allow delete: if approved(uid) && ticket(uid,id,'delete');
+      }
+      match /revisions/{id} {
+        allow read: if approved(uid);
+        allow create, update: if approved(uid)
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt','slot'])
+          && validCode(request.resource.data) && request.resource.data.slot is int
+          && request.resource.data.slot >= 0 && request.resource.data.slot < 10
+          && id == request.resource.data.workspaceId + '__' + string(request.resource.data.slot)
+          && ticket(uid,request.resource.data.workspaceId,'save')
+          && request.resource.data.version == getAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.version
+          && request.resource.data.code == getAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.code;
+        allow delete: if approved(uid);
+      }
+      match /progress/{id} {
+        allow read: if approved(uid) || teaches(get(/databases/$(database)/documents/users/$(uid)).data.classId);
+        allow create, update: if approved(uid) && workspaceId(id)
+          && request.resource.data.keys().hasOnly(['workspaceId','runState','completed','savedAt','version'])
+          && ticket(uid,id,'save')
+          && request.resource.data == {
+            'workspaceId':id,
+            'runState':getAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(id)).data.runState,
+            'completed':getAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(id)).data.completed,
+            'savedAt':request.time,
+            'version':getAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(id)).data.version
+          };
+        allow delete: if approved(uid) && ticket(uid,id,'delete');
+      }
+      match /submissions/{id} {
+        allow read: if approved(uid) || teaches(resource.data.classId);
+        allow create, update: if approved(uid) && workspaceId(id) && ticket(uid,id,'submit')
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt','classId'])
+          && validCode(request.resource.data) && request.resource.data.workspaceId == id
+          && request.resource.data.classId == get(/databases/$(database)/documents/users/$(uid)).data.classId;
+        allow delete: if approved(uid);
+      }
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

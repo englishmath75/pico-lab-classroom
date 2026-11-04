@@ -1,0 +1,35 @@
+name: Student classroom security and browser checks
+on:
+  pull_request:
+    paths: ['firestore*', 'firebase.json', 'public/pandas-data-lab/student-*', 'tests/student-*', 'scripts/build-student-room.mjs', 'package*.json', '.github/workflows/student-classroom.yml']
+  push:
+    branches: [main]
+    paths: ['firestore*', 'firebase.json', 'public/pandas-data-lab/student-*', 'tests/student-*', 'scripts/build-student-room.mjs', 'package*.json', '.github/workflows/student-classroom.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  student-classroom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: npm ci
+      - run: npm run build:student
+      - run: npm run test:student:rules
+      - run: npx playwright install --with-deps --only-shell chromium
+      - run: npm run test:student:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: student-classroom-evidence
+          path: test-results/
+          if-no-files-found: ignore

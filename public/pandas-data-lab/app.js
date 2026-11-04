@@ -5,11 +5,11 @@ const DATA={"sports": {"name": "스포츠 기록(가상)", "note": "수업용 �
 const $=id=>document.getElementById(id), esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const KEY="pandas-data-detective-v1";
 function initial(){return{done:[],lesson:0,dataset:"sports",csv:DATA.sports.csv,code:"",report:{},answers:{},exam:{}}}
-let state;try{state=Object.assign(initial(),JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){state=initial()}
+let state;try{state=Object.assign(initial(),JSON.parse(window.ClassroomTemporaryStorage.getItem(KEY)||"{}"))}catch(e){state=initial()}
 if(!Array.isArray(state.done))state.done=[];state.done=[...new Set(state.done.filter(n=>Number.isInteger(n)&&n>=0&&n<10))];if(typeof state.csv!=="string")state.csv=DATA.sports.csv;
 for(const k of ["report","answers","exam"])if(!state[k]||typeof state[k]!=="object")state[k]={};
 state.lesson=Math.max(0,Math.min(9,Number(state.lesson)||0));
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state));$("saveStatus").textContent="✓ 자동 저장됨"}catch(e){$("saveStatus").textContent="저장 제한: JSON 백업 권장"}updateProgress()}
+function save(){try{window.ClassroomTemporaryStorage.setItem(KEY,JSON.stringify(state));$("saveStatus").textContent="✓ 자동 저장됨"}catch(e){$("saveStatus").textContent="저장 제한: JSON 백업 권장"}updateProgress()}
 function updateProgress(){$("progressText").textContent=state.done.length+" / 10";$("progressBar").style.width=state.done.length*10+"%"}
 function screen(name){document.querySelectorAll(".page").forEach(e=>e.hidden=e.id!==name);document.querySelectorAll(".nav").forEach(e=>e.classList.toggle("active",e.dataset.page===name));const pageTitles={home:"01. 수업 안내",lesson:"보관 2. 이전 차시별 예제",lab:"선택 2. 파이썬 자유 실습",data:"03. 실습 자료",report:"05. 탐구 보고서",exam:"04. 복습 문제",teacher:"교사 참고 1. 수업 준비·운영"};$("viewTitle").textContent=pageTitles[name]||"3단원 데이터 분석";document.title=$("viewTitle").textContent+" | 소프트웨어와 생활 · 3단원";$("viewDesc").textContent=({home:"3단원 「현상을 분석하는 소프트웨어」의 학습 순서와 자료를 확인합니다.",lesson:"이전 수업의 예제 모음입니다. 정규 10차시와 구분하여 필요한 예제만 활용합니다.",lab:"코드와 CSV를 직접 입력하고 실행 결과를 확인합니다.",data:"실습용 CSV를 내려받거나 직접 불러와 표와 그래프를 확인합니다.",report:"탐구 질문, 분석 결과, 그래프 해석과 자료의 한계를 작성합니다.",exam:"정규 10차시의 개념과 코드 해석을 20문항으로 복습합니다."})[name]||"";window.scrollTo(0,0);if(name==="data")inspect();if(name==="report")renderReport()}
 document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>screen(b.dataset.page)));
