@@ -13,13 +13,15 @@
 | --- | --- | --- | --- | --- |
 | muhak-school-alimi | 학교알리미 웹 | Google 활성화 | 기존 DB, asia-northeast3 | Spark |
 | somni-school | somni-web | Google 및 이메일/비밀번호 활성화 | 기존 DB, asia-northeast3 | Spark |
-| ebs-vocabulary-ranking | ebs-vocabulary-web | 익명 활성화, Google 미활성화 | 추가 확인 대상 | Spark |
+| ebs-vocabulary-ranking | ebs-vocabulary-web | 익명 활성화, Google 미활성화 | 기존 DB, asia-northeast3 | Spark |
 
 알리미 OAuth 허용 도메인에는 해당 Firebase 기본 도메인, localhost, 기존 Vercel 운영·미리보기 도메인이 있습니다. Somni에는 localhost와 기본 firebaseapp.com/web.app 도메인이 확인되었습니다. 연결된 GitHub 저장소 목록과 Somni 코드 검색에서 Somni 저장소는 확인되지 않았습니다. Firebase의 실제 프로젝트 식별과 저장소 식별은 구분합니다.
 
 기존 프로젝트를 재사용하면 인증·읽기/쓰기 할당량·규칙을 다른 서비스와 공유합니다. 이번 기능은 전용 **englishmath-python-classroom** 프로젝트로 분리했습니다. 학교 계정이 관리하며, Spark 무료 요금제를 유지합니다. 웹앱 닉네임은 `영수쌤의 Python 교실 웹`, Firestore `(default)` 리전은 **asia-northeast3 (Seoul)**입니다. Gemini, Analytics, 유료 예약 백업은 켜지 않았습니다. 기존 3개 프로젝트의 데이터와 규칙은 수정하지 않았습니다.
 
-학교 도메인의 기존 Google 로그인 사용 이력은 확인했지만, Google Workspace 관리 콘솔의 OU별 외부 앱 정책은 별도 검증이 필요합니다. 새 OAuth 앱의 실제 학생 계정 로그인 성공과 관리자 정책 확인을 구분해야 합니다.
+EBS 프로젝트의 승인 도메인은 localhost, ebs-vocabulary-ranking.firebaseapp.com, ebs-vocabulary-ranking.web.app, rnlrk-wlq.github.io입니다. 기존 서비스의 설정은 읽기만 했습니다.
+
+새 OAuth 앱에서 학교 교사 계정과 별도 허용 Gmail 계정의 실제 로그인이 모두 성공했습니다. 학교 교사 계정의 현재 정책에서 동작한다는 증거이며, Google Workspace 관리 콘솔의 학생 OU별 외부 앱 정책까지 확인한 것은 아닙니다. 실제 학생 계정 정책과 학교·가정의 물리적 PC 검증은 별도 확인 대상입니다.
 
 ## 데이터와 권한
 
@@ -48,7 +50,7 @@ Firebase Authentication은 메모리 지속성, Firestore는 메모리 캐시를
 - 코드 최대 20,000자, 고정 실습 25개.
 - 자동 저장은 변경 시 60초 간격. 서버 규칙은 UID당 최소 15초 간격, 하루 150회 코드 저장·제출·삭제 동작으로 제한합니다.
 - 한 번의 코드 저장은 현재본·수정 이력·진도·제한 기록의 4개 쓰기입니다. 29명 각 150회 저장의 상한은 UTC 날짜 기준 17,400개 쓰기입니다. 29명이 50분 수업 동안 매분 변경·저장하면 약 5,800개 쓰기입니다. Firebase 무료 할당량 초기화 시각과 이 날짜 경계는 다르므로, 여러 날짜에 걸친 집중 사용과 가입·운영 문서까지 포함하면 무료 한도에 도달할 수 있습니다.
-- 수정 이력 10개, 작업실 25개, 제출본 분리로 문서 수 증가를 제한합니다. 코드 본문은 단일 필드 색인에서 제외하도록 `firestore.indexes.json`을 제공합니다.
+- 수정 이력 10개, 작업실 25개, 제출본 분리로 문서 수 증가를 제한합니다. `firestore.indexes.json`과 같이 workspaces/revisions/submissions의 code 필드에 대한 컬렉션 범위 오름차순·내림차순·배열 색인을 운영 Console에서 사용 중지했습니다. 기존 기본 컬렉션 그룹 색인 비활성 상태는 유지합니다.
 - Spark에서 무료 할당량을 넘으면 기능이 제한될 수 있습니다. 자동 유료 전환이나 Blaze 연결은 하지 않습니다. 읽기 요청에 대한 전역 속도 제한은 Security Rules만으로 완전히 구현할 수 없으며, 향후 사용량에 따라 App Check 등 추가 통제를 검토해야 합니다.
 
 공식 무료 할당량 문서: https://firebase.google.com/docs/firestore/quotas
@@ -61,10 +63,33 @@ Firebase Authentication은 메모리 지속성, Firestore는 메모리 캐시를
 | 29명 동시 저장·개별 재조회·교차 UID 차단 | 각 29건 PASS | Emulator, 실제 학생 개인정보 사용 없음 |
 | 가상 Google A/B 로그인·공용 PC 교체·독립 브라우저 문맥 재조회 | PASS | Auth + Firestore Emulator, Chromium |
 | 실제 Pyodide 출력 1+2=3 | PASS | 샌드박스 iframe + 새 Worker |
-| 오프라인 경고·초안 유지·복원·자동 저장·미사용 로그아웃·390px 화면·기존 수업 탭 분리 | PASS | Chromium 자동화, GitHub Actions 41755302336; 자동 다운로드 제거 후 추가 검사 진행 |
+| 오프라인 경고·초안 유지·복원·자동 저장·미사용 로그아웃·390px 화면·기존 수업 탭 분리·교사 승인·명시적 제출물 조회 | 13개 시나리오 PASS | Chromium 자동화, GitHub Actions 41758708144 |
 | 기존 수업 코드·문제·자료·링크 | 50개 누적 Python 실행, 20개 문제 정의, 다운로드 검사 PASS | 기존 회귀 테스트 |
 | Pages 경로 패키징 | 527개 내부 링크 및 동영상 목록 파일 PASS | 기존 sw 패키징/검사 도구 |
-| 운영 Firebase Rules 게시·학교 OAuth·실제 저장·실제 다른 기기 재조회 | 진행 중 | 운영 도메인 완료 증거 확보 전 완료 선언 금지 |
+| 운영 Firebase Rules 게시·익명 읽기 차단 | 게시 완료, 익명 REST 요청 403 PERMISSION_DENIED | 전용 운영 프로젝트 |
+| 실제 학교 Google OAuth·코드 작성·실행·수동/자동 저장 | PASS, print(1 + 2) 결과 3 | 공식 운영 도메인, 본인 교사 계정 |
+| 독립 로그인 세션의 서버 저장본 재조회·재실행 | PASS | 운영 도메인 새 탭에서 메모리 인증 미승계 확인 후 실제 재로그인. 물리적 집 PC 검증과 구분 |
+| 실제 본인 학교 계정 A → 로그아웃 → Gmail 계정 B | 이전 코드 제거, 같은 scratch-10에 서로 다른 코드 저장 PASS | 운영 도메인, B에는 교사 메뉴 없음. 실제 학생 개인정보를 테스트에 사용하지 않음 |
+| 실제 본인 Gmail 학급 등록·교사 승인·명시적 코드 제출 | PASS | 운영 계정 두 개. 다른 학생의 승인/코드는 변경하지 않음 |
+| 최신 교사 관리실의 제출 코드·진도·마지막 저장 시각 조회 | PASS | 학교 계정으로 재로그인, 일반 계정 B의 명시적 제출본 확인 |
+| B에서 A로 복귀 | B의 코드가 아닌 A의 원래 코드 재조회 PASS | 동일 PC·동일 scratch-10·서로 다른 실제 Firebase UID |
+| 실제 운영 세션 미사용 자동 로그아웃 | 공용 PC 보호 로그아웃 안내·개인 코드 화면 제거 확인 | 최신 배포의 실제 학교 계정 세션, 자동화 타이머 검사와 별도 |
+
+기능 변경 PR #16·#17·#18이 기존 main 이력을 유지해 병합된 상태를 확인했습니다. 최종 보안/브라우저 검증: https://github.com/englishmath75/pico-lab-classroom/actions/runs/41758708144 . 공식 Pages 게시 성공: https://github.com/englishmath75/sw/actions/runs/41759150721 . 실제 `https://sw.englishmath.kr/site-version.json`의 원본 커밋은 `1fd8aa3bbf6cd7b0e2d7f5947a4ad2cda81bf6c2`로 확인했습니다. 문서만 추가하는 후속 커밋은 기능 소스를 바꾸지 않습니다.
+
+운영 실행 증거(계정/학생 개인정보가 보이지 않는 화면):
+
+![운영 Python 실행 결과](evidence/python-room-production-2026-11-04.jpg)
+
+## 남은 현장 확인 및 운영 범위
+
+V1 기능과 운영 도메인의 실제 로그인·저장·독립 세션 복원·계정 전환·교사 제출물 조회는 확인했습니다. 학교 PC와 집 PC의 물리적인 두 기기에서 접속한 것은 아니므로 해당 현장 검증은 완료로 표시하지 않습니다. 실제 학생 OU의 외부 OAuth 앱 허용 정책과 학생 계정 로그인도 학교 관리자/해당 학생의 협조로 확인해야 합니다. 29명 결과는 Emulator 동시성 모의시험이며 29대 실기기 운영 부하 시험이 아닙니다.
+
+Google Workspace 관리 콘솔에 실제 학교 계정으로 접근했으나 추가 비밀번호 재인증이 요구되었습니다. 이 추가 인증과 정책 열람이 완료되지 않았으므로 OU별 정책을 추정하지 않습니다. 계정 비밀번호나 인증 코드는 코드·문서·Firestore에 저장하지 않았습니다.
+
+초기 학급은 `class-2-1`(2026학년도 2학년 1반)입니다. 본인 두 계정의 자유 실습 10에 검증용 코드가 있으며, Gmail 본인 계정은 일반 승인 학습자로 테스트했습니다. 교사 권한을 Gmail 또는 학교 도메인 전체에 부여하지 않았습니다. 기존 서비스와 다른 학생 프로필은 변경하지 않았습니다.
+
+기본 수업 자료와 학생용 한글 제목을 유지했습니다. 기존 19개 HTML의 h1/h2/h3 및 탐구실 목차를 비교해 일치하는 것을 확인했습니다. Turtle의 브라우저 실행 제한과 input() 대신 변수 입력 안내는 실습 화면에 표시합니다.
 
 ## 개발 및 게시
 
