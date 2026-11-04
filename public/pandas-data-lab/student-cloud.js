@@ -50,10 +50,10 @@ export function createCloud(config, emulator = false) {
       return result.docs.map(d => ({ uid: d.id, ...d.data() }));
     },
     approve(uid, status) { return updateDoc(doc(db, 'users', uid), { status, updatedAt: serverTimestamp() }); },
-    async teacherDetails(uid) {
+    async teacherDetails(uid, classId) {
       const [progress, submissions, quota] = await Promise.all([
         getDocsFromServer(query(collection(db, 'users', uid, 'progress'), limit(50))),
-        getDocsFromServer(query(collection(db, 'users', uid, 'submissions'), limit(50))),
+        getDocsFromServer(query(collection(db, 'users', uid, 'submissions'), where('classId','==',classId), limit(50))),
         getDocFromServer(doc(db, 'users', uid, 'limits', 'state'))
       ]);
       return { progress: progress.docs.map(d => d.data()), submissions: submissions.docs.map(d => d.data()), quota: quota.data() };

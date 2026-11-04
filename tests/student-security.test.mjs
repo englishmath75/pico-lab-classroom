@@ -66,6 +66,8 @@ test('교사는 담당 학급 학생만 승인하고 진행·제출만 읽음',a
 test('학생 제출본만 교사 열람 허용, 타 학급 교사 차단',async()=>{
   await new StudentStore(auth('alice')).mutate('alice','lesson-01','submit',input('print("제출")'),0);
   assert.equal((await getDoc(doc(auth('teacher'),'users/alice/submissions/lesson-01'))).data().code,'print("제출")');
+  await assertSucceeds(getDocs(query(collection(auth('teacher'),'users/alice/submissions'),where('classId','==','class-2-1'),limit(50))));
+  await assertFails(getDocs(query(collection(auth('teacher'),'users/alice/submissions'),limit(50))));
   await seed([['staff/other-teacher',{classIds:['class-2-2']}]]);
   await assertFails(getDoc(doc(auth('other-teacher'),'users/alice/submissions/lesson-01')));
 });
