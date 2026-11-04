@@ -1,0 +1,37 @@
+name: MK first-grade isolation regression
+on:
+  push:
+    branches: [feat/mk-grade1-clone-20261105]
+    paths: ['firestore.rules','mk/**','scripts/build-mk-site.mjs','tests/grade1-isolation.test.mjs','.github/workflows/mk-grade1-isolation.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  grade-isolation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: npm ci
+      - run: npm run build:student
+      - run: node scripts/build-mk-site.mjs
+      - name: Verify both grade bundles are separated
+        run: |
+          test -f mk-dist/student-cloud.bundle.js
+          test -f mk-dist/student-config.json
+          node --check mk/grade1-cloud.js
+          node --check public/pandas-data-lab/student-cloud.js
+          grep -q grade1_users mk-dist/student-cloud.bundle.js
+          grep -q englishmath-python-classroom mk-dist/student-config.json
+      - name: Grade 2 security regression
+        run: npm run test:student:rules
+      - name: Grade 1 isolation regression
+        run: npx firebase emulators:exec --project demo-englishmath-python --only firestore 'node --test --test-concurrency=1 tests/grade1-isolation.test.mjs'
