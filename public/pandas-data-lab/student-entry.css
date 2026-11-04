@@ -1,0 +1,3 @@
+.student-entry{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:9px 18px;background:#e7f3ff;border-bottom:1px solid #c8ddec;font:650 13px/1.7 system-ui,"Malgun Gothic",sans-serif}.student-entry a{color:#164e64;padding:5px 10px;border-radius:7px;text-decoration:none}.student-entry a:hover{background:white}.student-entry a:focus-visible{outline:3px solid #d79520;outline-offset:2px}@media print{.student-entry{display:none}}
+
+.student-entry button{font:inherit;padding:4px 10px;border:1px solid #bad0de;border-radius:7px;background:white;color:#164e64;cursor:pointer}.student-entry small{font-size:11px;color:#4f6e80}

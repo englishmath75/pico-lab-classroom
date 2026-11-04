@@ -1,0 +1,8 @@
+{
+  "indexes": [],
+  "fieldOverrides": [
+    { "collectionGroup": "workspaces", "fieldPath": "code", "indexes": [] },
+    { "collectionGroup": "revisions", "fieldPath": "code", "indexes": [] },
+    { "collectionGroup": "submissions", "fieldPath": "code", "indexes": [] }
+  ]
+}

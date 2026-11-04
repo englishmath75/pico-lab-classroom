@@ -48,9 +48,9 @@ render();
 
 const editor=$('studentCode'),reason=$('studentReason'),key='englishmath-inquiry-c-four-turtles-v1',reasonKey=key+'-reason';
 let saved=false;
-try{const draft=localStorage.getItem(key);if(draft!==null){editor.value=draft;saved=true;}reason.value=localStorage.getItem(reasonKey)||'';}catch{}
+try{const draft=window.ClassroomTemporaryStorage.getItem(key);if(draft!==null){editor.value=draft;saved=true;}reason.value=window.ClassroomTemporaryStorage.getItem(reasonKey)||'';}catch{}
 $('saveStatus').textContent=saved?'이 브라우저에 저장한 답안을 불러왔습니다.':'답안을 입력하면 이 브라우저에 자동 저장됩니다.';
-function saveDraft(){try{localStorage.setItem(key,editor.value);localStorage.setItem(reasonKey,reason.value);$('saveStatus').textContent='이 브라우저에 저장했습니다. 다른 PC로 옮길 때는 내 답안 .py를 내려받으세요.';}catch{$('saveStatus').textContent='브라우저 저장을 사용할 수 없습니다. 내 답안 .py로 내려받아 보관하세요.';}}
+function saveDraft(){try{window.ClassroomTemporaryStorage.setItem(key,editor.value);window.ClassroomTemporaryStorage.setItem(reasonKey,reason.value);$('saveStatus').textContent='이 브라우저에 저장했습니다. 다른 PC로 옮길 때는 내 답안 .py를 내려받으세요.';}catch{$('saveStatus').textContent='브라우저 저장을 사용할 수 없습니다. 내 답안 .py로 내려받아 보관하세요.';}}
 editor.addEventListener('input',saveDraft);reason.addEventListener('input',saveDraft);
 editor.addEventListener('keydown',event=>{if(event.key==='Tab'){event.preventDefault();const start=editor.selectionStart,end=editor.selectionEnd;editor.setRangeText('    ',start,end,'end');saveDraft();}});
 $('saveDraft').addEventListener('click',saveDraft);

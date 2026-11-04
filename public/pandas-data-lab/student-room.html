@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><title>내 Python 실습실 | 영수쌤의 Python 교실</title>
+<link rel="stylesheet" href="./student-room.css">
+<script src="./course-data.js" defer></script><script src="./student-room.js" type="module"></script></head>
+<body><a class="skip" href="#editor">코드 편집기로 이동</a>
+<header class="room-header"><a href="./" class="brand">영수쌤의 Python 교실 <small>학생 개인 학습실</small></a><div class="account"><span id="identity">로그인하지 않음</span><button id="login">Google 로그인</button><button id="logout" hidden>로그아웃</button></div></header>
+<nav class="room-nav" aria-label="개인 학습실 메뉴"><a href="./">수업 안내</a><a href="./student-room.html" aria-current="page">내 Python 실습실</a><button id="library-tab">내 코드 보관함</button><a href="./?page=exam">시험 대비 실습</a><button id="teacher-tab" hidden>교사용 관리실</button></nav>
+<main><div id="notice" class="notice" role="status" aria-live="polite">학습실 연결을 확인하고 있습니다.</div>
+<section id="enrollment" class="panel" hidden><h1>내 학급 등록</h1><p>학교 Google 계정으로 로그인한 뒤 학급을 선택하세요. 선생님이 승인하면 개인 코드 저장을 사용할 수 있습니다.</p><label>학급 <select id="class-select"></select></label><button id="register">학급 등록 요청</button><button id="refresh-approval">승인 상태 새로고침</button></section>
+<div id="student-area" hidden>
+<section class="panel intro"><div><span class="eyebrow">나의 학습 공간</span><h1>내 Python 실습실</h1><p>학교에서 시작한 코드를 집에서도 이어서 작성하세요.</p></div><span id="save-state" class="save-state" role="status">클라우드에서 불러오는 중</span></section>
+<section class="panel"><div class="toolbar"><label>실습 선택 <select id="workspace"></select></label><label>코드 제목 <input id="title" maxlength="80" value="나의 Python 코드"></label><button id="load-example">수업 예제 불러오기</button></div><p class="hint">자동 저장은 변경이 있을 때 1분 간격으로 진행합니다. 교사 제출 버튼을 눌러야 선생님께 코드가 전달됩니다.</p>
+<label for="editor" class="editor-label">Python 코드 <span id="code-length">0 / 20,000자</span></label><textarea id="editor" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Python 코드"></textarea>
+<div class="toolbar"><button id="run" class="primary">▶ 코드 실행</button><button id="stop" disabled>실행 중지</button><button id="save">지금 저장</button><button id="copy">코드 복사</button><button id="download">.py 다운로드</button><button id="reset">코드 초기화</button><label class="file-label">.py 불러오기<input id="import" type="file" accept=".py,text/x-python,text/plain"></label></div>
+<div class="toolbar"><label><input id="completed" type="checkbox">이 실습 완료</label><button id="history">이전 저장본 복원</button><button id="submit">선생님께 코드 제출</button><button id="cloud-reload">클라우드 다시 불러오기</button></div>
+<p id="run-state" role="status">실행 대기</p><pre id="output" aria-label="Python 실행 결과">실행 결과가 여기에 표시됩니다.</pre><img id="plot" alt="Python으로 만든 그래프" hidden>
+<p class="hint">Turtle 그래픽은 탐구실의 전용 시뮬레이션 또는 내려받은 .py 파일로 실행하세요. pandas·NumPy·Matplotlib을 지원합니다. input()이 필요한 코드는 변수에 값을 직접 넣어 실행하세요.</p>
+</section><section id="history-panel" class="panel" hidden><h2>이전 저장본 · 최근 10개</h2><div id="history-list"></div><button data-close="history-panel">닫기</button></section>
+<section id="library-panel" class="panel" hidden><h2>내 코드 보관함</h2><div id="library-list"></div><button data-close="library-panel">닫기</button></section>
+</div>
+<section id="teacher-area" class="panel" hidden><h1>교사용 관리실</h1><p>자동 저장 코드 본문은 학생에게만 보입니다. 아래에서는 학습 진행 정보와 학생이 제출한 코드만 확인할 수 있습니다.</p><label>담당 학급 <select id="teacher-class"></select></label><button id="refresh-students">학생 현황 새로고침</button><div class="table-scroll"><table><thead><tr><th>학생</th><th>승인 상태</th><th>관리</th></tr></thead><tbody id="student-list"></tbody></table></div><div id="student-details"></div></section>
+<dialog id="confirm-dialog"><h2 id="dialog-title"></h2><p id="dialog-message"></p><div class="toolbar"><button id="dialog-yes" class="primary">확인</button><button id="dialog-no">돌아가기</button></div></dialog>
+<p class="privacy">공용 PC 보호: 새로고침·탭 종료 시 로그인이 해제됩니다. 15분 동안 사용하지 않으면 저장을 시도한 뒤 로그아웃합니다. 작성 중인 코드는 이 화면의 메모리에만 임시 보관되므로 자리를 떠나기 전에 저장 상태를 확인하세요.</p>
+</main><footer>englishmath · 영수쌤의 Python 교실</footer></body></html>

@@ -2,10 +2,10 @@ const UNITS=[["01","처음 만나는 DataFrame","기본","Series·DataFrame·행
 (()=>{"use strict";
 const $=id=>document.getElementById(id),KEY="pandas-masterclass-2026-v1";
 let state={done:[],notes:{},current:0},pyPromise=null,running=false;
-try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&Array.isArray(x.done)){state={...state,...x};}}catch(e){}
+try{const x=JSON.parse(window.ClassroomTemporaryStorage.getItem(KEY));if(x&&Array.isArray(x.done)){state={...state,...x};}}catch(e){}
 state.current=Math.min(UNITS.length-1,Math.max(0,Number(state.current)||0));
 const escape=v=>String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function save(){try{window.ClassroomTemporaryStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 function renderMenu(){const done=new Set(state.done);$("progress").textContent=done.size+" / "+UNITS.length+" 완료";$("bar").style.width=100*done.size/UNITS.length+"%";$("units").innerHTML=UNITS.map((u,i)=>'<button data-unit="'+i+'" class="'+(i===state.current?"active":"")+'">'+(done.has(i)?"✓ ":"")+escape(u[0]+". "+u[1])+'</button>').join("");document.querySelectorAll("[data-unit]").forEach(b=>b.onclick=()=>select(Number(b.dataset.unit)));}
 function select(i){state.current=Math.min(UNITS.length-1,Math.max(0,i));const u=UNITS[state.current];$("tag").textContent=u[2]+" · "+u[3];$("title").textContent=u[0]+". "+u[1];$("concept").textContent=u[3];$("caution").textContent=u[2]==="기본"?"정규 수업에서 배운 개념과 출력 예측을 복습하세요. 코드를 그대로 외우기보다 한 줄씩 설명합니다.":"추가 심화 과정입니다. 기본 진도보다 빠른 학생에게 권장하며 시험 출제 여부는 학교 평가계획을 따릅니다.";$("question").textContent=u[5];$("choices").innerHTML=u[7].map((c,j)=>'<label class="choice"><input type="radio" name="answer" value="'+j+'"> '+escape(String(j+1)+". "+c)+'</label>').join("");$("feedback").textContent="";$("code").value=u[4];$("output").textContent="여기에 출력이 표시됩니다.";$("plot").classList.add("hidden");$("runtime").textContent="실행 대기";$("mission").textContent=u[10];$("note").value=state.notes[state.current]||"";$("done").textContent=state.done.includes(state.current)?"✓ 완료 표시됨":"이 실습 완료 표시";$("prev").disabled=state.current===0;$("next").disabled=state.current===UNITS.length-1;save();renderMenu();}
 $("grade").onclick=()=>{const c=document.querySelector('input[name="answer"]:checked');const u=UNITS[state.current];$("feedback").textContent=c?(Number(c.value)===u[8]?"정답! ":"다시 확인하세요. ")+"정답: "+u[6]+". "+u[9]:"선택지를 먼저 고르세요.";};
