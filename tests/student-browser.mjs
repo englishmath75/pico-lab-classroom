@@ -45,7 +45,7 @@ async function createDevice(viewport={width:1440,height:1100}) {
     if(!['apis.google.com','www.gstatic.com','cdn.jsdelivr.net'].includes(url.hostname))return route.abort();
     try {
       let cached=vendorCache.get(url.href);
-      if(!cached){cached=execFileAsync('curl',['--fail','--silent','--show-error','--location','--max-time','90','--url',url.href],{encoding:'buffer',maxBuffer:64000000}).then(r=>r.stdout);vendorCache.set(url.href,cached);}
+      if(!cached){cached=execFileAsync('curl',['--fail','--silent','--show-error','--location','--retry','1','--max-time','30','--url',url.href],{encoding:'buffer',maxBuffer:64000000}).then(r=>r.stdout);vendorCache.set(url.href,cached);}
       const body=await cached;
       const contentType=url.pathname.endsWith('.wasm')?'application/wasm':url.pathname.endsWith('.json')?'application/json':/\.(whl|zip|data)$/.test(url.pathname)?'application/octet-stream':'text/javascript';
       await route.fulfill({body,headers:{'Content-Type':contentType,'Access-Control-Allow-Origin':'*'}});

@@ -1,5 +1,5 @@
 {
-  "enabled": false,
+  "enabled": true,
   "firebase": {
     "apiKey": "AIzaSyBCVPe5i_cZW3FwAdLrMRIA8TOqpJlyD_A",
     "authDomain": "englishmath-python-classroom.firebaseapp.com",
