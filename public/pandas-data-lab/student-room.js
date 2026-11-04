@@ -109,6 +109,7 @@ async function refreshIdentity() {
     notice(identity.profile.status==='pending'?'학급 승인 대기 중입니다. 선생님 승인 후 승인 상태 새로고침을 눌러 주세요.':'이 계정은 현재 학습실을 사용할 수 없습니다. 선생님께 문의하세요.',true);
   } else if(!teacher) { $('register').hidden=false;$('class-select').disabled=false;notice('학급을 선택한 뒤 등록 요청을 눌러 주세요.'); }
   if(teacher) {
+    $('enrollment').hidden=true;
     $('teacher-class').replaceChildren(...identity.classes.filter(c=>identity.staff.classIds.includes(c.id)).map(c=>new Option(c.title,c.id)));
     if(!canWrite()) {notice('교사 계정으로 로그인했습니다. 담당 학급과 제출된 코드를 확인할 수 있습니다.');await showTeacher();}
   }
@@ -167,7 +168,7 @@ async function showTeacher() {
   if(!classId) {notice('활성화된 담당 학급이 없습니다.',true);return;}
   const students=await bounded(cloud.students(classId));if(!session.current(snapshot)) return;
   $('student-list').replaceChildren();$('student-details').replaceChildren();
-  for(const student of students) {
+  for(const student of students.filter(student=>student.uid!==user.uid)) {
     const row=document.createElement('tr'),name=document.createElement('td'),status=document.createElement('td'),actions=document.createElement('td');
     name.textContent=`${student.displayName} (${student.email})`;status.textContent=({approved:'승인됨',pending:'승인 대기',blocked:'이용 중지'})[student.status]||student.status;
     for(const [label,value] of [['승인','approved'],['승인 대기','pending'],['이용 중지','blocked']]) {

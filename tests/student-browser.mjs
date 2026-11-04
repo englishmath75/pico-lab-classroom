@@ -15,7 +15,7 @@ await env.withSecurityRulesDisabled(async c=>{
     setDoc(doc(db,'config/access'),{allowedDomains:['muhak-g-h.gne.go.kr'],allowedEmails:[]}),
     setDoc(doc(db,'classes/class-2-1'),{title:'2학년 1반',active:true}),
     setDoc(doc(db,'staff/teacher'),{classIds:['class-2-1']}),
-    ...students.filter(s=>s.uid!=='teacher').map(s=>setDoc(doc(db,'users',s.uid),{email:s.email,displayName:s.name,status:s.uid==='bob'?'pending':'approved',classId:'class-2-1',createdAt:Timestamp.now(),updatedAt:Timestamp.now()}))
+    ...students.map(s=>setDoc(doc(db,'users',s.uid),{email:s.email,displayName:s.name,status:s.uid==='alice'?'approved':'pending',classId:'class-2-1',createdAt:Timestamp.now(),updatedAt:Timestamp.now()}))
   ]);
 });
 await fetch(`http://127.0.0.1:9099/emulator/v1/projects/${projectId}/accounts`,{method:'DELETE'});
@@ -72,8 +72,14 @@ try {
   await page.locator('#editor').fill('print("학교에서 작성한 코드")');await page.locator('#save').click();await expect(page.locator('#save-state')).toContainText('클라우드 저장 완료');
   const home=await createDevice();await login(home.page,students[0]);await expect(home.page.locator('#editor')).toHaveValue('print("학교에서 작성한 코드")');reports.push('다른 독립 브라우저 문맥에서 클라우드 코드 불러오기 PASS');
   const teacher=await createDevice();await login(teacher.page,students[2],true);await expect(teacher.page.locator('#student-list tr')).toHaveCount(2);
+  await expect(teacher.page.locator('#enrollment')).toBeHidden();
+  await expect(teacher.page.locator('#student-list')).not.toContainText(students[2].email);
   await teacher.page.locator('#student-list tr').filter({hasText:students[0].email}).getByRole('button',{name:'학습·제출 확인'}).click();
   await expect(teacher.page.locator('#student-details')).toContainText('마지막 저장');await expect(teacher.page.locator('#student-details')).not.toContainText('학교에서 작성한 코드');
+  await teacher.page.locator('#student-list tr').filter({hasText:students[1].email}).getByRole('button',{name:'학습·제출 확인'}).click();
+  await expect(teacher.page.locator('#student-details')).toContainText('제출된 코드가 없습니다.');
+  await expect(teacher.page.locator('#notice')).not.toContainText('권한이 없습니다');
+  reports.push('교사 pending 프로필의 학생 등록 화면 숨김·본인 학생 목록 제외·승인 대기 학생 빈 제출 조회 PASS');
   await teacher.page.locator('#student-list tr').filter({hasText:students[1].email}).getByRole('button',{name:'승인',exact:true}).click();await teacher.page.locator('#dialog-yes').click();
   await expect(teacher.page.locator('#student-list tr').filter({hasText:students[1].email})).toContainText('승인됨');reports.push('교사 관리실 학생 승인·학습 현황·비공개 초안 비노출 PASS');
   await page.locator('#logout').click();await expect(page.locator('#editor')).toHaveValue('');await expect(page.locator('#student-area')).toBeHidden();
