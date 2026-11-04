@@ -175,7 +175,7 @@ async function showTeacher() {
       b.disabled=value===student.status||student.uid===user.uid;actions.append(b);
     }
     actions.append(button('학습·제출 확인',async()=>{
-      const details=await bounded(cloud.teacherDetails(student.uid));if(!session.current(snapshot)) return;
+      const details=await bounded(cloud.teacherDetails(student.uid,student.classId));if(!session.current(snapshot)) return;
       const target=$('student-details');target.replaceChildren();const h=document.createElement('h2');h.textContent=`${student.displayName} 학생의 학습 현황`;target.append(h);
       const last=document.createElement('p');last.textContent=`마지막 저장·제출: ${date(details.quota?.updatedAt)} · 오늘 저장·제출 횟수: ${details.quota?.count||0}`;target.append(last);
       for(const p of details.progress) {const line=document.createElement('p');line.textContent=`${labels.get(p.workspaceId)||p.workspaceId} · ${p.completed?'완료':'학습 중'} · ${p.runState==='success'?'마지막 실행 성공':p.runState==='error'?'마지막 실행 오류':'실행 전'} · ${date(p.savedAt)}`;target.append(line);}
