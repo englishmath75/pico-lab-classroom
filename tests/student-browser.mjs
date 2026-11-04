@@ -87,7 +87,12 @@ try {
   await legacy.evaluate(()=>localStorage.setItem('pandas-data-detective-v1',JSON.stringify({code:'PREVIOUS_STUDENT_PRIVATE_CODE'})));
   await legacy.reload();await expect(legacy.locator('#pythonCode')).not.toHaveValue('PREVIOUS_STUDENT_PRIVATE_CODE');
   await legacy.locator('#pythonCode').fill('TEMPORARY_LEGACY_DRAFT');
-  await page.clock.fastForward(16*60000);await expect(page.locator('#login')).toBeVisible();await expect(page.locator('#editor')).toHaveValue('');reports.push('15분 미사용 시 자동 로그아웃·화면 코드 제거 PASS');
+  let automaticDownloads=0;page.on('download',()=>automaticDownloads++);
+  await page.locator('#editor').click();await page.locator('#editor').fill('OFFLINE_PRIVATE_DRAFT');await school.context.setOffline(true);
+  await page.clock.fastForward(14*60000+10000);await expect(page.locator('#notice')).toContainText('자동 로그아웃 전 저장에 실패');
+  await page.clock.fastForward(61000);await expect(page.locator('#login')).toBeVisible();await expect(page.locator('#editor')).toHaveValue('');expect(automaticDownloads).toBe(0);reports.push('저장 실패 사전 경고·15분 자동 로그아웃·공용 PC 자동 다운로드 없음 PASS');
+  await school.context.setOffline(false);
+  await legacy.reload();
   await expect(legacy.locator('#pythonCode')).not.toHaveValue('TEMPORARY_LEGACY_DRAFT');reports.push('기존 수업의 식별되지 않은 로컬 코드 비노출·다른 탭 임시 코드 제거 PASS');
   await page.reload();await expect(page.locator('#login')).toBeVisible();await expect(page.locator('#student-area')).toBeHidden();reports.push('새로고침 후 Firebase 메모리 로그인 해제 PASS');
   console.log(JSON.stringify({environment:'Auth + Firestore emulator, virtual Google identities, Chromium',results:reports},null,2));

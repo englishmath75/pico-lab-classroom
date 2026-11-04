@@ -5,7 +5,7 @@ import { runPython } from './student-run.js';
 const $=id=>document.getElementById(id), session=new StudentSession();
 clearTemporaryLessons();
 let cloud,user=null,identity=null,workspace='scratch-01',busy=false,runner=null,autoTimer,lastActivity=Date.now(),lastWrite=0;
-let runState='idle',loading=false,loggingOut=false,noticeAfterLogout='';
+let runState='idle',loading=false,loggingOut=false,noticeAfterLogout='',idleSaveAttempted=false;
 const channel='BroadcastChannel' in window ? new BroadcastChannel('englishmath-shared-pc') : null;
 const labels=new Map([['lesson-00','00. Python 핵심 복습'],...Array.from({length:10},(_,i)=>[`lesson-${String(i+1).padStart(2,'0')}`,`${String(i+1).padStart(2,'0')}. ${window.COURSE_LESSONS?.[i]?.title || '차시별 실습'}`]),
   ['inquiry-a','탐구실 A. 리스트·튜플·딕셔너리'],['inquiry-b','탐구실 B. 진법표현'],['inquiry-c','탐구실 C. 호도법'],['inquiry-d','탐구실 D. 네 마리 거북이'],
@@ -114,7 +114,7 @@ async function logout(automatic=false,remote=false) {
   loggingOut=true;
   if(automatic||remote) {
     try {await bounded(save(),5000);} catch {}
-    if(session.dirty) {download();noticeAfterLogout='자동 로그아웃되었습니다. 저장하지 못한 코드는 .py 다운로드를 시도했습니다. 다운로드 폴더를 확인하세요.';}
+    if(session.dirty) {noticeAfterLogout='공용 PC 보호를 위해 로그아웃했습니다. 연결 문제로 마지막 변경 사항은 클라우드에 저장되지 않았습니다.';}
     else noticeAfterLogout='공용 PC 보호를 위해 로그아웃했습니다.';
   } else if(!await protectDraft()) {loggingOut=false;return;}
   if(!remote) channel?.postMessage({type:'logout'});
@@ -227,8 +227,17 @@ $('editor').addEventListener('keydown',event=>{if(event.key==='Tab'){event.preve
 $('workspace').onchange=()=>loadWorkspace($('workspace').value).catch(showError);
 $('import').onchange=async event=>{try{const file=event.target.files[0];if(!file)return;if(file.size>80000)throw Error('파일이 너무 큽니다. 최대 20,000자 코드만 불러올 수 있습니다.');const code=await file.text();if(code.length>MAX_CODE)throw Error('코드가 20,000자를 초과했습니다.');if(!await protectDraft())return;$('editor').value=code;runState='idle';dirty();}catch(error){showError(error);}finally{event.target.value='';}};
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).hidden=true);
-for(const event of ['pointerdown','keydown','touchstart'])addEventListener(event,()=>lastActivity=Date.now(),{passive:true});
-setInterval(()=>{if(!user||loggingOut)return;const idle=Date.now()-lastActivity;if(idle>15*60000)logout(true).catch(showError);else if(idle>14*60000)notice('1분 뒤 자동 로그아웃합니다. 계속 학습하려면 화면을 누르세요. 저장하지 못한 코드는 .py로 내려받아 주세요.',true);},10000);
+for(const event of ['pointerdown','keydown','touchstart'])addEventListener(event,()=>{lastActivity=Date.now();idleSaveAttempted=false;},{passive:true});
+setInterval(()=>{
+  if(!user||loggingOut)return;
+  const idle=Date.now()-lastActivity;
+  if(idle>15*60000)logout(true).catch(showError);
+  else if(idle>14*60000&&!idleSaveAttempted){
+    idleSaveAttempted=true;
+    notice('1분 뒤 자동 로그아웃합니다. 계속 학습하려면 화면을 누르세요. 저장 상태를 확인하고 필요한 코드는 .py로 직접 내려받아 주세요.',true);
+    if(session.dirty)save().catch(error=>notice('자동 로그아웃 전 저장에 실패했습니다. 1분 안에 .py 다운로드를 눌러 보관하거나 인터넷 연결을 복구해 주세요. '+readableError(error),true));
+  }
+},10000);
 addEventListener('offline',()=>{if(user)state('인터넷 연결 끊김 · 아직 저장되지 않은 코드를 .py로 내려받아 주세요.',true);});
 addEventListener('online',()=>{if(canWrite()){notice('인터넷 연결이 복구되었습니다. 저장을 다시 시도합니다.');save().catch(showError);}});
 addEventListener('beforeunload',event=>{if(session.dirty){event.preventDefault();event.returnValue='';}});
