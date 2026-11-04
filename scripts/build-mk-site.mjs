@@ -3,6 +3,7 @@
 // The original second-grade code, database and sw publisher are never changed.
 import { mkdir, readdir, readFile, rm, writeFile, copyFile } from 'node:fs/promises';
 import path from 'node:path';
+import { build } from 'esbuild';
 
 const source = path.resolve('public/pandas-data-lab');
 const target = path.resolve('mk-dist');
@@ -33,12 +34,17 @@ async function copyDirectory(from, to, relative = '') {
   }
 }
 await copyDirectory(source, target);
+// Override the copied Grade-2 SDK bundle with Grade-1 database routing.
+// This does not modify public/pandas-data-lab nor the sw.englishmath.kr deployment.
+await build({entryPoints:['mk/grade1-cloud.js'],outfile:path.join(target,'student-cloud.bundle.js'),
+  bundle:true,minify:true,format:'esm',platform:'browser',target:['es2022'],legalComments:'eof'});
+
 for (const needed of ['index.html','student-room.html','student-cloud.bundle.js','student-config.json','student-room.js']) {
   await readFile(path.join(target, needed));
 }
 await writeFile(path.join(target, 'mk-build-info.json'), JSON.stringify({
   site:'mk.englishmath.kr', from:'englishmath75/pico-lab-classroom',
-  base:'public/pandas-data-lab', grade:'copy-before-curriculum-revision',
+  base:'public/pandas-data-lab', grade:'grade1-isolated-data',
   sharedFirebaseProject:'englishmath-python-classroom', videoOrigin:'sw.englishmath.kr'
 },null,2));
 console.log('MK student classroom staged, '+count+' site files');
