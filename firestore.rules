@@ -130,6 +130,25 @@ service cloud.firestore {
         allow delete: if approved(uid);
       }
     }
+    // Grade 1 uses the same Firebase project, but never the Grade 2 user documents.
+    // Grade 1 classes are virtual until the school finalizes actual homeroom counts.
+    function grade1Class(classId) {
+      return classId is string && classId.matches('class-1-([1-9]|1[0-2])');
+    }
+    function grade1Teaches(classId) {
+      return grade1Class(classId) && signed()
+        && request.auth.token.email == 'englishmath@muhak-g-h.gne.go.kr'
+        && exists(/databases/$(database)/documents/staff/$(request.auth.uid));
+    }
+    function grade1Approved(uid) {
+      return own(uid) && get(/databases/$(database)/documents/grade1_users/$(uid)).data.status == 'approved';
+    }
+    function grade1Ticket(uid,id,kind) {
+      let t = getAfter(/databases/$(database)/documents/grade1_users/$(uid)/limits/state).data;
+      return t.updatedAt == request.time && t.workspaceId == id && t.kind == kind;
+    }
+
+    match /grade1_users/{uid}
     match /{document=**} { allow read, write: if false; }
   }
 }
