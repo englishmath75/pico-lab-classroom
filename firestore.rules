@@ -130,8 +130,7 @@ service cloud.firestore {
         allow delete: if approved(uid);
       }
     }
-    // Grade 1 uses the same Firebase project, but never the Grade 2 user documents.
-    // Grade 1 classes are virtual until the school finalizes actual homeroom counts.
+    // Grade 1 uses the same Firebase project while keeping all student documents separate.
     function grade1Class(classId) {
       return classId is string && classId.matches('class-1-([1-9]|1[0-2])');
     }
@@ -148,7 +147,90 @@ service cloud.firestore {
       return t.updatedAt == request.time && t.workspaceId == id && t.kind == kind;
     }
 
-    match /grade1_users/{uid}
+    match /grade1_users/{uid} {
+      allow get: if own(uid) || grade1Teaches(resource.data.classId);
+      allow list: if grade1Teaches(resource.data.classId) && request.query.limit <= 100;
+      allow create: if own(uid) && allowedEmail()
+        && request.resource.data.keys().hasOnly(['email','displayName','classId','status','createdAt','updatedAt'])
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.displayName is string && request.resource.data.displayName.size() <= 80
+        && request.resource.data.status == 'pending'
+        && grade1Class(request.resource.data.classId)
+        && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
+      allow update: if grade1Teaches(resource.data.classId) && request.auth.uid != uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+        && request.resource.data.status in ['pending','approved','blocked']
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+      match /limits/state {
+        allow read: if own(uid) || grade1Teaches(get(/databases/$(database)/documents/grade1_users/$(uid)).data.classId);
+        allow create, update: if grade1Approved(uid)
+          && request.resource.data.keys().hasOnly(['day','count','workspaceId','kind','updatedAt'])
+          && request.resource.data.day == request.time.date()
+          && request.resource.data.updatedAt == request.time
+          && workspaceId(request.resource.data.workspaceId)
+          && request.resource.data.kind in ['save','submit','delete']
+          && request.resource.data.count is int && request.resource.data.count <= 150
+          && ((!exists(/databases/$(database)/documents/grade1_users/$(uid)/limits/state)
+                && request.resource.data.count == 1)
+            || (exists(/databases/$(database)/documents/grade1_users/$(uid)/limits/state)
+              && request.time >= resource.data.updatedAt + duration.value(15,'s')
+              && ((resource.data.day == request.time.date() && request.resource.data.count == resource.data.count + 1)
+                || (resource.data.day < request.time.date() && request.resource.data.count == 1))))
+          && ((request.resource.data.kind == 'save'
+                && getAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+            || (request.resource.data.kind == 'submit'
+                && getAfter(/databases/$(database)/documents/grade1_users/$(uid)/submissions/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+            || (request.resource.data.kind == 'delete'
+                && exists(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId))
+                && !existsAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId))));
+        allow delete: if false;
+      }
+      match /workspaces/{id} {
+        allow read: if grade1Approved(uid);
+        allow create, update: if grade1Approved(uid) && workspaceId(id)
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt'])
+          && request.resource.data.workspaceId == id && validCode(request.resource.data)
+          && grade1Ticket(uid,id,'save')
+          && ((!exists(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(id)) && request.resource.data.version == 1)
+            || (exists(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(id)) && request.resource.data.version == resource.data.version + 1));
+        allow delete: if grade1Approved(uid) && grade1Ticket(uid,id,'delete');
+      }
+      match /revisions/{id} {
+        allow read: if grade1Approved(uid);
+        allow create, update: if grade1Approved(uid)
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt','slot'])
+          && validCode(request.resource.data) && request.resource.data.slot is int
+          && request.resource.data.slot >= 0 && request.resource.data.slot < 10
+          && id == request.resource.data.workspaceId + '__' + string(request.resource.data.slot)
+          && grade1Ticket(uid,request.resource.data.workspaceId,'save')
+          && request.resource.data.version == getAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.version
+          && request.resource.data.code == getAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.code;
+        allow delete: if grade1Approved(uid);
+      }
+      match /progress/{id} {
+        allow read: if grade1Approved(uid) || grade1Teaches(get(/databases/$(database)/documents/grade1_users/$(uid)).data.classId);
+        allow create, update: if grade1Approved(uid) && workspaceId(id)
+          && request.resource.data.keys().hasOnly(['workspaceId','runState','completed','savedAt','version'])
+          && grade1Ticket(uid,id,'save')
+          && request.resource.data == {
+            'workspaceId':id,
+            'runState':getAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(id)).data.runState,
+            'completed':getAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(id)).data.completed,
+            'savedAt':request.time,
+            'version':getAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(id)).data.version
+          };
+        allow delete: if grade1Approved(uid) && grade1Ticket(uid,id,'delete');
+      }
+      match /submissions/{id} {
+        allow read: if grade1Approved(uid) || grade1Teaches(resource.data.classId);
+        allow create, update: if grade1Approved(uid) && workspaceId(id) && grade1Ticket(uid,id,'submit')
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt','classId'])
+          && validCode(request.resource.data) && request.resource.data.workspaceId == id
+          && request.resource.data.classId == get(/databases/$(database)/documents/grade1_users/$(uid)).data.classId;
+        allow delete: if grade1Approved(uid);
+      }
+    }
     match /{document=**} { allow read, write: if false; }
   }
 }
