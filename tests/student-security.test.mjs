@@ -69,6 +69,19 @@ test('학생 제출본만 교사 열람 허용, 타 학급 교사 차단',async(
   await seed([['staff/other-teacher',{classIds:['class-2-2']}]]);
   await assertFails(getDoc(doc(auth('other-teacher'),'users/alice/submissions/lesson-01')));
 });
+test('교사 관리실은 빈 제출 목록과 실제 제출을 조회하고 타 학급은 차단',async()=>{
+  const teacher=new StudentStore(auth('teacher'));
+  const pending=await teacher.teacherDetails('pending','class-2-1');
+  assert.deepEqual(pending.progress,[]);assert.deepEqual(pending.submissions,[]);assert.equal(pending.quota,undefined);
+  await new StudentStore(auth('alice')).mutate('alice','lesson-01','submit',input('print("제출 확인")'),0);
+  const details=await teacher.teacherDetails('alice','class-2-1');
+  assert.equal(details.submissions.length,1);assert.equal(details.submissions[0].code,'print("제출 확인")');
+  await seed([['staff/other-teacher',{classIds:['class-2-2']}],['users/other',profile('other','class-2-2')]]);
+  await assertFails(new StudentStore(auth('other-teacher')).teacherDetails('alice','class-2-1'));
+  await assertFails(teacher.teacherDetails('other','class-2-2'));
+  await assertFails(teacher.teacherDetails('alice','class-2-2'));
+  await assertFails(new StudentStore(auth('bob')).teacherDetails('alice','class-2-1'));
+});
 test('코드 20,000자·문서 필드·고정 작업실·수정 이력 슬롯 제한',async()=>{
   const store=new StudentStore(auth('alice'));await assert.rejects(store.mutate('alice','lesson-01','save',input('x'.repeat(20001)),0));
   await assert.rejects(store.mutate('alice','arbitrary-999999','save',input(),0));

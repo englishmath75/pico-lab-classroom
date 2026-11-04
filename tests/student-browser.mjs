@@ -10,16 +10,20 @@ const projectId='demo-englishmath-python';
 const env=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8080,rules:await readFile('firestore.rules','utf8')}});
 await env.clearFirestore();
 const students=[{uid:'alice',name:'가상 학생 A',email:'alice@muhak-g-h.gne.go.kr'},{uid:'bob',name:'가상 학생 B',email:'bob@muhak-g-h.gne.go.kr'}];
+const teacher={uid:'teacher',name:'가상 교사',email:'teacher@muhak-g-h.gne.go.kr'};
+const pendingStudent={uid:'pending',name:'가상 승인 대기 학생',email:'pending@muhak-g-h.gne.go.kr'};
+const accounts=[...students,teacher,pendingStudent];
 await env.withSecurityRulesDisabled(async c=>{
   const db=c.firestore();await Promise.all([
     setDoc(doc(db,'config/access'),{allowedDomains:['muhak-g-h.gne.go.kr'],allowedEmails:[]}),
     setDoc(doc(db,'classes/class-2-1'),{title:'2학년 1반',active:true}),
-    ...students.map(s=>setDoc(doc(db,'users',s.uid),{email:s.email,displayName:s.name,status:'approved',classId:'class-2-1',createdAt:Timestamp.now(),updatedAt:Timestamp.now()}))
+    setDoc(doc(db,'staff',teacher.uid),{classIds:['class-2-1']}),
+    ...accounts.map(s=>setDoc(doc(db,'users',s.uid),{email:s.email,displayName:s.name,status:students.includes(s)?'approved':'pending',classId:'class-2-1',createdAt:Timestamp.now(),updatedAt:Timestamp.now()}))
   ]);
 });
 await fetch(`http://127.0.0.1:9099/emulator/v1/projects/${projectId}/accounts`,{method:'DELETE'});
 const imported=await fetch(`http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:batchCreate`,{
-  method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer owner'},body:JSON.stringify({users:students.map(s=>({localId:s.uid,email:s.email,emailVerified:true,displayName:s.name,providerUserInfo:[{providerId:'google.com',rawId:s.email,email:s.email,displayName:s.name}]}))})});
+  method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer owner'},body:JSON.stringify({users:accounts.map(s=>({localId:s.uid,email:s.email,emailVerified:true,displayName:s.name,providerUserInfo:[{providerId:'google.com',rawId:s.email,email:s.email,displayName:s.name}]}))})});
 if(!imported.ok)throw Error('Auth emulator fixture import failed: '+await imported.text());
 const types={'.js':'text/javascript','.css':'text/css','.json':'application/json','.html':'text/html','.csv':'text/csv','.png':'image/png'};
 const server=createServer(async(req,res)=>{
@@ -63,6 +67,7 @@ async function login(page,student) {
   const popupPromise=page.waitForEvent('popup');await page.locator('#login').click();const popup=await popupPromise;
   await popup.waitForLoadState();
   await popup.getByText(student.email,{exact:true}).click();
+  if(student.uid===teacher.uid) {await expect(page.locator('#teacher-area')).toBeVisible({timeout:20000});return;}
   await expect(page.locator('#student-area')).toBeVisible({timeout:20000});await expect(page.locator('#save-state')).toContainText(/새 실습|불러옴/);
 }
 try {
@@ -90,6 +95,28 @@ try {
   await page.clock.fastForward(16*60000);await expect(page.locator('#login')).toBeVisible();await expect(page.locator('#editor')).toHaveValue('');reports.push('15분 미사용 시 자동 로그아웃·화면 코드 제거 PASS');
   await expect(legacy.locator('#pythonCode')).not.toHaveValue('TEMPORARY_LEGACY_DRAFT');reports.push('기존 수업의 식별되지 않은 로컬 코드 비노출·다른 탭 임시 코드 제거 PASS');
   await page.reload();await expect(page.locator('#login')).toBeVisible();await expect(page.locator('#student-area')).toBeHidden();reports.push('새로고침 후 Firebase 메모리 로그인 해제 PASS');
+  const teacherDevice=await createDevice();page=teacherDevice.page;await login(page,teacher);
+  await expect(page.locator('#teacher-tab')).toBeVisible();await expect(page.locator('#enrollment')).toBeHidden();
+  await expect(page.locator('#student-list tr')).toHaveCount(3);
+  await expect(page.locator('#student-list')).not.toContainText(teacher.email);
+  const pendingRow=page.locator('#student-list tr').filter({hasText:pendingStudent.email});
+  await pendingRow.getByRole('button',{name:'학습·제출 확인',exact:true}).click();
+  await expect(page.locator('#student-details')).toContainText('제출된 코드가 없습니다.');
+  await expect(page.locator('#notice')).not.toContainText('권한이 없습니다');
+  await pendingRow.getByRole('button',{name:'승인',exact:true}).click();
+  await expect(page.locator('#confirm-dialog')).toBeVisible();await page.locator('#dialog-yes').click();
+  await expect(pendingRow.locator('td').nth(1)).toHaveText('승인됨');
+  const approvedDevice=await createDevice();await login(approvedDevice.page,pendingStudent);
+  await expect(approvedDevice.page.locator('#student-area')).toBeVisible();
+  await env.withSecurityRulesDisabled(async c=>{
+    await setDoc(doc(c.firestore(),'users',pendingStudent.uid,'submissions','lesson-01'),{
+      workspaceId:'lesson-01',lessonId:'lesson-01',title:'교사 조회 검증',code:'print("제출 조회 성공")',
+      runState:'success',completed:true,version:1,savedAt:Timestamp.now(),classId:'class-2-1'
+    });
+  });
+  await pendingRow.getByRole('button',{name:'학습·제출 확인',exact:true}).click();
+  await expect(page.locator('#student-details')).toContainText('print("제출 조회 성공")');
+  reports.push('교사 계정 중복 등록 화면 숨김·본인 학생 목록 제외·빈 제출 조회·가상 학생 승인 및 재로그인·제출 코드 조회 PASS');
   console.log(JSON.stringify({environment:'Auth + Firestore emulator, virtual Google identities, Chromium',results:reports},null,2));
 }catch(error){if(page)console.error('VISIBLE UI:',await page.locator('body').innerText());throw error;}
 finally {await browser.close();server.close();await env.cleanup();}

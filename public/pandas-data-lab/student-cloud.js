@@ -50,14 +50,7 @@ export function createCloud(config, emulator = false) {
       return result.docs.map(d => ({ uid: d.id, ...d.data() }));
     },
     approve(uid, status) { return updateDoc(doc(db, 'users', uid), { status, updatedAt: serverTimestamp() }); },
-    async teacherDetails(uid) {
-      const [progress, submissions, quota] = await Promise.all([
-        getDocsFromServer(query(collection(db, 'users', uid, 'progress'), limit(50))),
-        getDocsFromServer(query(collection(db, 'users', uid, 'submissions'), limit(50))),
-        getDocFromServer(doc(db, 'users', uid, 'limits', 'state'))
-      ]);
-      return { progress: progress.docs.map(d => d.data()), submissions: submissions.docs.map(d => d.data()), quota: quota.data() };
-    }
+    teacherDetails: (uid, classId) => service.teacherDetails(uid, classId)
   };
 }
 
@@ -72,6 +65,16 @@ export class StudentStore {
   async revisions(uid, id) {
     const d = await getDocsFromServer(query(collection(this.db, 'users', uid, 'revisions'), where('workspaceId','==',id), limit(10)));
     return d.docs.map(x => x.data()).sort((a,b) => b.version - a.version);
+  }
+  async teacherDetails(uid, classId) {
+    const [progress, submissions, quota] = await Promise.all([
+      getDocsFromServer(query(collection(this.db, 'users', uid, 'progress'), limit(50))),
+      getDocsFromServer(query(collection(this.db, 'users', uid, 'submissions'),
+        where('classId', '==', classId), limit(50))),
+      getDocFromServer(this.ref(uid, 'limits', 'state'))
+    ]);
+    return { progress: progress.docs.map(d => d.data()),
+      submissions: submissions.docs.map(d => d.data()), quota: quota.data() };
   }
   async mutate(uid, id, kind, input, expectedVersion) {
     if (!validWorkspace(id) || (input?.code?.length || 0) > MAX_CODE) throw Error('실습 번호와 코드 길이를 확인하세요. 최대 20,000자입니다.');
