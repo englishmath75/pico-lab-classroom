@@ -20,7 +20,11 @@ function state(text,error=false) { $('save-state').textContent=text;$('save-stat
 function canWrite() { return user && identity?.profile?.status==='approved'; }
 function date(value) {return value?.toDate?.().toLocaleString('ko-KR') || '기록 없음';}
 function button(label,action) {const b=document.createElement('button');b.textContent=label;b.addEventListener('click',()=>Promise.resolve().then(action).catch(showError));return b;}
-function showError(error) {notice(readableError(error),true);}
+function showError(error) {
+  const message=readableError(error);
+  if(user&&session.dirty&&!loggingOut&&Date.now()-lastActivity>14*60000)notice('자동 로그아웃 전 저장에 실패했습니다. 1분 안에 .py 다운로드를 눌러 보관하거나 인터넷 연결을 복구해 주세요. '+message,true);
+  else notice(message,true);
+}
 function bounded(promise,ms=10000) {let t;return Promise.race([promise,new Promise((_,reject)=>t=setTimeout(()=>reject(Object.assign(Error('연결 응답이 지연되고 있습니다.'),{code:'deadline'})),ms))]).finally(()=>clearTimeout(t));}
 function confirmAction(title,message,label='확인') {
   $('dialog-title').textContent=title;$('dialog-message').textContent=message;$('dialog-yes').textContent=label;
