@@ -59,7 +59,7 @@
 
 - 자동 콘텐츠: 10단위/40문항/20후보/핵심10, 63 공개 사례, 구구단 24경계 사례, 별 찍기12, 학생 금지 문법 AST 검사.
 - 자동 보안: SW13+MK18; 원문·변형·보고서·오답 및 학년도·개인 공간 분리/타인 접근 거부.
-- 자동 브라우저: 기존 학년도/승인/개인 공간/재로그인 복원과 새 UI Python·Turtle·matplotlib, 390/768/1366/1920, 200% 확대. 최신 실행 결과는 GitHub Actions에서 커밋별 확인합니다.
+- 자동 브라우저: 기존 학년도/승인/개인 공간/재로그인 복원과 새 UI Python·Turtle·matplotlib, 390/768/1366/1920, 200% 확대. `6f3ab2e`의 [MK 검사](https://github.com/englishmath75/pico-lab-classroom/actions/runs/41980729417)와 [SW 검사](https://github.com/englishmath75/pico-lab-classroom/actions/runs/41980735688)가 통과했습니다. 보고서 기록 로드가 끝나기 전에 입력하여 글이 사라지는 문제를 수정하고 재로그인 복원까지 통과했습니다. 후속 커밋은 제목의 모바일 줄바꿈을 보완합니다.
 - 실제 미리보기: 홈·차시·편집기 표시, Turtle 원 무늬와 한글 matplotlib 막대그래프 실행, CodeUp 1173 공개 테스트 3/3 일치 확인.
 - 규칙 적용 후 SW 운영: 학교 관리자 Google 로그인 성공, 2026학년도 2학년 1반 26명(승인25/대기0/중지1) 조회. 상태 변경 없음.
 - 실제 Google 로그인: 미리보기 호스트가 Firebase 승인 도메인에 없어 검증 전입니다. 현재 승인값은 localhost, Firebase 기본2개, mk.englishmath.kr, sw.englishmath.kr입니다.
