@@ -111,6 +111,10 @@ try{
  await page.locator('[data-reverse-apply="slice"]').click();
  await expect(page.locator('#editor')).toHaveValue(/result = a\[::-1\]/);
  await expect(page.locator('[data-reverse-live-status]')).toContainText('아래 Python 편집기에');
+ await page.locator('#run').click();
+ await expect(page.locator('#run-state')).toHaveText('실행 성공',{timeout:150000});
+ await expect(page.locator('#output')).toContainText('[50, 40, 30, 20, 10]');
+ await expect(page.locator('#output')).toContainText('[10, 20, 30, 40, 50]');
  await shot(page,'reverse-comparison-desktop');
  await page.setViewportSize({width:390,height:844});
  if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1))throw Error('Reverse comparison mobile overflow');
