@@ -130,7 +130,7 @@ service cloud.firestore {
         allow delete: if approved(uid);
       }
     }
-    // Grade 1 uses the same Firebase project while keeping all student documents separate.
+    // Academic-year-scoped 2026 Grade 1 cohort is separate from prior/future years and Grade 2.
     function grade1Class(classId) {
       return classId is string && classId.matches('class-1-([1-9]|1[0-2])');
     }
@@ -140,14 +140,14 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/staff/$(request.auth.uid));
     }
     function grade1Approved(uid) {
-      return own(uid) && get(/databases/$(database)/documents/grade1_users/$(uid)).data.status == 'approved';
+      return own(uid) && get(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)).data.status == 'approved';
     }
     function grade1Ticket(uid,id,kind) {
-      let t = getAfter(/databases/$(database)/documents/grade1_users/$(uid)/limits/state).data;
+      let t = getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/limits/state).data;
       return t.updatedAt == request.time && t.workspaceId == id && t.kind == kind;
     }
 
-    match /grade1_users/{uid} {
+    match /cohorts/2026/grade1_users/{uid} {
       allow get: if own(uid) || grade1Teaches(resource.data.classId);
       allow list: if grade1Teaches(resource.data.classId) && request.query.limit <= 100;
       allow create: if own(uid) && allowedEmail()
@@ -163,7 +163,7 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time;
       allow delete: if false;
       match /limits/state {
-        allow read: if own(uid) || grade1Teaches(get(/databases/$(database)/documents/grade1_users/$(uid)).data.classId);
+        allow read: if own(uid) || grade1Teaches(get(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)).data.classId);
         allow create, update: if grade1Approved(uid)
           && request.resource.data.keys().hasOnly(['day','count','workspaceId','kind','updatedAt'])
           && request.resource.data.day == request.time.date()
@@ -171,19 +171,19 @@ service cloud.firestore {
           && workspaceId(request.resource.data.workspaceId)
           && request.resource.data.kind in ['save','submit','delete']
           && request.resource.data.count is int && request.resource.data.count <= 150
-          && ((!exists(/databases/$(database)/documents/grade1_users/$(uid)/limits/state)
+          && ((!exists(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/limits/state)
                 && request.resource.data.count == 1)
-            || (exists(/databases/$(database)/documents/grade1_users/$(uid)/limits/state)
+            || (exists(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/limits/state)
               && request.time >= resource.data.updatedAt + duration.value(15,'s')
               && ((resource.data.day == request.time.date() && request.resource.data.count == resource.data.count + 1)
                 || (resource.data.day < request.time.date() && request.resource.data.count == 1))))
           && ((request.resource.data.kind == 'save'
-                && getAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+                && getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.savedAt == request.time)
             || (request.resource.data.kind == 'submit'
-                && getAfter(/databases/$(database)/documents/grade1_users/$(uid)/submissions/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+                && getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/submissions/$(request.resource.data.workspaceId)).data.savedAt == request.time)
             || (request.resource.data.kind == 'delete'
-                && exists(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId))
-                && !existsAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId))));
+                && exists(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId))
+                && !existsAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId))));
         allow delete: if false;
       }
       match /workspaces/{id} {
@@ -192,8 +192,8 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt'])
           && request.resource.data.workspaceId == id && validCode(request.resource.data)
           && grade1Ticket(uid,id,'save')
-          && ((!exists(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(id)) && request.resource.data.version == 1)
-            || (exists(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(id)) && request.resource.data.version == resource.data.version + 1));
+          && ((!exists(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(id)) && request.resource.data.version == 1)
+            || (exists(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(id)) && request.resource.data.version == resource.data.version + 1));
         allow delete: if grade1Approved(uid) && grade1Ticket(uid,id,'delete');
       }
       match /revisions/{id} {
@@ -204,21 +204,21 @@ service cloud.firestore {
           && request.resource.data.slot >= 0 && request.resource.data.slot < 10
           && id == request.resource.data.workspaceId + '__' + string(request.resource.data.slot)
           && grade1Ticket(uid,request.resource.data.workspaceId,'save')
-          && request.resource.data.version == getAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.version
-          && request.resource.data.code == getAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.code;
+          && request.resource.data.version == getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.version
+          && request.resource.data.code == getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.code;
         allow delete: if grade1Approved(uid);
       }
       match /progress/{id} {
-        allow read: if grade1Approved(uid) || grade1Teaches(get(/databases/$(database)/documents/grade1_users/$(uid)).data.classId);
+        allow read: if grade1Approved(uid) || grade1Teaches(get(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)).data.classId);
         allow create, update: if grade1Approved(uid) && workspaceId(id)
           && request.resource.data.keys().hasOnly(['workspaceId','runState','completed','savedAt','version'])
           && grade1Ticket(uid,id,'save')
           && request.resource.data == {
             'workspaceId':id,
-            'runState':getAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(id)).data.runState,
-            'completed':getAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(id)).data.completed,
+            'runState':getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(id)).data.runState,
+            'completed':getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(id)).data.completed,
             'savedAt':request.time,
-            'version':getAfter(/databases/$(database)/documents/grade1_users/$(uid)/workspaces/$(id)).data.version
+            'version':getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(id)).data.version
           };
         allow delete: if grade1Approved(uid) && grade1Ticket(uid,id,'delete');
       }
@@ -227,7 +227,7 @@ service cloud.firestore {
         allow create, update: if grade1Approved(uid) && workspaceId(id) && grade1Ticket(uid,id,'submit')
           && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt','classId'])
           && validCode(request.resource.data) && request.resource.data.workspaceId == id
-          && request.resource.data.classId == get(/databases/$(database)/documents/grade1_users/$(uid)).data.classId;
+          && request.resource.data.classId == get(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)).data.classId;
         allow delete: if grade1Approved(uid);
       }
     }
