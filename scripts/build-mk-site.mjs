@@ -1,4 +1,4 @@
-// Build a byte-faithful first-grade classroom copy from the proven 2nd-grade course.
+// Build the first-grade classroom from the proven course, retaining lesson assets.
 // Large existing learning videos remain served through sw.englishmath.kr via Vercel rewrites.
 // The original second-grade code, database and sw publisher are never changed.
 import { mkdir, readdir, readFile, rm, writeFile, copyFile } from 'node:fs/promises';
@@ -27,6 +27,28 @@ async function copyDirectory(from, to, relative = '') {
       text = text.replaceAll('/pico-lab-classroom/pandas-data-lab/', '/');
       text = text.replaceAll('/sw/pandas-data-lab/', '/');
       // MK-only presentation/flows. Never modify the live Grade-2 source files.
+      if (path.extname(rel) === '.html') {
+        text = text.replaceAll('고2 · 2026학년도 소프트웨어와 생활', '2026학년도 고1 정보');
+        text = text.replaceAll('소프트웨어와 생활 · 3단원', '2026학년도 고1 정보');
+        text = text.replace(/(<span class="classroom-unit">)[^<]*(<\/span>)/g, '$12026학년도 고1 정보$2');
+        text = text.replace(/(<span class="classroom-subject">)[^<]*(<\/span>)/g, '$1Python 기초 · 데이터 탐구$2');
+        text = text.replaceAll('<small>학생 개인 학습실</small>', '<small>2026학년도 고1 정보</small>');
+        text = text.replaceAll('<small>고2 · 소프트웨어와 생활</small>', '<small>2026학년도 고1 정보</small>');
+        text = text.replace(/(<a[^>]*class="curriculum-brand"[^>]*>[\s\S]*?<span>)[^<]*(<\/span>)/g, '$1Python 기초 · 데이터 탐구$2');
+        text = text.replace(/<meta content="[^"]*" name="theme-color"\/?\s*>/, '<meta content="#292e2b" name="theme-color"/>');
+        text = text.replace('</head>', '<link rel="stylesheet" href="/mk-theme.css?v=20261105">\n</head>');
+      }
+      if (rel === 'index.html') {
+        text = text.replace('씨마스 소프트웨어와 생활 3단원 집중: Pandas 데이터 분석, 스포츠 기록, 인구 변화, 기말 대비 10차시 실습실', '영수쌤의 Python 교실 · 2026학년도 고1 정보. Python 코드를 직접 실행하고 나의 학습 기록을 이어가는 교실입니다.');
+        text = text.replace('<h3>3단원 데이터 분석 수업</h3>', '<h3>한 줄의 코드에서<br/>시작하는 배움</h3>');
+        text = text.replace('<p>표 만들기 → 자료 읽기 → 정리·분석 → 그래프 → 결과 해석</p>', '<p>Python 기초부터 데이터 탐구까지.<br/>읽고, 실행하고, 나의 코드로 남기세요.</p>');
+        text = text.replace('<div class="actions"><a class="btn secondary" href="./python-review.html">', '<div class="actions"><a class="btn primary mk-start" href="./student-room.html">내 Python 실습실 열기 →</a><a class="btn secondary" href="./python-review.html">');
+        text = text.replaceAll('3단원 「현상을 분석하는 소프트웨어」의 학습 순서와 자료를 확인합니다.', '오늘의 실습을 고르고, 직접 실행하며 Python을 익혀 보세요.');
+      }
+      if (rel === 'app.js') {
+        text = text.replace('" | 소프트웨어와 생활 · 3단원"', '" | 영수쌤의 Python 교실 · 2026학년도 고1 정보"');
+        text = text.replace('3단원 「현상을 분석하는 소프트웨어」의 학습 순서와 자료를 확인합니다.', '오늘의 실습을 고르고, 직접 실행하며 Python을 익혀 보세요.');
+      }
       if (rel === 'student-room.html') {
         const oldEnrollment = '<h1>내 학급 등록</h1><p>학교 Google 계정으로 로그인한 뒤 학급을 선택하세요. 선생님이 승인하면 개인 코드 저장을 사용할 수 있습니다.</p>';
         const newEnrollment = '<h1 id="enrollment-heading">학급 등록</h1><p id="enrollment-description">학교 학생은 선택한 학년도의 학급을 등록하고 승인받으세요. 개인 학습자는 학급 등록 없이 코드 보관함을 사용할 수 있습니다.</p>';
@@ -140,6 +162,7 @@ action('refresh-approval',refreshIdentity);`],
   }
 }
 await copyDirectory(source, target);
+await copyFile('mk/theme.css', path.join(target, 'mk-theme.css'));
 // Override the copied Grade-2 SDK bundle with Grade-1 database routing.
 // This does not modify public/pandas-data-lab nor the sw.englishmath.kr deployment.
 await build({entryPoints:['mk/grade1-cloud.js'],outfile:path.join(target,'student-cloud.bundle.js'),

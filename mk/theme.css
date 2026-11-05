@@ -1,0 +1,133 @@
+/* MK presentation only. Lesson data, Python examples and SW assets stay at source. */
+html:root {
+  --nav:#292e2b; --nav2:#343d36; --bg:#f5f3eb; --ink:#292e2b;
+  --muted:#687068; --line:#dcded3; --teal:#4f6a56; --blue:#405e48;
+  --gold:#879b7e; --mk-paper:#fffef9; --mk-soft:#e9eee3; --mk-sage:#c4d1b8;
+}
+body,body.classroom-page{background:var(--bg);color:var(--ink)}
+body{font-family:system-ui,"Noto Sans KR","Malgun Gothic",sans-serif}
+a{color:#405e48}
+h1,h2,h3,h4{letter-spacing:-.035em;word-break:keep-all}
+:is(a,button,input,select,textarea,summary):focus-visible{outline:3px solid #78926a;outline-offset:4px}
+::selection{background:#d2ddc5;color:#202721}
+.classroom-page .side,.side,.sidebar,.room-header{background:var(--nav);color:#f6f5ed}
+.classroom-page .side{border-right:1px solid #434c43;padding-top:28px}
+.classroom-page .side .brand{border-color:#ffffff24;padding-bottom:23px}
+.classroom-page .side .brand img{width:145px;border-radius:12px;margin-bottom:16px}
+.classroom-page .side .brand .classroom-name{white-space:normal;color:#f4f2e8;font-size:20px;line-height:1.5}
+.classroom-page .side .brand .classroom-unit{color:var(--mk-sage);font-size:15px;margin-top:15px}
+.classroom-page .side .brand .classroom-subject{color:#bcc6b8;font-size:12px}
+.classroom-page .side .nav,.side .nav{color:#d9ded3;border-radius:8px}
+.classroom-page .side .nav:hover,.classroom-page .side .nav.active,.side .nav:hover,.side .nav.active{background:#455442;color:#fffef8}
+.classroom-page .side .nav.active{box-shadow:inset 3px 0 #c4d1b8}
+.classroom-page .side .meter{border-color:#4a5548}
+.classroom-page .side .meter p,.classroom-page .side-foot,.side p,.side-foot{color:#b9c4b5}
+.side .eyebrow,.side-foot a,.side h1 i{color:var(--mk-sage)}
+.classroom-page .main{padding-top:38px}
+.classroom-page .top .eyebrow,.eyebrow,.section-label{color:#4f6a56;letter-spacing:.04em}
+.classroom-page .top h2{font-size:25px}
+.classroom-page .top p,.top p,.lesson-intro p,.course-card p,.supplemental p,.caption,.hint,.privacy,.footer,footer{color:#687068}
+.classroom-page .top .badge,.badge{background:#e7ebdf;color:#4c6047;border:1px solid #d9dfcf}
+.hero,.teacher-hero,.classroom-page .practice-hero,.classroom-hero{background:#313a32;color:#fffdf3;border:1px solid #45513f;box-shadow:none}
+.classroom-hero{position:relative;overflow:hidden;gap:30px;padding:40px;border-radius:20px}
+.classroom-hero .eyebrow,.teacher-hero .eyebrow,.classroom-page .practice-hero .eyebrow{color:#c4d1b8}
+.classroom-hero h3{font-size:clamp(32px,3.15vw,47px);font-weight:750;line-height:1.28;letter-spacing:-.055em;margin:19px 0 18px}
+.classroom-hero p,.hero p,.teacher-hero p,.classroom-page .practice-hero p{color:#dce3d4}
+.classroom-hero h3 em{color:#c4d1b8}
+.classroom-hero .actions{gap:9px;margin-top:27px}
+.btn{border-radius:8px;transition:background .15s,transform .15s}
+.primary,button.primary,.teacher-wrap .primary{background:#4f6a56;color:#fffef8;border-color:#4f6a56}
+.primary:hover,button.primary:hover{background:#405746}
+.secondary{background:#e8eddf;color:#3d5340}
+.classroom-hero .primary{background:#c4d1b8;color:#273129;border:1px solid #c4d1b8}
+.classroom-hero .primary:hover{background:#d7e1ce}
+.classroom-hero .secondary{background:#414e3f;color:#f3f4e9;border:1px solid #66745d}
+.classroom-hero .experience-link{background:transparent;color:#ecf1e5;border-color:#7a8b6e}
+.classroom-hero .experience-link:hover{background:#4b5944;color:#fff}
+.classroom-hero .mk-start{flex-basis:100%;max-width:240px;min-height:48px;justify-content:center}
+.table-illustration{background:#f7f5ec;color:#2f3a2f;border:1px solid #e3e4d8;box-shadow:0 18px 36px #17211624;border-radius:12px}
+.table-label,.table-illustration thead th,.table-illustration small{color:#657360}
+.table-illustration th,.table-illustration td{border-color:#dee2d2}
+.table-illustration tbody th{background:#e5ebda;color:#536c4c}
+.table-illustration p{color:#364632}
+.panel,.stat,.lesson-card,.course-card,.teacher-wrap .panel{background:var(--mk-paper);color:var(--ink);border-color:var(--line);box-shadow:0 4px 16px #343b2905}
+.course-card{border-radius:12px}
+.course-card:hover{border-color:#78906e}
+.course-card.first{background:#f0f3e9;border-color:#bac9ac}
+.course-card.first .course-number,.course-number{color:#829276}
+.course-card small,.course-card .subtle{color:#536f4b}
+.lesson-card small,.resource-grid span{color:#687068}
+.resource-grid a,.resource-grid button,.classroom-page .lesson-picker .lesson-nav{background:#f1f3e9;color:#3f5140;border-color:#d9dfcf}
+.classroom-page .lesson-picker summary{color:#40523d}
+.classroom-page .lesson-picker .lesson-nav.active{background:#4f634a;border-color:#4f634a;color:#fff}
+.classroom-page .lesson-picker .lesson-nav.active small{color:#e0e8d7}
+.classroom-page .lesson-picker .lesson-nav:hover{border-color:#718766}
+.archive{background:transparent}
+.mission,.notice:not(.error){background:#edf1e5;border-left-color:#829875;color:#394e39}
+.notice.error,.save-state.error{background:#fff0ed;color:#8d231c}
+.table th,.teacher-wrap th,th{background:#edf0e6}
+.table td,.table th,.teacher-wrap td,.teacher-wrap th{border-color:#dde1d4}
+.breadcrumb{background:#fffef9;color:#687068;border-color:var(--line)}
+.breadcrumb a,.teacher-wrap a:not(.primary){color:#496647}
+.code,.editor,#editor,.teacher-wrap pre{background:#292e2b;color:#f0f2e9;border-color:#485347}
+.output,#output{background:#222823;color:#e6eedc}
+.expected-output{background:#edf0e5;color:#364630;border-color:#d9dfcf}
+.feedback,.quiz-result,.quiz-score,.quiz-item .explanation{color:#496b45}
+.student-entry{background:#e7ecde;border-color:#d0d9c5}
+.student-entry a,.student-entry button{color:#3f5840}
+.student-entry button{background:#fffef9;border-color:#bdcbb3}
+.student-entry small{color:#63745b}
+.room-header{padding-top:26px;padding-bottom:26px}
+.room-header .brand{font-weight:750;letter-spacing:-.025em}
+.room-header .brand small{color:#c4d1b8;letter-spacing:.02em;margin-top:4px}
+.room-nav{background:#fffef9;border-color:var(--line)}
+.room-nav a[aria-current]{background:#e7eddd;color:#3d5a3e}
+.room-nav a:hover{background:#f0f3e8}
+button,.file-label{background:#fffef9;border-color:#cbd4c1;color:#3c4d38}
+button:hover,.file-label:hover{background:#edf2e5}
+.room-header button{background:#e2ead8;border-color:#c3d0b8;color:#31432f}
+select,#title,input[type=text],.fields textarea{border-color:#c6d0bc;background:#fffefb;color:#2f3c2d}
+.save-state{background:#e7edde;color:#46633c}
+#learning-space-panel{padding:18px 24px;border-left:4px solid #8da17f}
+#learning-space-panel label{font-size:14px;font-weight:750;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+#learning-space-panel p{font-size:13px;color:#687068;margin-top:10px}
+#roster-summary{font-size:14px;font-weight:700;color:#526a48;padding:9px 0}
+#student-details pre{background:#eef1e6;color:#354930}
+dialog{background:#fffef9;border-color:#cdd5c3}
+dialog::backdrop{background:#222a22bb}
+.curriculum-side{background:#292e2b!important;color:#e6ebde!important;border-color:#495543}
+.curriculum-brand,.curriculum-foot{border-color:#4e5e45}
+.curriculum-brand strong{color:#f3f1e7}.curriculum-brand span{color:#dce4d2}.curriculum-brand small,.curriculum-foot{color:#b8c7ad}
+.curriculum-nav a{color:#dae3d1!important}
+.curriculum-nav a:hover,.curriculum-nav a:focus-visible,.curriculum-parent.is-current{background:#44583e!important;color:#fff!important}
+.curriculum-subnav{border-left-color:#667b59}
+.curriculum-subnav a{color:#c2d0b7!important}
+.curriculum-subnav a.is-current{background:#4d6945!important;color:#fff!important}
+.curriculum-subnav a.curriculum-explore{background:#414d38!important;border-color:#a2b38a;color:#e6efda!important}
+.curriculum-subnav a.curriculum-explore:hover{background:#546447!important;color:#fff!important}
+@media(max-width:850px){
+  .classroom-page .side{padding:18px 14px}
+  .classroom-page .side .brand{padding-bottom:16px;margin-bottom:12px}
+  .classroom-page .side .brand img{width:95px;margin-bottom:10px}
+  .classroom-page .side .brand .classroom-name{font-size:20px}
+  .classroom-page .side .brand .classroom-unit{margin-top:8px;font-size:14px}
+  .classroom-page .main{padding:22px 14px 50px}
+  .classroom-hero{padding:26px;gap:26px}
+  .classroom-hero h3{font-size:36px}
+  .room-header{padding:22px 18px}
+  .room-header .brand{font-size:21px}
+  #learning-space-panel{padding:16px}
+}
+@media(max-width:480px){
+  .classroom-hero{padding:23px 20px}
+  .classroom-hero h3{font-size:32px}
+  .classroom-hero .actions .btn{font-size:13px;padding:10px}
+  .classroom-hero .mk-start{max-width:none;font-size:15px!important}
+  .table-illustration{padding:16px}
+  .classroom-page .top .badge{white-space:normal}
+  .room-header .account{gap:8px}
+  .room-header .account span{font-size:12px;max-width:100%}
+  #learning-space-panel select{width:100%}
+}
+@media(prefers-reduced-motion:reduce){.btn,.course-card{transition:none}.course-card:hover{transform:none}html{scroll-behavior:auto}}
+@media print{body,body.classroom-page{background:#fff;color:#000}.hero,.teacher-hero{background:#fff;color:#000;box-shadow:none}.hero p{color:#333}}
