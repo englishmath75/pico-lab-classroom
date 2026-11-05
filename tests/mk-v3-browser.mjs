@@ -21,8 +21,8 @@ async function run(page,code,input){if(code!==undefined)await page.locator('#edi
 async function shot(page,name){await page.screenshot({path:'.artifacts/mk-v3/'+name+'.png',fullPage:false});}
 try{
  const page=await create();
- await open(page,'/');await expect(page.locator('.sidebar nav>a')).toHaveCount(6);await expect(page.locator('.hero h1')).toContainText('코드를 읽고');
- // Home contains a page heading and a hero heading; assert actual hero and selected menu.
+ await open(page,'/');await expect(page.locator('.sidebar nav>a')).toHaveCount(6);await expect(page.locator('.hero h2')).toContainText('코드를 읽고');
+ // Each page has one document heading; the home hero is a section heading.
  await expect(page.locator('.sidebar nav>a[aria-current]')).toContainText('수업 안내');
  await shot(page,'01-home');
  for(const [name,path] of [['00-review','/python-review.html#basics'],['02-list','/?page=activity&id=mk3-list-edit'],['03-fstring','/?page=activity&id=mk3-fstring'],['04-gugudan','/?page=activity&id=mk3-gugudan-horizontal-fstring'],['05-codeup','/?page=codeup&id=1173'],['06-inquiry-a','/list-tuple-dictionary.html'],['07-report','/?page=report']]){await open(page,path);await shot(page,name);}
