@@ -7,3 +7,26 @@
 
 p,h1,h2,h3,h4,li{word-break:keep-all;overflow-wrap:anywhere}
 h1{text-wrap:balance}
+
+/* MK 00 · 인덱스 실험대: 리스트 변경 전후 학습용 강조 표시 */
+.list-row-title{font-size:14px;font-weight:800;color:#303053;margin:18px 0 -12px}
+.list-row-title small{font-size:11px;font-weight:500;color:#6d6880;margin-left:8px}
+.list-cell{transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease}
+.list-cell--added{background:#c9f5df;border:2px solid #138256;color:#064c32;box-shadow:0 0 0 2px #13825614}
+.list-cell--removed{background:#ffe2e1;border:2px solid #c64452;color:#7d2632;box-shadow:0 0 0 2px #c6445214}
+.list-cell--moved{background:#fff0b8;border:2px solid #b57c05;color:#795000;box-shadow:0 0 0 2px #b57c0514}
+.list-cell--selected{background:#e7e1ff;border:2px solid #7653cb;color:#48318a;box-shadow:0 0 0 2px #7653cb14}
+.list-cell--added small{color:#0e6043;border-color:#9ddcba}
+.list-cell--removed small{color:#963543;border-color:#edb3ba}
+.list-cell--moved small{color:#815802;border-color:#ebcf75}
+.list-cell--selected small{color:#564098;border-color:#bfadee}
+.list-cell-tag{display:block;white-space:nowrap;margin-top:4px;font-size:10px;font-weight:750;line-height:1.35}
+.list-legend{display:flex;flex-wrap:wrap;gap:8px 15px;margin-top:2px;color:#403e55;font-size:11px}
+.list-legend>span{display:inline-flex;align-items:center;gap:5px}
+.list-legend-dot{display:inline-block;width:11px;height:11px;border:1px solid;border-radius:3px}
+.list-legend-dot.added{background:#c9f5df;border-color:#138256}
+.list-legend-dot.removed{background:#ffe2e1;border-color:#c64452}
+.list-legend-dot.moved{background:#fff0b8;border-color:#b57c05}
+.list-legend-dot.selected{background:#e7e1ff;border-color:#7653cb}
+.index-controls button[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 2px 8px #6d5ce720}
+@media(prefers-reduced-motion:reduce){.list-cell{transition:none}}
