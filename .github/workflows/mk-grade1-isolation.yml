@@ -1,7 +1,7 @@
 name: MK first-grade isolation regression
 on:
   push:
-    branches: [feat/mk-grade1-clone-20261105]
+    branches: [feat/mk-grade1-clone-20261105, fix/mk-list-index-highlights-20261105]
     paths: ['firestore.rules','mk/**','scripts/build-mk-site.mjs','tests/grade1-isolation.test.mjs','tests/mk-year-browser.mjs','tests/mk-v3-*','.github/workflows/mk-grade1-isolation.yml']
   workflow_dispatch:
 permissions:
