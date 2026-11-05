@@ -106,9 +106,9 @@ async function loadWorkspace(id,discard=false) {
     lastWrite=Date.now();$('editor').value=session.code;$('title').value=saved?.title||labels.get(id);$('completed').checked=!!saved?.completed;
     runState=saved?.runState||'idle';$('code-length').textContent=`${session.code.length.toLocaleString()} / 20,000자`;
     state(saved?`✓ 불러옴 · ${date(saved.savedAt)}`:canWrite()?'새 활동 · 예제는 아직 저장하지 않았습니다.':'이 화면에만 임시 보관 · 로그인하면 개인 코드를 저장할 수 있습니다.');
-    changed();return true;
+    return true;
   }catch(error){if(session.current(snapshot)){state('불러오기 실패 · 클라우드 다시 불러오기를 눌러 주세요.',true);showError(error);}return false;}
-  finally{if(session.current(snapshot)){loading=false;$('editor').readOnly=false;}}
+  finally{if(session.current(snapshot)){loading=false;$('editor').readOnly=false;changed();}}
 }
 async function refreshIdentity() {
   const snapshot=session.checkpoint(),result=await bounded(cloud.identity(user,selectedSpace));
@@ -325,7 +325,7 @@ try {
 
 export const room={
   open:loadWorkspace,guard:protectDraft,canWrite,save,logout,execute:executeCurrent,
-  current:()=>workspace,
+  current:()=>workspace,isLoading:()=>loading,
   setText(text){$('editor').value=text;dirty();},
   async readRecord(id){
     if(!canWrite())throw Error('로그인 후 승인된 학교 공간 또는 개인 공간을 선택하세요.');

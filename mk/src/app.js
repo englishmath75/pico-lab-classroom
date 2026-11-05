@@ -76,13 +76,13 @@ async function navigate(next,{push=true,open=true}={}){
 }
 function configurePractice(id){
  const report=id==='mk3-report';$('code-workbench').hidden=report;$('report-fields').hidden=!report;$('trace-panel').hidden=report;$('public-tests').replaceChildren();
- $('report-fields').innerHTML=report?`<div class="report-grid">${reportFields.map(([key,label])=>`<label class="${['before','after','result'].includes(key)?'wide':''}">${label}<textarea data-report="${key}" maxlength="2000" rows="3"></textarea></label>`).join('')}</div><div class="toolbar"><button id="report-export">탐구 보고서 TXT 내보내기</button></div>`:'';
+ $('report-fields').innerHTML=report?`<div class="report-grid">${reportFields.map(([key,label])=>`<label class="${['before','after','result'].includes(key)?'wide':''}">${label}<textarea data-report="${key}" maxlength="2000" rows="3" disabled></textarea></label>`).join('')}</div><div class="toolbar"><button id="report-export">탐구 보고서 TXT 내보내기</button></div>`:'';
  if(report){document.querySelectorAll('[data-report]').forEach(el=>el.addEventListener('input',()=>{const data={};document.querySelectorAll('[data-report]').forEach(x=>data[x.dataset.report]=x.value);room.setText(JSON.stringify(data,null,2));}));$('report-export').onclick=()=>downloadText('나의_탐구_보고서.txt',reportFields.map(([k,l])=>l+'\n'+(document.querySelector('[data-report="'+k+'"]').value||'')+'\n').join('\n'));}
  const a=activityById.get(id);if(a?.tests){$('public-tests').innerHTML=`<h3 class="section-spacer">공개 테스트 ${a.tests.length}개</h3><p class="hint">현재 편집기의 코드를 실행해 비교합니다. CodeUp 공식 채점 결과가 아니며 행별 공백·줄바꿈도 직접 확인하세요.</p><div class="toolbar"><button id="test-all">현재 코드로 공개 테스트 실행</button><button id="test-stop" disabled>테스트 중지</button></div><div id="test-status" role="status"></div>${a.tests.map((t,i)=>`<details><summary>테스트 ${i+1} · 입력과 기대 결과</summary><strong>입력</strong><pre>${esc(t.input)}</pre><strong>기대 결과 (·는 공백, ↵는 줄바꿈)</strong><pre>${esc(showSpace(t.expected))}</pre><button data-test-input="${i}">이 입력을 편집기에 넣기</button></details>`).join('')}`;
  document.querySelectorAll('[data-test-input]').forEach(b=>b.onclick=()=>$('stdin').value=a.tests[+b.dataset.testInput].input);
  $('test-all').onclick=()=>testAll(a);$('test-stop').onclick=()=>publicRunner?.stop();}
 }
-function hydrateReport(){if(room.current()!=='mk3-report')return;let data={};try{data=JSON.parse($('editor').value||'{}');}catch{$('notice').textContent='보고서 원문 형식을 읽지 못했습니다. 파일 다운로드로 원문을 보관할 수 있습니다.';return;}for(const [k] of reportFields){const el=document.querySelector('[data-report="'+k+'"]');if(el)el.value=typeof data[k]==='string'?data[k]:'';}}
+function hydrateReport(){if(room.current()!=='mk3-report')return;const fields=document.querySelectorAll('[data-report]');for(const el of fields)el.disabled=room.isLoading();if(room.isLoading())return;let data={};try{data=JSON.parse($('editor').value||'{}');}catch{$('notice').textContent='보고서 원문 형식을 읽지 못했습니다. 파일 다운로드로 원문을 보관할 수 있습니다.';return;}for(const [k] of reportFields){const el=document.querySelector('[data-report="'+k+'"]');if(el)el.value=typeof data[k]==='string'?data[k]:'';}}
 function wirePage(page){
  if($('list-before')){drawList('처음');document.querySelectorAll('[data-list-op]').forEach(b=>b.onclick=()=>drawList(b.dataset.listOp));}
  if($('rgb-swatch')){const update=()=>{const nums=[...document.querySelectorAll('.rgb-control')].map(e=>+e.value);const hex='#'+nums.map(n=>n.toString(16).padStart(2,'0')).join('').toUpperCase();$('rgb-swatch').style.background=hex;$('rgb-value').textContent=`R ${nums[0]} · G ${nums[1]} · B ${nums[2]} → ${hex}`;};document.querySelectorAll('.rgb-control').forEach(e=>e.oninput=update);update();}
@@ -146,7 +146,7 @@ addEventListener('mk-session',e=>{
  if(kind==='identity'){$('space-details').open=!$('learning-space-panel').hidden;$('space-details').hidden=$('learning-space-panel').hidden;$('student-area').hidden=false;}
  $('save').disabled=!canWrite;$('submit').disabled=!canWrite;$('history').disabled=!canWrite;$('cloud-reload').disabled=!canWrite;
  if(kind==='record'&&shownWorkspace!==null&&workspace!==shownWorkspace){shownWorkspace=workspace;navigate('./?page=practice&workspace='+workspace,{push:true,open:false}).catch(showError);}
- if(workspace==='mk3-report')hydrateReport();
+ if(workspace==='mk3-report'){hydrateReport();if(kind==='wipe')document.querySelectorAll('[data-report]').forEach(el=>{el.value='';el.disabled=true;});}
 });
 await navigate(route,{push:false});
 fetch('./mk-build-info.json',{cache:'no-store'}).then(r=>r.json()).then(v=>$('version').textContent=`MK 정보 · V3 · ${(v.commit||'미리보기').slice(0,7)}`).catch(()=>{});
