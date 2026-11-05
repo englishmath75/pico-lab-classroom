@@ -1,8 +1,25 @@
 // Grade-1 cloud adapter. 2026 cohort paths are isolated from Grade 2 and future academic years.
 // Both grades use the same Firebase Auth project; grades never share workspace documents.
 const GRADE1_CLASSES=Array.from({length:12},(_,i)=>({id:'class-1-'+(i+1),title:'1학년 '+(i+1)+'반',active:true}));
-const GRADE1_CLASS_IDS=GRADE1_CLASSES.map(c=>c.id);
 const GRADE1_STAFF_EMAIL='englishmath@muhak-g-h.gne.go.kr';
+const SCHOOL_SPACES = [
+  { id: '2026-1', year: 2026, grade: 1, title: '2026학년도 1학년' },
+  { id: '2027-1', year: 2027, grade: 1, title: '2027학년도 1학년' },
+  { id: '2027-2', year: 2027, grade: 2, title: '2027학년도 2학년' }
+];
+
+export function schoolRoot(year, grade) {
+  if (![2026, 2027].includes(year) || ![1, 2].includes(grade)) {
+    throw Error('지원하는 학년도와 학년을 선택해 주세요.');
+  }
+  return year === 2026 && grade === 2 ? 'users' : `cohorts/${year}/grade${grade}_users`;
+}
+
+function classScope(classKey) {
+  const match = /^(2026|2027):(class-([12])-([1-9]|1[0-2]))$/.exec(classKey || '');
+  if (!match) throw Error('학년도와 학급을 다시 선택해 주세요.');
+  return { year: Number(match[1]), grade: Number(match[3]), classId: match[2] };
+}
 
 import { initializeApp } from 'firebase/app';
 import { initializeAuth, inMemoryPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup,
@@ -32,7 +49,7 @@ export function createCloud(config, emulator = false) {
   }
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
-  const schoolService = new StudentStore(db, 'cohorts/2026/grade1_users');
+  let schoolService = new StudentStore(db, schoolRoot(2026, 1));
   const personalService = new StudentStore(db, 'public_users');
   let activeService = schoolService;
   return {
@@ -40,50 +57,81 @@ export function createCloud(config, emulator = false) {
     observe(callback) { return onAuthStateChanged(auth, callback); },
     login: () => signInWithPopup(auth, provider),
     logout: () => signOut(auth),
-    async identity(user) {
+    async identity(user, requestedSpace = null) {
+      const selected = SCHOOL_SPACES.find(space => space.id === requestedSpace) || SCHOOL_SPACES[0];
+      if (requestedSpace && requestedSpace !== 'personal' && requestedSpace !== selected.id) {
+        throw Error('학습 공간을 다시 선택해 주세요.');
+      }
       const [staff, profile, personal, activeClasses, access] = await Promise.all([
         getDocFromServer(doc(db, 'staff', user.uid)),
-        getDocFromServer(doc(db, 'cohorts/2026/grade1_users', user.uid)),
+        getDocFromServer(doc(db, schoolRoot(selected.year, selected.grade), user.uid)),
         getDocFromServer(doc(db, 'public_users', user.uid)),
         getDocsFromServer(query(collection(db, 'classes'), where('active','==',true),limit(50))),
         getDocFromServer(doc(db, 'config', 'access'))
       ]);
       const teacher = staff.exists() && user.email?.toLowerCase() === GRADE1_STAFF_EMAIL;
-      const grade2Classes = teacher ? activeClasses.docs
-        .filter(d => staff.data().classIds?.includes(d.id))
-        .map(d => ({ id:d.id, ...d.data(), title:`2026학년도 ${d.data().title}` })) : [];
-      const classes = teacher ? [
-        ...GRADE1_CLASSES.map(c => ({...c,title:`2026학년도 ${c.title}`})),
-        ...grade2Classes
-      ] : GRADE1_CLASSES;
+      const grade2Classes = activeClasses.docs.filter(d => /^class-2-([1-9]|1[0-2])$/.test(d.id))
+        .map(d => ({ ...d.data(), id: d.id, title: d.data().title.replace(/^(?:\d{4}학년도\s*)+/, '') }));
+      const classes = selected.grade === 1 ? GRADE1_CLASSES : grade2Classes;
+      const teacherClasses = teacher ? [
+        ...GRADE1_CLASSES.map(c => ({ ...c, id: `2026:${c.id}`, title: `2026학년도 ${c.title}` })),
+        ...grade2Classes.filter(c => staff.data().classIds?.includes(c.id))
+          .map(c => ({ ...c, id: `2026:${c.id}`, title: `2026학년도 ${c.title}` })),
+        ...[...GRADE1_CLASSES, ...grade2Classes]
+          .map(c => ({ ...c, id: `2027:${c.id}`, title: `2027학년도 ${c.title}` }))
+      ] : [];
       const studentProfile = profile.exists() ? profile.data() : null;
       const personalProfile = personal.exists() ? {...personal.data(), userType:'personal'} : null;
-      activeService = studentProfile ? schoolService : (personalProfile ? personalService : schoolService);
-      const grade1Staff = teacher ? {...staff.data(),
-        classIds:[...GRADE1_CLASS_IDS,...(staff.data().classIds||[])]} : null;
-      return { staff:grade1Staff, profile:studentProfile || personalProfile, classes, access:access.data() };
+      const usePersonal = requestedSpace === 'personal' || (!requestedSpace && !studentProfile && !!personalProfile);
+      schoolService = new StudentStore(db, schoolRoot(selected.year, selected.grade));
+      activeService = usePersonal ? personalService : schoolService;
+      const grade1Staff = teacher ? { ...staff.data(), classIds: teacherClasses.map(c => c.id) } : null;
+      return {
+        staff: grade1Staff, profile: usePersonal ? personalProfile : studentProfile,
+        classes, teacherClasses, access: access.data(), service: activeService,
+        spaceId: usePersonal ? 'personal' : selected.id,
+        spaces: [...SCHOOL_SPACES, { id: 'personal', title: '개인 코드 보관함 · 학급 등록 없이 사용' }],
+        spaceTitle: usePersonal ? '개인 코드 보관함' : selected.title
+      };
     },
     async registerPersonal(user) {
-      await setDoc(doc(db, 'public_users', user.uid), {
+      const profileRef = doc(db, 'public_users', user.uid);
+      await runTransaction(db, async tx => {
+        if ((await tx.get(profileRef)).exists()) return;
+        tx.set(profileRef, {
         email:user.email, displayName:(user.displayName || '개인 학습자').slice(0,80),
         userType:'personal', status:'approved', createdAt:serverTimestamp(), updatedAt:serverTimestamp()
+        });
       });
     },
-    async register(user, classId) {
-      await setDoc(doc(db, 'cohorts/2026/grade1_users', user.uid), { email: user.email, displayName: (user.displayName || '학생').slice(0, 80),
-        classId, status: 'pending', createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+    async register(user, classId, spaceId = '2026-1') {
+      const selected = SCHOOL_SPACES.find(space => space.id === spaceId);
+      if (!selected || !classId.startsWith(`class-${selected.grade}-`)) throw Error('학년도와 학급을 확인해 주세요.');
+      const profileRef = doc(db, schoolRoot(selected.year, selected.grade), user.uid);
+      await runTransaction(db, async tx => {
+        const existing = await tx.get(profileRef);
+        if (existing.exists()) {
+          if (existing.data().classId !== classId) throw Error('이미 등록한 학급이 있습니다. 담당 선생님께 확인해 주세요.');
+          return;
+        }
+        tx.set(profileRef, { email: user.email, displayName: (user.displayName || '학생').slice(0, 80),
+          classId, status: 'pending', createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+      });
     },
-    async students(classId) {
-      const root = classId.startsWith('class-2-') ? 'users' : 'cohorts/2026/grade1_users';
+    async students(classKey) {
+      const { year, grade, classId } = classScope(classKey);
+      const root = schoolRoot(year, grade);
       const result=await getDocsFromServer(query(collection(db,root),where('classId','==',classId),limit(100)));
-      return result.docs.map(d=>({uid:d.id,...d.data(),academicYear:2026,grade:classId.startsWith('class-2-')?2:1}));
+      return result.docs.map(d=>({uid:d.id,...d.data(),academicYear:year,grade,classKey}));
     },
-    approve(uid,status,classId) {
-      const root=classId?.startsWith('class-2-')?'users':'cohorts/2026/grade1_users';
+    approve(uid,status,classKey) {
+      const { year, grade } = classScope(classKey);
+      const root=schoolRoot(year, grade);
       return updateDoc(doc(db,root,uid),{status,updatedAt:serverTimestamp()});
     },
-    async teacherDetails(uid,classId) {
-      const root=classId?.startsWith('class-2-')?'users':'cohorts/2026/grade1_users';
+    async teacherDetails(uid,classKey) {
+      const { year, grade, classId } = classScope(classKey);
+      const root=schoolRoot(year, grade);
       const [progress,submissions,quota]=await Promise.all([
         getDocsFromServer(query(collection(db,root,uid,'progress'),limit(50))),
         getDocsFromServer(query(collection(db,root,uid,'submissions'),where('classId','==',classId),limit(50))),

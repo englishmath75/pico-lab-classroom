@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, limit, getDocs, Timestamp, serverTimestamp } from 'firebase/firestore';
 import { StudentStore as Grade2Store } from '../public/pandas-data-lab/student-cloud.js';
-import { StudentStore as Grade1Store, createCloud } from '../mk/grade1-cloud.js';
+import { StudentStore as Grade1Store, schoolRoot } from '../mk/grade1-cloud.js';
 
 const projectId='demo-englishmath-python';
 let env;
@@ -139,5 +139,58 @@ test('A future-year Grade 1 record is never reused by the 2026 student workspace
   });
   const current=new Grade1Store(student,'cohorts/2026/grade1_users');
   assert.equal(await current.load('alice','scratch-02'),null);
-  await assertFails(getDoc(doc(student,'cohorts/2027/grade1_users/alice')));
+  assert.equal((await getDoc(doc(student,'cohorts/2027/grade1_users/alice'))).data().classId,'class-1-1');
+});
+
+test('Academic-year routes preserve the 2026 Grade 2 root and reject unsupported years', () => {
+  assert.equal(schoolRoot(2026, 1), 'cohorts/2026/grade1_users');
+  assert.equal(schoolRoot(2026, 2), 'users');
+  assert.equal(schoolRoot(2027, 2), 'cohorts/2027/grade2_users');
+  assert.throws(() => schoolRoot(2028, 1));
+  assert.throws(() => schoolRoot(2027, 3));
+});
+
+test('Promotion creates a fresh pending profile and preserves the previous year through approval and reload', async () => {
+  const student = auth('alice');
+  const teacher = auth('teacher', 'englishmath@muhak-g-h.gne.go.kr');
+  const oldRoot = schoolRoot(2026, 1), newRoot = schoolRoot(2027, 2);
+  const oldStore = new Grade1Store(student, oldRoot);
+  const nextStore = new Grade1Store(student, newRoot);
+  await oldStore.mutate('alice', 'scratch-01', 'save', code('print("2026")', 'class-1-1'), 0);
+  const oldProfile = (await getDoc(doc(student, oldRoot, 'alice'))).data();
+  await setDoc(doc(student, newRoot, 'alice'), {
+    email: 'alice@muhak-g-h.gne.go.kr', displayName: 'alice', classId: 'class-2-1',
+    status: 'pending', createdAt: serverTimestamp(), updatedAt: serverTimestamp()
+  });
+  await assertFails(nextStore.mutate('alice', 'scratch-01', 'save', code('before approval', 'class-2-1'), 0));
+  await assertSucceeds(updateDoc(doc(teacher, newRoot, 'alice'), { status: 'approved', updatedAt: serverTimestamp() }));
+  assert.equal(await nextStore.load('alice', 'scratch-01'), null);
+  await nextStore.mutate('alice', 'scratch-01', 'save', code('print("2027")', 'class-2-1'), 0);
+  const reconnected = auth('alice');
+  assert.equal((await new Grade1Store(reconnected, oldRoot).load('alice', 'scratch-01')).code, 'print("2026")');
+  assert.equal((await new Grade1Store(reconnected, newRoot).load('alice', 'scratch-01')).code, 'print("2027")');
+  assert.deepEqual((await getDoc(doc(student, oldRoot, 'alice'))).data(), oldProfile);
+  assert.equal((await getDoc(doc(student, 'users/alice'))).data().status, 'approved');
+  assert.equal((await nextStore.revisions('alice', 'scratch-01'))[0].code, 'print("2027")');
+});
+
+test('2027 class and teacher access follow the selected grade and retain draft privacy', async () => {
+  const student = auth('new'), teacher = auth('teacher', 'englishmath@muhak-g-h.gne.go.kr');
+  const root = schoolRoot(2027, 2);
+  const fresh = classId => ({ email: 'new@muhak-g-h.gne.go.kr', displayName: 'new', classId,
+    status: 'pending', createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+  await assertFails(setDoc(doc(student, root, 'new'), fresh('class-1-1')));
+  await assertFails(setDoc(doc(student, 'cohorts/2027/unrecognized/new'), fresh('class-2-1')));
+  await assertFails(setDoc(doc(student, 'cohorts/2028/grade2_users/new'), fresh('class-2-1')));
+  await assertSucceeds(setDoc(doc(student, root, 'new'), fresh('class-2-1')));
+  await assertFails(updateDoc(doc(student, root, 'new'), { status: 'approved', updatedAt: serverTimestamp() }));
+  await assertFails(updateDoc(doc(auth('outsider'), root, 'new'), { status: 'approved', updatedAt: serverTimestamp() }));
+  await assertSucceeds(updateDoc(doc(teacher, root, 'new'), { status: 'approved', updatedAt: serverTimestamp() }));
+  await new Grade1Store(student, root).mutate('new', 'lesson-01', 'save', code('private 2027', 'class-2-1'), 0);
+  await assertFails(getDoc(doc(teacher, root, 'new', 'workspaces', 'lesson-01')));
+  await assertFails(getDoc(doc(auth('bob'), root, 'new', 'workspaces', 'lesson-01')));
+  await assertSucceeds(getDoc(doc(teacher, root, 'new', 'progress', 'lesson-01')));
+  const roster = await getDocs(query(collection(teacher, root), where('classId', '==', 'class-2-1'), limit(100)));
+  assert.equal(roster.docs[0].id, 'new');
+  await assertFails(getDocs(query(collection(auth('bob'), root), where('classId', '==', 'class-2-1'), limit(100))));
 });
