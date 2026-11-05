@@ -106,14 +106,14 @@ try {
   const student = await device();
   await login(student, students[0]);
   await expect(student.locator('#student-area')).toBeVisible();
-  await expect(student.locator('#save-state')).toContainText('새 실습');
+  await expect(student.locator('#save-state')).toContainText('새 활동');
   await save(student, 'print("2026 original")');
   await student.locator('#learning-space').selectOption('2027-2');
   await expect(student.locator('#enrollment-heading')).toContainText('2027학년도 2학년');
   await student.locator('#class-select').selectOption('class-2-1');
   await student.locator('#register').click();
   await expect(student.locator('#notice')).toContainText('승인 대기');
-  await expect(student.locator('#student-area')).toBeHidden();
+  await expect(student.locator('#save')).toBeDisabled();
 
   const teacher = await device();
   await login(teacher, students[1]);
@@ -126,7 +126,7 @@ try {
   await teacher.locator('#dialog-yes').click();
   await expect(row.locator('td').nth(1)).toHaveText('승인됨');
   await student.locator('#refresh-approval').click();
-  await expect(student.locator('#save-state')).toContainText('새 실습');
+  await expect(student.locator('#save-state')).toContainText('새 활동');
   await expect(student.locator('#editor')).toHaveValue('');
   await save(student, 'print("2027 new enrollment")');
 
@@ -150,7 +150,7 @@ try {
   await expect(visitor.locator('#submit')).toBeHidden();
   await save(visitor, 'print("private personal code")');
   await visitor.locator('#learning-space').selectOption('2027-1');
-  await expect(visitor.locator('#student-area')).toBeHidden();
+  await expect(visitor.locator('#save')).toBeDisabled();
   await visitor.locator('#learning-space').selectOption('personal');
   await expect(visitor.locator('#editor')).toHaveValue('print("private personal code")');
   await visitor.locator('#logout').click();

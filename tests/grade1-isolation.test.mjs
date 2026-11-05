@@ -194,3 +194,44 @@ test('2027 class and teacher access follow the selected grade and retain draft p
   assert.equal(roster.docs[0].id, 'new');
   await assertFails(getDocs(query(collection(auth('bob'), root), where('classId', '==', 'class-2-1'), limit(100))));
 });
+
+import { MK_ACTIVITY_IDS } from '../mk/activity-ids.js';
+import { writeBatch } from 'firebase/firestore';
+const ageQuota=async(root,uid='alice')=>env.withSecurityRulesDisabled(c=>setDoc(doc(c.firestore(),root,uid,'limits','state'),{day:Timestamp.fromMillis(Math.floor(Date.now()/86400000)*86400000),count:1,workspaceId:'scratch-01',kind:'save',updatedAt:Timestamp.fromMillis(Date.now()-30000)}));
+
+test('Every finite V3 activity has an authorized bounded save; legacy record is preserved',async()=>{
+ const db=auth('alice'),root=schoolRoot(2026,1),store=new Grade1Store(db,root);
+ await store.mutate('alice','lesson-01','save',code('old course must remain','class-1-1'),0);
+ for(const id of MK_ACTIVITY_IDS){await ageQuota(root);await store.mutate('alice',id,'save',code('code for '+id,'class-1-1'),0);assert.equal((await store.load('alice',id)).code,'code for '+id);}
+ assert.equal((await store.load('alice','lesson-01')).code,'old course must remain');
+ assert.equal((await store.list('alice')).length,MK_ACTIVITY_IDS.length+1);
+});
+
+test('V3 original, variant, report and notebook remain independent across personal and academic years',async()=>{
+ const db=auth('alice'),roots=[schoolRoot(2026,1),schoolRoot(2027,2),'public_users'];
+ await env.withSecurityRulesDisabled(async c=>{await setDoc(doc(c.firestore(),roots[1],'alice'),profile('alice','class-2-1'));await setDoc(doc(c.firestore(),'public_users/alice'),{email:'alice@muhak-g-h.gne.go.kr',displayName:'alice',userType:'personal',status:'approved',createdAt:Timestamp.now(),updatedAt:Timestamp.now()});});
+ for(const root of roots){const store=new Grade1Store(db,root);for(const id of ['mk3-cu1173','mk3-cu1173-v','mk3-report','mk3-notebook']){await ageQuota(root);await store.mutate('alice',id,'save',code(root+'/'+id,'class-2-1'),0);}}
+ for(const root of roots){for(const id of ['mk3-cu1173','mk3-cu1173-v','mk3-report','mk3-notebook'])assert.equal((await new Grade1Store(db,root).load('alice',id)).code,root+'/'+id);}
+});
+
+test('New V3 records remain unreadable by another UID and by staff without submission',async()=>{
+ const root=schoolRoot(2026,1),store=new Grade1Store(auth('alice'),root);
+ for(const id of ['mk3-cu1173','mk3-report','mk3-notebook']){await ageQuota(root);await store.mutate('alice',id,'save',code('private '+id,'class-1-1'),0);for(const db of [auth('bob'),auth('teacher','englishmath@muhak-g-h.gne.go.kr'),env.unauthenticatedContext().firestore()])await assertFails(getDoc(doc(db,root,'alice','workspaces',id)));}
+});
+
+async function rawV3Write(root,id,value='print(1)'){
+ const db=auth('alice'),b=writeBatch(db),version=1,savedAt=serverTimestamp();
+ const d={workspaceId:id,lessonId:id,title:'bounded activity',code:value,runState:'idle',completed:false,version,savedAt};
+ b.set(doc(db,root,'alice','limits','state'),{day:Timestamp.fromMillis(Math.floor(Date.now()/86400000)*86400000),count:1,workspaceId:id,kind:'save',updatedAt:savedAt});
+ b.set(doc(db,root,'alice','workspaces',id),d);
+ b.set(doc(db,root,'alice','revisions',id+'__1'),{...d,slot:1});
+ b.set(doc(db,root,'alice','progress',id),{workspaceId:id,runState:'idle',completed:false,version,savedAt});
+ return b.commit();
+}
+
+test('Raw SDK cannot create arbitrary MK activity IDs or oversize payloads; SW cannot use V3 IDs',async()=>{
+ for(const id of ['mk3-unlimited','mk3-cu1173-v2','mk3-report-extra','mk3-q999'])await assertFails(rawV3Write(schoolRoot(2026,1),id));
+ await assertFails(rawV3Write(schoolRoot(2026,1),'mk3-report','x'.repeat(20001)));
+ await assertFails(rawV3Write('users','mk3-cu1173'));
+ await assertSucceeds(rawV3Write(schoolRoot(2026,1),'mk3-report','{"topic":"list"}'));
+});

@@ -1,3 +1,4 @@
+import { MK_ACTIVITY_IDS } from './activity-ids.js';
 // Grade-1 cloud adapter. 2026 cohort paths are isolated from Grade 2 and future academic years.
 // Both grades use the same Firebase Auth project; grades never share workspace documents.
 const GRADE1_CLASSES=Array.from({length:12},(_,i)=>({id:'class-1-'+(i+1),title:'1학년 '+(i+1)+'반',active:true}));
@@ -26,10 +27,10 @@ import { initializeAuth, inMemoryPersistence, browserPopupRedirectResolver, Goog
   onAuthStateChanged, signOut, connectAuthEmulator } from 'firebase/auth';
 import { initializeFirestore, memoryLocalCache, connectFirestoreEmulator,
   doc, collection, getDocFromServer, getDocsFromServer, query, where, limit,
-  orderBy, runTransaction, serverTimestamp, Timestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
+  orderBy, startAfter, runTransaction, serverTimestamp, Timestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 
 export const MAX_CODE = 20000, SAVE_INTERVAL = 60000, WRITE_GAP = 16000;
-export function validWorkspace(id) { return /^(lesson-(0[0-9]|10)|scratch-(0[1-9]|10)|inquiry-[a-d])$/.test(id); }
+export function validWorkspace(id) { return /^(lesson-(0[0-9]|10)|scratch-(0[1-9]|10)|inquiry-[a-d])$/.test(id) || MK_ACTIVITY_IDS.includes(id); }
 export function readableError(error) {
   if (error.code === 'conflict') return '다른 기기에서 저장한 새 코드가 있습니다. 현재 코드를 .py로 내려받은 뒤 클라우드 코드를 다시 불러오세요.';
   if (error.code === 'cooldown') return '저장 간격을 확인하고 있습니다. 16초 뒤 다시 저장해 주세요.';
@@ -133,11 +134,11 @@ export function createCloud(config, emulator = false) {
       const { year, grade, classId } = classScope(classKey);
       const root=schoolRoot(year, grade);
       const [progress,submissions,quota]=await Promise.all([
-        getDocsFromServer(query(collection(db,root,uid,'progress'),limit(50))),
-        getDocsFromServer(query(collection(db,root,uid,'submissions'),where('classId','==',classId),limit(50))),
+        paged(collection(db,root,uid,'progress')),
+        paged(collection(db,root,uid,'submissions'),[where('classId','==',classId)]),
         getDocFromServer(doc(db,root,uid,'limits','state'))
       ]);
-      return {progress:progress.docs.map(d=>d.data()),submissions:submissions.docs.map(d=>d.data()),quota:quota.data()};
+      return {progress:progress.map(d=>d.data()),submissions:submissions.map(d=>d.data()),quota:quota.data()};
     }
   };
 }
@@ -147,8 +148,8 @@ export class StudentStore {
   ref(uid, group, id) { return doc(this.db, this.root, uid, group, id); }
   async load(uid, id) { const d = await getDocFromServer(this.ref(uid, 'workspaces', id)); return d.exists() ? d.data() : null; }
   async list(uid) {
-    const d = await getDocsFromServer(query(collection(this.db, this.root, uid, 'workspaces'), limit(50)));
-    return d.docs.map(x => x.data()).sort((a,b) => (b.savedAt?.toMillis() || 0) - (a.savedAt?.toMillis() || 0));
+    const docs=await paged(collection(this.db,this.root,uid,'workspaces'));
+    return docs.map(x=>x.data()).sort((a,b)=>(b.savedAt?.toMillis()||0)-(a.savedAt?.toMillis()||0));
   }
   async revisions(uid, id) {
     const d = await getDocsFromServer(query(collection(this.db, this.root, uid, 'revisions'), where('workspaceId','==',id), limit(10)));
@@ -182,4 +183,15 @@ export class StudentStore {
       return data.version;
     });
   }
+}
+
+async function paged(ref,filters=[]) {
+  const result=[];let cursor;
+  do {
+    const page=await getDocsFromServer(query(ref,...filters,...(cursor?[startAfter(cursor)]:[]),limit(50)));
+    result.push(...page.docs);
+    if(page.size<50)break;
+    cursor=page.docs.at(-1);
+  }while(result.length<250);
+  return result;
 }

@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1165,
+    "title": "축구의 신 1",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1165",
+    "focus": "경계 시간과 일정 간격 누적",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1173,
+    "title": "30분전",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1173",
+    "focus": "시간 경계와 조건 분기",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1214,
+    "title": "이 달은 며칠까지 있을까?",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1214",
+    "focus": "윤년과 월별 조건; 규칙 설명 선행",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1218,
+    "title": "삼각형 판단하기",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1218",
+    "focus": "삼각형 성립 조건과 분류 순서",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1226,
+    "title": "이번 주 로또",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1226",
+    "focus": "번호 일치 세기; 자체 변형은 학교 활동 맥락 권장",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1259,
+    "title": "1부터 n까지 중 짝수의 합 구하기",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1259",
+    "focus": "조건부 누적",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1274,
+    "title": "소수 판별",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1274",
+    "focus": "약수 탐색과 종료 조건",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1281,
+    "title": "홀수는 더하고 짝수는 빼고 3",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1281",
+    "focus": "부호와 누적 및 수식 출력",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1355,
+    "title": "삼각형 출력하기 3",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1355",
+    "focus": "행별 공백과 별 개수",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1675,
+    "title": "시저의 암호 1",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1675",
+    "focus": "문자열 순회와 알파벳 이동; 원문 암호/복호 방향 확인",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1402,
+    "title": "거꾸로 출력하기 3",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1402",
+    "focus": "리스트 역순 탐색",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1409,
+    "title": "기억력 테스트 1",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1409",
+    "focus": "인덱스와 번째의 차이",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1411,
+    "title": "빠진 카드",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1411",
+    "focus": "누락값과 리스트·누적 비교",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1412,
+    "title": "알파벳 개수 출력하기",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1412",
+    "focus": "문자별 빈도 리스트",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1425,
+    "title": "자리 배치",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1425",
+    "focus": "정렬과 주기적 줄바꿈",
+    "scope": "core-or-reference"
+  },
+  {
+    "id": 1460,
+    "title": "[기초-배열연습] 2차원 배열 순서대로 채우기 1-1",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1460",
+    "focus": "행·열과 중첩 리스트",
+    "scope": "optional-extension"
+  },
+  {
+    "id": 1468,
+    "title": "[기초-배열연습] 2차원 배열 지그재그 채우기 2-1",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1468",
+    "focus": "홀짝 행과 인덱스 방향",
+    "scope": "optional-extension"
+  },
+  {
+    "id": 1505,
+    "title": "2차원 배열 채우기 3(달팽이 배열)",
+    "pythonId": null,
+    "url": "https://codeup.kr/problem.php?id=1505",
+    "focus": "방향/경계; 기본 평가에는 자동 포함하지 않음",
+    "scope": "optional-extension"
+  },
+  {
+    "id": 1098,
+    "title": "[기초-2차원배열] 설탕과자 뽑기",
+    "pythonId": 6097,
+    "url": "https://codeup.kr/problem.php?id=6097",
+    "focus": "방향과 길이에 따른 격자 표시",
+    "scope": "optional-extension"
+  },
+  {
+    "id": 1099,
+    "title": "[기초-2차원배열] 성실한 개미",
+    "pythonId": 6098,
+    "url": "https://codeup.kr/problem.php?id=6098",
+    "focus": "정해진 이동 규칙의 시뮬레이션",
+    "scope": "optional-extension"
+  }
+]

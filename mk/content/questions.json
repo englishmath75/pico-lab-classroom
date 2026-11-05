@@ -1,0 +1,882 @@
+[
+  {
+    "id": "q01",
+    "topic": "list",
+    "difficulty": "기본",
+    "prerequisites": [
+      "list"
+    ],
+    "type": "출력 예측",
+    "prompt": "출력되는 값은?",
+    "starter": "a = [10, 20, 30]\nprint(a[1])",
+    "input": "",
+    "expected": "20",
+    "rubric": "",
+    "hints": [
+      "인덱스는 0부터이므로 a[1]은 두 번째 값입니다."
+    ],
+    "explanation": "인덱스는 0부터이므로 a[1]은 두 번째 값입니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-basics",
+    "mode": "exact"
+  },
+  {
+    "id": "q02",
+    "topic": "list",
+    "difficulty": "기본",
+    "prerequisites": [
+      "list"
+    ],
+    "type": "빈칸",
+    "prompt": "끝에 30을 붙이는 한 줄을 쓰세요.",
+    "starter": "a = [10, 20]\n# 빈칸\nprint(a)",
+    "input": "",
+    "expected": "a.append(30)",
+    "rubric": "",
+    "hints": [
+      "append는 리스트의 끝에 원소 하나를 붙입니다."
+    ],
+    "explanation": "append는 리스트의 끝에 원소 하나를 붙입니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-list-edit",
+    "mode": "exact"
+  },
+  {
+    "id": "q03",
+    "topic": "list",
+    "difficulty": "적용",
+    "prerequisites": [
+      "list"
+    ],
+    "type": "추적",
+    "prompt": "삽입 뒤 a[2]의 값은?",
+    "starter": "a = [10, 30]\na.insert(1, 20)\nprint(a[2])",
+    "input": "",
+    "expected": "30",
+    "rubric": "",
+    "hints": [
+      "기존 30이 인덱스 1에서 2로 밀립니다."
+    ],
+    "explanation": "기존 30이 인덱스 1에서 2로 밀립니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-list-edit",
+    "mode": "exact"
+  },
+  {
+    "id": "q04",
+    "topic": "list",
+    "difficulty": "적용",
+    "prerequisites": [
+      "list"
+    ],
+    "type": "오류 수정",
+    "prompt": "0번 자리를 지우는 한 줄을 쓰세요.",
+    "starter": "a = [10, 20, 30]\n# 인덱스 0 삭제",
+    "input": "",
+    "expected": "del a[0]",
+    "rubric": "핵심 이유를 자기 말로 설명하고 해설과 대조하세요.",
+    "hints": [
+      "remove(0)은 값 0을 찾습니다."
+    ],
+    "explanation": "remove(0)은 값 0을 찾습니다. 자리는 del과 인덱스를 씁니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-list-edit",
+    "mode": "exact"
+  },
+  {
+    "id": "q05",
+    "topic": "list",
+    "difficulty": "기본",
+    "prerequisites": [
+      "list"
+    ],
+    "type": "출력 예측",
+    "prompt": "출력되는 리스트는?",
+    "starter": "a = [20, 10, 20]\na.remove(20)\nprint(a)",
+    "input": "",
+    "expected": "[10, 20]",
+    "rubric": "",
+    "hints": [
+      "remove는 처음 만나는 같은 값 하나만 지웁니다."
+    ],
+    "explanation": "remove는 처음 만나는 같은 값 하나만 지웁니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-list-edit",
+    "mode": "exact"
+  },
+  {
+    "id": "q06",
+    "topic": "list",
+    "difficulty": "기본",
+    "prerequisites": [
+      "list"
+    ],
+    "type": "빈칸",
+    "prompt": "네 번째 원소를 문자열 테스트로 바꾸세요.",
+    "starter": "a = [10, 20, 30, 40]\n# 빈칸",
+    "input": "",
+    "expected": "a[3] = \"테스트\"",
+    "rubric": "",
+    "hints": [
+      "네 번째 자리의 인덱스는 3이며 길이는 그대로입니다."
+    ],
+    "explanation": "네 번째 자리의 인덱스는 3이며 길이는 그대로입니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-list-edit",
+    "mode": "exact"
+  },
+  {
+    "id": "q07",
+    "topic": "list",
+    "difficulty": "기본",
+    "prerequisites": [
+      "list"
+    ],
+    "type": "출력 예측",
+    "prompt": "출력되는 리스트는?",
+    "starter": "a = [10, 20, 30, 40, 50]\nprint(a[1:3])",
+    "input": "",
+    "expected": "[20, 30]",
+    "rubric": "",
+    "hints": [
+      "끝 인덱스 3은 제외됩니다."
+    ],
+    "explanation": "끝 인덱스 3은 제외됩니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-list-slices",
+    "mode": "exact"
+  },
+  {
+    "id": "q08",
+    "topic": "list",
+    "difficulty": "적용",
+    "prerequisites": [
+      "list"
+    ],
+    "type": "추적",
+    "prompt": "두 번째 줄의 출력은?",
+    "starter": "a = [10, 20, 30, 40, 50]\nprint(a[:3])\nprint(a[2:])",
+    "input": "",
+    "expected": "[30, 40, 50]",
+    "rubric": "",
+    "hints": [
+      "시작 2는 포함하고 끝을 생략하면 마지막까지입니다."
+    ],
+    "explanation": "시작 2는 포함하고 끝을 생략하면 마지막까지입니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-list-slices",
+    "mode": "exact"
+  },
+  {
+    "id": "q09",
+    "topic": "list",
+    "difficulty": "기본",
+    "prerequisites": [
+      "list"
+    ],
+    "type": "출력 예측",
+    "prompt": "출력되는 리스트는?",
+    "starter": "a = [10, 20, 30, 40, 50]\nprint(a[::2])",
+    "input": "",
+    "expected": "[10, 30, 50]",
+    "rubric": "",
+    "hints": [
+      "인덱스 0, 2, 4를 골라 새 리스트를 만듭니다."
+    ],
+    "explanation": "인덱스 0, 2, 4를 골라 새 리스트를 만듭니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-list-slices",
+    "mode": "exact"
+  },
+  {
+    "id": "q10",
+    "topic": "list",
+    "difficulty": "기본",
+    "prerequisites": [
+      "list"
+    ],
+    "type": "출력 예측",
+    "prompt": "원본 a의 출력은?",
+    "starter": "a = [3, 1, 2]\nb = a[::-1]\nprint(a)",
+    "input": "",
+    "expected": "[3, 1, 2]",
+    "rubric": "",
+    "hints": [
+      "슬라이싱은 복사이므로 a는 바뀌지 않습니다."
+    ],
+    "explanation": "슬라이싱은 복사이므로 a는 바뀌지 않습니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-list-slices",
+    "mode": "exact"
+  },
+  {
+    "id": "q11",
+    "topic": "list",
+    "difficulty": "적용",
+    "prerequisites": [
+      "list"
+    ],
+    "type": "오류 수정",
+    "prompt": "출력이 리스트가 아닌 이유를 쓰세요.",
+    "starter": "a = [3, 1, 2]\na = a.sort()\nprint(a)",
+    "input": "",
+    "expected": "sort는 원본을 바꾸고 None을 반환한다",
+    "rubric": "핵심 이유를 자기 말로 설명하고 해설과 대조하세요.",
+    "hints": [
+      "a."
+    ],
+    "explanation": "a.sort()만 호출하면 됩니다. 반환값을 a에 대입하면 a가 None이 됩니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-list-sort",
+    "mode": "self"
+  },
+  {
+    "id": "q12",
+    "topic": "list",
+    "difficulty": "적용",
+    "prerequisites": [
+      "list"
+    ],
+    "type": "추적",
+    "prompt": "출력되는 리스트는?",
+    "starter": "a = [3, 1, 2]\na.reverse()\nprint(a)",
+    "input": "",
+    "expected": "[2, 1, 3]",
+    "rubric": "",
+    "hints": [
+      "뒤집기는 내림차순 정렬과 다릅니다."
+    ],
+    "explanation": "뒤집기는 내림차순 정렬과 다릅니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-list-sort",
+    "mode": "exact"
+  },
+  {
+    "id": "q13",
+    "topic": "turtle",
+    "difficulty": "기본",
+    "prerequisites": [
+      "turtle"
+    ],
+    "type": "출력 예측",
+    "prompt": "처음 오른쪽을 보던 거북이는 어느 방향을 보나요?",
+    "starter": "import turtle\nturtle.forward(100)\nturtle.left(90)",
+    "input": "",
+    "expected": "위",
+    "rubric": "",
+    "hints": [
+      "반시계 방향으로 90도 회전합니다."
+    ],
+    "explanation": "반시계 방향으로 90도 회전합니다. 회전 자체는 위치를 바꾸지 않습니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-turtle-square",
+    "mode": "exact"
+  },
+  {
+    "id": "q14",
+    "topic": "turtle",
+    "difficulty": "기본",
+    "prerequisites": [
+      "turtle"
+    ],
+    "type": "빈칸",
+    "prompt": "선을 남기지 않도록 먼저 넣을 명령은?",
+    "starter": "import turtle\n# 빈칸\nturtle.goto(100, 100)",
+    "input": "",
+    "expected": "turtle.penup()",
+    "rubric": "",
+    "hints": [
+      "펜을 든 동안 이동은 하지만 선을 그리지 않습니다."
+    ],
+    "explanation": "펜을 든 동안 이동은 하지만 선을 그리지 않습니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-turtle-coordinates",
+    "mode": "exact"
+  },
+  {
+    "id": "q15",
+    "topic": "turtle",
+    "difficulty": "적용",
+    "prerequisites": [
+      "turtle"
+    ],
+    "type": "조건 변경",
+    "prompt": "반복 횟수 4를 3으로 바꾸면 사각형이 완성되나요?",
+    "starter": "import turtle\nfor i in range(4):\n    turtle.forward(80)\n    turtle.left(90)",
+    "input": "",
+    "expected": "아니요",
+    "rubric": "",
+    "hints": [
+      "세 변만 그리고 멈춥니다."
+    ],
+    "explanation": "세 변만 그리고 멈춥니다. 3번 반복에 120도 회전이면 정삼각형을 만들 수 있습니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-turtle-square",
+    "mode": "exact"
+  },
+  {
+    "id": "q16",
+    "topic": "turtle",
+    "difficulty": "적용",
+    "prerequisites": [
+      "turtle"
+    ],
+    "type": "추적",
+    "prompt": "선택되는 색 이름은?",
+    "starter": "colors = [\"red\", \"blue\", \"green\"]\nprint(colors[4 % len(colors)])",
+    "input": "",
+    "expected": "blue",
+    "rubric": "",
+    "hints": [
+      "4를 3으로 나눈 나머지 1로 두 번째 색을 고릅니다."
+    ],
+    "explanation": "4를 3으로 나눈 나머지 1로 두 번째 색을 고릅니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-turtle-circles",
+    "mode": "exact"
+  },
+  {
+    "id": "q17",
+    "topic": "turtle",
+    "difficulty": "기본",
+    "prerequisites": [
+      "turtle"
+    ],
+    "type": "빈칸",
+    "prompt": "목표 위치는 원점의 어느 쪽인가요?",
+    "starter": "import turtle\nturtle.goto(-80, 60)",
+    "input": "",
+    "expected": "왼쪽 위",
+    "rubric": "",
+    "hints": [
+      "x 음수는 왼쪽, y 양수는 위쪽입니다."
+    ],
+    "explanation": "x 음수는 왼쪽, y 양수는 위쪽입니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-turtle-coordinates",
+    "mode": "exact"
+  },
+  {
+    "id": "q18",
+    "topic": "turtle",
+    "difficulty": "적용",
+    "prerequisites": [
+      "turtle"
+    ],
+    "type": "설명",
+    "prompt": "pensize(5)가 바꾸는 것은?",
+    "starter": "import turtle\nturtle.pensize(5)\nturtle.forward(80)",
+    "input": "",
+    "expected": "선 굵기",
+    "rubric": "핵심 이유를 자기 말로 설명하고 해설과 대조하세요.",
+    "hints": [
+      "이동 거리나 각도를 바꾸지 않습니다."
+    ],
+    "explanation": "이동 거리나 각도를 바꾸지 않습니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-turtle-star",
+    "mode": "self"
+  },
+  {
+    "id": "q19",
+    "topic": "matplotlib",
+    "difficulty": "적용",
+    "prerequisites": [
+      "matplotlib"
+    ],
+    "type": "연결",
+    "prompt": "두 번째 점의 x와 y를 공백으로 쓰세요.",
+    "starter": "x = [1, 2, 3]\ny = [4, 8, 6]",
+    "input": "",
+    "expected": "2 8",
+    "rubric": "",
+    "hints": [
+      "같은 인덱스의 두 원소가 한 점을 이룹니다."
+    ],
+    "explanation": "같은 인덱스의 두 원소가 한 점을 이룹니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-plot-line",
+    "mode": "exact"
+  },
+  {
+    "id": "q20",
+    "topic": "matplotlib",
+    "difficulty": "적용",
+    "prerequisites": [
+      "matplotlib"
+    ],
+    "type": "오류 찾기",
+    "prompt": "plot(x,y)가 실패하는 이유는?",
+    "starter": "x = [1, 2, 3]\ny = [4, 8]",
+    "input": "",
+    "expected": "두 리스트의 길이가 다르다",
+    "rubric": "핵심 이유를 자기 말로 설명하고 해설과 대조하세요.",
+    "hints": [
+      "각 x에 대응할 y가 필요합니다."
+    ],
+    "explanation": "각 x에 대응할 y가 필요합니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-plot-line",
+    "mode": "self"
+  },
+  {
+    "id": "q21",
+    "topic": "matplotlib",
+    "difficulty": "기본",
+    "prerequisites": [
+      "matplotlib"
+    ],
+    "type": "그래프 선택",
+    "prompt": "모둠별 독서량 크기를 비교하려면 선·막대·산점도 중 무엇이 알맞나요?",
+    "starter": "",
+    "input": "",
+    "expected": "막대",
+    "rubric": "",
+    "hints": [
+      "범주별 크기 비교에 막대그래프가 적합합니다."
+    ],
+    "explanation": "범주별 크기 비교에 막대그래프가 적합합니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-plot-bar",
+    "mode": "exact"
+  },
+  {
+    "id": "q22",
+    "topic": "matplotlib",
+    "difficulty": "기본",
+    "prerequisites": [
+      "matplotlib"
+    ],
+    "type": "빈칸",
+    "prompt": "완성된 그래프를 화면에 나타내는 명령은?",
+    "starter": "import matplotlib.pyplot as plt\nplt.scatter([1, 2], [3, 5])\n# 빈칸",
+    "input": "",
+    "expected": "plt.show()",
+    "rubric": "",
+    "hints": [
+      "show로 그래프를 표시합니다."
+    ],
+    "explanation": "show로 그래프를 표시합니다. 이 교실에서는 결과 패널에 그림으로 표시합니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-plot-scatter",
+    "mode": "exact"
+  },
+  {
+    "id": "q23",
+    "topic": "matplotlib",
+    "difficulty": "적용",
+    "prerequisites": [
+      "matplotlib"
+    ],
+    "type": "추적",
+    "prompt": "출력되는 리스트는?",
+    "starter": "values = []\nfor x in range(-2, 3):\n    values.append(x * x)\nprint(values)",
+    "input": "",
+    "expected": "[4, 1, 0, 1, 4]",
+    "rubric": "",
+    "hints": [
+      "-2,-1,0,1,2를 각각 제곱합니다."
+    ],
+    "explanation": "-2,-1,0,1,2를 각각 제곱합니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-plot-math",
+    "mode": "exact"
+  },
+  {
+    "id": "q24",
+    "topic": "matplotlib",
+    "difficulty": "적용",
+    "prerequisites": [
+      "matplotlib"
+    ],
+    "type": "설명",
+    "prompt": "산점도에서 두 값이 함께 증가하면 한 값이 다른 값의 원인임이 증명되나요?",
+    "starter": "",
+    "input": "",
+    "expected": "아니요",
+    "rubric": "핵심 이유를 자기 말로 설명하고 해설과 대조하세요.",
+    "hints": [
+      "관계가 보이는 것과 원인을 증명하는 것은 다릅니다."
+    ],
+    "explanation": "관계가 보이는 것과 원인을 증명하는 것은 다릅니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-plot-scatter",
+    "mode": "self"
+  },
+  {
+    "id": "q25",
+    "topic": "control",
+    "difficulty": "기본",
+    "prerequisites": [
+      "control"
+    ],
+    "type": "출력 예측",
+    "prompt": "출력은?",
+    "starter": "x = 7\nif x % 2 == 0:\n    print(\"짝수\")\nelse:\n    print(\"홀수\")",
+    "input": "",
+    "expected": "홀수",
+    "rubric": "",
+    "hints": [
+      "7을 2로 나눈 나머지가 1이므로 else를 실행합니다."
+    ],
+    "explanation": "7을 2로 나눈 나머지가 1이므로 else를 실행합니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-control",
+    "mode": "exact"
+  },
+  {
+    "id": "q26",
+    "topic": "control",
+    "difficulty": "적용",
+    "prerequisites": [
+      "control"
+    ],
+    "type": "추적",
+    "prompt": "최종 total은?",
+    "starter": "total = 0\nfor i in range(1, 4):\n    total += i\nprint(total)",
+    "input": "",
+    "expected": "6",
+    "rubric": "",
+    "hints": [
+      "1+2+3이며 range의 끝 4는 제외됩니다."
+    ],
+    "explanation": "1+2+3이며 range의 끝 4는 제외됩니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-control",
+    "mode": "exact"
+  },
+  {
+    "id": "q27",
+    "topic": "control",
+    "difficulty": "적용",
+    "prerequisites": [
+      "control"
+    ],
+    "type": "오류 수정",
+    "prompt": "무한 반복을 막도록 빈칸 한 줄을 쓰세요.",
+    "starter": "n = 1\nwhile n <= 3:\n    print(n)\n    # 빈칸",
+    "input": "",
+    "expected": "n += 1",
+    "rubric": "핵심 이유를 자기 말로 설명하고 해설과 대조하세요.",
+    "hints": [
+      "n이 4가 되면 조건이 거짓이 됩니다."
+    ],
+    "explanation": "n이 4가 되면 조건이 거짓이 됩니다. 들여쓰기는 반복 안이어야 합니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-control",
+    "mode": "exact"
+  },
+  {
+    "id": "q28",
+    "topic": "control",
+    "difficulty": "기본",
+    "prerequisites": [
+      "control"
+    ],
+    "type": "출력 예측",
+    "prompt": "길이는?",
+    "starter": "word = \"Python\"\nprint(len(word))",
+    "input": "",
+    "expected": "6",
+    "rubric": "",
+    "hints": [
+      "P,y,t,h,o,n 여섯 글자입니다."
+    ],
+    "explanation": "P,y,t,h,o,n 여섯 글자입니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-control",
+    "mode": "exact"
+  },
+  {
+    "id": "q29",
+    "topic": "control",
+    "difficulty": "적용",
+    "prerequisites": [
+      "control"
+    ],
+    "type": "추적",
+    "prompt": "출력되는 값을 한 줄에 공백으로 쓰세요.",
+    "starter": "for i in range(2, 8, 2):\n    print(i)",
+    "input": "",
+    "expected": "2 4 6",
+    "rubric": "",
+    "hints": [
+      "2씩 증가하며 8은 포함하지 않습니다."
+    ],
+    "explanation": "2씩 증가하며 8은 포함하지 않습니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-control",
+    "mode": "exact"
+  },
+  {
+    "id": "q30",
+    "topic": "control",
+    "difficulty": "적용",
+    "prerequisites": [
+      "control"
+    ],
+    "type": "조건 변경",
+    "prompt": "정확히 80을 제외하려면 조건을 어떻게 바꾸나요?",
+    "starter": "score = 80\nif score >= 80:\n    print(\"도달\")",
+    "input": "",
+    "expected": "score > 80",
+    "rubric": "",
+    "hints": [
+      ">=는 경계 80을 포함하고 >는 제외합니다."
+    ],
+    "explanation": ">=는 경계 80을 포함하고 >는 제외합니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-control",
+    "mode": "exact"
+  },
+  {
+    "id": "q31",
+    "topic": "fstring",
+    "difficulty": "기본",
+    "prerequisites": [
+      "fstring"
+    ],
+    "type": "출력 예측",
+    "prompt": "두 줄 출력을 /로 구분해 쓰세요.",
+    "starter": "a = 3\nb = 4\nprint(f\"{a}{b}\")\nprint(f\"{a+b}\")",
+    "input": "",
+    "expected": "34/7",
+    "rubric": "",
+    "hints": [
+      "두 값을 문자열로 이어 붙이는 것과 계산하는 것은 다릅니다."
+    ],
+    "explanation": "두 값을 문자열로 이어 붙이는 것과 계산하는 것은 다릅니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-fstring",
+    "mode": "exact"
+  },
+  {
+    "id": "q32",
+    "topic": "fstring",
+    "difficulty": "기본",
+    "prerequisites": [
+      "fstring"
+    ],
+    "type": "빈칸",
+    "prompt": "f-string으로 같은 34를 출력하는 한 줄은?",
+    "starter": "print(\"3\", \"4\", sep=\"\")",
+    "input": "",
+    "expected": "print(f\"{3}{4}\")",
+    "rubric": "",
+    "hints": [
+      "중괄호 사이 공백을 적지 않아야 합니다."
+    ],
+    "explanation": "중괄호 사이 공백을 적지 않아야 합니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-fstring",
+    "mode": "exact"
+  },
+  {
+    "id": "q33",
+    "topic": "fstring",
+    "difficulty": "적용",
+    "prerequisites": [
+      "fstring"
+    ],
+    "type": "공백 추적",
+    "prompt": "숫자 4 앞에 공백이 몇 칸인가요?",
+    "starter": "print(f\"[{4:>3}]\")",
+    "input": "",
+    "expected": "2",
+    "rubric": "",
+    "hints": [
+      "최소 폭 3에서 숫자 한 칸을 빼면 공백 두 칸입니다."
+    ],
+    "explanation": "최소 폭 3에서 숫자 한 칸을 빼면 공백 두 칸입니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-fstring",
+    "mode": "exact"
+  },
+  {
+    "id": "q34",
+    "topic": "fstring",
+    "difficulty": "기본",
+    "prerequisites": [
+      "fstring"
+    ],
+    "type": "출력 예측",
+    "prompt": "출력은?",
+    "starter": "print(f\"{10/3:.1f}\")",
+    "input": "",
+    "expected": "3.3",
+    "rubric": "",
+    "hints": [
+      "소수 첫째 자리까지 표시합니다."
+    ],
+    "explanation": "소수 첫째 자리까지 표시합니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-fstring",
+    "mode": "exact"
+  },
+  {
+    "id": "q35",
+    "topic": "nested",
+    "difficulty": "적용",
+    "prerequisites": [
+      "nested"
+    ],
+    "type": "반복 순서",
+    "prompt": "가로 구구단에서 같은 곱하는 수를 한 행에 모으려면 바깥 반복은 dan과 num 중 무엇인가요?",
+    "starter": "",
+    "input": "",
+    "expected": "num",
+    "rubric": "",
+    "hints": [
+      "바깥 num을 고정한 상태에서 여러 dan을 안쪽에서 반복합니다."
+    ],
+    "explanation": "바깥 num을 고정한 상태에서 여러 dan을 안쪽에서 반복합니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-gugudan-horizontal-comma",
+    "mode": "exact"
+  },
+  {
+    "id": "q36",
+    "topic": "nested",
+    "difficulty": "기본",
+    "prerequisites": [
+      "nested"
+    ],
+    "type": "빈칸",
+    "prompt": "끝 단까지 포함하는 range의 두 번째 인수는?",
+    "starter": "start = 2\nend = 4\n# range(start, 빈칸)",
+    "input": "",
+    "expected": "end + 1",
+    "rubric": "",
+    "hints": [
+      "range의 끝값은 제외되므로 1을 더합니다."
+    ],
+    "explanation": "range의 끝값은 제외되므로 1을 더합니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-gugudan-vertical-comma",
+    "mode": "exact"
+  },
+  {
+    "id": "q37",
+    "topic": "nested",
+    "difficulty": "적용",
+    "prerequisites": [
+      "nested"
+    ],
+    "type": "경계 입력",
+    "prompt": "시작 단 5, 끝 단 3을 입력하면 정상 구구단과 안내 중 무엇을 출력해야 하나요?",
+    "starter": "",
+    "input": "",
+    "expected": "안내",
+    "rubric": "",
+    "hints": [
+      "시작≤끝 조건이 거짓이므로 입력을 고치도록 알려 줍니다."
+    ],
+    "explanation": "시작≤끝 조건이 거짓이므로 입력을 고치도록 알려 줍니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-gugudan-horizontal-fstring",
+    "mode": "exact"
+  },
+  {
+    "id": "q38",
+    "topic": "nested",
+    "difficulty": "적용",
+    "prerequisites": [
+      "nested"
+    ],
+    "type": "공백 추적",
+    "prompt": "높이 5 오른쪽 별 삼각형의 2행은 공백 몇 개, 별 몇 개인가요? 공백으로 구분하세요.",
+    "starter": "",
+    "input": "",
+    "expected": "3 2",
+    "rubric": "",
+    "hints": [
+      "공백 n-row=3, 별 row=2입니다."
+    ],
+    "explanation": "공백 n-row=3, 별 row=2입니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-stars-right",
+    "mode": "exact"
+  },
+  {
+    "id": "q39",
+    "topic": "nested",
+    "difficulty": "적용",
+    "prerequisites": [
+      "nested"
+    ],
+    "type": "줄바꿈",
+    "prompt": "한 행의 별을 모두 찍은 뒤 실행할 줄바꿈 명령은?",
+    "starter": "",
+    "input": "",
+    "expected": "print()",
+    "rubric": "",
+    "hints": [
+      "안쪽 별 반복이 끝난 뒤 print()를 한 번 호출합니다."
+    ],
+    "explanation": "안쪽 별 반복이 끝난 뒤 print()를 한 번 호출합니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-stars-left",
+    "mode": "exact"
+  },
+  {
+    "id": "q40",
+    "topic": "nested",
+    "difficulty": "적용",
+    "prerequisites": [
+      "nested"
+    ],
+    "type": "추적",
+    "prompt": "피라미드 3행의 별 개수는 2*row-1로 계산합니다. 결과는?",
+    "starter": "",
+    "input": "",
+    "expected": "5",
+    "rubric": "",
+    "hints": [
+      "2*3-1=5이며 행마다 홀수 개의 별이 늘어납니다."
+    ],
+    "explanation": "2*3-1=5이며 행마다 홀수 개의 별이 늘어납니다.",
+    "source": "MK 자체 제작 공개 복습",
+    "scope": "core",
+    "activity": "mk3-stars-pyramid",
+    "mode": "exact"
+  }
+]
