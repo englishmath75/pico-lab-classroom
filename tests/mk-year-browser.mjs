@@ -1,11 +1,15 @@
 import { chromium, expect as playwrightExpect } from '@playwright/test';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
 
 const projectId = 'demo-englishmath-python';
 const expect = playwrightExpect.configure({ timeout: 20000 });
+const execFileAsync = promisify(execFile);
+const vendorCache = new Map();
 const students = [
   { uid: 'alice', name: '진급 검증 학생', email: 'alice@muhak-g-h.gne.go.kr' },
   { uid: 'teacher', name: '검증 교사', email: 'englishmath@muhak-g-h.gne.go.kr' },
@@ -57,7 +61,23 @@ const config = { enabled: true, emulator: true, firebase: {
 async function device() {
   const context = await browser.newContext({ locale: 'ko-KR' });
   await context.route('**/student-config.json', route => route.fulfill({ json: config }));
+  // Use the same TLS-verifying vendor route as the established student browser test.
+  await context.route('https://**/*', async route => {
+    const url = new URL(route.request().url());
+    if (!['apis.google.com', 'www.gstatic.com'].includes(url.hostname)) return route.abort();
+    let body = vendorCache.get(url.href);
+    if (!body) {
+      body = execFileAsync('curl', ['--fail', '--silent', '--show-error', '--location', '--retry', '1', '--max-time', '30', '--url', url.href], {
+        encoding: 'buffer', maxBuffer: 64000000
+      }).then(result => result.stdout);
+      vendorCache.set(url.href, body);
+    }
+    await route.fulfill({ body: await body, contentType: 'text/javascript' });
+  });
   const page = await context.newPage();
+  page.on('pageerror', error => console.error('MK page error:', error.message));
+  page.on('requestfailed', request => console.error('MK request failed:', request.url().split('?')[0], request.failure()?.errorText));
+  page.on('console', message => { if (message.type() === 'error') console.error('MK console:', message.text()); });
   await page.goto('http://127.0.0.1:4168/student-room.html');
   return page;
 }
@@ -67,8 +87,13 @@ async function login(page, student) {
   const popupPromise = page.waitForEvent('popup');
   await page.locator('#login').click();
   const popup = await popupPromise;
+  await popup.waitForLoadState();
   await popup.getByText(student.email, { exact: true }).click();
-  await expect(page.locator('#identity')).toContainText(student.email);
+  try { await expect(page.locator('#identity')).toContainText(student.email); }
+  catch (error) {
+    console.error('MK login notice:', await page.locator('#notice').textContent());
+    throw error;
+  }
 }
 
 async function save(page, code) {
