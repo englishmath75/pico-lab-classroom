@@ -1,4 +1,4 @@
-// Grade-1 cloud adapter. Paths are intentionally distinct from live Grade-2 users.
+// Grade-1 cloud adapter. 2026 cohort paths are isolated from Grade 2 and future academic years.
 // Both grades use the same Firebase Auth project; grades never share workspace documents.
 const GRADE1_CLASSES=Array.from({length:12},(_,i)=>({id:'class-1-'+(i+1),title:'1학년 '+(i+1)+'반',active:true}));
 const GRADE1_CLASS_IDS=GRADE1_CLASSES.map(c=>c.id);
@@ -40,7 +40,7 @@ export function createCloud(config, emulator = false) {
     logout: () => signOut(auth),
     async identity(user) {
       const [staff, profile, classes, access] = await Promise.all([
-        getDocFromServer(doc(db, 'staff', user.uid)), getDocFromServer(doc(db, 'grade1_users', user.uid)),
+        getDocFromServer(doc(db, 'staff', user.uid)), getDocFromServer(doc(db, 'cohorts/2026/grade1_users', user.uid)),
         Promise.resolve(GRADE1_CLASSES),
         getDocFromServer(doc(db, 'config', 'access'))
       ]);
@@ -50,19 +50,19 @@ export function createCloud(config, emulator = false) {
         classes, access: access.data() };
     },
     async register(user, classId) {
-      await setDoc(doc(db, 'grade1_users', user.uid), { email: user.email, displayName: (user.displayName || '학생').slice(0, 80),
+      await setDoc(doc(db, 'cohorts/2026/grade1_users', user.uid), { email: user.email, displayName: (user.displayName || '학생').slice(0, 80),
         classId, status: 'pending', createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
     },
     async students(classId) {
-      const result = await getDocsFromServer(query(collection(db, 'grade1_users'), where('classId', '==', classId), limit(100)));
+      const result = await getDocsFromServer(query(collection(db, 'cohorts/2026/grade1_users'), where('classId', '==', classId), limit(100)));
       return result.docs.map(d => ({ uid: d.id, ...d.data() }));
     },
-    approve(uid, status) { return updateDoc(doc(db, 'grade1_users', uid), { status, updatedAt: serverTimestamp() }); },
+    approve(uid, status) { return updateDoc(doc(db, 'cohorts/2026/grade1_users', uid), { status, updatedAt: serverTimestamp() }); },
     async teacherDetails(uid, classId) {
       const [progress, submissions, quota] = await Promise.all([
-        getDocsFromServer(query(collection(db, 'grade1_users', uid, 'progress'), limit(50))),
-        getDocsFromServer(query(collection(db, 'grade1_users', uid, 'submissions'), where('classId','==',classId), limit(50))),
-        getDocFromServer(doc(db, 'grade1_users', uid, 'limits', 'state'))
+        getDocsFromServer(query(collection(db, 'cohorts/2026/grade1_users', uid, 'progress'), limit(50))),
+        getDocsFromServer(query(collection(db, 'cohorts/2026/grade1_users', uid, 'submissions'), where('classId','==',classId), limit(50))),
+        getDocFromServer(doc(db, 'cohorts/2026/grade1_users', uid, 'limits', 'state'))
       ]);
       return { progress: progress.docs.map(d => d.data()), submissions: submissions.docs.map(d => d.data()), quota: quota.data() };
     }
@@ -71,14 +71,14 @@ export function createCloud(config, emulator = false) {
 
 export class StudentStore {
   constructor(db) { this.db = db; }
-  ref(uid, group, id) { return doc(this.db, 'grade1_users', uid, group, id); }
+  ref(uid, group, id) { return doc(this.db, 'cohorts/2026/grade1_users', uid, group, id); }
   async load(uid, id) { const d = await getDocFromServer(this.ref(uid, 'workspaces', id)); return d.exists() ? d.data() : null; }
   async list(uid) {
-    const d = await getDocsFromServer(query(collection(this.db, 'grade1_users', uid, 'workspaces'), limit(50)));
+    const d = await getDocsFromServer(query(collection(this.db, 'cohorts/2026/grade1_users', uid, 'workspaces'), limit(50)));
     return d.docs.map(x => x.data()).sort((a,b) => (b.savedAt?.toMillis() || 0) - (a.savedAt?.toMillis() || 0));
   }
   async revisions(uid, id) {
-    const d = await getDocsFromServer(query(collection(this.db, 'grade1_users', uid, 'revisions'), where('workspaceId','==',id), limit(10)));
+    const d = await getDocsFromServer(query(collection(this.db, 'cohorts/2026/grade1_users', uid, 'revisions'), where('workspaceId','==',id), limit(10)));
     return d.docs.map(x => x.data()).sort((a,b) => b.version - a.version);
   }
   async mutate(uid, id, kind, input, expectedVersion) {
