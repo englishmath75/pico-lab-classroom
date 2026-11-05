@@ -29,6 +29,40 @@ try{
  // Each page has one document heading; the home hero is a section heading.
  await expect(page.locator('.sidebar nav>a[aria-current]')).toContainText('수업 안내');
  await shot(page,'01-home');
+ // Index explorer: every button must highlight precisely the changed, deleted, moved, or sliced values.
+ await open(page,'/?page=review&section=basics');
+ const cases=[
+  {label:'처음',values:['10','20','30','40','50'],added:0,removed:0,moved:0,selected:0},
+  {label:'a[3]="테스트"',values:['10','20','30','테스트','50'],added:1,removed:1,moved:0,selected:0},
+  {label:'append(60)',values:['10','20','30','40','50','60'],added:1,removed:0,moved:0,selected:0},
+  {label:'insert(1,15)',values:['10','15','20','30','40','50'],added:1,removed:0,moved:4,selected:0},
+  {label:'remove(20)',values:['10','30','40','50'],added:0,removed:1,moved:3,selected:0},
+  {label:'del a[0]',values:['20','30','40','50'],added:0,removed:1,moved:4,selected:0},
+  {label:'a[1:3]',values:['20','30'],added:0,removed:0,moved:0,selected:2},
+  {label:'a[:3]',values:['10','20','30'],added:0,removed:0,moved:0,selected:3},
+  {label:'a[2:]',values:['30','40','50'],added:0,removed:0,moved:0,selected:3},
+  {label:'a[::2]',values:['10','30','50'],added:0,removed:0,moved:0,selected:3},
+  {label:'a[::-1]',values:['50','40','30','20','10'],added:0,removed:0,moved:0,selected:5}
+ ];
+ await expect(page.locator('[data-list-op]')).toHaveCount(cases.length);
+ for(const [index,entry] of cases.entries()){
+   await page.locator('[data-list-op]').nth(index).click();
+   const values=await page.locator('#list-after .list-cell strong').allTextContents();
+   if(JSON.stringify(values)!==JSON.stringify(entry.values))throw Error('Index operation output mismatch: '+entry.label);
+   await expect(page.locator('#list-before .list-cell--removed')).toHaveCount(entry.removed);
+   await expect(page.locator('#list-after .list-cell--added')).toHaveCount(entry.added);
+   await expect(page.locator('#list-after .list-cell--moved')).toHaveCount(entry.moved);
+   await expect(page.locator('#list-before .list-cell--selected')).toHaveCount(entry.selected);
+   await expect(page.locator('#list-after .list-cell--selected')).toHaveCount(entry.selected);
+   await expect(page.locator('[data-list-op][aria-pressed="true"]')).toHaveCount(1);
+   if(entry.added){
+     const colors=await page.evaluate(()=>[getComputedStyle(document.querySelector('#list-after .list-cell--added')).backgroundColor,getComputedStyle(document.querySelector('#list-before .list-cell:not([class*="--"])')).backgroundColor]);
+     if(colors[0]===colors[1])throw Error('Index highlight has no visible color: '+entry.label);
+   }
+ }
+ await shot(page,'00-index-color-diff');
+ evidence.push({indexExplorer:'11/11 commands correct with added/removed/moved/selected visual differences'});
+
  for(const [name,path] of [['00-review','/python-review.html#basics'],['02-list','/?page=activity&id=mk3-list-edit'],['03-fstring','/?page=activity&id=mk3-fstring'],['04-gugudan','/?page=activity&id=mk3-gugudan-horizontal-fstring'],['05-codeup','/?page=codeup&id=1173'],['06-inquiry-a','/list-tuple-dictionary.html'],['07-report','/?page=report']]){await open(page,path);await shot(page,name);}
  await open(page,'/?page=questions');await expect(page.locator('[data-question]')).toHaveCount(40);await page.getByLabel('q01 답',{exact:true}).fill('30');await page.locator('[data-check=q01]').click();await expect(page.locator('[data-question=q01] .feedback')).toContainText('다시');await page.locator('#wrong-only').check();await expect(page.locator('[data-question]')).toHaveCount(1);await page.locator('#retry-questions').click();await expect(page.locator('[data-question]')).toHaveCount(40);await page.getByLabel('q19 답',{exact:true}).fill('28');await page.locator('[data-check=q19]').click();await expect(page.locator('[data-question=q19] .feedback')).toContainText('다시');await page.getByLabel('q19 답',{exact:true}).fill('2 8');await page.locator('[data-check=q19]').click();await expect(page.locator('[data-question=q19] .feedback')).toContainText('맞았습니다');
  await open(page,'/?page=activity&id=mk3-gugudan-horizontal-fstring');const result=await run(page,undefined,'2\n4\n');if(result.trimEnd().split('\n').length!==9)throw Error('horizontal rows');await expect(page.locator('#trace-body tr')).not.toHaveCount(0);await shot(page,'08-gugudan-result');
