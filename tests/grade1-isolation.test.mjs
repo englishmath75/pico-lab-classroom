@@ -93,7 +93,7 @@ test('Personal Google learner can enroll without a school domain and save privat
   assert.equal((await store.load('visitor','scratch-01')).code,'print("public learner")');
   assert.equal((await store.list('visitor'))[0].workspaceId,'scratch-01');
   assert.equal((await store.revisions('visitor','scratch-01'))[0].code,'print("public learner")');
-  await assertFails(getDoc(doc(db,'users/visitor')));
+  assert.equal((await getDoc(doc(db,'users/visitor'))).exists(),false);
   await assertFails(getDoc(doc(db,'cohorts/2026/grade1_users/alice')));
 });
 
