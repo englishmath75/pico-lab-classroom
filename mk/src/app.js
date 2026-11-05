@@ -137,7 +137,15 @@ document.addEventListener('click',e=>{const a=e.target.closest('a[data-route]');
 addEventListener('popstate',()=>navigate(new URL(location.href),{push:false}).catch(showError));
 function showError(e){$('notice').textContent=e.message;$('notice').classList.add('error');}
 $('space-view').onclick=()=>{whitespace=!whitespace;if(whitespace){rawOutput=$('output').textContent;$('output').textContent=showSpace(rawOutput);}else $('output').textContent=rawOutput;$('space-view').textContent=whitespace?'일반 출력 보기':'공백·줄바꿈 보기';};
-$('plot-download').onclick=()=>{const a=document.createElement('a');if(!$('plot').hidden)a.href=$('plot').src;else if(!$('turtle-result').hidden)a.href=$('turtle-canvas').toDataURL('image/png');else{return showError(Error('먼저 Turtle 또는 matplotlib 코드를 실행하세요.'));}a.download='python-result.png';a.click();};
+$('plot-download').onclick=()=>{try{
+ const data=!$('plot').hidden?$('plot').src:!$('turtle-result').hidden?$('turtle-canvas').toDataURL('image/png'):null;
+ if(!data?.startsWith('data:image/png;base64,'))throw Error('먼저 Turtle 또는 matplotlib 코드를 실행하세요.');
+ // Use the same Blob download path as code/report exports. Some browsers do
+ // not deliver direct data-URL downloads to their download manager.
+ const bytes=Uint8Array.from(atob(data.slice(data.indexOf(',')+1)),c=>c.charCodeAt(0));
+ const url=URL.createObjectURL(new Blob([bytes],{type:'image/png'})),a=document.createElement('a');
+ a.href=url;a.download='python-result.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}catch(e){showError(e);}};
 $('library-tab').addEventListener('click',()=>{$('student-area').hidden=false;});
 addEventListener('mk-session',e=>{
  const {kind,workspace,canWrite}=e.detail;
