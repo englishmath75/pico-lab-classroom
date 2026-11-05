@@ -1,3 +1,4 @@
+import {verifyListAndAnswers} from './mk-list-answer-browser.mjs';
 import {chromium,expect as playwrightExpect} from '@playwright/test';
 import {createServer} from 'node:http';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
@@ -5,6 +6,8 @@ import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 const expect=playwrightExpect.configure({timeout:25000}),exec=promisify(execFile),cache=new Map(),evidence=[];
 await mkdir('.artifacts/mk-v3',{recursive:true});
+const semantics=await exec(process.execPath,['--test','tests/mk-list-answer.test.mjs','tests/mk-reverse-compare.test.mjs']);
+console.log(semantics.stdout);
 const types={js:'text/javascript',css:'text/css',json:'application/json',html:'text/html',py:'text/plain',png:'image/png'};
 const server=createServer(async(req,res)=>{try{let name=new URL(req.url,'http://localhost').pathname;if(name==='/')name='/index.html';if(name.includes('..'))throw Error('path');const body=await readFile('mk-dist'+name);res.writeHead(200,{'Content-Type':types[name.split('.').pop()]||'text/plain'});res.end(body);}catch{res.writeHead(404).end();}});
 await new Promise(r=>server.listen(4169,'127.0.0.1',r));
@@ -46,6 +49,7 @@ try{
  ];
  await expect(page.locator('[data-list-op]')).toHaveCount(cases.length);
  for(const [index,entry] of cases.entries()){
+   await page.locator('[data-list-op]').first().click();
    await page.locator('[data-list-op]').nth(index).click();
    const values=await page.locator('#list-after .list-cell strong').allTextContents();
    if(JSON.stringify(values)!==JSON.stringify(entry.values))throw Error('Index operation output mismatch: '+entry.label);
@@ -62,6 +66,9 @@ try{
  }
  await shot(page,'00-index-color-diff');
  evidence.push({indexExplorer:'11/11 commands correct with added/removed/moved/selected visual differences'});
+ await verifyListAndAnswers(page,{open,shot});
+ await page.setViewportSize({width:1366,height:950});
+ evidence.push({listAndAnswers:'PASS: 6 routes x 2 viewports; cumulative operations, errors, 4 highlight colors, 40 answer controls and false-positive regressions'});
 
  for(const [name,path] of [['00-review','/python-review.html#basics'],['02-list','/?page=activity&id=mk3-list-edit'],['03-fstring','/?page=activity&id=mk3-fstring'],['04-gugudan','/?page=activity&id=mk3-gugudan-horizontal-fstring'],['05-codeup','/?page=codeup&id=1173'],['06-inquiry-a','/list-tuple-dictionary.html'],['07-report','/?page=report']]){await open(page,path);await shot(page,name);}
  await open(page,'/?page=questions');await expect(page.locator('[data-question]')).toHaveCount(40);await page.getByLabel('q01 답',{exact:true}).fill('30');await page.locator('[data-check=q01]').click();await expect(page.locator('[data-question=q01] .feedback')).toContainText('다시');await page.locator('#wrong-only').check();await expect(page.locator('[data-question]')).toHaveCount(1);await page.locator('#retry-questions').click();await expect(page.locator('[data-question]')).toHaveCount(40);await page.getByLabel('q19 답',{exact:true}).fill('28');await page.locator('[data-check=q19]').click();await expect(page.locator('[data-question=q19] .feedback')).toContainText('다시');await page.getByLabel('q19 답',{exact:true}).fill('2 8');await page.locator('[data-check=q19]').click();await expect(page.locator('[data-question=q19] .feedback')).toContainText('맞았습니다');

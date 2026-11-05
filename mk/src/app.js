@@ -1,6 +1,8 @@
 import {activities,activityById,lessons,codeup,questions,candidates} from './content.js';
 import {room} from './student-room.js';
 import {runPython} from './student-run.js';
+import {mountListExplorer} from './list-explorer.js';
+import {answerMatches} from './answer-check.js';
 import {reverseCompareMarkup,wireReverseCompare,stopReverseCompare} from './reverse-compare.js';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -36,7 +38,7 @@ function reviewPage(section){const entry=reviewSections.find(x=>x[0]===section)|
  if(section==='gallery')return galleryPage();
  const groups={basics:['mk3-basics','mk3-list-edit','mk3-list-slices','mk3-list-sort','mk3-list-search','mk3-fstring'],turtle:['mk3-turtle-square','mk3-turtle-coordinates','mk3-turtle-circles','mk3-turtle-star','mk3-turtle-illusion'],graphs:['mk3-plot-line','mk3-plot-bar','mk3-plot-scatter','mk3-plot-math','mk3-plot-conditional'],gravity:['mk3-gravity'],coordinates:['mk3-coordinates','mk3-turtle-coordinates']};
  return heading('00 / Python 핵심 복습',entry[1],'설치 없이 코드를 실행하고 결과와 변수를 함께 살펴보세요.')+`<div class="panel"><h2>읽고 → 실행하고 → 설명하기</h2><p>${esc(activityById.get(entry[2]).description)}</p>${section==='basics'?listExplorer():''}</div>`+activityCards(groups[entry[0]],'review');}
-function listExplorer(){return `<div class="callout"><h3>인덱스 실험대</h3><p>같은 출발 리스트에서 한 가지 명령씩 비교합니다. 아래 Python 편집기에서도 실행해 보세요.</p><div class="index-controls">${['처음','a[3]="테스트"','append(60)','insert(1,15)','remove(20)','del a[0]','a[1:3]','a[:3]','a[2:]','a[::2]','a[::-1]'].map(x=>`<button data-list-op="${esc(x)}">${esc(x)}</button>`).join('')}</div><p class="list-row-title">처음 리스트 <small>원본 값</small></p><div id="list-before" class="list-visual" aria-label="변경 전 리스트"></div><p id="list-operation" role="status">처음 리스트 · 인덱스는 0부터 시작</p><p class="list-row-title">버튼 실행 후 <small>색칠된 칸을 비교하세요</small></p><div id="list-after" class="list-visual" aria-label="변경 후 리스트"></div><div class="list-legend" aria-label="색상 설명"><span><i class="list-legend-dot added"></i>추가·수정</span><span><i class="list-legend-dot removed"></i>삭제·이전 값</span><span><i class="list-legend-dot moved"></i>인덱스 이동</span><span><i class="list-legend-dot selected"></i>슬라이싱 선택</span></div></div>`;}
+function listExplorer(){return `<div class="callout"><h3>인덱스 실험대</h3><p>버튼을 누른 순서대로 현재 리스트에 적용합니다. ‘처음’으로 되돌릴 수 있으며, 슬라이싱은 원본을 바꾸지 않습니다.</p><div class="index-controls">${['처음','a[3]="테스트"','append(60)','insert(1,15)','remove(20)','del a[0]','a[1:3]','a[:3]','a[2:]','a[::2]','a[::-1]'].map(x=>`<button data-list-op="${esc(x)}">${esc(x)}</button>`).join('')}</div><p class="list-row-title">실행 전 a <small>직전 상태</small></p><div id="list-before" class="list-visual" aria-label="변경 전 리스트"></div><p id="list-operation" role="status">처음 리스트 · 인덱스는 0부터 시작</p><p class="list-row-title"><span id="list-after-label">실행 후 a</span> <small>색칠된 칸을 비교하세요</small></p><div id="list-after" class="list-visual" aria-label="변경 후 리스트"></div><p id="list-current" class="list-current"></p><div class="list-legend" aria-label="색상 설명"><span><i class="list-legend-dot added"></i>추가·수정</span><span><i class="list-legend-dot removed"></i>삭제·이전 값</span><span><i class="list-legend-dot moved"></i>인덱스 이동</span><span><i class="list-legend-dot selected"></i>슬라이싱 선택</span></div></div>`;}
 function colorExplorer(){return `<div class="panel"><h3>RGB 빛의 세기 바꾸기</h3><div class="toolbar">${['R','G','B'].map((x,i)=>`<label>${x} (0~255)<input class="rgb-control" type="range" min="0" max="255" value="${[109,92,231][i]}" aria-label="${x} 빛 세기"></label>`).join('')}</div><div id="rgb-swatch" style="height:90px;border-radius:12px"></div><p id="rgb-value" role="status"></p><p class="hint">FF₁₆ = 15×16 + 15 = 255입니다. 이 조절판은 색의 원리를 살펴보는 웹 도구입니다.</p></div>`;}
 function codeupPage(problem,variant){const a=activityById.get(variant?problem.variant:problem.activity);return heading('02·04 / CodeUp '+problem.number,a.title)+`<section class="panel topic-codeup"><div class="lesson-meta">${optional(a)}<span class="badge">${esc(problem.difficulty)} · 교실 기준</span></div><p><a href="${problem.url}" target="_blank" rel="noopener noreferrer">CodeUp 공식 원문 ↗</a>${problem.number===6097?' · 1098의 Python 대응':problem.number===6098?' · 1099의 Python 대응':''}</p><div class="toolbar">${link('원문 연결 활동','codeup','&id='+problem.number)}${link('독자적인 변형 연습','codeup','&id='+problem.number+'&variant=1')}</div><h3>${variant?'변형 과제':'문제의 핵심'}</h3><p>${esc(variant?problem.variantPrompt:problem.summary)}</p>${!variant?`<h3>입력과 출력</h3><p>${esc(problem.io)}</p>`:''}<p class="hint">선수 학습: ${esc(problem.prerequisites.join(' · '))}</p>${a.scope==='optional'?`<div class="callout">먼저 ${link('중첩 리스트 연결 활동','activity','&id=mk3-grid-bridge')}에서 행과 열을 연습하세요.</div>`:''}<h3>실행 전 예측</h3><p>${esc(variant?'원문과 달라진 조건은 무엇인가요? 첫 공개 테스트의 결과를 먼저 예측해 보세요.':problem.prediction)}</p>${!variant?table(problem.trace):''}<h3>힌트 세 단계</h3>${problem.hints.map((h,i)=>`<details><summary>힌트 ${i+1}</summary><p>${esc(variant?'원문 풀이와 연결해 생각하세요. ':'')}${esc(h)}</p></details>`).join('')}<details><summary>풀이와 해설 보기</summary><pre>${esc(a.code)}</pre><p>${esc(problem.explanation)}</p><p>원문과 변형은 서로 다른 저장 기록을 사용합니다. 동일 원문 활동을 02·04에서 열면 같은 기록을 불러옵니다.</p></details><p class="hint">${esc(problem.verified)} 문제 설명·해설·변형은 이 교실에서 새로 작성했습니다.</p></section>`;}
 function resourcesPage(){return heading('03 / 실습 자료','필요한 코드와 활동지를 한곳에서','학생용으로 정리한 예제만 제공합니다. 선택 체험과 기본 학습을 구분해 사용하세요.')+`<section class="panel"><h2>사용 순서</h2><ol><li>‘웹에서 실행’으로 결과를 먼저 확인합니다.</li><li>‘Python 파일’은 PC에서 실행하거나 과제에 첨부할 때 내려받습니다.</li><li>입력 파일은 편집기 아래 표준 입력에 붙여 넣습니다. Turtle와 matplotlib는 웹에서 바로 실행됩니다.</li></ol><div class="toolbar"><a class="button" href="./downloads/study-checklist.txt" download>학습 점검표</a><a class="button" href="./downloads/inquiry-report.txt" download>탐구 보고서 양식</a></div></section><section class="panel resource-list"><h2>실행 예제 ${activities.length}개</h2>${activities.map(a=>`<div class="entry topic-${a.topic}"><div><strong>${esc(a.title)}</strong>${optional(a)}</div><div class="toolbar"><a data-route href="${activityLink(a)}">웹에서 실행</a><a href="./downloads/${a.id}.py" download>Python 파일</a>${a.stdin?`<a href="./downloads/${a.id}-input.txt" download>입력 파일</a>`:''}</div></div>`).join('')}</section>`;}
@@ -87,7 +89,7 @@ function hydrateReport(){if(room.current()!=='mk3-report')return;const fields=do
 function wirePage(page){
  stopReverseCompare();
  if($('reverse-compare'))wireReverseCompare(room);
- if($('list-before')){drawList('처음');document.querySelectorAll('[data-list-op]').forEach(b=>b.onclick=()=>drawList(b.dataset.listOp));}
+ if($('list-before'))mountListExplorer($('page-content'));
  if($('rgb-swatch')){const update=()=>{const nums=[...document.querySelectorAll('.rgb-control')].map(e=>+e.value);const hex='#'+nums.map(n=>n.toString(16).padStart(2,'0')).join('').toUpperCase();$('rgb-swatch').style.background=hex;$('rgb-value').textContent=`R ${nums[0]} · G ${nums[1]} · B ${nums[2]} → ${hex}`;};document.querySelectorAll('.rgb-control').forEach(e=>e.oninput=update);update();}
  if(page==='questions'){
  $('question-topic').value=questionTopic;$('question-level').value=questionLevel;$('wrong-only').checked=wrongOnly;
@@ -105,55 +107,7 @@ async function loadGallery(mode){
  frame.srcdoc=html.replace('<body>','<body data-mode="'+safe+'">');
  }catch(e){if(generation===navGeneration)showError(e);}
 }
-function drawList(op){
- const before=[10,20,30,40,50];
- const originals=before.map((value,origin)=>({value,origin}));
- const previousMarks=new Map();
- let output=originals.map(item=>({...item}));
- let explain='원본의 인덱스는 0~4입니다.';
- let chosen=null;
- if(op==='a[3]="테스트"'){
-   previousMarks.set(3,'removed');
-   output[3]={value:'테스트',origin:3,kind:'added'};
-   explain='3번 인덱스의 이전 값 40은 빨강, 새 값 테스트는 초록으로 표시합니다.';
- }else if(op==='append(60)'){
-   output.push({value:60,origin:null,kind:'added'});
-   explain='새 값 60만 맨 뒤에 추가되며, 다른 값의 위치는 그대로입니다.';
- }else if(op==='insert(1,15)'){
-   output.splice(1,0,{value:15,origin:null,kind:'added'});
-   explain='15는 초록, 뒤로 한 칸씩 밀린 값은 노랑으로 표시합니다.';
- }else if(op==='remove(20)'){
-   previousMarks.set(1,'removed');
-   output.splice(1,1);
-   explain='삭제된 20은 빨강, 앞으로 한 칸씩 이동한 값은 노랑입니다.';
- }else if(op==='del a[0]'){
-   previousMarks.set(0,'removed');
-   output.splice(0,1);
-   explain='삭제된 10은 빨강, 앞으로 이동한 값은 노랑입니다.';
- }else if(op==='a[1:3]')chosen=[1,2];
- else if(op==='a[:3]')chosen=[0,1,2];
- else if(op==='a[2:]')chosen=[2,3,4];
- else if(op==='a[::2]')chosen=[0,2,4];
- else if(op==='a[::-1]')chosen=[4,3,2,1,0];
- if(chosen){
-   for(const index of chosen)previousMarks.set(index,'selected');
-   output=chosen.map(index=>({...originals[index],kind:'selected'}));
-   explain='보라색은 슬라이싱으로 선택한 원소입니다. 결과 리스트의 인덱스는 0부터 새로 시작하며 원본은 그대로입니다.';
- }
- const captions={added:'추가·수정',removed:'삭제·이전 값',moved:'인덱스 이동',selected:'선택된 값'};
- const cells=(entries,isBefore)=>entries.map(({value,origin,kind},index)=>{
-   const state=isBefore?(previousMarks.get(index)||''):(kind||(origin!==index?'moved':''));
-   const caption=captions[state]||'';
-   return `<div class="list-cell${state?` list-cell--${state}`:''}" aria-label="인덱스 ${index}, 값 ${esc(value)}${caption?`, ${caption}`:''}"><small>인덱스 ${index}</small><strong>${esc(value)}</strong>${caption?`<span class="list-cell-tag">${caption}</span>`:''}</div>`;
- }).join('');
- $('list-before').innerHTML=cells(originals,true);
- $('list-after').innerHTML=cells(output,false);
- $('list-operation').textContent=op+' → '+explain;
- document.querySelectorAll('[data-list-op]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.listOp===op)));
-}
 function filteredQuestions(){return questions.filter(q=>(questionTopic==='all'||q.topic===questionTopic)&&(questionLevel==='all'||q.difficulty===questionLevel)&&(!wrongOnly||notebook[q.id]?.status==='wrong'));}
-const normalize=s=>s.trim().replace(/\s/g,'').replace(/'/g,'"');
-const answerMatches=(q,answer)=>['q19','q29','q38'].includes(q.id)?answer.trim().replace(/\s+/g,' ')===q.expected:normalize(answer)===normalize(q.expected);
 function renderQuestions(){const qs=filteredQuestions();$('question-count').textContent=`${qs.length} / 40문항 · ${Object.values(notebook).filter(x=>x.status==='correct').length}문항 확인 완료`;
  $('question-list').innerHTML=qs.length?qs.map(q=>`<article class="card question topic-${q.topic}" data-question="${q.id}"><span class="badge">${q.id.slice(1)} · ${topicNames[q.topic]} · ${q.difficulty} · ${q.type}</span><h3>${esc(q.prompt)}</h3>${q.starter?`<pre>${esc(q.starter)}</pre>`:''}<div class="answer-row"><input aria-label="${q.id} 답" value="${esc(notebook[q.id]?.answer||'')}" maxlength="800" placeholder="예상 결과 또는 이유를 적어 보세요"><button data-check="${q.id}">${q.mode==='self'?'해설과 대조':'답 확인'}</button>${link('연결 실습','activity','&id='+q.activity+'&from=questions')}</div><p class="feedback ${notebook[q.id]?.status==='correct'?'correct':notebook[q.id]?.status==='wrong'?'wrong':''}">${notebook[q.id]?.status==='correct'?'✓ 확인 완료':notebook[q.id]?.status==='wrong'?'다시 살펴볼 문제입니다.':''}</p><details><summary>힌트</summary><p>${esc(q.hints[0])}</p></details><details class="answer-detail"><summary>답과 해설</summary><p><strong>${esc(q.expected)}</strong></p><p>${esc(q.explanation)}</p>${q.mode==='self'?`<p>${esc(q.rubric)}</p><button data-self="${q.id}" data-value="correct">핵심 이유를 설명했어요</button><button data-self="${q.id}" data-value="wrong">다시 연습할게요</button>`:''}</details></article>`).join(''):'<p class="empty-state">현재 조건에 해당하는 문제가 없습니다. 주제·난이도 또는 오답 필터를 바꾸세요.</p>';
  document.querySelectorAll('[data-question] input').forEach(input=>input.oninput=()=>{const id=input.closest('[data-question]').dataset.question;notebook[id]={answer:input.value,status:'draft'};touched.add(id);});
