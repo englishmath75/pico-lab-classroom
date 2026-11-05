@@ -3,6 +3,9 @@ on:
   push:
     branches: [feat/mk-grade1-clone-20261105, fix/mk-list-index-highlights-20261105, feat/mk-reverse-compare-lab-20261105]
     paths: ['firestore.rules','mk/**','scripts/build-mk-site.mjs','tests/grade1-isolation.test.mjs','tests/mk-year-browser.mjs','tests/mk-v3-*','.github/workflows/mk-grade1-isolation.yml']
+  pull_request:
+    branches: [fix/mk-list-index-highlights-20261105]
+    paths: ['mk/**','tests/mk-v3-*','tests/mk-reverse-compare.test.mjs','.github/workflows/mk-grade1-isolation.yml']
   workflow_dispatch:
 permissions:
   contents: read
