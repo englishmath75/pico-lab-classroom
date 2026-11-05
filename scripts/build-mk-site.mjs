@@ -5,6 +5,12 @@ import {build} from 'esbuild';
 const target=path.resolve('mk-dist');await rm(target,{recursive:true,force:true});await mkdir(target,{recursive:true});
 async function copy(from,to){await mkdir(to,{recursive:true});for(const e of await readdir(from,{withFileTypes:true})){if(e.isDirectory())await copy(path.join(from,e.name),path.join(to,e.name));else if(e.isFile())await copyFile(path.join(from,e.name),path.join(to,e.name));}}
 await copy('mk/src',target);await copy('mk/content',path.join(target,'content'));await copy('mk/runtime',path.join(target,'runtime'));
+// Opaque iframe shells contain only audited local scripts; no in-frame request
+// needs deployment-protection cookies, and no allow-same-origin is granted.
+for(const [htmlName,scriptName] of [['student-runner.html','student-sandbox.js'],['gallery.html','gallery.js']]){
+ const html=await readFile(path.join(target,htmlName),'utf8'),script=await readFile(path.join(target,scriptName),'utf8');
+ await writeFile(path.join(target,htmlName),html.replace(new RegExp('<script src="\\./'+scriptName.replace('.','\\.')+'"[^>]*></script>'),()=>'<script>'+script.replaceAll('</script','<\\/script')+'</script>'));
+}
 await mkdir(path.join(target,'assets'),{recursive:true});
 await copyFile('public/pandas-data-lab/assets/englishmath-logo.png',path.join(target,'assets/englishmath-logo.png'));
 await copyFile('public/pandas-data-lab/student-config.json',path.join(target,'student-config.json'));

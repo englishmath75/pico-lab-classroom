@@ -1,6 +1,6 @@
 // Rendering is restricted to validated data. No messages grant access to the account context.
 export function runPython(code,stdin='',onStatus=()=>{}) {
-  const iframe=document.createElement('iframe');iframe.hidden=true;iframe.setAttribute('sandbox','allow-scripts');iframe.src=new URL('./student-runner.html',import.meta.url);
+  const iframe=document.createElement('iframe');iframe.hidden=true;iframe.setAttribute('sandbox','allow-scripts');
   const id=crypto.randomUUID();let timer,finish,done=false,executing=false;
   const promise=new Promise((resolve,reject)=>{
     finish=(error,result)=>{if(done)return;done=true;clearTimeout(timer);removeEventListener('message',receive);iframe.remove();error?reject(error):resolve(result);};
@@ -16,7 +16,14 @@ export function runPython(code,stdin='',onStatus=()=>{}) {
       if(m.type==='error')finish(Error(String(m.error).slice(0,20000)));
       if(m.type==='result')finish(null,{output:String(m.output||'').slice(0,80000),error:String(m.error||'').slice(0,20000),picture:/^[A-Za-z0-9+/=]{0,4000000}$/.test(m.picture||'')?m.picture:'',turtle:validateCommands(m.turtle),trace:Array.isArray(m.trace)?m.trace.slice(0,180).filter(x=>Number.isInteger(x.line)&&typeof x.values==='string').map(x=>({line:x.line,values:x.values.slice(0,1800)})):[]});
     }
-    addEventListener('message',receive);timer=setTimeout(()=>finish(Error('Python 준비 시간이 2분을 넘었습니다. 연결을 확인하세요.')),120000);document.body.append(iframe);
+    addEventListener('message',receive);timer=setTimeout(()=>finish(Error('Python 준비 시간이 2분을 넘었습니다. 연결을 확인하세요.')),120000);
+    // Fetch the audited shell in the parent so protected previews do not require
+    // cookies inside an opaque iframe. The runner still has no same-origin access.
+    fetch(new URL('./student-runner.html',import.meta.url)).then(async r=>{
+      if(!r.ok)throw Error('Python 실행 화면을 불러오지 못했습니다.');
+      const html=await r.text();if(done)return;
+      iframe.srcdoc=html;document.body.append(iframe);
+    }).catch(finish);
   });return{promise,stop:()=>finish?.(Error('실행을 중지했습니다.'))};
 }
 const color=x=>typeof x==='string'&&/^(#[0-9a-fA-F]{3,8}|[a-zA-Z]{1,30})$/.test(x);

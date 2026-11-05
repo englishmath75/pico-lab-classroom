@@ -42,7 +42,7 @@ function resourcesPage(){return heading('03 / 실습 자료','필요한 코드�
 function catalog(){return `<section class="panel section-spacer"><h2>CodeUp 핵심 10문제</h2><p>1~7은 기본 연결, 8~10은 중첩 리스트 선택 심화입니다.</p>${activityCards(codeup.map(p=>p.activity),'questions')}<details><summary>기존 후보 20개 참고 목록</summary><p>1098/1099는 6097/6098로 연결하며 핵심 문제 수에 중복으로 세지 않습니다.</p>${table([['번호','문제','연결'],...candidates.map(c=>[c.id,c.title,c.pythonId?'Python '+c.pythonId:c.scope==='optional-extension'?'선택 심화':'추가 참고'])])}<div class="toolbar">${candidates.map(c=>`<a href="${c.url}" target="_blank" rel="noopener noreferrer">${c.id}${c.pythonId?' → '+c.pythonId:''}</a>`).join('')}</div></details></section>`;}
 function questionsPage(){return heading('04 / 복습 문제','예측하고 설명하는 40문항','공개 학습 연습입니다. 실제 비공개 시험 원안이나 정답표가 아닙니다.')+`<div class="quiz-stats"><span>리스트 12</span><span>Turtle 6</span><span>matplotlib 6</span><span>제어·문자열 6</span><span>f-string 4</span><span>중첩 반복 6</span></div><section class="panel"><div class="filters"><label>주제<select id="question-topic"><option value="all">전체</option>${['list','turtle','matplotlib','control','fstring','nested'].map(t=>`<option value="${t}">${topicNames[t]}</option>`).join('')}</select></label><label>난이도<select id="question-level"><option value="all">전체</option><option>기본</option><option>적용</option></select></label><label><input id="wrong-only" type="checkbox">오답만 보기</label><button id="retry-questions">현재 목록 다시 풀기</button></div><div class="toolbar"><button id="notebook-save">오답 기록 클라우드 저장</button><button id="notebook-load">저장한 오답 기록 불러오기</button><button id="notebook-export">오답 기록 내려받기</button></div><p id="notebook-status" class="hint" role="status">지금 답한 내용은 이 화면의 메모리에만 있습니다. 로그인 후 저장 버튼을 눌러야 클라우드에 보관됩니다.</p><p id="question-count"></p><div id="question-list"></div></section>${catalog()}`;}
 function reportPage(){return heading('05 / 탐구 보고서','내가 바꾼 코드, 내가 찾은 이유','하나의 조건을 바꾸고 실행 전후의 차이를 증거와 함께 설명하세요.')+`<div class="panel"><h2>작성 예시: 색 목록을 늘리면?</h2><p><strong>예상</strong> 색을 하나 추가하면 마지막 색도 나올 것이다. <strong>변경</strong> 색상 목록에 새 색을 추가하고 %6을 %len(colors)로 바꾼다.</p><p><strong>관찰</strong> 변경 전에는 마지막 색이 나오지 않았고, 변경 뒤에는 모든 색이 순환했다. <strong>이유</strong> 나머지 범위가 색상 리스트의 길이와 맞아졌기 때문이다.</p><p class="hint">아래 입력은 편집기의 같은 보고서 기록에 연결됩니다. 로그인 전에는 메모리에만 있으며, 내보내기로 직접 보관하세요.</p></div>`;}
-function galleryPage(){return heading('00 / 그래픽 작품 체험실','숫자와 반복이 만드는 움직임','선택 체험입니다. 아래는 첨부 작품의 원리를 웹 Canvas로 재구성한 시각 도구이며 Python 실행 결과로 표시하지 않습니다.')+`<section class="panel"><span class="badge optional">고급 수학·그래픽 · 기본 평가에 자동 포함하지 않음</span><div class="toolbar"><label>작품 선택<select id="gallery-mode"><option value="particles">빛 입자 · 위치와 속도</option><option value="aurora">오로라 · 곡선의 겹침</option><option value="warp">워프 터널 · 원근감</option><option value="chaos">궤적 · 작은 변화의 누적</option><option value="alpha">투명도 · 색의 겹침</option><option value="waves">파동 · 행과 열</option></select></label></div><iframe id="gallery-frame" class="gallery-frame" title="선택 그래픽 체험 도구" sandbox="allow-scripts" src="./gallery.html?mode=particles"></iframe><div class="callout"><h3>관찰 질문</h3><p>속도를 바꾸면 궤적 간격이 어떻게 달라지나요? 입자 수를 늘리면 화면의 밀도와 성능은 어떻게 달라지나요? 한 번에 한 조건만 바꾸어 비교하세요.</p></div><p>고급 원본의 새 함수·클래스 정의는 기본 필수 예제에 넣지 않았습니다. 체험 중에는 중지·초기화 버튼을 사용할 수 있고, 화면을 떠나면 움직임을 멈춥니다.</p>${link('관찰 결과를 보고서로 남기기 →','report')}</section>`;}
+function galleryPage(){return heading('00 / 그래픽 작품 체험실','숫자와 반복이 만드는 움직임','선택 체험입니다. 아래는 첨부 작품의 원리를 웹 Canvas로 재구성한 시각 도구이며 Python 실행 결과로 표시하지 않습니다.')+`<section class="panel"><span class="badge optional">고급 수학·그래픽 · 기본 평가에 자동 포함하지 않음</span><div class="toolbar"><label>작품 선택<select id="gallery-mode"><option value="particles">빛 입자 · 위치와 속도</option><option value="aurora">오로라 · 곡선의 겹침</option><option value="warp">워프 터널 · 원근감</option><option value="chaos">궤적 · 작은 변화의 누적</option><option value="alpha">투명도 · 색의 겹침</option><option value="waves">파동 · 행과 열</option></select></label></div><iframe id="gallery-frame" class="gallery-frame" title="선택 그래픽 체험 도구" sandbox="allow-scripts"></iframe><div class="callout"><h3>관찰 질문</h3><p>속도를 바꾸면 궤적 간격이 어떻게 달라지나요? 입자 수를 늘리면 화면의 밀도와 성능은 어떻게 달라지나요? 한 번에 한 조건만 바꾸어 비교하세요.</p></div><p>고급 원본의 새 함수·클래스 정의는 기본 필수 예제에 넣지 않았습니다. 체험 중에는 중지·초기화 버튼을 사용할 수 있고, 화면을 떠나면 움직임을 멈춥니다.</p>${link('관찰 결과를 보고서로 남기기 →','report')}</section>`;}
 async function navigate(next,{push=true,open=true}={}){
  const url=next instanceof URL?next:new URL(next,location.href);aliasPage(url);const generation=++navGeneration;
  if(push&&!await room.guard())return;if(generation!==navGeneration)return;
@@ -66,13 +66,13 @@ async function navigate(next,{push=true,open=true}={}){
  const mainPage=['review','inquiry'].includes(page)||url.searchParams.get('from')==='review'?'review':['lesson','activity','codeup'].includes(page)?url.searchParams.get('from')==='questions'?'questions':'lessons':page;
  document.querySelectorAll('.sidebar nav>a').forEach(a=>{const yes=new URL(a.href).searchParams.get('page')===mainPage;if(yes)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
  $('sidebar').classList.remove('open');$('menu-toggle').setAttribute('aria-expanded','false');
- document.title=($('page-content h1')?.textContent||'수업 안내')+' | 영수쌤의 Python 교실';
+ document.title=(document.querySelector('#page-content h1')?.textContent||'수업 안내')+' | 영수쌤의 Python 교실';
  shownWorkspace=active;
  configurePractice(active);
  wirePage(page);
  if(active&&open){await room.open(active);if(generation!==navGeneration)return;}
  if(active==='mk3-report')hydrateReport();
- if(push){$('main').scrollIntoView();$('page-content h1')?.focus({preventScroll:true});}
+ if(push){$('main').scrollIntoView();document.querySelector('#page-content h1')?.focus({preventScroll:true});}
 }
 function configurePractice(id){
  const report=id==='mk3-report';$('code-workbench').hidden=report;$('report-fields').hidden=!report;$('trace-panel').hidden=report;$('public-tests').replaceChildren();
@@ -92,7 +92,15 @@ function wirePage(page){
  $('retry-questions').onclick=()=>{for(const q of filteredQuestions()){notebook[q.id]={answer:'',status:'retry'};touched.add(q.id);}wrongOnly=false;$('wrong-only').checked=false;renderQuestions();};
  $('notebook-save').onclick=saveNotebook;$('notebook-load').onclick=loadNotebook;$('notebook-export').onclick=()=>downloadText('복습_오답_기록.txt',JSON.stringify(notebook,null,2));renderQuestions();
  }
- if($('gallery-mode'))$('gallery-mode').onchange=e=>$('gallery-frame').src='./gallery.html?mode='+e.target.value;
+ if($('gallery-mode')){loadGallery('particles');$('gallery-mode').onchange=e=>loadGallery(e.target.value);}
+}
+async function loadGallery(mode){
+ const frame=$('gallery-frame'),generation=navGeneration;
+ try{const r=await fetch('./gallery.html');if(!r.ok)throw Error('체험 화면을 불러오지 못했습니다.');const html=await r.text();
+ if(generation!==navGeneration||frame!==$('gallery-frame'))return;
+ const safe=['particles','aurora','warp','chaos','alpha','waves'].includes(mode)?mode:'particles';
+ frame.srcdoc=html.replace('<body>','<body data-mode="'+safe+'">');
+ }catch(e){if(generation===navGeneration)showError(e);}
 }
 function drawList(op){const before=[10,20,30,40,50],after=[...before];let output=after,explain='원본의 인덱스는 0~4입니다.';
  if(op==='a[3]="테스트"'){after[3]='테스트';explain='원소 수정: 길이와 다른 인덱스는 그대로입니다.';}
@@ -132,7 +140,7 @@ $('plot-download').onclick=()=>{const a=document.createElement('a');if(!$('plot'
 $('library-tab').addEventListener('click',()=>{$('student-area').hidden=false;});
 addEventListener('mk-session',e=>{
  const {kind,workspace,canWrite}=e.detail;
- if(kind==='wipe'||kind==='logout'){notebook={};notebookVersion=0;touched.clear();publicRunner?.stop();publicRunner=null;}
+ if(kind==='wipe'||kind==='logout'){notebook={};notebookVersion=0;touched.clear();publicRunner?.stop();publicRunner=null;if($('question-list'))renderQuestions();}
  if(kind==='identity'){$('space-details').open=!$('learning-space-panel').hidden;$('space-details').hidden=$('learning-space-panel').hidden;$('student-area').hidden=false;}
  $('save').disabled=!canWrite;$('submit').disabled=!canWrite;$('history').disabled=!canWrite;$('cloud-reload').disabled=!canWrite;
  if(kind==='record'&&shownWorkspace!==null&&workspace!==shownWorkspace){shownWorkspace=workspace;navigate('./?page=practice&workspace='+workspace,{push:true,open:false}).catch(showError);}

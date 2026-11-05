@@ -13,11 +13,14 @@ let context;
 async function create(width=1366){
  context=await browser.newContext({viewport:{width,height:950},locale:'ko-KR'});
  await context.route('**/student-config.json',route=>route.fulfill({json:{enabled:false}}));
+ // A protected preview cannot give cookies to an opaque frame. Parent fetches
+ // must work even when direct iframe navigation to these shells is blocked.
+ await context.route(/\/(student-runner|gallery)\.html$/,route=>route.request().isNavigationRequest()?route.abort():route.continue());
  await context.route('https://**/*',async route=>{const url=new URL(route.request().url());if(url.hostname!=='cdn.jsdelivr.net')return route.abort();let body=cache.get(url.href);if(!body){body=exec('curl',['--fail','--silent','--show-error','--location','--retry','1','--max-time','90','--url',url.href],{encoding:'buffer',maxBuffer:128000000}).then(r=>r.stdout);cache.set(url.href,body);}try{const mime=url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.wasm')?'application/wasm':url.pathname.endsWith('.json')?'application/json':'application/octet-stream';await route.fulfill({body:await body,contentType:mime,headers:{'Access-Control-Allow-Origin':'*'}});}catch(e){console.error('Vendor fetch failed',url.pathname,e.message);await route.abort();}});
  const page=await context.newPage();page.on('pageerror',e=>{console.error('Page error',e.message);evidence.push({pageError:e.message});});page.on('dialog',dialog=>dialog.accept());return page;
 }
 async function open(page,path){await page.goto('http://127.0.0.1:4169'+path);await expect(page.locator('#page-content h1')).toBeVisible();}
-async function run(page,code,input){if(code!==undefined)await page.locator('#editor').fill(code);if(input!==undefined)await page.locator('#stdin').fill(input);await page.locator('#run').click();await expect(page.locator('#run-state')).toHaveText('실행 성공',{timeout:150000});return page.locator('#output').textContent();}
+async function run(page,code,input){const began=Date.now();if(code!==undefined)await page.locator('#editor').fill(code);if(input!==undefined)await page.locator('#stdin').fill(input);await page.locator('#run').click();await expect(page.locator('#run-state')).toHaveText('실행 성공',{timeout:150000});evidence.push({runtimeMs:Date.now()-began,activity:await page.locator('#workspace').inputValue()});return page.locator('#output').textContent();}
 async function shot(page,name){await page.screenshot({path:'.artifacts/mk-v3/'+name+'.png',fullPage:false});}
 try{
  const page=await create();
@@ -38,6 +41,12 @@ try{
   await open(page,'/?page=activity&id=mk3-list-edit');const extra=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);if(extra)throw Error('Editor overflow '+width);await shot(page,'list-'+width);
  }
  await page.setViewportSize({width:1366,height:950});await open(page,'/');await page.evaluate(()=>document.documentElement.style.zoom='2');if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1))throw Error('200 percent overflow');await shot(page,'zoom-200');await page.evaluate(()=>document.documentElement.style.zoom='1');
+ await open(page,'/?page=review&section=gallery');
+ for(const mode of ['particles','aurora','warp','chaos','alpha','waves']){
+  await page.locator('#gallery-mode').selectOption(mode);const frame=page.frameLocator('#gallery-frame');await expect(frame.locator('body')).toHaveAttribute('data-mode',mode);
+  await frame.getByRole('button',{name:'움직임 시작',exact:true}).click();await expect(frame.getByRole('button',{name:'움직임 중지',exact:true})).toBeVisible();await frame.getByRole('button',{name:'움직임 중지',exact:true}).click();await frame.getByRole('button',{name:'초기화',exact:true}).click();
+ }
+ await shot(page,'gallery');
  await page.keyboard.press('Tab');const focused=await page.evaluate(()=>document.activeElement?.tagName);if(!focused||focused==='BODY')throw Error('keyboard focus absent');
  evidence.push({status:'pass',checks:['6 menus','legacy aliases','40 questions and wrong-only','stdin and horizontal output','real Turtle commands','real matplotlib with Korean font','per-run isolation and stop','390/768/1366/1920','200% zoom','keyboard focus']});
  console.log('PASS MK V3 content, runtime, responsive and keyboard browser checks');

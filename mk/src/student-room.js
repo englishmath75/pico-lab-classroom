@@ -279,9 +279,9 @@ async function executeCurrent(){
     if(result.picture){$('plot').src='data:image/png;base64,'+result.picture;$('plot').hidden=false;}
     if(result.turtle.length){drawTurtle($('turtle-canvas'),result.turtle);$('turtle-result').hidden=false;}
     for(const step of result.trace){const row=document.createElement('tr');for(const value of [step.line,step.values||'아직 지정한 변수 없음']){const cell=document.createElement('td');cell.textContent=value;row.append(cell);}$('trace-body').append(row);}
-    $('run-state').textContent=result.error?'실행 오류':'실행 성공';runState=result.error?'error':'success';dirty();
+    $('run-state').textContent=result.error?'실행 오류':'실행 성공';runState=result.error?'error':'success';if(canWrite())dirty();
     return result;
-  }catch(error){if(session.current(snapshot)){$('output').textContent=String(error.message||error);$('run-state').textContent='실행 오류';runState='error';dirty();}throw error;}
+  }catch(error){if(session.current(snapshot)){$('output').textContent=String(error.message||error);$('run-state').textContent='실행 오류';runState='error';if(canWrite())dirty();}throw error;}
   finally{if(session.current(snapshot)){runner=null;$('run').disabled=false;$('stop').disabled=true;$('editor').readOnly=false;}}
 }
 action('run',executeCurrent);

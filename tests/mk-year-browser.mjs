@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
-import { doc, setDoc, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, Timestamp } from 'firebase/firestore';
 
 const projectId = 'demo-englishmath-python';
 const expect = playwrightExpect.configure({ timeout: 20000 });
@@ -101,6 +101,7 @@ async function save(page, code) {
   await page.locator('#save').click();
   await expect(page.locator('#save-state')).toContainText('클라우드 저장 완료');
 }
+async function agePersonalQuota(){await env.withSecurityRulesDisabled(c=>updateDoc(doc(c.firestore(),'public_users/visitor/limits/state'),{updatedAt:Timestamp.fromMillis(Date.now()-20000)}));}
 
 try {
   const student = await device();
@@ -157,6 +158,29 @@ try {
   await login(visitor, students[2]);
   await expect(visitor.locator('#editor')).toHaveValue('print("private personal code")');
   console.log('PASS classless personal enrollment, personal/school separation and relogin restore');
+  await visitor.getByRole('link',{name:'04 복습 문제',exact:true}).click();
+  await visitor.locator('a[href="./?page=codeup&id=1173&from=questions"]').click();
+  await agePersonalQuota();await save(visitor,'print("V3 original private record")');
+  await visitor.getByRole('link',{name:'독자적인 변형 연습',exact:true}).click();
+  await expect(visitor.locator('#editor')).not.toHaveValue('print("V3 original private record")');
+  await agePersonalQuota();await save(visitor,'print("V3 separate variant")');
+  await visitor.getByRole('link',{name:'원문 연결 활동',exact:true}).click();
+  await expect(visitor.locator('#editor')).toHaveValue('print("V3 original private record")');
+  await visitor.getByRole('link',{name:'02 차시별 실습',exact:true}).click();
+  await visitor.locator('a[href="./?page=lesson&unit=09"]').click();
+  await visitor.locator('a[href="./?page=codeup&id=1173&from=lessons"]').click();
+  await expect(visitor.locator('#editor')).toHaveValue('print("V3 original private record")');
+  await visitor.getByRole('link',{name:'05 탐구 보고서',exact:true}).click();
+  await visitor.locator('[data-report=topic]').fill('반복 순서 비교');await visitor.locator('[data-report=reason]').fill('바깥 반복이 한 행을 결정합니다.');
+  await agePersonalQuota();await visitor.locator('#save').click();await expect(visitor.locator('#save-state')).toContainText('클라우드 저장 완료');
+  await visitor.getByRole('link',{name:'04 복습 문제',exact:true}).click();
+  await visitor.getByLabel('q01 답',{exact:true}).fill('나의 오답');await visitor.locator('[data-check=q01]').click();
+  await agePersonalQuota();await visitor.locator('#notebook-save').click();await expect(visitor.locator('#notebook-status')).toContainText('클라우드 저장 완료');
+  await visitor.locator('#finish').click();await expect(visitor.getByLabel('q01 답',{exact:true})).toHaveValue('');
+  await login(visitor,students[2]);await visitor.locator('#notebook-load').click();await expect(visitor.getByLabel('q01 답',{exact:true})).toHaveValue('나의 오답');
+  await visitor.getByRole('link',{name:'05 탐구 보고서',exact:true}).click();await expect(visitor.locator('[data-report=topic]')).toHaveValue('반복 순서 비교');
+  await visitor.locator('#workspace').selectOption('scratch-01');await expect(visitor.locator('#editor')).toHaveValue('print("private personal code")');
+  console.log('PASS V3 shared 02/04 activity, separate variant, report/notebook restore, shared-PC clearing and legacy preservation');
 } finally {
   await browser.close();
   await new Promise(resolve => server.close(resolve));

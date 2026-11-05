@@ -1,6 +1,6 @@
 // Curated Canvas interpretations. Teacher originals stay outside the public build.
 const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d'),toggle=document.getElementById('toggle'),status=document.getElementById('status');
-const modes=['particles','aurora','warp','chaos','alpha','waves'];let mode=new URLSearchParams(location.search).get('mode');if(!modes.includes(mode))mode='particles';
+const modes=['particles','aurora','warp','chaos','alpha','waves'];let mode=document.body.dataset.mode||new URLSearchParams(location.search).get('mode');if(!modes.includes(mode))mode='particles';
 let running=false,t=0,last=0,frame;let pointer={x:360,y:150};
 function draw(){const w=canvas.width,h=canvas.height,n=+document.getElementById('density').value;ctx.fillStyle='#171c32';ctx.fillRect(0,0,w,h);
  if(mode==='alpha'){ctx.fillStyle='#080d19';ctx.fillRect(0,115,w,65);for(let i=0;i<4;i++){ctx.fillStyle=['#ef786350','#69d1aa90','#7abfe7b0','#ecd266ff'][i];ctx.beginPath();ctx.arc(w*(i+1)/5,150,58,0,Math.PI*2);ctx.fill();}status.textContent='웹 색상 투명도: 뒤 두 16진수가 불투명도를 정합니다. Python 출력이 아닙니다.';return;}
