@@ -141,6 +141,7 @@ $('plot-download').onclick=()=>{const a=document.createElement('a');if(!$('plot'
 $('library-tab').addEventListener('click',()=>{$('student-area').hidden=false;});
 addEventListener('mk-session',e=>{
  const {kind,workspace,canWrite}=e.detail;
+ if(['output','record','wipe'].includes(kind)){whitespace=false;rawOutput='';$('space-view').textContent='공백·줄바꿈 보기';}
  if(kind==='wipe'||kind==='logout'){notebook={};notebookVersion=0;touched.clear();publicRunner?.stop();publicRunner=null;if($('question-list'))renderQuestions();}
  if(kind==='identity'){$('space-details').open=!$('learning-space-panel').hidden;$('space-details').hidden=$('learning-space-panel').hidden;$('student-area').hidden=false;}
  $('save').disabled=!canWrite;$('submit').disabled=!canWrite;$('history').disabled=!canWrite;$('cloud-reload').disabled=!canWrite;
