@@ -105,6 +105,17 @@ dialog::backdrop{background:#222a22bb}
 .curriculum-subnav a.is-current{background:#4d6945!important;color:#fff!important}
 .curriculum-subnav a.curriculum-explore{background:#414d38!important;border-color:#a2b38a;color:#e6efda!important}
 .curriculum-subnav a.curriculum-explore:hover{background:#546447!important;color:#fff!important}
+/* Older review pages use semantic headers and cards instead of the shared shell. */
+main>header:not(.top),.main>header:not(.top){background:#313a32;color:#fffdf3;border-color:#45513f}
+main>header:not(.top) p,.main>header:not(.top) p{color:#dce3d4}
+.card{background:#fffef9;border-color:#dcded3}
+.ok{background:#edf1e5;border-left-color:#829875;color:#394e39}
+.pill{background:#e4ebd9;color:#4a6441}
+.muted,.fine{color:#687068}
+pre{background:#292e2b;color:#f0f2e9}
+.btn:not(.primary):not(.secondary):not(.ghost):not(.experience-link){background:#4f6a56;color:#fffef8}
+.btn.alt{background:#e8eddf!important;color:#3d5340!important}
+input[type=range],input[type=checkbox],input[type=radio]{accent-color:#607c52}
 @media(max-width:850px){
   .classroom-page .side{padding:18px 14px}
   .classroom-page .side .brand{padding-bottom:16px;margin-bottom:12px}
