@@ -66,6 +66,7 @@ function dirty() {
   clearTimeout(autoTimer);autoTimer=setTimeout(()=>save().catch(showError),Math.max(1000,SAVE_INTERVAL-(Date.now()-lastWrite)));
 }
 async function save() {
+  if(loading)return false;
   if(!session.dirty)return true;
   if(!canWrite())return false;
   if(busy) return false;
@@ -88,12 +89,13 @@ async function protectDraft() {
   return false;
 }
 async function loadWorkspace(id,discard=false) {
-  if(!labels.has(id)||loading)return false;
+  if(!labels.has(id))return false;
   if(!discard&&!await protectDraft()){$('workspace').value=workspace;return false;}
   runner?.stop();runner=null;busy=false;$('run').disabled=false;$('stop').disabled=true;
   session.change(user?.uid||null);const snapshot=session.checkpoint(),store=identity?.service;workspace=id;$('workspace').value=id;loading=true;
   $('editor').value='';$('editor').readOnly=true;$('title').value='';$('completed').checked=false;
   $('output').textContent='';$('plot').hidden=true;$('turtle-result').hidden=true;$('trace-body').replaceChildren();
+  $('run-state').textContent='실행 대기';
   $('stdin').value=activityById.get(id)?.stdin||'';
   state(canWrite()?'클라우드에서 불러오는 중…':'로그인 없이 실행 · 아직 클라우드에 저장되지 않았습니다.');
   try {
@@ -230,7 +232,7 @@ async function showTeacher() {
 }
 function action(id,fn) {$(id).addEventListener('click',()=>Promise.resolve().then(fn).catch(showError));}
 action('login',async()=>{if(!await protectDraft())return;if(!cloud){notice('아직 Google 로그인 연결을 준비하고 있습니다.',true);return;}await cloud.login();});
-action('logout',()=>logout());action('finish',()=>logout());action('save',async()=>{if(!canWrite()){notice('Google 로그인 후 개인 학습을 시작하거나 학급 승인을 확인하세요.',true);return;}if(!session.dirty)session.set($('editor').value);await save();});action('library-tab',showLibrary);action('teacher-tab',showTeacher);
+action('logout',()=>logout());action('finish',()=>logout());action('save',async()=>{if(loading){notice('코드를 불러온 뒤 저장해 주세요.');return;}if(!canWrite()){notice('Google 로그인 후 개인 학습을 시작하거나 학급 승인을 확인하세요.',true);return;}if(!session.dirty)session.set($('editor').value);await save();});action('library-tab',showLibrary);action('teacher-tab',showTeacher);
 action('refresh-students',showTeacher);$('teacher-class').onchange=()=>showTeacher().catch(showError);
 action('register',async()=>{if(!$('class-select').value)throw Error('등록 가능한 학급이 없습니다.');await cloud.register(user,$('class-select').value,selectedSpace);await refreshIdentity();});
 action('register-personal',async()=>{
