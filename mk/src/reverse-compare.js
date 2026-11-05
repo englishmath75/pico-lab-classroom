@@ -62,7 +62,7 @@ function methodCard(kind, title, eyebrow, code, description) {
     '<div class="reverse-memory" data-reverse-memory="' + kind + '"></div>',
     '<div class="reverse-console"><strong>출력 콘솔</strong><pre data-reverse-output="' + kind + '">실행 후 표시됩니다.</pre></div>',
     '<p class="reverse-card-description">' + description + '</p>',
-    '<button type="button" class="reverse-apply" data-reverse-apply="' + kind + '">이 코드로 실제 Python 실행하기 →</button>',
+    '<button type="button" class="reverse-apply" data-reverse-apply="' + kind + '">예제 코드를 Python 편집기에 넣기 →</button>',
     '</article>',
   ].join('');
 }
