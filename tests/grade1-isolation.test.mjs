@@ -83,3 +83,61 @@ test('Grade 1 staff cannot read private drafts; only explicitly submitted Grade 
   assert.equal((await getDoc(doc(teacher,'cohorts/2026/grade1_users/alice/submissions/lesson-01'))).data().code,'submitted');
   await assertFails(getDoc(doc(auth('bob'),'cohorts/2026/grade1_users/alice/submissions/lesson-01')));
 });
+
+test('Personal Google learner can enroll without a school domain and save private code immediately',async()=>{
+  const db=auth('visitor','visitor@gmail.com');
+  const personal={email:'visitor@gmail.com',displayName:'방문 학습자',userType:'personal',status:'approved',createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+  await assertSucceeds(setDoc(doc(db,'public_users/visitor'),personal));
+  const store=new Grade1Store(db,'public_users');
+  await store.mutate('visitor','scratch-01','save',code('print("public learner")',''),0);
+  assert.equal((await store.load('visitor','scratch-01')).code,'print("public learner")');
+  assert.equal((await store.list('visitor'))[0].workspaceId,'scratch-01');
+  assert.equal((await store.revisions('visitor','scratch-01'))[0].code,'print("public learner")');
+  await assertFails(getDoc(doc(db,'users/visitor')));
+  await assertFails(getDoc(doc(db,'cohorts/2026/grade1_users/alice')));
+});
+
+test('Personal learner accounts cannot impersonate school enrollment or self-assign another identity',async()=>{
+  const db=auth('visitor','visitor@gmail.com'),ownDoc=doc(db,'public_users/visitor');
+  const base={email:'visitor@gmail.com',displayName:'방문',userType:'personal',status:'approved',createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+  await assertFails(setDoc(ownDoc,{...base,classId:'class-1-1'}));
+  await assertFails(setDoc(ownDoc,{...base,userType:'teacher'}));
+  await assertFails(setDoc(ownDoc,{...base,email:'not-me@gmail.com'}));
+  await assertSucceeds(setDoc(ownDoc,base));
+  await assertFails(updateDoc(ownDoc,{status:'blocked',updatedAt:serverTimestamp()}));
+  await assertFails(setDoc(doc(db,'public_users/another'),base));
+});
+
+test('Other learners and teachers cannot read or submit personal code',async()=>{
+  const visitor=auth('visitor','visitor@gmail.com'),other=auth('outsider','outsider@gmail.com');
+  await setDoc(doc(visitor,'public_users/visitor'),{email:'visitor@gmail.com',displayName:'Guest',userType:'personal',status:'approved',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+  await new Grade1Store(visitor,'public_users').mutate('visitor','lesson-01','save',code('print("secret")',''),0);
+  const privatePath='public_users/visitor/workspaces/lesson-01';
+  await assertFails(getDoc(doc(other,privatePath)));
+  await assertFails(getDoc(doc(auth('teacher','englishmath@muhak-g-h.gne.go.kr'),privatePath)));
+  await assertFails(getDoc(doc(other,'public_users/visitor')));
+  await assertFails(getDocs(query(collection(other,'public_users'),limit(10))));
+  await assertFails(setDoc(doc(visitor,'public_users/visitor/submissions/lesson-01'),{code:'unwanted'}));
+});
+
+test('Single teacher account can inspect authorized Grade 1 and 2 rosters without cross-grade mixing',async()=>{
+  const teacher=auth('teacher','englishmath@muhak-g-h.gne.go.kr');
+  const second=await assertSucceeds(getDocs(query(collection(teacher,'users'),where('classId','==','class-2-1'),limit(100))));
+  const first=await assertSucceeds(getDocs(query(collection(teacher,'cohorts/2026/grade1_users'),where('classId','==','class-1-1'),limit(100))));
+  assert(second.docs.some(d=>d.id==='alice'));
+  assert(first.docs.some(d=>d.id==='alice'));
+  assert.equal(second.docs[0].ref.parent.path,'users');
+  assert.equal(first.docs[0].ref.parent.path,'cohorts/2026/grade1_users');
+  await assertFails(getDocs(query(collection(teacher,'users'),where('classId','==','class-2-2'),limit(100))));
+  await assertFails(getDoc(doc(teacher,'public_users/visitor')));
+});
+
+test('A future-year Grade 1 record is never reused by the 2026 student workspace',async()=>{
+  const student=auth('alice');
+  await env.withSecurityRulesDisabled(async c=>{
+    await setDoc(doc(c.firestore(),'cohorts/2027/grade1_users/alice'),profile('alice','class-1-1'));
+  });
+  const current=new Grade1Store(student,'cohorts/2026/grade1_users');
+  assert.equal(await current.load('alice','scratch-02'),null);
+  await assertFails(getDoc(doc(student,'cohorts/2027/grade1_users/alice')));
+});
