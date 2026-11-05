@@ -1,0 +1,81 @@
+/* Englishmath MK 06: two-method list reversal classroom experiment */
+.reverse-lab {
+  --reverse-violet: #7253d7;
+  margin: 26px 0 30px;
+  padding: clamp(18px, 2.7vw, 30px);
+  border: 1px solid #cfc8f0;
+  border-radius: 22px;
+  background: linear-gradient(125deg, #f6f3ff 0%, #f7fafd 65%, #edfaf5 100%);
+  color: #252540;
+}
+.reverse-lab-intro {display:flex; align-items:center; justify-content:space-between; gap:14px}
+.reverse-lab-intro h3 {font-size:clamp(20px,2.2vw,28px); color:#302457; line-height:1.35; margin:8px 0}
+.reverse-lab-intro p {font-size:14px; margin:6px 0 0; max-width:780px}
+.reverse-lab-icon {flex:none; width:56px; height:56px; display:grid; place-items:center; border-radius:17px; font-size:34px; font-weight:800; color:#5b3ac8; background:#e8e1ff}
+.reverse-controls {display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:24px}
+.reverse-controls button {font-size:13px; min-height:40px; padding:8px 13px}
+.reverse-controls button:disabled {opacity:.48; cursor:not-allowed}
+.reverse-stage-label {flex:1 1 230px; color:#41366d; font-size:12px; font-weight:750; line-height:1.6; padding:5px 8px}
+.reverse-progress {height:7px; border-radius:10px; background:#e1dcee; overflow:hidden; margin:12px 0 22px}
+.reverse-progress i {display:block; height:100%; width:25%; background:linear-gradient(90deg,#7556ed,#38af97); border-radius:10px; transition:width .25s ease}
+.reverse-comparison-grid {display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px}
+.reverse-method {min-width:0; background:#fff; border:1px solid #deddea; border-radius:16px; padding:18px; box-shadow:0 9px 30px #302b580d}
+.reverse-method--slice {border-top:5px solid #775bd6}
+.reverse-method--method {border-top:5px solid #dd7b56}
+.reverse-method-header {display:flex; gap:9px; align-items:baseline; flex-wrap:wrap; margin-bottom:10px}
+.reverse-method-header h4 {font-size:18px; margin:0; color:#1a1b35}
+.reverse-method-tag {font-size:11px; font-weight:800; color:#594696; background:#f0ebff; padding:3px 8px; border-radius:100px}
+.reverse-method--method .reverse-method-tag {color:#934322; background:#fff1e9}
+.reverse-code {background:#171b30; color:#f4f5ff; border-radius:11px; padding:14px 10px; font-size:12px; line-height:1.65; overflow-x:auto; white-space:pre; margin:12px 0 18px; tab-size:4}
+.reverse-code code {display:block}
+.reverse-code-line {display:block; padding:0 8px; border-left:3px solid transparent; margin:0 -7px; transition:background-color .18s ease}
+.reverse-code-line.is-active {background:#42508599; border-left-color:#70dfc3; color:white; font-weight:700}
+.reverse-line-label {display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:5px; color:#3b3756; font-size:13px; font-weight:800; margin:14px 0 7px}
+.reverse-line-label span {color:#5e5a77; font-size:11px; font-weight:600}
+.reverse-chips {display:flex; align-items:center; flex-wrap:wrap; gap:6px; min-height:48px}
+.reverse-chip {display:inline-flex; align-items:center; justify-content:center; min-width:38px; min-height:42px; padding:7px 9px; border-radius:9px; font-size:14px; font-weight:850; font-variant-numeric:tabular-nums; border:1px solid #a8d3c3; background:#e5f7ef; color:#0d513a}
+.reverse-chip--new {background:#e8e3ff; color:#4831a1; border-color:#a99bdf}
+.reverse-chip--mutated {background:#ffe4d6; color:#8d391d; border-color:#e7a68b}
+.reverse-lab[data-reverse-step="1"] .reverse-chip--new,
+.reverse-lab[data-reverse-step="1"] .reverse-chip--mutated,
+.reverse-lab[data-reverse-step="2"] .reverse-chip--new,
+.reverse-lab[data-reverse-step="2"] .reverse-chip--mutated {
+  animation: reverse-step-in .45s ease both; animation-delay:var(--reverse-delay,0ms);
+}
+.reverse-placeholder {font-size:12px;color:#706a82; padding:8px 0}
+.reverse-none {font-weight:900; color:#a04420; background:#fff0dc; border:1px solid #e4ba86; border-radius:9px; padding:8px 15px}
+.reverse-memory {font-size:11px; line-height:1.7; font-weight:700; color:#63587f; background:#f7f6fb; border-radius:9px; padding:8px 10px; min-height:42px; margin:18px 0 13px}
+.reverse-console {background:#f4f6fa; border:1px solid #e9e9ef; border-radius:10px; padding:11px}
+.reverse-console strong {font-size:12px; color:#4d456d}
+.reverse-console pre {font-size:12px; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.65; margin:6px 0 0; min-height:43px; color:#263952}
+.reverse-card-description {font-size:12px; line-height:1.75; color:#57566c; margin:12px 0}
+.reverse-apply {font-size:12px; font-weight:800; border-color:#b9b0e7; background:#f7f4ff; color:#4c358a; width:100%}
+.reverse-apply:hover {background:#eee8ff}
+.reverse-summary {margin:19px 0 0; padding:15px 18px; background:#fff; border:1px solid #cbd6f0; border-radius:13px}
+.reverse-summary h4 {font-size:17px; margin:4px 0 11px}
+.reverse-summary table {font-size:12px; margin:8px 0}
+.reverse-summary p {font-size:12px; margin:10px 0 0}
+.reverse-summary th {white-space:nowrap}
+.reverse-summary th,.reverse-summary td {padding:9px; border:1px solid #e3e5ef}
+.reverse-summary code {font-size:12px; padding:1px 4px; border-radius:5px; background:#f0ecff}
+.reverse-live-status {font-size:12px; line-height:1.7; color:#555079; background:#eeeafc; border-radius:10px; padding:11px 13px; margin:17px 0 0}
+.reverse-entry {background:#f4f0ff}
+.reverse-entry h3 {margin:4px 0 6px}
+.reverse-entry .button {color:#593a9f; border-color:#b6a6e9; background:white}
+@keyframes reverse-step-in {from {opacity:.2; transform:translateY(-11px) scale(.92)}to {opacity:1; transform:translateY(0) scale(1)}}
+@media (max-width:930px) {
+  .reverse-comparison-grid {grid-template-columns:1fr}
+  .reverse-method {padding:16px}
+  .reverse-code {font-size:13px}
+}
+@media (max-width:500px) {
+  .reverse-lab {padding:14px; border-radius:15px; margin-left:-7px; margin-right:-7px}
+  .reverse-lab-icon {width:40px;height:40px;font-size:25px}
+  .reverse-controls button {padding:8px 9px}
+  .reverse-stage-label {flex-basis:100%}
+  .reverse-chip {min-width:36px}
+  .reverse-method-header h4 {font-size:17px}
+}
+@media (prefers-reduced-motion:reduce) {
+  .reverse-chip,.reverse-code-line,.reverse-progress i {animation:none!important;transition:none!important}
+}
