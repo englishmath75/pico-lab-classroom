@@ -83,6 +83,39 @@ try{
  }
  await shot(page,'gallery');
  await page.keyboard.press('Tab');const focused=await page.evaluate(()=>document.activeElement?.tagName);if(!focused||focused==='BODY')throw Error('keyboard focus absent');
+ // 06 / list reversal: compare two techniques visually, including mutation and None.
+ await page.setViewportSize({width:1366,height:950});
+ await open(page,'/?page=lesson&unit=06');
+ await expect(page.getByRole('link',{name:'비교 실험실 열기 →'})).toBeVisible();
+ await open(page,'/?page=activity&id=mk3-list-sort');
+ await expect(page.locator('#reverse-compare')).toBeVisible();
+ await expect(page.locator('[data-reverse-list="slice-original"] .reverse-chip')).toHaveCount(5);
+ await expect(page.locator('[data-reverse-summary]')).toBeHidden();
+ await page.locator('[data-reverse-control="next"]').click();
+ await expect(page.locator('[data-reverse-list="slice-result"] .reverse-chip--new')).toHaveCount(5);
+ await expect(page.locator('[data-reverse-list="method-original"] .reverse-chip--mutated')).toHaveCount(5);
+ await expect(page.locator('[data-reverse-list="method-result"] .reverse-none')).toHaveText('None');
+ await expect(page.locator('[data-reverse-list="slice-original"] .reverse-chip').first()).toHaveText('10');
+ await expect(page.locator('[data-reverse-list="method-original"] .reverse-chip').first()).toHaveText('50');
+ await page.locator('[data-reverse-control="next"]').click();
+ await expect(page.locator('[data-reverse-output="slice"]')).toContainText('[10, 20, 30, 40, 50]');
+ await expect(page.locator('[data-reverse-output="method"]')).toContainText('None');
+ await page.locator('[data-reverse-control="next"]').click();
+ await expect(page.locator('[data-reverse-summary]')).toBeVisible();
+ await expect(page.locator('[data-reverse-control="next"]')).toBeDisabled();
+ await page.locator('[data-reverse-control="reset"]').click();
+ await expect(page.locator('[data-reverse-control="previous"]')).toBeDisabled();
+ await page.locator('[data-reverse-control="auto"]').click();
+ await expect(page.locator('[data-reverse-summary]')).toBeVisible({timeout:8000});
+ await expect(page.locator('#editor')).toHaveValue(/a\.reverse\(\)/);
+ await page.locator('[data-reverse-apply="slice"]').click();
+ await expect(page.locator('#editor')).toHaveValue(/result = a\[::-1\]/);
+ await expect(page.locator('[data-reverse-live-status]')).toContainText('아래 Python 편집기에');
+ await shot(page,'reverse-comparison-desktop');
+ await page.setViewportSize({width:390,height:844});
+ if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1))throw Error('Reverse comparison mobile overflow');
+ await shot(page,'reverse-comparison-mobile');
+ evidence.push({reverseComparison:'PASS: two methods, result None, state snapshots, 4 steps, autoplay, load real Python code, 390px responsive'});
  evidence.push({status:'pass',checks:['6 menus','legacy aliases','40 questions and wrong-only','stdin and horizontal output','real Turtle commands','real matplotlib with Korean font','Turtle and matplotlib PNG exports','per-run isolation and stop','390/768/1366/1920','200% zoom','keyboard focus']});
  console.log('PASS MK V3 content, runtime, responsive and keyboard browser checks');
 }catch(error){if(context){const pages=context.pages();if(pages.length)await shot(pages.at(-1),'failure').catch(()=>{});}throw error;}
