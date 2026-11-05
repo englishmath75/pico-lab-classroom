@@ -30,3 +30,4 @@ h1{text-wrap:balance}
 .list-legend-dot.selected{background:#e7e1ff;border-color:#7653cb}
 .index-controls button[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 2px 8px #6d5ce720}
 @media(prefers-reduced-motion:reduce){.list-cell{transition:none}}
+.list-current{font-family:ui-monospace,Consolas,monospace;font-size:12px;overflow-wrap:anywhere;margin:12px 0}
