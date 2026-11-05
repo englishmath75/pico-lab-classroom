@@ -32,53 +32,78 @@ export function createCloud(config, emulator = false) {
   }
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
-  const service = new StudentStore(db);
+  const schoolService = new StudentStore(db, 'cohorts/2026/grade1_users');
+  const personalService = new StudentStore(db, 'public_users');
+  let activeService = schoolService;
   return {
-    service,
+    get service() { return activeService; },
     observe(callback) { return onAuthStateChanged(auth, callback); },
     login: () => signInWithPopup(auth, provider),
     logout: () => signOut(auth),
     async identity(user) {
-      const [staff, profile, classes, access] = await Promise.all([
-        getDocFromServer(doc(db, 'staff', user.uid)), getDocFromServer(doc(db, 'cohorts/2026/grade1_users', user.uid)),
-        Promise.resolve(GRADE1_CLASSES),
+      const [staff, profile, personal, activeClasses, access] = await Promise.all([
+        getDocFromServer(doc(db, 'staff', user.uid)),
+        getDocFromServer(doc(db, 'cohorts/2026/grade1_users', user.uid)),
+        getDocFromServer(doc(db, 'public_users', user.uid)),
+        getDocsFromServer(query(collection(db, 'classes'), where('active','==',true),limit(50))),
         getDocFromServer(doc(db, 'config', 'access'))
       ]);
-      const grade1Staff=staff.exists() && user.email?.toLowerCase()===GRADE1_STAFF_EMAIL
-        ? {...staff.data(),classIds:GRADE1_CLASS_IDS} : null;
-      return { staff: grade1Staff, profile: profile.exists() ? profile.data() : null,
-        classes, access: access.data() };
+      const teacher = staff.exists() && user.email?.toLowerCase() === GRADE1_STAFF_EMAIL;
+      const grade2Classes = teacher ? activeClasses.docs
+        .filter(d => staff.data().classIds?.includes(d.id))
+        .map(d => ({ id:d.id, ...d.data(), title:`2026학년도 ${d.data().title}` })) : [];
+      const classes = teacher ? [
+        ...GRADE1_CLASSES.map(c => ({...c,title:`2026학년도 ${c.title}`})),
+        ...grade2Classes
+      ] : GRADE1_CLASSES;
+      const studentProfile = profile.exists() ? profile.data() : null;
+      const personalProfile = personal.exists() ? {...personal.data(), userType:'personal'} : null;
+      activeService = studentProfile ? schoolService : (personalProfile ? personalService : schoolService);
+      const grade1Staff = teacher ? {...staff.data(),
+        classIds:[...GRADE1_CLASS_IDS,...(staff.data().classIds||[])]} : null;
+      return { staff:grade1Staff, profile:studentProfile || personalProfile, classes, access:access.data() };
+    },
+    async registerPersonal(user) {
+      await setDoc(doc(db, 'public_users', user.uid), {
+        email:user.email, displayName:(user.displayName || '개인 학습자').slice(0,80),
+        userType:'personal', status:'approved', createdAt:serverTimestamp(), updatedAt:serverTimestamp()
+      });
     },
     async register(user, classId) {
       await setDoc(doc(db, 'cohorts/2026/grade1_users', user.uid), { email: user.email, displayName: (user.displayName || '학생').slice(0, 80),
         classId, status: 'pending', createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
     },
     async students(classId) {
-      const result = await getDocsFromServer(query(collection(db, 'cohorts/2026/grade1_users'), where('classId', '==', classId), limit(100)));
-      return result.docs.map(d => ({ uid: d.id, ...d.data() }));
+      const root = classId.startsWith('class-2-') ? 'users' : 'cohorts/2026/grade1_users';
+      const result=await getDocsFromServer(query(collection(db,root),where('classId','==',classId),limit(100)));
+      return result.docs.map(d=>({uid:d.id,...d.data(),academicYear:2026,grade:classId.startsWith('class-2-')?2:1}));
     },
-    approve(uid, status) { return updateDoc(doc(db, 'cohorts/2026/grade1_users', uid), { status, updatedAt: serverTimestamp() }); },
-    async teacherDetails(uid, classId) {
-      const [progress, submissions, quota] = await Promise.all([
-        getDocsFromServer(query(collection(db, 'cohorts/2026/grade1_users', uid, 'progress'), limit(50))),
-        getDocsFromServer(query(collection(db, 'cohorts/2026/grade1_users', uid, 'submissions'), where('classId','==',classId), limit(50))),
-        getDocFromServer(doc(db, 'cohorts/2026/grade1_users', uid, 'limits', 'state'))
+    approve(uid,status,classId) {
+      const root=classId?.startsWith('class-2-')?'users':'cohorts/2026/grade1_users';
+      return updateDoc(doc(db,root,uid),{status,updatedAt:serverTimestamp()});
+    },
+    async teacherDetails(uid,classId) {
+      const root=classId?.startsWith('class-2-')?'users':'cohorts/2026/grade1_users';
+      const [progress,submissions,quota]=await Promise.all([
+        getDocsFromServer(query(collection(db,root,uid,'progress'),limit(50))),
+        getDocsFromServer(query(collection(db,root,uid,'submissions'),where('classId','==',classId),limit(50))),
+        getDocFromServer(doc(db,root,uid,'limits','state'))
       ]);
-      return { progress: progress.docs.map(d => d.data()), submissions: submissions.docs.map(d => d.data()), quota: quota.data() };
+      return {progress:progress.docs.map(d=>d.data()),submissions:submissions.docs.map(d=>d.data()),quota:quota.data()};
     }
   };
 }
 
 export class StudentStore {
-  constructor(db) { this.db = db; }
-  ref(uid, group, id) { return doc(this.db, 'cohorts/2026/grade1_users', uid, group, id); }
+  constructor(db, root = 'cohorts/2026/grade1_users') { this.db=db; this.root=root; }
+  ref(uid, group, id) { return doc(this.db, this.root, uid, group, id); }
   async load(uid, id) { const d = await getDocFromServer(this.ref(uid, 'workspaces', id)); return d.exists() ? d.data() : null; }
   async list(uid) {
-    const d = await getDocsFromServer(query(collection(this.db, 'cohorts/2026/grade1_users', uid, 'workspaces'), limit(50)));
+    const d = await getDocsFromServer(query(collection(this.db, this.root, uid, 'workspaces'), limit(50)));
     return d.docs.map(x => x.data()).sort((a,b) => (b.savedAt?.toMillis() || 0) - (a.savedAt?.toMillis() || 0));
   }
   async revisions(uid, id) {
-    const d = await getDocsFromServer(query(collection(this.db, 'cohorts/2026/grade1_users', uid, 'revisions'), where('workspaceId','==',id), limit(10)));
+    const d = await getDocsFromServer(query(collection(this.db, this.root, uid, 'revisions'), where('workspaceId','==',id), limit(10)));
     return d.docs.map(x => x.data()).sort((a,b) => b.version - a.version);
   }
   async mutate(uid, id, kind, input, expectedVersion) {
