@@ -1,4 +1,5 @@
 import { test } from 'node:test';
+import { execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import { comparisonStage, reverseExamples, reverseCompareMarkup } from '../mk/src/reverse-compare.js';
 
@@ -33,6 +34,9 @@ test('outputs match real Python semantics', () => {
   assert.equal(state.method.output, 'None\n[50, 40, 30, 20, 10]');
   assert.match(reverseExamples.slice, /result = a\[::-1\]/);
   assert.match(reverseExamples.method, /result = a\.reverse\(\)/);
+  const py = process.platform === 'win32' ? 'python' : 'python3';
+  assert.equal(execFileSync(py, ['-c', reverseExamples.slice], { encoding: 'utf8' }), state.slice.output + '\n');
+  assert.equal(execFileSync(py, ['-c', reverseExamples.method], { encoding: 'utf8' }), state.method.output + '\n');
 });
 
 test('all stages are clamped, independent, and answer is visible in markup', () => {
@@ -45,5 +49,5 @@ test('all stages are clamped, independent, and answer is visible in markup', () 
   assert.match(html, /리스트 뒤집기 비교 실험실/);
   assert.match(html, /data-reverse-control="auto"/);
   assert.match(html, /data-reverse-apply="method"/);
-  assert.match(html, /원본을 바꿉니다/);
+  assert.match(html, /제자리에서 바꾸고 None을 반환합니다/);
 });
