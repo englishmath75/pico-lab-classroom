@@ -56,6 +56,7 @@ addEventListener('DOMContentLoaded',()=>{
   $(api.id==='python-review'?'resetQuiz':'clear')?.addEventListener('click',()=>save(false));
  }
  if(api.id==='four-turtles'){
+  $('saveDraft').hidden=true;
   const id='sw2-inquiry-d-state',checks=[...document.querySelectorAll('[data-points]')],saved=api.value(id);
   checks.forEach((el,i)=>{el.checked=!!saved.checks?.[i];el.addEventListener('change',()=>api.update(id,{...api.value(id),checks:checks.map(c=>c.checked)}));});
   const checked=checks.filter(c=>c.checked);$('selfScore').textContent='자기 점검 '+checked.length+'/4개 · 참고 점수 '+checked.reduce((n,c)=>n+Number(c.dataset.points),0)+'/20점. 코드 정확성을 자동 채점한 점수가 아닙니다.';
