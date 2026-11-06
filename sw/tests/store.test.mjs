@@ -120,3 +120,11 @@ test('a repaired malformed server record can be retried without losing its origi
  records.set('a/sw2-report',{title:'repaired',code:encode('sw2-report',{question:'recovered'}),version:2});
  await store.prepare(['sw2-report']);assert.equal(store.errors.size,0);assert.equal(store.get('sw2-report').question,'recovered');assert.equal(store.dirty().length,0);
 });
+
+test('leaving an untouched lesson does not create an empty prediction record',async()=>{
+ const {store,writes}=fixture();await store.prepare(['lesson-02','sw2-lesson-02-state']);
+ const initial=JSON.stringify({records:{1:{code:'',step:0,done:[],predict:{},reflection:'',verified:{},revision:'20261027-classroom'}}});
+ updateRaw(keys.step,initial,store,initial,{initial:true});
+ const next=JSON.parse(initial);next.records[1].predict[0]='';updateRaw(keys.step,JSON.stringify(next),store,initial);
+ assert.equal(store.dirty().length,0);await store.flush();assert.equal(writes.length,0);
+});

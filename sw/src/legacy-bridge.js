@@ -58,6 +58,13 @@ addEventListener('DOMContentLoaded',()=>{
  if(api.id==='four-turtles'){
   const id='sw2-inquiry-d-state',checks=[...document.querySelectorAll('[data-points]')],saved=api.value(id);
   checks.forEach((el,i)=>{el.checked=!!saved.checks?.[i];el.addEventListener('change',()=>api.update(id,{...api.value(id),checks:checks.map(c=>c.checked)}));});
+  const checked=checks.filter(c=>c.checked);$('selfScore').textContent='자기 점검 '+checked.length+'/4개 · 참고 점수 '+checked.reduce((n,c)=>n+Number(c.dataset.points),0)+'/20점. 코드 정확성을 자동 채점한 점수가 아닙니다.';
+  const form=$('knowledgeForm'),radios=[...form.querySelectorAll('input[type=radio]')];
+  radios.forEach(el=>el.checked=saved.answers?.[el.name]===el.value);
+  if(saved.graded)form.requestSubmit();
+  const save=graded=>api.update(id,{...api.value(id),answers:Object.fromEntries(radios.filter(el=>el.checked).map(el=>[el.name,el.value])),graded});
+  form.addEventListener('change',()=>save(false));form.addEventListener('submit',()=>save(true));form.addEventListener('reset',()=>api.update(id,{...api.value(id),answers:{},graded:false}));
+
  }
  if(api.id==='kosis-project'){
   const id='sw2-kosis',saved=api.value(id),checks=[...document.querySelectorAll('input[type=checkbox]')];

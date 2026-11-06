@@ -37,7 +37,7 @@ export function project(key,raw){
  if(key===keys.step)for(const [i,r] of Object.entries(obj(x.records))){
   if(!/^(?:[0-9])$/.test(i)||!r||typeof r!=='object')continue;
   out['lesson-'+num(i)]=String(r.code??'');
-  out['sw2-lesson-'+num(i)+'-state']={step:r.step??0,done:r.done??[],predict:r.predict??{},reflection:r.reflection??'',verified:r.verified??{},revision:r.revision??'20261027-classroom',stdin:r.stdin??'',quiz:r.quiz??{},quizGraded:!!r.quizGraded};
+  out['sw2-lesson-'+num(i)+'-state']={step:r.step??0,done:r.done??[],predict:Object.fromEntries(Object.entries(obj(r.predict)).filter(([,v])=>v!=='')),reflection:r.reflection??'',verified:r.verified??{},revision:r.revision??'20261027-classroom',stdin:r.stdin??'',quiz:r.quiz??{},quizGraded:!!r.quizGraded};
  }
  if(key===keys.main){
   out['sw2-report']=obj(x.report);out['sw2-review']={answers:obj(x.exam),graded:!!x.examGraded,wrong:x.wrong||[],filter:x.examFilter||'all'};

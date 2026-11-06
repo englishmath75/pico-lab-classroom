@@ -156,6 +156,12 @@ try{
  await scenario('idle warning and 15-minute clearing use fake clock, never a real school-PC claim',async()=>{
   const {page:p}=await device('/?page=practice',{clock:true});await login(p,people.idle);await expect(p.locator('#sw-code')).toBeVisible();await p.clock.fastForward(14*60000+1000);await expect(p.locator('#sw-idle')).toBeVisible();await p.clock.fastForward(60000);await expect(p.locator('#sw-user')).toHaveText('로그인 전');await p.context().close();
  });
+ await scenario('inquiry D retains code, explanation, self-check and graded knowledge answers across internal navigation',async()=>{
+  const {page:p,context}=await device('/four-turtles.html');const f=frame(p);
+  await f.locator('#studentCode').fill('print("four turtles fixture")');await f.locator('#studentReason').fill('각 객체의 위치와 상태');await f.locator('[data-points]').first().check();await f.locator('input[name=knowledge0][value="0"]').check();await f.locator('#knowledgeForm button[type=submit]').click();
+  await p.locator('.brand').click();await expect(p).toHaveURL(/page=home/);await p.goBack();await expect(p).toHaveURL(/page=four-turtles/);
+  await expect(f.locator('#studentCode')).toHaveValue('print("four turtles fixture")');await expect(f.locator('#studentReason')).toHaveValue('각 객체의 위치와 상태');await expect(f.locator('[data-points]').first()).toBeChecked();await expect(f.locator('input[name=knowledge0][value="0"]')).toBeChecked();await expect(f.locator('#knowledgeScore')).toContainText('1문항 정답');await expect(f.locator('#selfScore')).toContainText('1/4개');await context.close();
+ });
  await scenario('legacy links, responsive 390/1440/1920, keyboard and 200 percent text scaling',async()=>{
   const {page:p}=await device('/step-by-step.html?lesson=7');await expect(p).toHaveURL(/page=lesson&lesson=7/);await expect(frame(p).locator('#heroTitle')).toContainText('7차시');
   for(const width of [390,1440,1920]){await p.setViewportSize({width,height:1000});await expect.poll(()=>p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);await shot(p,'layout-'+width);}

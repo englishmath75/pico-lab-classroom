@@ -11,7 +11,7 @@ export function validateValue(id,v){
  else if(id==='sw2-report')shape=Object.fromEntries(['question','source','method','finding','graph','limits','next'].map(k=>[k,text]));
  else if(id==='sw2-review')shape={answers:x=>dictionary(x,number),graded:bool,wrong:x=>array(x)&&x.every(Number.isInteger),filter:x=>['all','wrong'].includes(x)};
  else if(['sw2-basics','sw2-binary'].includes(id))shape={answers:x=>dictionary(x,text),graded:bool};
- else if(id==='sw2-inquiry-d-state')shape={reason:text,checks:x=>array(x)&&x.every(bool)};
+ else if(id==='sw2-inquiry-d-state')shape={reason:text,checks:x=>array(x)&&x.every(bool),answers:x=>dictionary(x,text),graded:bool};
  else if(id==='sw2-kosis')shape={report:text,checks:x=>array(x)&&x.every(bool),fileRequired:bool};
  else if(id==='sw2-first-analysis')shape={note:text};
  else if(id==='sw2-simulation')shape={policy:object,hypothesis:text,design:text,interpretation:text,limitations:text,proposal:text,answers:x=>dictionary(x,number),graded:bool};
