@@ -82,3 +82,9 @@
 @media(min-width:1001px){.classroom-page .classroom-hero{grid-template-columns:minmax(0,1.15fr) minmax(310px,1fr);gap:28px}}
 @media(max-width:850px){.classroom-page .side .brand img{width:140px}.classroom-page .side .brand .classroom-name{font-size:20px}}
 @media(max-width:480px){.classroom-page .table-illustration{padding:16px}.classroom-page .table-illustration th,.classroom-page .table-illustration td{padding:12px 8px}.classroom-page .table-illustration table{font-size:18px}.classroom-page .classroom-hero{padding:20px}}
+
+/* Distinguish column labels and row index from the data dimensions. */
+.classroom-page .table-illustration .shape-explanation{display:block;margin-top:16px;padding:14px;border-radius:10px;background:#fff2f7;border:1px solid #f0bad1;color:#a51e59;font-size:15px;font-weight:650;line-height:1.8;overflow-wrap:anywhere}
+.classroom-page .table-illustration .shape-explanation strong{font-weight:800}
+.classroom-page .table-illustration .shape-explanation span{display:block;margin-top:8px}
+.classroom-page .table-illustration .shape-explanation code{font-size:1em;font-weight:800;color:inherit}
