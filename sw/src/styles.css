@@ -22,3 +22,14 @@ html{scroll-behavior:auto}body{margin:0}.sw-shell{min-width:0}.sw-main{min-width
 #sw-user{overflow-wrap:anywhere;min-width:0}
 
 @media(max-width:900px){.sw-shell .side .nav{white-space:normal;overflow-wrap:anywhere}.sw-shell .side .experience-link{grid-column:1/-1}}
+
+/* Keep the numbered course sequence together, with separate practice and account sections. */
+.sw-shell .side nav{display:block}
+.sw-shell .sw-menu-group{margin:16px 0 0;padding:12px 0 0;border-top:1px solid #ffffff30}
+.sw-shell .sw-menu-group h2{margin:0 9px 6px;color:#b9d5dd;font-size:12px;font-weight:700;line-height:1.5;letter-spacing:.04em}
+.sw-shell .sw-menu-items{display:grid;grid-template-columns:minmax(0,1fr)}
+.sw-shell .sw-menu-items .nav{margin:2px 0;white-space:normal;overflow-wrap:anywhere}
+@media(max-width:900px){
+.sw-shell .sw-menu-group{margin-top:12px;padding-top:10px}
+.sw-shell .sw-menu-items{grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 8px}
+}

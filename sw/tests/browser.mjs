@@ -164,6 +164,13 @@ try{
  });
  await scenario('legacy links, responsive 390/1440/1920, keyboard and 200 percent text scaling',async()=>{
   const {page:p}=await device('/step-by-step.html?lesson=7');await expect(p).toHaveURL(/page=lesson&lesson=7/);await expect(frame(p).locator('#heroTitle')).toContainText('7차시');
+  const menu=p.locator('nav[aria-label="수업 메뉴"]');
+  assert.deepEqual(await menu.locator('.sw-menu-group h2').allTextContents(),['수업 순서','추가 실습·탐구','내 학습','교사용']);
+  assert.deepEqual(await menu.locator('[aria-labelledby="sw-course-heading"] a').evaluateAll(as=>as.map(a=>a.dataset.route)),['python-review','home','lesson','data','exam','report']);
+  assert.deepEqual(await menu.locator('[aria-labelledby="sw-practice-heading"] a').evaluateAll(as=>as.map(a=>a.dataset.route)),['data-lab','practice','first-analysis']);
+  assert.equal(await menu.locator('a[data-route]').count(),12);
+  await expect(p.locator('#sw-teacher-menu')).toBeHidden();
+  await expect(menu.locator('a.avatar-nav')).toBeVisible();
   for(const width of [390,1440,1920]){await p.setViewportSize({width,height:1000});await expect.poll(()=>p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);await shot(p,'layout-'+width);}
   await p.addStyleTag({content:'html{font-size:200%}'});await p.locator('#sw-login').focus();await p.keyboard.press('Tab');assert(await p.evaluate(()=>document.activeElement.id==='sw-end'));await shot(p,'text-scale-200');
   await p.reload();await expect(p).toHaveURL(/page=lesson&lesson=7/);await expect(p.locator('#sw-user')).toHaveText('로그인 전');
