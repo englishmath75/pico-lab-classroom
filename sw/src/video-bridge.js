@@ -1,0 +1,1 @@
+(()=>{'use strict';document.addEventListener('click',e=>{const a=e.target.closest('a[target="_top"]');if(a&&window.parent.SWPage){e.preventDefault();window.parent.SWPage.navigate(a.href);}},true);})();

@@ -1,0 +1,110 @@
+[
+  {
+    "id": "SW01",
+    "number": "01",
+    "title": "표의 크기와 이름표",
+    "concept": "인덱스는 데이터 열이 아닙니다. 이름표를 바꿔도 행·열 개수는 그대로입니다.",
+    "source": "original-platform",
+    "status": "draft",
+    "contentVersion": "1.0.0",
+    "csv": "item,sales\nseed,12\nnotebook,20\npencil,16",
+    "examples": [
+      {
+        "title": "표 만들기",
+        "code": "before = df.copy()\nresult = df.copy()\nprint(result.shape)",
+        "stdout": "(3, 2)"
+      },
+      {
+        "title": "이름표 바꾸기",
+        "code": "before = df.copy()\ndf.index = [10, 20, 30]\nresult = df.copy()\nprint(result.shape)",
+        "stdout": "(3, 2)"
+      }
+    ],
+    "missions": [
+      {
+        "question": "상품 세 개와 데이터 열 두 개의 shape를 적으세요.",
+        "answer": "(3, 2)",
+        "hint": "기본 CSV를 실제 실행하고 표의 shape 또는 이름표를 확인하세요.",
+        "explanation": "인덱스는 데이터 열이 아닙니다. 이름표를 바꿔도 행·열 개수는 그대로입니다."
+      },
+      {
+        "question": "인덱스를 10, 20, 30으로 바꾼 뒤 shape는?",
+        "answer": "(3, 2)",
+        "hint": "기본 CSV를 실제 실행하고 표의 shape 또는 이름표를 확인하세요.",
+        "explanation": "인덱스는 데이터 열이 아닙니다. 이름표를 바꿔도 행·열 개수는 그대로입니다."
+      }
+    ]
+  },
+  {
+    "id": "SW03",
+    "number": "03",
+    "title": "loc와 iloc, 이름과 위치",
+    "concept": "loc는 이름표로 고르고 iloc는 0부터 시작하는 위치로 고릅니다. loc 슬라이스는 끝 이름표를 포함하고 iloc는 끝 위치를 제외합니다.",
+    "source": "original-platform",
+    "status": "draft",
+    "contentVersion": "1.0.0",
+    "csv": "item,sales\nseed,12\nnotebook,20\npencil,16",
+    "examples": [
+      {
+        "title": "loc · 이름표 10:20",
+        "code": "df.index = [10, 20, 30]\nbefore = df.copy()\nresult = df.loc[10:20, ['item', 'sales']]\nprint(result.shape)",
+        "stdout": "(2, 2)"
+      },
+      {
+        "title": "iloc · 위치 0:1",
+        "code": "df.index = [10, 20, 30]\nbefore = df.copy()\nresult = df.iloc[0:1, [0, 1]]\nprint(result.shape)",
+        "stdout": "(1, 2)"
+      }
+    ],
+    "missions": [
+      {
+        "question": "loc[10:20]로 선택한 표의 shape는?",
+        "answer": "(2, 2)",
+        "hint": "기본 CSV를 실제 실행하고 표의 shape 또는 이름표를 확인하세요.",
+        "explanation": "loc는 이름표로 고르고 iloc는 0부터 시작하는 위치로 고릅니다. loc 슬라이스는 끝 이름표를 포함하고 iloc는 끝 위치를 제외합니다."
+      },
+      {
+        "question": "이름표가 10,20,30인 표에서 df.loc[0]의 오류 이름은?",
+        "answer": "KeyError",
+        "hint": "기본 CSV를 실제 실행하고 표의 shape 또는 이름표를 확인하세요.",
+        "explanation": "loc는 이름표로 고르고 iloc는 0부터 시작하는 위치로 고릅니다. loc 슬라이스는 끝 이름표를 포함하고 iloc는 끝 위치를 제외합니다."
+      }
+    ]
+  },
+  {
+    "id": "SW04",
+    "number": "04",
+    "title": "남기고, 순서를 바꾸고",
+    "concept": "조건 필터는 조건이 참인 행을 반환합니다. sort_values는 기본적으로 정렬된 새 표를 반환하므로 원본 df는 그대로입니다.",
+    "source": "original-platform",
+    "status": "draft",
+    "contentVersion": "1.0.0",
+    "csv": "item,sales\nseed,12\nnotebook,20\npencil,16",
+    "examples": [
+      {
+        "title": "판매량 15 이상",
+        "code": "df.index = [10, 20, 30]\nbefore = df.copy()\nresult = df[df['sales'] >= 15]\nprint(result.shape)",
+        "stdout": "(2, 2)"
+      },
+      {
+        "title": "판매량 내림차순",
+        "code": "df.index = [10, 20, 30]\nbefore = df.copy()\nresult = df.sort_values('sales', ascending=False)\nprint(result.index.tolist())",
+        "stdout": "[20, 30, 10]"
+      }
+    ],
+    "missions": [
+      {
+        "question": "정렬한 결과의 인덱스 순서는?",
+        "answer": "[20, 30, 10]",
+        "hint": "기본 CSV를 실제 실행하고 표의 shape 또는 이름표를 확인하세요.",
+        "explanation": "조건 필터는 조건이 참인 행을 반환합니다. sort_values는 기본적으로 정렬된 새 표를 반환하므로 원본 df는 그대로입니다."
+      },
+      {
+        "question": "sales > 100으로 필터링했을 때 shape는?",
+        "answer": "(0, 2)",
+        "hint": "기본 CSV를 실제 실행하고 표의 shape 또는 이름표를 확인하세요.",
+        "explanation": "조건 필터는 조건이 참인 행을 반환합니다. sort_values는 기본적으로 정렬된 새 표를 반환하므로 원본 df는 그대로입니다."
+      }
+    ]
+  }
+]

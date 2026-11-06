@@ -1,0 +1,100 @@
+name: SW V2 isolated validation
+on:
+  push:
+    branches: [work/sw-v2-unified-20261106]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sw-v2-validation
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - name: Storage and route contracts
+        run: node --test sw/tests/store.test.mjs
+      - name: Shared rules regression in emulator only
+        run: npx firebase emulators:exec --config sw/firebase.test.json --project demo-englishmath-python --only firestore 'node --test --test-concurrency=1 sw/tests/student-security.test.mjs sw/tests/grade1-isolation.test.mjs sw/tests/new-activities.test.mjs'
+      - run: npm ci --prefix sw
+      - name: Integrated SW build
+        run: npm run build:sw
+      - name: Existing publication layout and links
+        run: |
+          python3 sw/publisher/test_package.py
+          python3 sw/publisher/package_site.py dist --source-sha "$GITHUB_SHA"
+          python3 sw/publisher/finalize_brand.py --dist dist --source-sha "$GITHUB_SHA"
+          python3 sw/publisher/check_site.py dist
+      - name: Protected sites public asset snapshot (read only)
+        run: node sw/publisher/protected-sites.mjs
+      - name: Original lesson, data and integration invariants
+        run: node --test sw/tests/content.test.mjs
+      - run: npx playwright install --with-deps chromium
+      - name: Actual browser, isolated Python, and emulator storage
+        run: npx firebase emulators:exec --config sw/firebase.test.json --project demo-englishmath-python --only auth,firestore 'node sw/tests/browser.mjs'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sw-v2-site-candidate
+          path: dist/
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sw-v2-validation-evidence
+          path: |
+            sw/evidence/
+            firestore-debug.log
+          if-no-files-found: ignore
+
+  rollback:
+    name: Rebuild preserved SW source/publisher pair
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: englishmath75/pico-lab-classroom
+          ref: c38e7ce5e057b68898d086dde1caaaceae4f6d00
+          path: baseline
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: englishmath75/sw
+          ref: 17162105ba32ac5075017115901800cb298068a0
+          path: publisher
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: baseline/package-lock.json
+      - name: Rebuild known good pair without publication
+        working-directory: baseline
+        run: |
+          npm ci
+          mkdir -p public/downloads
+          base64 --decode public/downloads/arduino-foundations.docx.b64 > public/downloads/arduino-foundations.docx
+          npm run build -- --base=/sw/
+          python3 ../publisher/scripts/test_package.py
+          python3 ../publisher/scripts/package_site.py dist --source-sha c38e7ce5e057b68898d086dde1caaaceae4f6d00
+          python3 ../publisher/scripts/finalize_brand.py --dist dist --source-sha c38e7ce5e057b68898d086dde1caaaceae4f6d00
+          python3 ../publisher/scripts/check_site.py dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sw-rollback-baseline
+          path: baseline/dist/
+          retention-days: 14
