@@ -1,0 +1,35 @@
+name: SW AI avatar targeted checks
+on:
+  push:
+    branches: [feat/sw-ai-avatar-classroom-20261106]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  avatar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Signal and privacy unit tests
+        run: node --test tests/ai-avatar.test.mjs
+      - name: Prepare pinned first-party-hosted runtime assets
+        run: node scripts/build-ai-avatar.mjs
+      - name: Install isolated browser test dependencies
+        run: |
+          npm install --prefix /tmp/avatar-check playwright@1.56.1
+          /tmp/avatar-check/node_modules/.bin/playwright install --with-deps chromium
+      - name: Focused PC/mobile, Python, synthetic camera and privacy checks
+        env:
+          AVATAR_PLAYWRIGHT_MODULE: /tmp/avatar-check/node_modules/playwright
+        run: node tests/ai-avatar-browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ai-avatar-evidence
+          path: |
+            avatar-evidence/
+            public/pandas-data-lab/avatar-vendor/manifest.json

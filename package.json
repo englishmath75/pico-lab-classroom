@@ -9,7 +9,7 @@
     "dev": "vite --config vite.github.config.ts",
     "build": "vite build --config vite.github.config.ts",
     "preview": "vite preview --config vite.github.config.ts",
-    "prebuild": "node scripts/build-student-room.mjs",
+    "prebuild": "node scripts/build-student-room.mjs && node scripts/build-ai-avatar.mjs",
     "build:student": "node scripts/build-student-room.mjs",
     "test:student:rules": "firebase emulators:exec --project demo-englishmath-python --only firestore 'node --test --test-concurrency=1 tests/student-security.test.mjs'",
     "test:student:browser": "firebase emulators:exec --project demo-englishmath-python --only auth,firestore 'node tests/student-browser.mjs'"
