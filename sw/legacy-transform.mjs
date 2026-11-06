@@ -10,6 +10,16 @@ export function transform(name,s){
 
  function replace(a,b){if(!s.includes(a))throw Error(name+': missing patch anchor '+a.slice(0,80));s=s.replace(a,b);}
 
+ // The 00-class pages share the outer SW menu. Retain their topic links without
+ // embedding the old sticky 100vh sidebar in an auto-height classroom frame.
+ if(['python-review.html','math-function-graphs.html','physics-explanation.html','graphics-gallery.html'].includes(name)){
+  const sidebar=s.match(/<aside class="curriculum-side"[^>]*>[\s\S]*?<\/aside>/);
+  const topics=sidebar?.[0].match(/<div class="curriculum-subnav"[^>]*>([\s\S]*?)<\/div>/)?.[1];
+  if(!topics||!s.includes('</header>'))throw Error(name+': review topic navigation missing');
+  s=s.replace(sidebar[0],'').replace(/<link\b[^>]*href=["'][^"']*curriculum-nav\.css[^"']*["'][^>]*\/?\s*>/gi,'');
+  s=s.replace('</header>','</header><nav class="sw-review-topics curriculum-subnav" aria-label="00차시 주제 바로가기">'+topics+'</nav>');
+ }
+
  if(name==='index.html'){
   replace("<section class=\"avatar-launch\" aria-label=\"AI 표정 아바타 실험실 바로가기\"><div><strong>추가 체험 · AI 표정 아바타 실험실</strong><p>동물 8종과 내 표정으로 배우는 Python 조건문 · 카메라 없이도 체험할 수 있어요.</p></div><a href=\"./ai-avatar.html\">아바타 실험실 시작 →</a></section>",'');
   replace("<div class=\"actions\"><a class=\"btn secondary\" href=\"./python-review.html\">00차시 Python 복습 →</a><a class=\"btn primary\" href=\"./lesson01-guide.html\">1차시 수업 시작 →</a><a class=\"btn experience-link\" href=\"./first-analysis.html\">전체체험</a></div>","<div class=\"actions\"><a class=\"btn primary\" href=\"./lesson01-guide.html\">1차시 수업 시작 →</a><a class=\"btn secondary\" href=\"./python-review.html\">00차시 Python 복습 →</a><a class=\"btn ghost\" href=\"/?page=library\">내 학습 이어가기 →</a></div>");

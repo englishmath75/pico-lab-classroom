@@ -23,3 +23,14 @@ html,body,.layout{min-height:0!important} aside.sidebar{position:static!importan
 #home .resource-grid a{overflow-wrap:anywhere}
 @media(max-width:760px){.sw-home-route{grid-template-columns:repeat(2,minmax(0,1fr))}.sw-home-route a{padding:14px 12px}#home .classroom-hero{padding:20px}#home .sw-home-inquiries{grid-template-columns:1fr}}
 @media(max-width:420px){.sw-home-route{grid-template-columns:minmax(0,1fr)}}
+
+/* Topic links inside 00-class content; no second site sidebar or viewport-height loop. */
+.curriculum-layout{display:block!important;min-height:0!important}
+.curriculum-layout .grid>*,.curriculum-layout .grid3>*{min-width:0}
+.sw-review-topics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:14px;margin:0 0 18px;border:1px solid #cfdee6;border-radius:12px;background:#fff}
+.sw-review-topics a{display:flex;align-items:center;min-width:0;padding:10px 12px;border:1px solid #d8e6ec;border-radius:8px;background:#f3f8fa;color:#245166;text-decoration:none;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.sw-review-topics a:hover,.sw-review-topics a:focus-visible{background:#e4f3f3;border-color:#137d80}
+.sw-review-topics a.is-current{background:#dcefee;border-color:#137d80;color:#115e62;font-weight:750}
+.sw-review-topics a.curriculum-explore{background:#fff7e8;border-color:#e2c887;color:#6c501d}
+@media(max-width:900px){.sw-review-topics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.sw-review-topics{grid-template-columns:minmax(0,1fr);padding:10px}.sw-review-topics a{padding:10px}}

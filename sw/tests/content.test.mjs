@@ -31,3 +31,16 @@ test('published lesson and teacher storage guidance matches account storage',asy
  assert(teacher.includes('다른 PC에서도 같은 계정으로 이어서 학습합니다.'));
  assert(teacher.includes('선생님께 제출은 별도로 선택합니다.'));
 });
+
+test('00-class frames retain topic links and original lessons without a nested site sidebar',async()=>{
+ for(const name of ['python-review','math-function-graphs','physics-explanation','graphics-gallery']){
+  const before=await readFile('public/pandas-data-lab/'+name+'.html','utf8'),after=await readFile('dist/sw-content/'+name+'.html','utf8');
+  assert(!after.includes('class="curriculum-side"'),name+' nested site navigation removed');
+  assert(!after.includes('curriculum-nav.css'),name+' viewport-sized sidebar CSS removed');
+  assert(after.includes('aria-label="00차시 주제 바로가기"'));
+  const topics=after.match(/<nav class="sw-review-topics curriculum-subnav"[^>]*>([\s\S]*?)<\/nav>/)?.[1];
+  assert.equal((topics?.match(/<a /g)||[]).length,7,name+' all seven topic links retained');
+  const code=s=>[...s.matchAll(/<pre\b[^>]*>([\s\S]*?)<\/pre>/g)].map(m=>m[1]);
+  assert.deepEqual(code(after),code(before),name+' every teaching code block preserved');
+ }
+});

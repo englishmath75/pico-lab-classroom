@@ -11,7 +11,7 @@ const expect=pwExpect.configure({timeout:25000}),exec=promisify(execFile),projec
 for(const k of ['FIRESTORE_EMULATOR_HOST','FIREBASE_AUTH_EMULATOR_HOST'])if(process.env[k]&&!/^(127\.0\.0\.1|localhost):\d+$/.test(process.env[k]))throw Error('Local emulator only');
 await mkdir(artifacts,{recursive:true});
 const env=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8080,rules:await readFile('sw/security/proposed.rules','utf8')}});
-const people=Object.fromEntries(['student','other','avatar','idle'].map(k=>[k,{uid:'sw-v2-'+k,email:'sw-v2-'+k+'@muhak-g-h.gne.go.kr',name:'SW 검증 '+k}]));
+const people=Object.fromEntries(['student','other','avatar','idle','review'].map(k=>[k,{uid:'sw-v2-'+k,email:'sw-v2-'+k+'@muhak-g-h.gne.go.kr',name:'SW 검증 '+k}]));
 const results=[],errors=[],devices=[],vendorCache=new Map(),dist=resolve('dist');
 let browser,server,origin,lastPage;
 const frame=p=>p.frameLocator('#sw-classroom-frame');
@@ -53,7 +53,7 @@ async function nav(p,id){await p.locator('a[data-route="'+id+'"]').click();await
 async function scenario(name,fn){
  const started=Date.now();try{await fn();results.push({name,status:'PASS',durationMs:Date.now()-started,environment:'Chromium + Firebase emulators'});console.log('PASS',name);}catch(e){results.push({name,status:'FAIL',error:e.message,durationMs:Date.now()-started});throw e;}
 }
-async function shot(p,name){await p.screenshot({path:resolve(artifacts,name+'.png'),fullPage:false});if(['datalab-python-table','lesson-account-restored','avatar-common-menu','layout-390','home-390','home-1440'].includes(name)){const b=await p.screenshot({type:'jpeg',quality:55,fullPage:false});console.log('SW_PREVIEW '+name+' '+b.toString('base64'));}}
+async function shot(p,name){await p.screenshot({path:resolve(artifacts,name+'.png'),fullPage:false});if(['datalab-python-table','lesson-account-restored','avatar-common-menu','layout-390','home-390','home-1440','review-390','review-1440'].includes(name)){const b=await p.screenshot({type:'jpeg',quality:55,fullPage:false});console.log('SW_PREVIEW '+name+' '+b.toString('base64'));}}
 try{
  await seed();const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.svg':'image/svg+xml','.wasm':'application/wasm','.py':'text/plain','.csv':'text/csv'};
  server=createServer(async(req,res)=>{try{let pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);if(pathname.endsWith('/'))pathname+='index.html';const file=resolve(dist,'.'+pathname);if(!file.startsWith(dist+sep))throw Error('path');res.writeHead(200,{'Content-Type':types[extname(file)]||'application/octet-stream'});res.end(await readFile(file));}catch{res.writeHead(404).end();}});
@@ -82,6 +82,41 @@ try{
   for(const width of [390,1440]){await p.setViewportSize({width,height:1000});await expect.poll(()=>p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);await expect.poll(()=>frame(p).locator('body').evaluate(e=>e.scrollWidth<=e.ownerDocument.documentElement.clientWidth+2)).toBe(true);await shot(p,'home-'+width);}
 
   await p.context().close();
+ });
+
+ await scenario('00-class content starts immediately, topic routes work and saved quiz restores',async()=>{
+  const {page:p,context}=await device('/python-review.html');const f=frame(p);
+  for(const width of [1440,390]){
+   await p.setViewportSize({width,height:1000});await p.goto(origin+'/?page=python-review');
+   await expect(f.locator('h1')).toHaveText('Python으로 그리는 수학과 움직임');
+   await expect(f.locator('.curriculum-side')).toHaveCount(0);await expect(f.locator('.sw-review-topics a')).toHaveCount(7);
+   const box=await f.locator('main').evaluate(e=>({top:e.getBoundingClientRect().top,width:e.getBoundingClientRect().width,viewport:e.ownerDocument.documentElement.clientWidth}));
+   assert(box.top<30&&box.width>box.viewport-40,'review body starts at top and uses available width');
+   await expect.poll(()=>p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+   await expect.poll(()=>f.locator('body').evaluate(e=>e.scrollWidth<=e.ownerDocument.documentElement.clientWidth+2)).toBe(true);
+   const height=await p.locator('#sw-classroom-frame').evaluate(e=>e.getBoundingClientRect().height);assert(height<40000,'no viewport-height feedback loop');
+   await f.locator('#degree').focus();await f.locator('#degree').press('ArrowRight');await expect(f.locator('#degreeValue')).toHaveText('46°');
+   await expect.poll(()=>p.locator('#sw-classroom-frame').evaluate(e=>e.getBoundingClientRect().height)).toBeLessThan(height+30);
+   await p.evaluate(()=>scrollTo(0,document.querySelector('#sw-classroom-frame').offsetTop));await shot(p,'review-'+width);
+  }
+  await p.setViewportSize({width:1440,height:1000});
+  for(const [label,hash] of [['Turtle·삼각함수','turtle'],['속도·중력 시뮬레이션','physics']]){
+   await f.locator('.sw-review-topics').getByRole('link',{name:label,exact:true}).click();
+   await expect(p).toHaveURL(new RegExp('page=python-review#'+hash));await expect(f.locator('#'+hash)).toBeVisible();
+  }
+  for(const [label,pageId] of [['수학 함수 그래프 그리기','math-function-graphs'],['화면 좌표계·물리 원리','physics-explanation'],['그래픽 작품 체험실','graphics-gallery']]){
+   await f.locator('.sw-review-topics').getByRole('link',{name:label,exact:true}).click();
+   await expect(p).toHaveURL(new RegExp('page='+pageId+'$'));await expect(f.locator('.curriculum-side')).toHaveCount(0);
+   assert(await f.locator('main').evaluate(e=>e.getBoundingClientRect().top<30));await expect(f.locator('.sw-review-topics a')).toHaveCount(7);
+  }
+  await f.locator('.sw-review-topics').getByRole('link',{name:'Python 기초·자료구조',exact:true}).click();await expect(p).toHaveURL(/page=python-review#basics/);
+  await login(p,people.review);await f.locator('input[name=quiz0][value="0"]').check();await f.locator('#grade').click();await expect(f.locator('#score')).toHaveText('1 / 12문항 정답');
+  await p.locator('#sw-save').click();await expect(p.locator('#sw-save-state')).toContainText('클라우드 저장 완료',{timeout:50000});
+  assert.deepEqual((await value(people.review.uid,'sw2-basics')).answers,{quiz0:'0'});
+  await p.locator('#sw-end').click();await expect(p.locator('#sw-user')).toHaveText('로그인 전');await context.close();
+  const restored=await device('/?page=python-review');await login(restored.page,people.review);
+  await expect(frame(restored.page).locator('input[name=quiz0][value="0"]')).toBeChecked();await expect(frame(restored.page).locator('#score')).toHaveText('1 / 12문항 정답');
+  await restored.page.locator('#sw-end').click();await expect(restored.page.locator('#sw-user')).toHaveText('로그인 전');await restored.context.close();
  });
  await scenario('isolated Python: input, Korean matplotlib, PNG download, loop stop and denied network',async()=>{
   const {page:p}=await device('/?page=practice&workspace=scratch-01');await expect(p.locator('#sw-code')).toBeVisible();
