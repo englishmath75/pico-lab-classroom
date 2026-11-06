@@ -1,0 +1,23 @@
+2026-11-06T16:29:16.4312356Z # tests 19
+2026-11-06T16:29:16.4314605Z # pass 19
+2026-11-06T16:29:16.4315015Z # fail 0
+2026-11-06T16:29:39.0272448Z # {"environment":"29 emulator identities, no real PCs or browser/CDN load","students":29,"durationMs":916,"status":"PASS"}
+2026-11-06T16:29:42.4977376Z # tests 35
+2026-11-06T16:29:42.4982101Z # pass 35
+2026-11-06T16:29:42.4982984Z # fail 0
+2026-11-06T16:29:55.2909912Z Ran 2 tests in 0.009s
+2026-11-06T16:29:55.9070709Z PASS: 1054 internal links; course entry points; all video catalog assets
+2026-11-06T16:29:59.1431538Z # tests 2
+2026-11-06T16:29:59.1433232Z # pass 2
+2026-11-06T16:29:59.1434190Z # fail 0
+2026-11-06T16:30:59.4061562Z PASS native data lab: pandas-only first program, actual Python table and unit navigation
+2026-11-06T16:31:19.6565456Z PASS isolated Python: input, Korean matplotlib, PNG download, loop stop and denied network
+2026-11-06T16:32:24.6841417Z PASS one login survives menu movement; 60-second automatic code save
+2026-11-06T16:33:58.7518192Z PASS step predictions/input, ungraded review, seven report fields and data lab stay dirty across screens
+2026-11-06T16:34:01.2295536Z PASS separate browser context restores server records; next shared-PC account cannot see prior answers
+2026-11-06T16:34:34.5090231Z PASS owned file preview, conflict choice, duplicate import, offline export and history restoration
+2026-11-06T16:34:40.4432187Z PASS avatar: zero writes, no automatic camera, MOCK_MEDIA start/stop/dispose and memory cleared
+2026-11-06T16:34:41.0837067Z PASS MOCK_MEDIA permission denial falls back to camera-free avatar without persistence
+2026-11-06T16:34:41.7205099Z PASS idle warning and 15-minute clearing use fake clock, never a real school-PC claim
+2026-11-06T16:34:42.5105620Z PASS inquiry D retains code, explanation, self-check and graded knowledge answers across internal navigation
+2026-11-06T16:34:43.6490649Z PASS legacy links, responsive 390/1440/1920, keyboard and 200 percent text scaling
