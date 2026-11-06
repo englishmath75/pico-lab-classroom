@@ -67,7 +67,7 @@ addEventListener('DOMContentLoaded',()=>{
   const p=document.createElement('p');p.className='notice';p.textContent='사용자 CSV는 서버로 보내지 않습니다. 다른 PC에서는 CSV를 다시 선택하세요. 작성한 해석과 자기 점검은 계정에 저장합니다.';$('file').parentElement.append(p);
  }
  if(api.id==='data'||api.id==='lab'){
-  const n=document.createElement('p');n.className='notice';n.textContent='직접 선택한 CSV 파일은 계정에 업로드하지 않습니다. 다른 PC에서는 코드를 불러온 뒤 CSV를 다시 선택하세요. 교재의 가상 자료는 저장·복원할 수 있습니다.';$('uploadCsv')?.parentElement.append(n);
+  const n=document.createElement('p');n.className='notice';n.textContent=api.value('sw2-free-state').dataMode==='user-file'&&!$('csvInput')?.value?'코드는 복원되었습니다. 사용자 CSV 재선택이 필요합니다. 파일 내용은 계정에 업로드하지 않았습니다.':'직접 선택한 CSV 파일은 계정에 업로드하지 않습니다. 다른 PC에서는 코드를 불러온 뒤 CSV를 다시 선택하세요. 교재의 가상 자료는 저장·복원할 수 있습니다.';$('uploadCsv')?.parentElement.append(n);
  }
  const resize=()=>api.height(Math.ceil(document.body.getBoundingClientRect().height));
  const observer=new ResizeObserver(resize);observer.observe(document.body);resize();

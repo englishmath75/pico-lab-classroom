@@ -6,7 +6,7 @@ let cachedBytes=0;
 const MAX_CACHE_BYTES=48*1024*1024;
 const sourceCache = new Map<string, Promise<string>>();
 function source(path: string) {
-  if (!sourceCache.has(path)) sourceCache.set(path, fetch(path, {credentials:"same-origin", redirect:"error"}).then(async response => {
+  if (!sourceCache.has(path)) sourceCache.set(path, fetch(path, {cache:"no-cache",credentials:"same-origin", redirect:"error"}).then(async response => {
     if (!response.ok) throw new Error("실행기 파일을 불러오지 못했습니다.");
     return response.text();
   }).catch(error => {sourceCache.delete(path); throw error;}));
@@ -51,7 +51,7 @@ export class IsolatedWorker {
       if (++this.assetCount > 100 || url.origin !== location.origin || url.search || url.hash || !allowed.has(url.pathname)) throw new Error("허용된 정적 실행 파일만 읽을 수 있습니다.");
       let asset=assetCache.get(url.pathname);
       if (!asset) {
-        const response = await fetch(url.pathname,{credentials:"same-origin",redirect:"error",signal:this.abort.signal});
+        const response = await fetch(url.pathname,{cache:"no-cache",credentials:"same-origin",redirect:"error",signal:this.abort.signal});
         if (!response.ok) throw new Error("실행 패키지를 불러오지 못했습니다.");
         const bytes=await response.arrayBuffer();
         if(bytes.byteLength>32*1024*1024)throw new Error("실행 파일 크기 제한 초과");

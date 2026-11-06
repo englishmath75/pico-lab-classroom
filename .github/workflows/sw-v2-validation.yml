@@ -37,6 +37,8 @@ jobs:
           python3 sw/publisher/package_site.py dist --source-sha "$GITHUB_SHA"
           python3 sw/publisher/finalize_brand.py --dist dist --source-sha "$GITHUB_SHA"
           python3 sw/publisher/check_site.py dist
+      - name: Original lesson, data and integration invariants
+        run: node --test sw/tests/content.test.mjs
       - run: npx playwright install --with-deps chromium
       - name: Actual browser, isolated Python, and emulator storage
         run: npx firebase emulators:exec --config sw/firebase.test.json --project demo-englishmath-python --only auth,firestore 'node sw/tests/browser.mjs'
@@ -54,3 +56,42 @@ jobs:
             sw/evidence/
             firestore-debug.log
           if-no-files-found: ignore
+
+  rollback:
+    name: Rebuild preserved SW source/publisher pair
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: englishmath75/pico-lab-classroom
+          ref: c38e7ce5e057b68898d086dde1caaaceae4f6d00
+          path: baseline
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: englishmath75/sw
+          ref: 17162105ba32ac5075017115901800cb298068a0
+          path: publisher
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: baseline/package-lock.json
+      - name: Rebuild known good pair without publication
+        working-directory: baseline
+        run: |
+          npm ci
+          mkdir -p public/downloads
+          base64 --decode public/downloads/arduino-foundations.docx.b64 > public/downloads/arduino-foundations.docx
+          npm run build -- --base=/sw/
+          python3 ../publisher/scripts/test_package.py
+          python3 ../publisher/scripts/package_site.py dist --source-sha c38e7ce5e057b68898d086dde1caaaceae4f6d00
+          python3 ../publisher/scripts/finalize_brand.py --dist dist --source-sha c38e7ce5e057b68898d086dde1caaaceae4f6d00
+          python3 ../publisher/scripts/check_site.py dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sw-rollback-baseline
+          path: baseline/dist/
+          retention-days: 14

@@ -47,7 +47,7 @@ const aliases=Object.fromEntries(Object.entries(routes).filter(([,r])=>r.file&&r
 export function resolveRoute(input,base='https://sw.englishmath.kr/'){
  const u=new URL(input,base);if(u.origin!==new URL(base).origin)return null;
  const name=u.pathname.split('/').filter(Boolean).pop()||'index.html';
- let page=u.searchParams.get('page')||aliases[name]||(name==='student-room.html'?(u.searchParams.get('panel')==='library'?'library':u.searchParams.get('panel')==='teacher'?'teacher':'practice'):name==='data-lab'?'data-lab':name==='index.html'?'home':null);
+ let page=u.searchParams.get('page')||aliases[name]||(name==='student-room.html'?(u.searchParams.get('panel')==='library'?'library':u.searchParams.get('panel')==='teacher'?'teacher':'practice'):name==='data-lab'||u.pathname.endsWith('/data-lab/index.html')?'data-lab':name==='index.html'?'home':null);
  if(page==='review')page='python-review';
  if(!routes[page])return null;
  const q=new URLSearchParams({page});

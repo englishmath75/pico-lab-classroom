@@ -6,13 +6,13 @@ export const keys={
  turtle:'englishmath-inquiry-c-four-turtles-v1',reason:'englishmath-inquiry-c-four-turtles-v1-reason'
 };
 export function rawFor(key,store){
- if(store.temp.has(key))return store.temp.get(key);
+ let transient;try{transient=JSON.parse(store.temp.get(key)||'null');}catch{}
  const get=id=>store.get(id);let data;
  if(key===keys.step){data={lesson:0,records:{}};for(let i=0;i<10;i++){const meta=get('sw2-lesson-'+num(i)+'-state');data.records[i]={...meta,code:get('lesson-'+num(i))};}}
  if(key===keys.main){
   const free=get('sw2-free-state'),review=get('sw2-review');
   data={done:[],answers:{},lesson:0,code:get('sw2-free-code'),report:get('sw2-report'),exam:review.answers||{},examGraded:!!review.graded,wrong:review.wrong||[],examFilter:review.filter||'all',...free};
-  if(!data.csv||free.dataMode==='user-file')delete data.csv;
+  if(!data.csv)delete data.csv;if(free.dataMode==='user-file')data.csv=transient?.dataMode==='user-file'&&typeof transient.csv==='string'?transient.csv:'';
   for(let i=0;i<10;i++){const a=get('sw2-archive-'+num(i));data.answers[i]=a.answers||{};if(a.completed)data.done.push(i);}
  }
  if(key===keys.final||key===keys.mastery){
@@ -59,6 +59,7 @@ export function updateRaw(key,raw,store,previous,{initial=false}={}){
  if(initial)return;
  for(const [id,value] of Object.entries(projected)){
   if(JSON.stringify(value)===JSON.stringify(before[id]))continue;
+  if(id==='sw2-free-state'&&store.providedData?.[value.dataset])value.providedData=store.providedData[value.dataset];
   if(id==='sw2-inquiry-d-state')store.set(id,{...store.get(id),...value});else store.set(id,value);
  }
 }

@@ -1,0 +1,125 @@
+name: SW classroom publish
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+permissions:
+  contents: read
+  actions: read
+  pages: write
+  id-token: write
+concurrency:
+  group: sw-pages
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    outputs:
+      changed: ${{ steps.pin.outputs.changed }}
+      source_sha: ${{ steps.pin.outputs.source_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - id: pin
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: node scripts/check-release.mjs
+  build:
+    needs: check
+    if: needs.check.outputs.changed == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: publisher
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: englishmath75/pico-lab-classroom
+          ref: ${{ needs.check.outputs.source_sha }}
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: source/package-lock.json
+      - name: Build pinned SW source
+        working-directory: source
+        env:
+          SW_SOURCE_SHA: ${{ needs.check.outputs.source_sha }}
+        run: |
+          npm ci
+          mkdir -p public/downloads
+          base64 --decode public/downloads/arduino-foundations.docx.b64 > public/downloads/arduino-foundations.docx
+          if node -e "process.exit(require('./package.json').scripts['build:sw'] ? 0 : 1)"; then
+            npm ci --prefix sw
+            npm run build:sw
+          else
+            npm run build -- --base=/sw/
+          fi
+      - name: Existing publication contracts
+        env:
+          SOURCE_SHA: ${{ needs.check.outputs.source_sha }}
+          PUBLISHER_SHA: ${{ github.sha }}
+        run: |
+          python3 publisher/scripts/test_package.py
+          python3 publisher/scripts/package_site.py source/dist --source-sha "$SOURCE_SHA"
+          python3 publisher/scripts/finalize_brand.py --dist source/dist --source-sha "$SOURCE_SHA"
+          python3 publisher/scripts/check_site.py source/dist
+          node publisher/scripts/stamp-release.mjs source/dist
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: source/dist
+  deploy:
+    needs: [check,build]
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+        with:
+          path: publisher
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: englishmath75/pico-lab-classroom
+          ref: ${{ needs.check.outputs.source_sha }}
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: source/package-lock.json
+      - name: Verify public version and course identity
+        env:
+          SOURCE_SHA: ${{ needs.check.outputs.source_sha }}
+        run: |
+          mkdir -p verification
+          python3 publisher/scripts/finalize_brand.py --live --source-sha "$SOURCE_SHA" > verification/public-check.json
+      - name: Prepare public browser verification
+        working-directory: source
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Verify deployed internal Python and avatar
+        working-directory: source
+        env:
+          SOURCE_SHA: ${{ needs.check.outputs.source_sha }}
+          VERIFICATION_DIR: ../verification
+        run: node ../publisher/scripts/verify-live.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sw-production-verification
+          path: verification/
+          retention-days: 30

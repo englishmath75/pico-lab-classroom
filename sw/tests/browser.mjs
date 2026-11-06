@@ -64,6 +64,12 @@ try{
   await p.getByRole('button',{name:'▶ 실제 Python 실행',exact:true}).click();
   await expect(p.getByTestId('data-status')).toContainText('실행 완료',{timeout:150000});await expect(p.getByTestId('data-stdout')).toContainText('(3, 2)');
   await expect(p.locator('table').first()).toBeVisible();await shot(p,'datalab-python-table');
+  for(const [unit,example,expected] of [['SW03',null,'(2, 2)'],['SW03','iloc · 위치 0:1','(1, 2)'],['SW04',null,'(2, 2)'],['SW04','판매량 내림차순','[20, 30, 10]']]){
+   if(!example)await p.locator('nav[aria-label="데이터 차시"] button').filter({hasText:unit==='SW03'?'loc와 iloc':'남기고'}).click();
+   else{p.once('dialog',d=>d.accept());await p.getByRole('button',{name:example,exact:true}).click();}
+   await p.getByRole('button',{name:'▶ 실제 Python 실행',exact:true}).click();await expect(p.getByTestId('data-status')).toContainText('실행 완료',{timeout:150000});await expect(p.getByTestId('data-stdout')).toContainText(expected);await expect(p.locator('table').first()).toBeVisible();
+   await p.getByRole('button',{name:'이전 단계',exact:true}).click();await expect(p.getByRole('button',{name:'다음 단계',exact:true})).toBeEnabled();await p.getByRole('button',{name:'최종 결과',exact:true}).click();
+  }
   await nav(p,'home');await expect(p.locator('iframe[sandbox]')).toHaveCount(0);
   await p.locator('.sw-external a').evaluate(a=>({href:a.href,target:a.target})).then(a=>{assert.equal(a.href,'https://englishmath-python.vercel.app/data-lab');assert.equal(a.target,'_blank');});
   await expect(p.locator('.sw-external')).toContainText('새 파이썬 교실 체험 ↗');await expect(p.locator('#sw-save')).toBeHidden();

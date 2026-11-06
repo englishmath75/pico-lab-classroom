@@ -7,8 +7,9 @@ import {routes,activityIds} from '../sw/src/registry.js';
 const out=path.resolve('dist/pandas-data-lab'),assets=path.join(out,'sw-assets'),runtime=path.join(out,'sw-runtime');
 await mkdir(assets,{recursive:true});await mkdir(path.join(out,'sw-content'),{recursive:true});await mkdir(path.join(runtime,'pyodide'),{recursive:true});
 const json=async p=>JSON.parse(await readFile(p,'utf8')),sha=bytes=>createHash('sha256').update(bytes).digest('hex');
-const lessons=await json('sw/datalab/content/sw-visual-lessons.json');
-await writeFile('sw/provided-data.json',JSON.stringify(Object.fromEntries(lessons.map(l=>[l.id,{id:l.id,version:l.contentVersion,sha256:sha(l.csv),source:'provided-fictional'}])),null,2));
+const sourceVersion=process.env.SW_SOURCE_SHA||process.env.GITHUB_SHA||'local';
+const lessons=await json('sw/datalab/content/sw-visual-lessons.json');const legacyData=await json('sw/legacy-datasets.json');
+await writeFile('sw/provided-data.json',JSON.stringify(Object.fromEntries([...lessons.map(l=>[l.id,{id:l.id,version:l.contentVersion,sha256:sha(l.csv),source:'provided-fictional'}]),...Object.entries(legacyData).map(([id,d])=>[id,{id,version:'SW-20261106',sha256:sha(d.csv),source:'provided-fictional'}])]),null,2));
 await build({entryPoints:['sw/src/app.js'],outfile:path.join(assets,'app.js'),bundle:true,minify:true,format:'esm',platform:'browser',target:'es2022',jsx:'automatic',sourcemap:false,legalComments:'eof'});
 await build({entryPoints:['sw/src/legacy-bridge.js'],outfile:path.join(assets,'legacy-bridge.js'),bundle:true,minify:true,format:'iife',target:'es2022'});
 await cp('sw/src/styles.css',path.join(assets,'site.css'));await cp('sw/src/legacy.css',path.join(assets,'legacy.css'));
@@ -76,5 +77,14 @@ for(const font of await json('sw/font-lock.json')){
 }
 for(const asset of await json('sw/datalab/content/runtime-assets.json'))await stat(path.join(out,asset));
 await cp('sw/datalab/NOTICE.md',path.join(runtime,'NOTICE.md'));await cp('sw/datalab/LICENSE',path.join(runtime,'LICENSE'));
-await writeFile(path.join(out,'sw-build.json'),JSON.stringify({schemaVersion:2,sourceSha:process.env.GITHUB_SHA||'local',baseline:'c38e7ce5e057b68898d086dde1caaaceae4f6d00',datalabSource:'0c9ecc02c9f631edd5da48dd0126aef640887629',activityIds,runtime:manifest},null,2));
+await writeFile(path.join(out,'sw-build.json'),JSON.stringify({schemaVersion:2,sourceSha:sourceVersion,baseline:'c38e7ce5e057b68898d086dde1caaaceae4f6d00',datalabSource:'0c9ecc02c9f631edd5da48dd0126aef640887629',activityIds,runtime:manifest},null,2));
 console.log('SW integrated build ready; source content preserved; '+activityIds.length+' finite activity IDs.');
+
+const names=await readdir(assets),renamed=new Map();
+for(const name of names){if(!/\.(?:js|css)$/.test(name))continue;const bytes=await readFile(path.join(assets,name)),hashed=name.replace(/\.(js|css)$/,'.'+sha(bytes).slice(0,12)+'.$1');await cp(path.join(assets,name),path.join(assets,hashed));renamed.set(name,hashed);}
+async function versionHtml(dir){for(const entry of await readdir(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory()){await versionHtml(file);continue;}if(!entry.name.endsWith('.html'))continue;let s=await readFile(file,'utf8');
+ for(const [name,hashed] of renamed)s=s.replaceAll('/sw-assets/'+name,'/sw-assets/'+hashed);
+ s=s.replace(/\b(src|href)=(["'])(?!https?:|data:)([^"']+\.(?:js|css))(?:\?[^"']*)?\2/g,(_,attr,q,url)=>attr+'='+q+url+'?v='+sourceVersion.slice(0,12)+q);
+ await writeFile(file,s);
+}}
+await versionHtml(out);

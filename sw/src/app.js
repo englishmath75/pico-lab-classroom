@@ -191,7 +191,7 @@ import providedData from '../provided-data.json';
      ['최근 이력',async()=>{
       const history=await cloud.service.revisions(user.uid,id);if(gen!==viewGeneration)return;$('sw-history').replaceChildren();
       for(const old of history){const b=document.createElement('button');b.className='btn secondary';b.textContent=titleFor(id)+' · 이전 버전 '+old.version+' 복원';
-       b.onclick=async()=>{if(await ask('이전본 복원','이전본을 현재 활동의 새 버전으로 저장합니다. 현재 초안은 먼저 내려받을 수 있습니다.',[['restore','새 버전으로 복원'],['cancel','취소']])!=='restore')return;if(gen!==viewGeneration)return;await store.prepare([id]);if(gen!==viewGeneration)return;if(store.errors.has(id)){say('현재 저장본을 읽지 못했습니다.',true);return;}if(structured(id))decode(id,old.code);store.draft(id).update({title:old.title,code:old.code,completed:!!old.completed,runState:old.runState||'idle'});await store.flush([id]);await navigate(routeForActivity(id));};$('sw-history').append(b);
+       b.onclick=async()=>{if(await ask('이전본 복원','이전본을 현재 활동의 새 버전으로 저장합니다. 현재 초안은 먼저 내려받을 수 있습니다.',[['restore','새 버전으로 복원'],['cancel','취소']])!=='restore')return;if(gen!==viewGeneration)return;await store.prepare([id]);if(gen!==viewGeneration)return;if(store.errors.has(id)){say('현재 저장본을 읽지 못했습니다.',true);return;}if(structured(id))decode(id,old.code);store.draft(id).update({title:old.title,code:old.code,completed:!!old.completed,runState:old.runState||'idle'});await store.flush([id]);store.temp.clear();await navigate(routeForActivity(id));};$('sw-history').append(b);
       }
      }]
     ]){const b=document.createElement('button');b.className='btn secondary';b.textContent=label;b.onclick=()=>Promise.resolve(fn()).catch(e=>say(e.message,true));row.append(b);}
@@ -291,7 +291,7 @@ import providedData from '../provided-data.json';
  async function boot(){
   const response=await fetch('/student-config.json',{cache:'no-store'});if(!response.ok)throw Error('로그인 설정을 불러오지 못했습니다.');
   const config=await response.json(),emulator=config.emulator===true&&['localhost','127.0.0.1'].includes(location.hostname)&&config.firebase?.projectId==='demo-englishmath-python';
-  cloud=createCloud(config.firebase,emulator);store=new ClassroomStore(cloud.service,{onChange:updateStatus});
+  cloud=createCloud(config.firebase,emulator);store=new ClassroomStore(cloud.service,{onChange:updateStatus});store.providedData=providedData;
   $('sw-refresh').onclick=async()=>{const uid=user?.uid,gen=sessionGeneration;if(!uid)return;try{const next=await cloud.identity(user);if(uid!==user?.uid||gen!==sessionGeneration)return;identity=next;store.writable=next.profile?.status==='approved';$('sw-registration').hidden=!!next.profile||!!next.staff;await navigate(route.url,{replace:true});updateStatus();}catch(e){say(readableError(e),true);}};
   $('sw-login').onclick=()=>void login();$('sw-end').onclick=()=>void finish();$('sw-export').onclick=backup;
   $('sw-save').onclick=async()=>{const ok=await store.flush();if(!ok)say('아직 저장되지 않은 초안이 있습니다. 위쪽 상태를 확인해 주세요.',true);};

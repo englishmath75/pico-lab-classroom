@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {ClassroomStore,encode,decode} from '../src/store.js';
+import {rawFor,updateRaw,keys} from '../src/models.js';
 import {SpaceWriteQueue} from '../src/write-queue.js';
 import {activityIds,newIds,legacyIds,resolveRoute,routeForActivity,structured} from '../src/registry.js';
 const defer=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return{promise,resolve,reject};};
@@ -94,4 +95,21 @@ test('valid envelope with malformed field shapes cannot overwrite a server recor
  records.set('a/sw2-lesson-01-state',{code,title:'raw',version:7});await store.prepare(['sw2-lesson-01-state']);
  assert.equal(await store.flush(['sw2-lesson-01-state']),false);assert.equal(store.set('sw2-lesson-01-state',{predict:{0:'new'}}),false);
  assert.equal(store.draft('sw2-lesson-01-state').data.code,code);assert.equal(writes.length,0);
+});
+
+test('opening report before review never hides the later server-loaded answers',async()=>{
+ const {store,records}=fixture();records.set('a/sw2-report',{code:encode('sw2-report',{question:'saved report'}),version:1});
+ records.set('a/sw2-review',{code:encode('sw2-review',{answers:{0:1,1:2},graded:false,wrong:[],filter:'all'}),version:1});
+ await store.prepare(['sw2-report']);const first=rawFor(keys.main,store);updateRaw(keys.main,first,store,first,{initial:true});
+ await store.prepare(['sw2-review']);const restored=JSON.parse(rawFor(keys.main,store));
+ assert.deepEqual(restored.exam,{0:1,1:2});assert.equal(restored.report.question,'saved report');assert.equal(store.dirty().length,0);
+});
+test('selected user CSV remains only in this session while code and file mode can restore',async()=>{
+ const {store,service}=fixture();await store.prepare(['sw2-free-code','sw2-free-state']);
+ const first=rawFor(keys.main,store),x=JSON.parse(first);x.code='print(1)';x.dataMode='user-file';x.csv='private_csv_fixture';
+ updateRaw(keys.main,JSON.stringify(x),store,first);await store.flush();
+ assert.equal(JSON.parse(rawFor(keys.main,store)).csv,'private_csv_fixture');
+ const saved=await service.load('a','sw2-free-state');assert(!saved.code.includes('private_csv_fixture'));
+ const next=new ClassroomStore(service,{gap:0});next.change('a',true);await next.prepare(['sw2-free-code','sw2-free-state']);
+ assert.equal(JSON.parse(rawFor(keys.main,next)).csv,'');assert.equal(next.get('sw2-free-code'),'print(1)');
 });
