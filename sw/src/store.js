@@ -30,8 +30,8 @@ export class ClassroomStore{
  async prepare(ids){
   return Promise.all(ids.map(async id=>{
    const d=this.draft(id);
-   if(this.writable&&!d.loaded){
-    try{await d.load();if(structured(id))decode(id,d.data.code);this.errors.delete(id);}
+   if(this.writable&&(!d.loaded||this.errors.has(id))){
+    try{await d.load({force:this.errors.has(id)});if(structured(id))decode(id,d.data.code);this.errors.delete(id);}
     catch(e){this.errors.set(id,e);}
    }
    return d;

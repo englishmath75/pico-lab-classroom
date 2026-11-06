@@ -113,3 +113,10 @@ test('selected user CSV remains only in this session while code and file mode ca
  const next=new ClassroomStore(service,{gap:0});next.change('a',true);await next.prepare(['sw2-free-code','sw2-free-state']);
  assert.equal(JSON.parse(rawFor(keys.main,next)).csv,'');assert.equal(next.get('sw2-free-code'),'print(1)');
 });
+
+test('a repaired malformed server record can be retried without losing its original before success',async()=>{
+ const {store,records}=fixture();records.set('a/sw2-report',{code:'broken',version:1});
+ await store.prepare(['sw2-report']);assert(store.errors.has('sw2-report'));
+ records.set('a/sw2-report',{title:'repaired',code:encode('sw2-report',{question:'recovered'}),version:2});
+ await store.prepare(['sw2-report']);assert.equal(store.errors.size,0);assert.equal(store.get('sw2-report').question,'recovered');assert.equal(store.dirty().length,0);
+});

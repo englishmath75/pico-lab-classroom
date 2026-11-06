@@ -91,11 +91,17 @@ try{
   await expect.poll(async()=> (await record(people.student.uid,'lesson-01'))?.code,{timeout:100000}).toBe('print("'+fixture+'")');
   await expect(p.locator('#sw-save-state')).toContainText('클라우드 저장 완료');
   for(const id of ['home','data','exam','report','python-review','data-lab','library','lesson']){await nav(p,id);await expect(p.locator('#sw-user')).toContainText(people.student.name);assert.equal(await p.evaluate(()=>performance.timeOrigin),t);}
-  await expect(frame(p).locator('#editor')).toHaveValue('print("'+fixture+'")');await shot(p,'lesson-account-restored');
+  await expect(frame(p).locator('#editor')).toHaveValue('print("'+fixture+'")');
+  await frame(p).locator('#lessonPicker summary').click();await frame(p).locator('.lesson-nav[data-lesson="1"]').click();await expect(p).toHaveURL(/page=lesson&lesson=2/);await expect(frame(p).locator('#heroTitle')).toContainText('2차시');
+  await frame(p).locator('#lessonPicker summary').click();await frame(p).locator('.lesson-nav[data-lesson="0"]').click();await expect(frame(p).locator('#editor')).toHaveValue('print("'+fixture+'")');await shot(p,'lesson-account-restored');
  });
  await scenario('step predictions/input, ungraded review, seven report fields and data lab stay dirty across screens',async()=>{
   const p=school.page;await frame(p).locator('#predictInput').fill('예측 '+fixture);await frame(p).locator('#reflection').fill('해석 '+fixture);await frame(p).locator('#stdin').fill('7\n8');await frame(p).locator('#lessonQuiz input[type=radio]').first().check();
+  await frame(p).locator('#addExample').click();await frame(p).locator('#run').click();await expect(frame(p).locator('#next')).toBeEnabled({timeout:150000});await frame(p).locator('#next').click();await expect(frame(p).locator('#stepNumber')).toContainText('2단계');await frame(p).locator('#predictInput').fill('예측 '+fixture);await frame(p).locator('#gradeQuiz').click();
   await nav(p,'exam');await frame(p).locator('input[name=eq0][value="1"]').check();await frame(p).locator('input[name=eq1][value="2"]').check();
+  await frame(p).locator('#gradeExam').click();await expect(frame(p).locator('#examResult')).toContainText('/ 20점');await frame(p).locator('#sw-exam-filter').selectOption('wrong');await expect(frame(p).locator('#examQuiz .quiz-item:visible').first()).toBeVisible();
+  await frame(p).locator('#sw-exam-filter').selectOption('all');await frame(p).locator('#retryExam').click();await expect(frame(p).locator('input[type=radio]:checked')).toHaveCount(0);
+  await frame(p).locator('input[name=eq0][value="1"]').check();await frame(p).locator('input[name=eq1][value="2"]').check();await frame(p).locator('#sw-exam-filter').selectOption('wrong');
   await nav(p,'report');const fields=frame(p).locator('[data-report]');await expect(fields).toHaveCount(7);for(let i=0;i<7;i++)await fields.nth(i).fill(fixture+' 보고서 '+i);
   await nav(p,'data-lab');await p.locator('.cm-content').fill('import pandas as pd\ndf = pd.DataFrame({"값":[1,2]})\nbefore = df.copy()\nresult = df.copy()\nprint(result.shape)');
   await p.getByLabel('예측한 답').first().fill('(2, 1)');await p.getByLabel('분석·해석').fill('두 행 한 열 '+fixture);
@@ -106,12 +112,27 @@ try{
  });
  await scenario('separate browser context restores server records; next shared-PC account cannot see prior answers',async()=>{
   home=await device('/?page=report');const p=home.page;assert.notEqual(home.context,school.context);await login(p,people.student);
-  await expect(frame(p).locator('[data-report=question]')).toHaveValue(fixture+' 보고서 0');await nav(p,'exam');await expect(frame(p).locator('input[name=eq0][value="1"]')).toBeChecked();
-  await nav(p,'lesson');await expect(frame(p).locator('#predictInput')).toHaveValue('예측 '+fixture);await expect(frame(p).locator('#reflection')).toHaveValue('해석 '+fixture);await expect(frame(p).locator('#stdin')).toHaveValue('7\n8');
+  await expect(frame(p).locator('[data-report=question]')).toHaveValue(fixture+' 보고서 0');await nav(p,'exam');await expect(frame(p).locator('input[name=eq0][value="1"]')).toBeChecked();await expect(frame(p).locator('#sw-exam-filter')).toHaveValue('wrong');await expect(frame(p).locator('#examResult')).toHaveText('');
+  await nav(p,'lesson');await expect(frame(p).locator('#predictInput')).toHaveValue('예측 '+fixture);await expect(frame(p).locator('#reflection')).toHaveValue('해석 '+fixture);await expect(frame(p).locator('#stdin')).toHaveValue('7\n8');await expect(frame(p).locator('#stepNumber')).toContainText('2단계');await expect(frame(p).locator('#completeLabel')).toContainText('1 / 5');await expect(frame(p).locator('#quizScore')).toContainText('/ 2 정답');
   await nav(p,'data-lab');await expect(p.getByLabel('분석·해석')).toHaveValue('두 행 한 열 '+fixture);await expect(p.getByLabel('예측한 답').first()).toHaveValue('(2, 1)');
   await nav(p,'library');await expect(p.locator('.sw-record')).toHaveCount(6);
   await p.locator('#sw-end').click();await expect(p.locator('#sw-user')).toHaveText('로그인 전');await login(p,people.other);await nav(p,'report');await expect(frame(p).locator('[data-report=question]')).toHaveValue('');await nav(p,'lesson');await expect(frame(p).locator('#editor')).toHaveValue('');
   await p.context().close();await school.context.close();
+ });
+ await scenario('owned file preview, conflict choice, duplicate import, offline export and history restoration',async()=>{
+  const {page:p,context}=await device('/?page=practice&workspace=scratch-01');
+  await p.evaluate(()=>localStorage.setItem('pandas-data-detective-v1',JSON.stringify({code:'UNKNOWN_PREVIOUS_OWNER',report:{question:'not mine'},answers:{}})));
+  await login(p,people.other);await expect(p.locator('#sw-code')).toHaveValue('');assert.equal(await record(people.other.uid,'scratch-01'),null);
+  await p.locator('#sw-code').fill('print("owned first")');await context.setOffline(true);await p.locator('#sw-save').click();await expect(p.locator('#sw-save-state')).toContainText('저장 실패');await expect(p.locator('#sw-code')).toHaveValue('print("owned first")');
+  const dl=p.waitForEvent('download');await p.locator('#sw-export').click();const download=await dl;await download.saveAs(resolve(artifacts,'offline-fictional-backup.json'));assert((await readFile(resolve(artifacts,'offline-fictional-backup.json'),'utf8')).includes('owned first'));assert.equal(await record(people.other.uid,'scratch-01'),null);
+  await context.setOffline(false);await p.locator('#sw-save').click();await expect(p.locator('#sw-save-state')).toContainText('클라우드 저장 완료',{timeout:50000});
+  const file={name:'my_sw_backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({application:'englishmath-sw',schemaVersion:1,records:[{id:'scratch-01',value:'print("owned imported")'}]}))};
+  await p.locator('#sw-import').setInputFiles(file);await p.getByRole('button',{name:'본인 자료 가져오기',exact:true}).click();await expect(p.locator('#sw-dialog-title')).toHaveText('기존 기록과 충돌');await p.getByRole('button',{name:'취소',exact:true}).click();await expect(p.locator('#sw-code')).toHaveValue('print("owned first")');
+  await p.locator('#sw-import').setInputFiles(file);await p.getByRole('button',{name:'본인 자료 가져오기',exact:true}).click();await p.getByRole('button',{name:'백업 내용으로 변경',exact:true}).click();await expect(p.locator('#sw-code')).toHaveValue('print("owned imported")');
+  await p.locator('#sw-import').setInputFiles(file);await p.getByRole('button',{name:'본인 자료 가져오기',exact:true}).click();await expect(p.locator('#sw-message')).toContainText('중복 저장하지');
+  await p.locator('#sw-save').click();await expect(p.locator('#sw-save-state')).toContainText('클라우드 저장 완료',{timeout:50000});assert.equal((await record(people.other.uid,'scratch-01')).version,2);
+  await nav(p,'library');await p.locator('.sw-record').filter({hasText:'자유 실습 01'}).getByRole('button',{name:'최근 이력',exact:true}).click();await p.getByRole('button',{name:'자유 실습 01 · 이전 버전 1 복원',exact:true}).click();await p.getByRole('button',{name:'새 버전으로 복원',exact:true}).click();await expect(p.locator('#sw-code')).toHaveValue('print("owned first")',{timeout:50000});assert.equal((await record(people.other.uid,'scratch-01')).version,3);
+  await p.locator('#sw-end').click();await expect(p.locator('#sw-user')).toHaveText('로그인 전');await context.close();
  });
  await scenario('avatar: zero writes, no automatic camera, MOCK_MEDIA start/stop/dispose and memory cleared',async()=>{
   const {page:p,writes}=await device('/ai-avatar.html',{camera:true});await login(p,people.avatar);
@@ -125,6 +146,13 @@ try{
   await nav(p,'avatar');await expect(frame(p).locator('#code')).not.toHaveValue('print("avatar-only private transient")');assert.equal(await scope(people.avatar.uid),initial);assert.equal(writes.length,n);await shot(p,'avatar-common-menu');
   await p.locator('#sw-end').click();await expect(p.locator('#sw-user')).toHaveText('로그인 전');await p.context().close();
  });
+ await scenario('MOCK_MEDIA permission denial falls back to camera-free avatar without persistence',async()=>{
+  const {page:p,context}=await device('/ai-avatar.html');const f=frame(p);
+  await f.locator('#start-camera').evaluate(()=>{navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('mock denial','NotAllowedError');};});
+  await f.locator('#start-camera').click();await expect(f.locator('#camera-status')).toContainText('권한이 거절');
+  await f.locator('#virtual').click();await expect(f.locator('#camera-status')).toContainText('가상 모드');await f.locator('#smile').focus();await f.locator('#smile').press('End');await expect(f.locator('#smile-value')).toHaveText('1.00');
+  await nav(p,'home');await nav(p,'avatar');await expect(f.locator('#smile')).toHaveValue('0');assert.equal(await f.locator('#camera').evaluate(v=>v.srcObject),null);await context.close();
+ });
  await scenario('idle warning and 15-minute clearing use fake clock, never a real school-PC claim',async()=>{
   const {page:p}=await device('/?page=practice',{clock:true});await login(p,people.idle);await expect(p.locator('#sw-code')).toBeVisible();await p.clock.fastForward(14*60000+1000);await expect(p.locator('#sw-idle')).toBeVisible();await p.clock.fastForward(60000);await expect(p.locator('#sw-user')).toHaveText('로그인 전');await p.context().close();
  });
@@ -137,7 +165,7 @@ try{
  });
  assert.equal(errors.length,0,'Unexpected page errors: '+JSON.stringify(errors));
 } catch(error){
- console.error(error);console.log('SW_RECORD_DEBUG '+await scope(people.student.uid));console.log('SW_BROWSER_ERRORS '+JSON.stringify(errors));if(lastPage&&!lastPage.isClosed()){console.log('SW_EDITOR_DEBUG '+JSON.stringify(await lastPage.locator('#sw-classroom-frame').evaluate(el=>({src:el.src,editor:el.contentDocument?.querySelector('#editor')?.value,lesson:el.contentDocument?.querySelector('#heroTitle')?.textContent})).catch(()=>null)));console.log('SW_FAILURE_DOM '+(await lastPage.locator('body').innerText().catch(()=>'' )).slice(0,6000));await lastPage.screenshot({path:resolve(artifacts,'failure.png')}).catch(()=>{});await writeFile(resolve(artifacts,'failure.html'),await lastPage.content().catch(()=>''));}
+ console.error(error);console.log('SW_RECORD_DEBUG '+await scope(people.student.uid));console.log('SW_BROWSER_ERRORS '+JSON.stringify(errors));if(lastPage&&!lastPage.isClosed()){console.log('SW_OVERFLOW '+JSON.stringify(await lastPage.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,nodes:[...document.querySelectorAll('body *')].map(e=>({tag:e.tagName,id:e.id,cls:e.className,x:e.getBoundingClientRect().x,width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right})).filter(e=>e.right>innerWidth+2).slice(0,12)}))));const preview=await lastPage.screenshot({type:'jpeg',quality:55});console.log('SW_PREVIEW failure '+preview.toString('base64'));}if(lastPage&&!lastPage.isClosed()){console.log('SW_EDITOR_DEBUG '+JSON.stringify(await lastPage.locator('#sw-classroom-frame').evaluate(el=>({src:el.src,editor:el.contentDocument?.querySelector('#editor')?.value,lesson:el.contentDocument?.querySelector('#heroTitle')?.textContent})).catch(()=>null)));console.log('SW_FAILURE_DOM '+(await lastPage.locator('body').innerText().catch(()=>'' )).slice(0,6000));await lastPage.screenshot({path:resolve(artifacts,'failure.png')}).catch(()=>{});await writeFile(resolve(artifacts,'failure.html'),await lastPage.content().catch(()=>''));}
  process.exitCode=1;
 } finally {
  await writeFile(resolve(artifacts,'browser-results.json'),JSON.stringify({sourceSha:process.env.GITHUB_SHA,environment:'GitHub Actions Chromium; Firebase Auth and Firestore emulators; MOCK_MEDIA; independent contexts are not real Google independent-browser evidence',results,errors,notRun:['real Google login','independent real browser restoration','physical school PCs','physical camera','29 physical PCs']},null,2));

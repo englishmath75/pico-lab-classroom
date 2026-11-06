@@ -100,6 +100,11 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: source/package-lock.json
+      - name: Compare protected sites public assets
+        env:
+          PROTECTED_BASELINE: publisher/protected-public-assets.json
+          VERIFICATION_DIR: verification
+        run: node publisher/scripts/protected-sites.mjs
       - name: Verify public version and course identity
         env:
           SOURCE_SHA: ${{ needs.check.outputs.source_sha }}

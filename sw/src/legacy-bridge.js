@@ -18,7 +18,7 @@ window.ClassroomPython={
 };
 document.addEventListener('click',e=>{
  const legacyLesson=e.target.closest('[data-lesson],#startFirst');
- if(legacyLesson){e.preventDefault();e.stopImmediatePropagation();api.navigate('/?page=examples#unit-'+(Number(legacyLesson.dataset.lesson||0)+1));return;}
+ if(legacyLesson&&['home','examples'].includes(api.id)){e.preventDefault();e.stopImmediatePropagation();api.navigate('/?page=examples#unit-'+(Number(legacyLesson.dataset.lesson||0)+1));return;}
  const page=e.target.closest('[data-page]');const final=e.target.closest('.final-open');
  if(page||final){e.preventDefault();e.stopImmediatePropagation();api.navigate('/?page='+(final?'final-course':page.dataset.page==='lesson'?'examples':page.dataset.page));return;}
  const a=e.target.closest('a[href]');if(!a||a.hasAttribute('download'))return;if(a.target==='_blank'&&!api.canNavigate(a.href))return;

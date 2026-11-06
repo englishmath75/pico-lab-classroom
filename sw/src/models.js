@@ -60,10 +60,11 @@ export function updateRaw(key,raw,store,previous,{initial=false}={}){
  for(const [id,value] of Object.entries(projected)){
   if(JSON.stringify(value)===JSON.stringify(before[id]))continue;
   if(id==='sw2-free-state'&&store.providedData?.[value.dataset])value.providedData=store.providedData[value.dataset];
-  if(id==='sw2-inquiry-d-state')store.set(id,{...store.get(id),...value});else store.set(id,value);
+  if(id==='sw2-inquiry-d-state')store.set(id,{...store.get(id),...value});else store.set(id,value,typeof value.completed==='boolean'?{completed:value.completed}:/^sw2-lesson-/.test(id)?{completed:value.done?.length===5}:{});
  }
 }
 export function importRecords(value){
+ if(value?.schemaVersion===1&&typeof value.kind==='string'&&value.value&&typeof value.value==='object')return [{id:value.kind,value:value.value}];
  if(value?.application==='englishmath-sw'&&value.schemaVersion===1&&Array.isArray(value.records))return value.records;
  let key;if(value?.records&&typeof value.records==='object')key=keys.step;
  else if(value?.report&&value?.answers)key=keys.main;

@@ -53,6 +53,7 @@ init();`);
   replace('value="\'+j+\'">','value="\'+j+\'" \'+(Number(state.choices[state.current])===j?\'checked\':\'\')+\'>');
   replace('const u=UNITS[state.current];$("feedback").textContent=c?', 'const u=UNITS[state.current];state.graded[state.current]=true;state.answers[state.current]=c&&Number(c.value)===u[8]?1:0;save();$("feedback").textContent=c?');
   replace('$("note").oninput=',`$("code").oninput=e=>{state.codes[state.current]=e.target.value;save();};$("choices").onchange=e=>{state.choices[state.current]=Number(e.target.value);state.graded[state.current]=false;save();};$("note").oninput=`);
+  replace('save();renderMenu();}', 'save();renderMenu();if(state.graded[state.current])$("grade").click();}');
   replace('$("reset").onclick=()=>{$("code").value=UNITS[state.current][4];','$("reset").onclick=()=>{if(!confirm("현재 코드를 원본 예제로 바꿀까요? 필요한 초안을 내려받아 보관하세요."))return;$("code").value=UNITS[state.current][4];state.codes[state.current]=$("code").value;save();');
   const start=s.indexOf('async function python()'),end=s.indexOf('select(state.current);',start);
   if(start<0||end<0)throw Error('mastery runner bounds');
@@ -75,6 +76,7 @@ if(/^#unit-\\d+$/.test(location.hash))state.current=Math.max(0,Math.min(17,Numbe
   replace('$("grade").onclick=function(){',`$("quizzes").addEventListener("change",function(e){if(e.target.name?.startsWith("q")){quizAnswers[e.target.name.slice(1)]=Number(e.target.value);state.answers=quizAnswers;state.graded=false;save()}});
 $("grade").onclick=function(){state.graded=true;`);
  }
+ if(name==='simulation.html')replace('run();\n})();','run();if(state.graded)$("grade").click();\n})();');
  if(name==='ai-avatar.js')replace("addEventListener('pagehide',end);","window.SWDispose=end;addEventListener('pagehide',end);");
  return s;
 }

@@ -39,3 +39,18 @@ test('new IDs do not widen MK allowlists, preserve grade/year and deny arbitrary
  }
  await assert.rejects(new StudentStore(db).mutate('alice','sw2-unbounded-any-id','save',data(id),0));
 });
+
+test('29 concurrent simulated student initial reads and saves remain separated',async()=>{
+ const users=Array.from({length:29},(_,i)=>'sim-'+String(i+1).padStart(2,'0'));
+ await env.withSecurityRulesDisabled(async c=>Promise.all(users.map(uid=>setDoc(doc(c.firestore(),'users',uid),{...profile('approved'),email:uid+'@muhak-g-h.gne.go.kr',displayName:uid}))));
+ const start=Date.now();
+ await Promise.all(users.map(async(uid,i)=>{
+  const db=auth(uid),s=new StudentStore(db),id='sw2-report';
+  assert.equal((await getDoc(doc(db,'users',uid))).data().status,'approved');
+  assert.equal(await s.load(uid,id),null);
+  const input={...data(id),code:encode(id,{question:uid+' fictional'})};
+  await s.mutate(uid,id,'save',input,0);assert.equal((await s.load(uid,id)).code,input.code);
+  await assertFails(s.load(users[(i+1)%users.length],id));assert.equal((await s.list(uid)).length,1);
+ }));
+ console.log(JSON.stringify({environment:'29 emulator identities, no real PCs or browser/CDN load',students:29,durationMs:Date.now()-start,status:'PASS'}));
+});

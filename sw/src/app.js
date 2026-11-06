@@ -250,16 +250,19 @@ import providedData from '../provided-data.json';
   }catch(e){say(e.message,true);}
  }
  async function resolveFailure(){
+  const gen=sessionGeneration,owner=user?.uid,current=()=>gen===sessionGeneration&&owner===user?.uid;
   const failed=[...store.drafts.values()].find(d=>d.error)||store.draft([...store.errors.keys()][0]);
   if(!failed)return;
   const choice=await ask('저장 상태 확인',titleFor(failed.id)+'\n'+(failed.error?.message||store.errors.get(failed.id)?.message||'')+'\n초안을 먼저 내려받아 보관할 수 있습니다.',[['export','모든 초안 내려받기'],['remote','서버 저장본 확인'],['retry','다시 읽기·저장'],['cancel','화면 유지']]);
+  if(!current())return;
   if(choice==='export'){backup();return;}
   if(choice==='retry'){await store.prepare([failed.id]);await store.flush([failed.id]);return;}
   if(choice!=='remote')return;
-  const remote=await store.remote(failed.id),selected=await ask('서버 저장본과 비교','서버 버전 '+(remote?.version||0)+'\n'+(remote?.code||'(기록 없음)').slice(0,5000),[['remote','서버 저장본 사용'],['mine','내 초안을 새 버전으로 저장'],['cancel','화면 유지']]);
+  const remote=await store.remote(failed.id);if(!current())return;const selected=await ask('서버 저장본과 비교','서버 버전 '+(remote?.version||0)+'\n'+(remote?.code||'(기록 없음)').slice(0,5000),[['remote','서버 저장본 사용'],['mine','내 초안을 새 버전으로 저장'],['cancel','화면 유지']]);
+  if(!current())return;
   if(selected==='remote'){await store.useRemote(failed.id);await navigate(route.url,{replace:true});}
   if(selected==='mine'){
-   if(await ask('내 초안으로 저장','다른 기기의 최신 저장본을 내 초안으로 바꿉니다. 비교한 내용을 확인했을 때만 선택하세요.',[['save','내 초안 저장'],['cancel','취소']])==='save')await store.keepMine(failed.id,remote?.version||0);
+   if(await ask('내 초안으로 저장','다른 기기의 최신 저장본을 내 초안으로 바꿉니다. 비교한 내용을 확인했을 때만 선택하세요.',[['save','내 초안 저장'],['cancel','취소']])==='save'&&current())await store.keepMine(failed.id,remote?.version||0);
   }
  }
  async function finish(force=false){

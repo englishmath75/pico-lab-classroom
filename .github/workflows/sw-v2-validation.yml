@@ -34,9 +34,12 @@ jobs:
         run: npm run build:sw
       - name: Existing publication layout and links
         run: |
+          python3 sw/publisher/test_package.py
           python3 sw/publisher/package_site.py dist --source-sha "$GITHUB_SHA"
           python3 sw/publisher/finalize_brand.py --dist dist --source-sha "$GITHUB_SHA"
           python3 sw/publisher/check_site.py dist
+      - name: Protected sites public asset snapshot (read only)
+        run: node sw/publisher/protected-sites.mjs
       - name: Original lesson, data and integration invariants
         run: node --test sw/tests/content.test.mjs
       - run: npx playwright install --with-deps chromium
