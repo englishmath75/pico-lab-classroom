@@ -1,0 +1,32 @@
+{
+  "checkedAt": "2026-11-06T17:37:58.257Z",
+  "sourceMain": "c38e7ce5e057b68898d086dde1caaaceae4f6d00",
+  "mkPr39": {
+    "state": "open",
+    "merged": false,
+    "sha": "7f1f2af6b5619779093408c4437f0b808d23d188"
+  },
+  "mk": {
+    "id": "dpl_2jP3XvaJbRS2cXUo4rqp2pB7yPUC",
+    "sha": "7f1f2af6b5619779093408c4437f0b808d23d188",
+    "alias": [
+      "mk.englishmath.kr",
+      "englishmath-python-mk.vercel.app",
+      "englishmath-python-mk-englishmath6003-2101s-projects.vercel.app",
+      "englishmath-python-mk-git-b0d3fb-englishmath6003-2101s-projects.vercel.app"
+    ],
+    "project": "englishmath-python-mk",
+    "state": "READY"
+  },
+  "commercial": {
+    "id": "dpl_2T6xocywVvCL7Jue3Lk4VBjsbGPR",
+    "sha": "0c9ecc02c9f631edd5da48dd0126aef640887629",
+    "alias": [
+      "englishmath-python.vercel.app",
+      "englishmath-python-englishmath6003-2101s-projects.vercel.app",
+      "englishmath-python-git-fi-12bca9-englishmath6003-2101s-projects.vercel.app"
+    ],
+    "project": "englishmath-python",
+    "state": "READY"
+  }
+}
