@@ -1,0 +1,86 @@
+{
+  "sourceSha": "af113f41e0f209f6f0aedd18596fad6788bd2609",
+  "environment": "Independent cloud Chrome, real school Google account, production Firebase",
+  "accountRedacted": true,
+  "sessionEnded": true,
+  "reloginPositive": true,
+  "reportSevenFieldsRestored": true,
+  "existingRecords": [
+    {
+      "id": "scratch-01",
+      "version": 3
+    },
+    {
+      "id": "scratch-09",
+      "version": 1
+    },
+    {
+      "id": "scratch-10",
+      "version": 3
+    }
+  ],
+  "newStoredRecords": [
+    {
+      "id": "lesson-01",
+      "version": 1
+    },
+    {
+      "id": "sw2-lesson-01-state",
+      "version": 2
+    },
+    {
+      "id": "sw2-report",
+      "version": 1
+    },
+    {
+      "id": "sw2-review",
+      "versionAtInitialLibraryRead": 1,
+      "laterGradedSaveAcknowledged": true
+    },
+    {
+      "id": "sw2-datalab-SW01-code",
+      "version": 1
+    },
+    {
+      "id": "sw2-datalab-SW01-state",
+      "version": 1
+    },
+    {
+      "id": "scratch-02",
+      "version": 1
+    }
+  ],
+  "sameBrowserRelogin": {
+    "reportSevenFields": true,
+    "ungradedExamSelection": true
+  },
+  "independentBrowsers": {
+    "writer": "cloud Chrome browser 1",
+    "reader": "connected Chrome browser 0",
+    "sameChromeNewTab": false,
+    "credentialsOrCookiesCopied": false,
+    "readBack": [
+      "report: all seven field values",
+      "lesson-01 code",
+      "sw2-lesson-01-state: prediction, explanation, stdin, selected ungraded answer",
+      "sw2-datalab-SW01-code",
+      "sw2-datalab-SW01-state: prediction and explanation",
+      "sw2-review: selected answer, graded 0/20 and wrong-answer filter",
+      "scratch-02 code and title"
+    ]
+  },
+  "serverAcknowledgement": {
+    "observedText": "클라우드 저장 완료 · 오전 3:04:28",
+    "activity": "sw2-review",
+    "afterGrading": true
+  },
+  "notClaimed": [
+    "real second student account",
+    "physical school PC",
+    "physical camera",
+    "all supplementary activity real-account restore",
+    "real student-to-teacher boundary"
+  ],
+  "sessionEndObservedInBothBrowsers": true,
+  "recordedAt": "2026-11-06T18:10:24.393Z"
+}
