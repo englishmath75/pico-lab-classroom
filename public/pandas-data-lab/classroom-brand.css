@@ -15,7 +15,7 @@
 .classroom-page .side .brand.brand-mk-aligned img{width:90px;padding:6px;margin:0 auto 8px}
 .classroom-page .side .brand.brand-mk-aligned br{display:none}
 .classroom-page .side .brand.brand-mk-aligned .classroom-name{font-size:22px;line-height:1.4;margin:0 0 5px;white-space:nowrap}
-.classroom-page .side .brand.brand-mk-aligned .classroom-unit{font-size:14px;line-height:1.5;margin:0 0 3px;white-space:nowrap}
+.classroom-page .side .brand.brand-mk-aligned .classroom-unit{font-size:16px;line-height:1.5;margin:0 0 3px;white-space:nowrap}
 .classroom-page .side .brand.brand-mk-aligned .classroom-subject{font-size:clamp(10px,3vw,13px);line-height:1.5;margin:0;white-space:nowrap;letter-spacing:-.3px}
 .classroom-page .side nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
 .classroom-page .side .nav{width:100%;padding:8px 6px;margin:0;font-size:13px;line-height:1.5;white-space:nowrap;text-align:center}
