@@ -13,5 +13,16 @@
       "source": "/pandas-data-lab/:path*",
       "destination": "/:path*"
     }
+  ],
+  "headers": [
+    {
+      "source": "/avatar-vendor/:path*",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
   ]
 }
