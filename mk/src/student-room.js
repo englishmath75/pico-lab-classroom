@@ -1,13 +1,18 @@
-import { createCloud, readableError, MAX_CODE, SAVE_INTERVAL } from './student-cloud.bundle.js';
+import { createCloud, readableError, MAX_CODE, SAVE_INTERVAL, WRITE_GAP } from './student-cloud.bundle.js';
 import { StudentSession, clearTemporaryLessons } from './student-session.js';
 import { runPython, drawTurtle } from './student-run.js';
 import { activities, activityById } from './content.js';
+import { SpaceWriteQueue } from './write-queue.js';
+import { LearningDraft } from './learning-draft.js';
+import { recordKind } from './routes.js';
 
 const $=id=>document.getElementById(id), session=new StudentSession();
 clearTemporaryLessons();
 let selectedSpace=null;
-let cloud,user=null,identity=null,workspace='scratch-01',busy=false,runner=null,autoTimer,lastActivity=Date.now(),lastWrite=0;
+let cloud,user=null,identity=null,workspace='scratch-01',runner=null,autoTimer,lastActivity=Date.now(),lastWrite=Date.now();
 let runState='idle',loading=false,loggingOut=false,noticeAfterLogout='',idleSaveAttempted=false;
+let scopeGeneration=0,identityRequest=0,flushPromise=null,guardPromise=null,authObserved=false;
+const records=new Map(),drafts=new Map(),writes=new SpaceWriteQueue({gap:WRITE_GAP});
 const channel='BroadcastChannel' in window ? new BroadcastChannel('englishmath-shared-pc') : null;
 const labels=new Map([
   ...activities.map(a=>[a.id,a.title]),
@@ -16,20 +21,67 @@ const labels=new Map([
   ...Array.from({length:10},(_,i)=>[`lesson-${String(i+1).padStart(2,'0')}`,`이전 과정 · 실습 ${i+1}`]),
   ...['a','b','c','d'].map(k=>['inquiry-'+k,'이전 과정 · 탐구실 '+k.toUpperCase()]),
   ...Array.from({length:10},(_,i)=>[`scratch-${String(i+1).padStart(2,'0')}`,`자유 실습 ${i+1}`])]);
-function changed(kind='record'){dispatchEvent(new CustomEvent('mk-session',{detail:{kind,workspace,canWrite:!!canWrite()}}));}
-for(const [id,label] of labels) $('workspace').add(new Option(label,id));
+function changed(kind='record',extra={}){dispatchEvent(new CustomEvent('mk-session',{detail:{kind,workspace,canWrite:!!canWrite(),...extra}}));}
+for(const [id,label] of labels)if(recordKind(id)==='code')$('workspace').add(new Option(label,id));
 const requested=new URLSearchParams(location.search).get('workspace');
-if(labels.has(requested)) workspace=requested;
+if(labels.has(requested)&&recordKind(requested)==='code') workspace=requested;
 $('workspace').value=workspace;
 
 function notice(text,error=false) { $('notice').textContent=text;$('notice').classList.toggle('error',error); }
 function state(text,error=false) { $('save-state').textContent=text;$('save-state').classList.toggle('error',error); }
-function canWrite() { return user && identity?.profile?.status==='approved'; }
+function canWrite() { return !!user && identity?.profile?.status==='approved'; }
+function scope() {return {generation:scopeGeneration,uid:user?.uid||null,spaceId:selectedSpace,store:identity?.service};}
+function scopeCurrent(snapshot) {return snapshot.generation===scopeGeneration&&snapshot.uid===(user?.uid||null)&&snapshot.spaceId===selectedSpace;}
+function allDrafts(){return [...records.entries(),...drafts.entries()];}
+function hasUnsaved() {return allDrafts().some(([,draft])=>draft.isDirty());}
+function activity() {lastActivity=Date.now();idleSaveAttempted=false;document.body.classList.remove('idle-private');}
+function summary() {
+  const count=allDrafts().filter(([,d])=>d.isDirty()).length;
+  $('pending-summary').textContent=count?`아직 저장되지 않은 학습물 ${count}개 · 다른 메뉴로 이동해도 초안은 이 탭에 유지됩니다.`:canWrite()?'현재 학습 공간의 저장 상태를 각 학습물에서 확인할 수 있습니다.':'로그인 전 내용은 이 탭에만 있습니다. 파일로 보관한 뒤 로그인할 수 있습니다.';
+  $('pending-summary').classList.toggle('error',count>0);
+  $('save-all').hidden=!count;$('backup-all').hidden=!count;
+}
+let nextSaveDue=0;
+function scheduleSave(retry=false) {
+  clearTimeout(autoTimer);summary();
+  if(!canWrite()||!hasUnsaved()){nextSaveDue=0;return;}
+  if(flushPromise)return;
+  if(retry||!nextSaveDue)nextSaveDue=Date.now()+SAVE_INTERVAL;
+  autoTimer=setTimeout(()=>{nextSaveDue=0;saveAll().catch(showError);},Math.max(0,nextSaveDue-Date.now()));
+}
+function getRecord(id) {
+  if(records.has(id)&&scopeCurrent(records.get(id).owner))return records.get(id);
+  if(records.get(id)?.dirty)throw Object.assign(Error('계정 확인 전에 작성한 초안이 있습니다. 먼저 내려받아 주세요.'),{code:'conflict'});
+  const owner=scope();
+  const record=new LearningDraft({id,seed:{title:labels.get(id),code:activityById.get(id)?.code||'',completed:false,runState:'idle'},
+    read:()=>bounded(owner.store.load(owner.uid,id)),
+    write:(data,version)=>mutateRecord(owner,id,'save',data,version),
+    current:()=>scopeCurrent(owner),canWrite,
+    onChange:d=>{if(scopeCurrent(owner)){if(workspace===id)renderSaveState(d);summary();}}
+  });
+  record.owner=owner;record.stdin=activityById.get(id)?.stdin||'';records.set(id,record);return record;
+}
+function renderSaveState(record) {
+  const messages={guest:'로그인 전 임시 초안 · 파일로 보관할 수 있습니다.',dirty:'아직 저장되지 않은 내용이 있습니다.',loading:'내 기록을 확인하고 있습니다.',saving:'클라우드에 저장 중입니다.',loaded:'저장한 학습물을 불러왔습니다.',empty:'새 활동 · 예제는 아직 저장하지 않았습니다.',exported:'파일로 보관했습니다. 클라우드에는 반영되지 않았습니다.',saved:`✓ 클라우드 저장 완료 · ${new Date(record.savedAt||Date.now()).toLocaleTimeString('ko-KR')}`};
+  state(record.error?readableError(record.error):(messages[record.kind]||messages.dirty),!!record.error);
+  if(record.dirty&&record.kind==='saved')state(messages.dirty);
+}
+async function mutateRecord(snapshot,id,kind,data,version) {
+  if(!scopeCurrent(snapshot)||!canWrite())throw Object.assign(Error('학습 공간이 바뀌었습니다. 현재 공간에서 다시 저장해 주세요.'),{code:'stale-scope'});
+  if(!navigator.onLine)throw Object.assign(Error('offline'),{code:'network'});
+  const next=await writes.run(`${snapshot.uid}:${snapshot.store.root||snapshot.spaceId}`,()=>snapshot.store.mutate(snapshot.uid,id,kind,data,version),{
+    current:()=>scopeCurrent(snapshot)&&canWrite(),
+    onWait:()=>{if(id===workspace&&kind==='save'&&scopeCurrent(snapshot))state('저장 대기 중 · 다른 기록 저장 후 이어집니다. 메뉴를 이동해도 유지됩니다.');}
+  });
+  if(!scopeCurrent(snapshot))throw Object.assign(Error('학습 공간이 바뀌어 이전 저장 결과를 표시하지 않습니다.'),{code:'stale-scope'});
+  lastWrite=Date.now();return next;
+}
 function date(value) {return value?.toDate?.().toLocaleString('ko-KR') || '기록 없음';}
 function button(label,action) {const b=document.createElement('button');b.textContent=label;b.addEventListener('click',()=>Promise.resolve().then(action).catch(showError));return b;}
 function showError(error) {
+  if(error.code==='stale-scope')return;
   const message=readableError(error);
-  if(user&&session.dirty&&!loggingOut&&Date.now()-lastActivity>14*60000)notice('자동 로그아웃 전 저장에 실패했습니다. 1분 안에 .py 다운로드를 눌러 보관하거나 인터넷 연결을 복구해 주세요. '+message,true);
+  if(user&&hasUnsaved()&&!loggingOut&&Date.now()-lastActivity>14*60000)notice('자동 로그아웃 전 저장에 실패했습니다. 코드와 오답 기록을 내려받아 보관하거나 인터넷 연결을 복구해 주세요. '+message,true);
   else notice(message,true);
 }
 function bounded(promise,ms=10000) {let t;return Promise.race([promise,new Promise((_,reject)=>t=setTimeout(()=>reject(Object.assign(Error('연결 응답이 지연되고 있습니다.'),{code:'deadline'})),ms))]).finally(()=>clearTimeout(t));}
@@ -41,84 +93,133 @@ function confirmAction(title,message,label='확인') {
     $('dialog-yes').onclick=()=>done(true);$('dialog-no').onclick=()=>done(false);d.oncancel=e=>{e.preventDefault();done(false);};
   });
 }
-function download(code=$('editor').value,name=workspace) {
+function download(code=$('editor').value,name=workspace,id=workspace) {
   const url=URL.createObjectURL(new Blob([code],{type:'text/x-python;charset=utf-8'}));
-  const link=document.createElement('a');link.href=url;link.download=name.replace(/[^\p{L}\p{N}_-]/gu,'_')+(['mk3-report','mk3-notebook'].includes(workspace)?'.txt':'.py');link.click();
+  const link=document.createElement('a');link.href=url;link.download=name.replace(/[^\p{L}\p{N}_-]/gu,'_')+(recordKind(id)==='code'?'.py':'.json');link.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-function wipe(uid=null) {
+function wipe(uid=null,{initialAnonymous=false}={}) {
+  scopeGeneration++;identityRequest++;identity=null;flushPromise=null;guardPromise=null;
+  for(const record of records.values())record.reset();records.clear();
+  for(const draft of drafts.values())draft.reset();nextSaveDue=0;document.body.classList.remove('idle-private');
   $('learning-space-panel').hidden=true;
   if(!uid) selectedSpace=null;
-  session.change(uid);clearTimeout(autoTimer);runner?.stop();runner=null;busy=false;loading=false;runState='idle';lastWrite=0;
+  session.change(uid);clearTimeout(autoTimer);runner?.stop();runner=null;loading=false;runState='idle';lastWrite=Date.now();
   $('editor').value='';$('title').value='';$('completed').checked=false;$('output').textContent='실행 결과가 여기에 표시됩니다.';
   $('plot').removeAttribute('src');$('plot').hidden=true;$('run-state').textContent='실행 대기';
   for(const id of ['history-list','library-list','student-list','student-details']) $(id).replaceChildren();
   for(const id of ['history-panel','library-panel','teacher-area','student-area','enrollment','teacher-tab']) $(id).hidden=true;
   $('stop').disabled=true;$('run').disabled=false;$('editor').readOnly=false;$('code-length').textContent='0 / 20,000자';
   if($('confirm-dialog').open) $('dialog-no').click();
-  $('stdin').value='';$('turtle-result').hidden=true;$('trace-body').replaceChildren();$('student-area').hidden=false;changed('wipe');
+  $('stdin').value='';$('turtle-result').hidden=true;$('trace-body').replaceChildren();$('student-area').hidden=false;changed('wipe',{initialAnonymous});
 }
 function dirty() {
-  if(loading) return;
-  session.set($('editor').value);$('code-length').textContent=`${session.code.length.toLocaleString()} / 20,000자`;
-  if(!canWrite()){state('이 화면에만 임시 보관 · 로그인 후 저장하거나 내려받으세요.');return;}
-  state(session.code.length>MAX_CODE?'20,000자를 초과했습니다. 줄이거나 .py 파일로 보관하세요.':'저장 대기 · 이 화면을 유지하세요',session.code.length>MAX_CODE);
-  clearTimeout(autoTimer);autoTimer=setTimeout(()=>save().catch(showError),Math.max(1000,SAVE_INTERVAL-(Date.now()-lastWrite)));
+  if(loading)return;
+  const record=getRecord(workspace);
+  record.update({title:$('title').value.trim()||labels.get(workspace),code:$('editor').value,completed:$('completed').checked,runState});
+  record.stdin=$('stdin').value;
+  session.code=record.data.code;session.version=record.version;session.dirty=record.dirty;session.edit++;
+  $('code-length').textContent=`${record.data.code.length.toLocaleString()} / 20,000자`;
+  renderSaveState(record);scheduleSave();
 }
 async function save() {
   if(loading)return false;
-  if(!session.dirty)return true;
-  if(!canWrite())return false;
-  if(busy) return false;
-  if(!navigator.onLine) throw Object.assign(Error('offline'),{code:'network'});
-  if(session.code.length>MAX_CODE) throw Error('코드는 최대 20,000자까지 클라우드에 저장할 수 있습니다.');
-  const snapshot=session.checkpoint(),id=workspace;
-  const data={title:$('title').value.trim()||labels.get(id),code:snapshot.code,completed:$('completed').checked,runState};
-  busy=true;state('클라우드에 저장 중…');
-  try {
-    const version=await bounded(identity.service.mutate(snapshot.uid,id,'save',data,snapshot.version));
-    if(session.saved(snapshot,version)) {lastWrite=Date.now();state(session.dirty?'추가 변경 사항 저장 대기':`✓ 클라우드 저장 완료 · ${new Date().toLocaleTimeString('ko-KR')}`);}
-    return !session.dirty;
-  } catch(error) {if(session.current(snapshot)) state(readableError(error),true);throw error;}
-  finally {if(session.current(snapshot)){busy=false;if(session.dirty){clearTimeout(autoTimer);autoTimer=setTimeout(()=>save().catch(showError),SAVE_INTERVAL);}}}
+  const record=records.get(workspace);if(!record)return true;
+  try{return await record.save();}finally{scheduleSave(true);}
+}
+async function saveAll() {
+  if(flushPromise)return flushPromise;
+  const space=scope();
+  const pending=(async()=>{
+    let failure=null;
+    // Insertion order retains every visited activity; one failing record cannot
+    // starve the remaining code, report or notebook drafts.
+    for(const [,draft] of allDrafts()) {
+      if(!scopeCurrent(space))return false;
+      if(draft.isDirty())try{await draft.save();}catch(error){failure=error;}
+    }
+    if(!scopeCurrent(space))return false;
+    if(failure)throw failure;
+    return !hasUnsaved();
+  })();
+  flushPromise=pending;
+  try{return await pending;}finally{if(flushPromise===pending){flushPromise=null;scheduleSave(true);}}
+}
+function downloadDrafts({discard=false}={}) {
+  const entries=allDrafts().filter(([,d])=>d.isDirty());
+  const backup={format:'mk-learning-backup-v2',space:selectedSpace,createdAt:new Date().toISOString(),records:Object.fromEntries(entries.map(([id,d])=>[id,d.export()]))};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(backup,null,2)],{type:'application/json;charset=utf-8'}));
+  const link=document.createElement('a');link.href=url;link.download='MK_미저장_학습_백업.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  if(discard){for(const [,d] of entries)d.discard();session.dirty=false;}
+  summary();
 }
 async function protectDraft() {
-  if(!session.dirty) return true;
-  try {if(await save()) return true;} catch(error) {showError(error);}
-  if(await confirmAction('아직 저장하지 못한 코드가 있습니다','현재 코드를 .py 파일로 내려받은 뒤 이동할 수 있습니다. 다운로드한 파일은 다음에 불러올 수 있습니다.','.py 다운로드 후 이동')) {download();session.dirty=false;return true;}
-  return false;
+  if(guardPromise)return guardPromise;
+  if(!hasUnsaved())return true;
+  const space=scope();
+  const pending=(async()=>{
+    try {
+      if(await bounded(saveAll(),30000))return true;
+    }catch(error){if(scopeCurrent(space))showError(error);}
+    if(!scopeCurrent(space))return false;
+    if(!hasUnsaved())return true;
+    const hasNotebook=[...drafts.values()].some(draft=>draft.isDirty());
+    const accepted=await confirmAction('아직 저장하지 못한 학습 내용이 있습니다',hasNotebook?'코드·보고서와 복습 오답 기록 중 저장하지 못한 내용을 하나의 학습 백업 파일로 내려받은 뒤 이동할 수 있습니다.':'현재 코드·보고서를 파일로 내려받은 뒤 이동할 수 있습니다.',hasNotebook?'학습 백업 내려받고 이동':'파일 내려받고 이동');
+    if(!accepted||!scopeCurrent(space))return false;
+    downloadDrafts({discard:true});return true;
+  })();
+  guardPromise=pending;
+  try{return await pending;}finally{if(guardPromise===pending)guardPromise=null;}
 }
-async function loadWorkspace(id,discard=false) {
+function leavePage() {
+  const previous=records.get(workspace);if(previous)previous.stdin=$('stdin').value;
+  runner?.stop();runner=null;session.change(user?.uid||null);loading=false;
+  $('run').disabled=false;$('stop').disabled=true;
+}
+async function loadWorkspace(id,force=false) {
   if(!labels.has(id))return false;
-  if(!discard&&!await protectDraft()){$('workspace').value=workspace;return false;}
-  runner?.stop();runner=null;busy=false;$('run').disabled=false;$('stop').disabled=true;
-  session.change(user?.uid||null);const snapshot=session.checkpoint(),store=identity?.service;workspace=id;$('workspace').value=id;loading=true;
-  $('editor').value='';$('editor').readOnly=true;$('title').value='';$('completed').checked=false;
+  if(id==='mk3-notebook'){changed('notebook');return true;}
+  leavePage();const snapshot=session.checkpoint();workspace=id;
+  if(recordKind(id)==='code')$('workspace').value=id;
+  const record=getRecord(id);loading=!!user&&!identity||canWrite()&&(!record.loaded||force);
+  $('editor').value='';$('editor').readOnly=loading;$('title').value='';$('completed').checked=false;
   $('output').textContent='';$('plot').hidden=true;$('turtle-result').hidden=true;$('trace-body').replaceChildren();
-  $('run-state').textContent='실행 대기';
-  $('stdin').value=activityById.get(id)?.stdin||'';
-  state(canWrite()?'클라우드에서 불러오는 중…':'로그인 없이 실행 · 아직 클라우드에 저장되지 않았습니다.');
+  $('run-state').textContent='실행 대기';$('stdin').value=record.stdin;
+  renderSaveState(record);changed('loading');
   try {
-    const saved=canWrite()?await bounded(store.load(snapshot.uid,id)):null;
+    if(user&&!identity){state('계정과 학습 공간을 확인하고 있습니다.');return false;}
+    if(canWrite())await record.load({force});
     if(!session.current(snapshot))return false;
-    // Only NEW course IDs have seeds. No legacy record is migrated or replaced.
-    session.code=saved?saved.code:(activityById.get(id)?.code||'');session.version=saved?.version||0;
-    lastWrite=Date.now();$('editor').value=session.code;$('title').value=saved?.title||labels.get(id);$('completed').checked=!!saved?.completed;
-    runState=saved?.runState||'idle';$('code-length').textContent=`${session.code.length.toLocaleString()} / 20,000자`;
-    state(saved?`✓ 불러옴 · ${date(saved.savedAt)}`:canWrite()?'새 활동 · 예제는 아직 저장하지 않았습니다.':'이 화면에만 임시 보관 · 로그인하면 개인 코드를 저장할 수 있습니다.');
-    return true;
-  }catch(error){if(session.current(snapshot)){state('불러오기 실패 · 클라우드 다시 불러오기를 눌러 주세요.',true);showError(error);}return false;}
-  finally{if(session.current(snapshot)){loading=false;$('editor').readOnly=false;changed();}}
+    session.code=record.data.code;session.version=record.version;session.dirty=record.dirty;
+    $('editor').value=record.data.code;$('title').value=record.data.title;$('completed').checked=record.data.completed;
+    runState=record.data.runState;$('code-length').textContent=`${record.data.code.length.toLocaleString()} / 20,000자`;
+    renderSaveState(record);return true;
+  }catch(error){if(session.current(snapshot)){// Retain local content even when the server read fails.
+    $('editor').value=record.data.code;$('title').value=record.data.title;session.code=record.data.code;
+    renderSaveState(record);showError(error);
+  }return false;}
+  finally{if(session.current(snapshot)){loading=!!user&&!identity;$('editor').readOnly=loading;changed();summary();}}
+}
+async function reloadWorkspace() {
+  const record=getRecord(workspace),space=scope();
+  if(record.saving){notice('진행 중인 저장 결과를 확인한 뒤 다시 불러와 주세요.',true);return;}
+  if(record.dirty){
+    if(!await confirmAction('클라우드 기록 다시 불러오기','현재 초안을 파일로 보관한 뒤 클라우드 저장본으로 바꿉니다. 자동으로 덮어쓰지 않습니다.','초안 내려받고 불러오기'))return;
+    if(!scopeCurrent(space))return;download(record.data.code,record.data.title,workspace);record.discard();
+  }
+  await loadWorkspace(workspace,true);
 }
 async function refreshIdentity() {
-  const snapshot=session.checkpoint(),result=await bounded(cloud.identity(user,selectedSpace));
-  if(!session.current(snapshot)) return;
+  const request=++identityRequest,generation=scopeGeneration,uid=user?.uid;
+  if(!uid)return;
+  const result=await bounded(cloud.identity(user,selectedSpace));
+  if(request!==identityRequest||generation!==scopeGeneration||user?.uid!==uid)return;
   identity=result;
   selectedSpace=identity.spaceId;
   const teacher=!!identity.staff?.classIds?.length;
   const personal=selectedSpace==='personal';
   $('teacher-tab').hidden=!teacher;
-  $('learning-space-panel').hidden=teacher;
+  $('learning-space-panel').hidden=false;
   $('learning-space').replaceChildren(...identity.spaces.map(space=>new Option(space.title,space.id)));
   $('learning-space').value=selectedSpace;
   $('space-title').textContent=identity.spaceTitle;
@@ -134,7 +235,10 @@ async function refreshIdentity() {
     $('student-area').hidden=false;
     $('submit').hidden=personal;
     notice(identity.spaceTitle+'에 연결되었습니다. 자리를 떠나기 전에 저장 상태를 확인하고 로그아웃하세요.');
-    await loadWorkspace(workspace,true);
+    // A student can start typing while account/approval requests are in flight.
+    // Retain those edits; optimistic version checks protect an older cloud copy.
+    await loadWorkspace(workspace);
+    if(request!==identityRequest||generation!==scopeGeneration||user?.uid!==uid)return;
     if(new URLSearchParams(location.search).get('panel')==='library') await showLibrary();
   } else if(identity.profile) {
     $('enrollment').hidden=false;
@@ -142,7 +246,8 @@ async function refreshIdentity() {
   } else if(!teacher) {
     notice(personal?'개인 학습자로 시작 버튼을 누르면 학급 등록 없이 코드를 저장할 수 있습니다.':identity.spaceTitle+' 학급을 선택해 등록 요청을 눌러 주세요.');
   }
-  if(!canWrite())await loadWorkspace(workspace,true);
+  if(!canWrite())await loadWorkspace(workspace);
+  if(request!==identityRequest||generation!==scopeGeneration||user?.uid!==uid)return;
   changed('identity');
   if(teacher) {
     $('enrollment').hidden=true;
@@ -158,30 +263,31 @@ async function logout(automatic=false,remote=false) {
   if(!cloud)return;
   loggingOut=true;
   if(automatic||remote) {
-    try {await bounded(save(),5000);} catch {}
-    if(session.dirty) {noticeAfterLogout='공용 PC 보호를 위해 로그아웃했습니다. 연결 문제로 마지막 변경 사항은 클라우드에 저장되지 않았습니다.';}
+    try {await bounded(saveAll(),5000);} catch {}
+    if(hasUnsaved()) {noticeAfterLogout='공용 PC 보호를 위해 로그아웃했습니다. 연결 문제로 마지막 코드·보고서·오답 변경 사항은 클라우드에 저장되지 않았습니다.';}
     else noticeAfterLogout='공용 PC 보호를 위해 로그아웃했습니다.';
   } else if(!await protectDraft()) {loggingOut=false;return;}
   if(!remote) channel?.postMessage({type:'logout'});
   wipe();user=null;identity=null;
   try {await cloud.logout();} catch {noticeAfterLogout='로그아웃 연결을 마치지 못해 현재 화면과 임시 코드를 지웠습니다. 탭을 닫아 주세요.';}
   $('identity').textContent='로그인하지 않음';$('login').hidden=false;$('logout').hidden=true;
-  notice(noticeAfterLogout||'로그아웃했습니다. 이 화면의 개인 코드를 지웠습니다.');noticeAfterLogout='';loggingOut=false;
+  notice(noticeAfterLogout||'로그아웃하고 이 탭의 개인 학습 내용을 지웠습니다. 공용 PC에서는 Google 계정도 확인해 주세요.');noticeAfterLogout='';loggingOut=false;
 }
 async function showLibrary() {
   if(!canWrite()) {notice('로그인과 학급 승인이 필요합니다.',true);return;}
-  const snapshot=session.checkpoint(),items=await bounded(identity.service.list(user.uid));if(!session.current(snapshot)) return;
+  const snapshot=session.checkpoint(),space=scope(),items=await bounded(identity.service.list(user.uid));if(!session.current(snapshot)||!scopeCurrent(space)) return;
   $('library-list').replaceChildren();
   if(!items.length) $('library-list').textContent='아직 저장한 코드가 없습니다.';
   for(const item of items) {
     const row=document.createElement('div');row.className='entry';
     const text=document.createElement('span');text.textContent=`${item.title} · ${date(item.savedAt)}${item.completed?' · 완료':''}`;
     const actions=document.createElement('div');actions.className='toolbar';
-    actions.append(button('열기',()=>loadWorkspace(item.workspaceId)),button('.py 다운로드',()=>download(item.code,item.title)),button('삭제',async()=>{
+    actions.append(button('열기',()=>changed('open-record',{id:item.workspaceId})),button(recordKind(item.workspaceId)==='code'?'.py 다운로드':'기록 내려받기',()=>download(item.code,item.title,item.workspaceId)),button('삭제',async()=>{
       if(!await confirmAction('저장한 코드 삭제',`“${item.title}”의 현재 저장본을 삭제합니다. 최근 수정 이력은 복원용으로 남습니다.`,'현재 저장본 삭제')) return;
-      if(item.workspaceId===workspace&&!await protectDraft()) return;
-      await identity.service.mutate(snapshot.uid,item.workspaceId,'delete',null,item.version);
-      if(!session.current(snapshot)) return;
+      if(!scopeCurrent(space)||!await protectDraft())return;
+      await mutateRecord(space,item.workspaceId,'delete',null,item.version);
+      if(!session.current(snapshot)||!scopeCurrent(space)) return;
+      records.get(item.workspaceId)?.reset();records.delete(item.workspaceId);if(drafts.has(item.workspaceId)){drafts.get(item.workspaceId).reset();changed('draft-reload');}
       if(item.workspaceId===workspace) await loadWorkspace(workspace,true);await showLibrary();
     }));row.append(text,actions);$('library-list').append(row);
   }
@@ -193,11 +299,11 @@ async function showHistory() {
   if(!items.length) $('history-list').textContent='저장 이력이 없습니다.';
   for(const item of items) {
     const row=document.createElement('div');row.className='entry';const text=document.createElement('span');text.textContent=`${item.title} · ${date(item.savedAt)} · ${item.version}번째 저장`;
-    row.append(text,button('이 코드로 복원',async()=>{
+    row.append(text,button('이 기록으로 복원',async()=>{
       if(!session.current(snapshot)) return;
-      if(!await confirmAction('이전 코드 복원','이전 코드가 편집기에 복원됩니다. 현재 변경 사항이 필요하면 먼저 .py 파일로 내려받아 주세요.','편집기에 복원')) return;
+      if(!await confirmAction('이전 기록 복원','이전 기록을 복원합니다. 현재 변경 사항은 먼저 파일로 보관해 주세요.','편집기에 복원')) return;
       $('editor').value=item.code;$('title').value=item.title;$('completed').checked=item.completed;runState=item.runState;dirty();
-      $('history-panel').hidden=true;notice('이전 코드를 편집기에 복원했습니다. 지금 저장을 눌러 클라우드에 반영하세요.');
+      $('history-panel').hidden=true;changed();notice('이전 기록을 복원했습니다. 지금 저장을 눌러 클라우드에 반영하세요.');
     }));$('history-list').append(row);
   }
   $('history-panel').hidden=false;
@@ -232,11 +338,15 @@ async function showTeacher() {
 }
 function action(id,fn) {$(id).addEventListener('click',()=>Promise.resolve().then(fn).catch(showError));}
 action('login',async()=>{if(!await protectDraft())return;if(!cloud){notice('아직 Google 로그인 연결을 준비하고 있습니다.',true);return;}await cloud.login();});
-action('logout',()=>logout());action('finish',()=>logout());action('save',async()=>{if(loading){notice('코드를 불러온 뒤 저장해 주세요.');return;}if(!canWrite()){notice('Google 로그인 후 개인 학습을 시작하거나 학급 승인을 확인하세요.',true);return;}if(!session.dirty)session.set($('editor').value);await save();});action('library-tab',showLibrary);action('teacher-tab',showTeacher);
+action('logout',()=>logout());action('finish',()=>logout());action('save',async()=>{if(loading){notice('코드를 불러온 뒤 저장해 주세요.');return;}if(!canWrite()){notice('Google 로그인 후 개인 학습을 시작하거나 학급 승인을 확인하세요.',true);return;}await save();});action('library-tab',showLibrary);action('teacher-tab',showTeacher);
 action('refresh-students',showTeacher);$('teacher-class').onchange=()=>showTeacher().catch(showError);
 action('register',async()=>{if(!$('class-select').value)throw Error('등록 가능한 학급이 없습니다.');await cloud.register(user,$('class-select').value,selectedSpace);await refreshIdentity();});
 action('register-personal',async()=>{
+  if(!await protectDraft())return;
+  const snapshot=scope();
   await cloud.registerPersonal(user);
+  if(!scopeCurrent(snapshot))return;
+  wipe(user.uid);
   selectedSpace='personal';
   await refreshIdentity();
 });
@@ -252,7 +362,8 @@ $('learning-space').onchange=async()=>{
   } catch(error) {showError(error);}
   finally {selector.disabled=false;}
 };
-action('refresh-approval',refreshIdentity);
+action('refresh-approval',async()=>{if(await protectDraft())await refreshIdentity();});
+action('save-all',saveAll);action('backup-all',()=>downloadDrafts());
 action('download',()=>download());action('copy',async()=>{await navigator.clipboard.writeText($('editor').value);notice('코드를 복사했습니다.');});
 action('reset',async()=>{if(await confirmAction('편집기 초기화','편집기의 코드를 비웁니다. 이전 저장본은 수정 이력에서 복원할 수 있습니다.','코드 비우기')){$('editor').value='';runState='idle';dirty();}});
 action('load-example',async()=>{
@@ -262,12 +373,14 @@ action('load-example',async()=>{
   if($('editor').value&& !await confirmAction('기본 예제 불러오기','현재 편집기를 이 활동의 기본 예제로 바꿉니다. 저장 기록은 이전 저장본에 남습니다.','예제 불러오기'))return;
   $('editor').value=example.code;$('stdin').value=example.stdin||'';runState='idle';dirty();changed();
 });
-action('cloud-reload',()=>loadWorkspace(workspace));action('history',showHistory);
+action('cloud-reload',reloadWorkspace);action('history',showHistory);
 action('submit',async()=>{if(identity?.profile?.userType==='personal')throw Error('개인 학습자는 교사 제출 대신 내 코드 보관함을 사용합니다.');
+  if(!canWrite()||loading)throw Error('로그인과 학급 승인을 확인하고 코드를 불러온 뒤 제출해 주세요.');
   if(!await confirmAction('선생님께 코드 제출','현재 편집기의 코드가 담당 선생님께 전달됩니다. 자동 저장본과 별도로 제출합니다.','현재 코드 제출'))return;
-  const snapshot=session.checkpoint(),data={title:$('title').value.trim()||labels.get(workspace),code:snapshot.code,runState,completed:$('completed').checked,classId:identity.profile.classId};
-  await bounded(identity.service.mutate(snapshot.uid,workspace,'submit',data,snapshot.version));
-  if(session.current(snapshot)){lastWrite=Date.now();notice('현재 코드를 선생님께 제출했습니다.');}
+  if(!canWrite()||!identity.profile.classId)return;
+  const snapshot=session.checkpoint(),space=scope(),data={title:$('title').value.trim()||labels.get(workspace),code:snapshot.code,runState,completed:$('completed').checked,classId:identity.profile.classId};
+  await mutateRecord(space,workspace,'submit',data,snapshot.version);
+  if(scopeCurrent(space)&&session.current(snapshot))notice('현재 코드를 선생님께 제출했습니다.');
 });
 async function executeCurrent(){
   if(runner||loading)return;
@@ -290,23 +403,24 @@ action('run',executeCurrent);
 action('stop',()=>runner?.stop());
 $('editor').addEventListener('input',()=>{runState='idle';dirty();});$('title').addEventListener('input',dirty);$('completed').addEventListener('change',dirty);
 $('editor').addEventListener('keydown',event=>{if(event.key==='Tab'&&!event.shiftKey&&!event.ctrlKey&&!event.altKey){event.preventDefault();const e=event.target,start=e.selectionStart;e.setRangeText('    ',start,e.selectionEnd,'end');dirty();}});
-$('workspace').onchange=()=>loadWorkspace($('workspace').value).catch(showError);
+$('workspace').onchange=()=>changed('open-record',{id:$('workspace').value});
 $('import').onchange=async event=>{try{const file=event.target.files[0];if(!file)return;if(file.size>80000)throw Error('파일이 너무 큽니다. 최대 20,000자 코드만 불러올 수 있습니다.');const code=await file.text();if(code.length>MAX_CODE)throw Error('코드가 20,000자를 초과했습니다.');if(!await protectDraft())return;$('editor').value=code;runState='idle';dirty();}catch(error){showError(error);}finally{event.target.value='';}};
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).hidden=true);
-for(const event of ['pointerdown','keydown','touchstart'])addEventListener(event,()=>{lastActivity=Date.now();idleSaveAttempted=false;},{passive:true});
+for(const event of ['pointerdown','keydown','touchstart'])addEventListener(event,e=>{if(e.isTrusted)activity();},{passive:true});
 setInterval(()=>{
   if(!user||loggingOut)return;
   const idle=Date.now()-lastActivity;
   if(idle>15*60000)logout(true).catch(showError);
   else if(idle>14*60000&&!idleSaveAttempted){
+    document.body.classList.add('idle-private');dispatchEvent(new CustomEvent('mk-idle'));
     idleSaveAttempted=true;
-    notice('1분 뒤 자동 로그아웃합니다. 계속 학습하려면 화면을 누르세요. 저장 상태를 확인하고 필요한 코드는 .py로 직접 내려받아 주세요.',true);
-    if(session.dirty)save().catch(error=>notice('자동 로그아웃 전 저장에 실패했습니다. 1분 안에 .py 다운로드를 눌러 보관하거나 인터넷 연결을 복구해 주세요. '+readableError(error),true));
+    notice('1분 뒤 자동 로그아웃합니다. 계속 학습하려면 화면을 누르세요. 코드·보고서와 오답 기록의 저장 상태를 확인하세요.',true);
+    if(hasUnsaved())saveAll().catch(error=>notice('자동 로그아웃 전 저장에 실패했습니다. 코드와 오답 기록을 내려받거나 인터넷 연결을 복구해 주세요. '+readableError(error),true));
   }
 },10000);
-addEventListener('offline',()=>{if(user)state('인터넷 연결 끊김 · 아직 저장되지 않은 코드를 .py로 내려받아 주세요.',true);});
-addEventListener('online',()=>{if(canWrite()){notice('인터넷 연결이 복구되었습니다. 저장을 다시 시도합니다.');save().catch(showError);}});
-addEventListener('beforeunload',event=>{if(session.dirty){event.preventDefault();event.returnValue='';}});
+addEventListener('offline',()=>{if(user)state('인터넷 연결 끊김 · 미저장 학습물 내려받기로 코드·보고서·답안을 보관해 주세요.',true);});
+addEventListener('online',()=>{if(canWrite()){notice('인터넷 연결이 복구되었습니다. 저장을 다시 시도합니다.');saveAll().catch(showError).finally(()=>scheduleSave(true));}});
+addEventListener('beforeunload',event=>{if(hasUnsaved()){event.preventDefault();event.returnValue='';}});
 channel?.addEventListener('message',event=>{if(event.data?.type==='logout')logout(true,true).catch(showError);});
 
 try {
@@ -315,29 +429,35 @@ try {
   else {
     cloud=createCloud(config.firebase,config.emulator===true);
     cloud.observe(async current=>{
-      wipe(current?.uid||null);user=current;identity=null;lastActivity=Date.now();
+      const initialAnonymous=!authObserved&&!current;authObserved=true;
+      wipe(current?.uid||null,{initialAnonymous});user=current;identity=null;lastActivity=Date.now();
       $('identity').textContent=current?`${current.displayName||'학생'} · ${current.email}`:'로그인하지 않음';$('login').hidden=!!current;$('logout').hidden=!current;
-      if(current){try{await refreshIdentity();}catch(error){showError(error);}}
-      else {notice(noticeAfterLogout||'로그인 없이 실행할 수 있습니다. Google 로그인 후 학교 또는 개인 공간에 코드를 저장하세요.');await loadWorkspace(workspace,true);changed('identity');}
+      if(current){try{await refreshIdentity();}catch(error){showError(error);$('enrollment').hidden=false;$('register').hidden=true;$('register-personal').hidden=true;}}
+      else {notice(noticeAfterLogout||'로그인 없이 실행할 수 있습니다. Google 로그인 후 학교 또는 개인 공간에 코드를 저장하세요.');await loadWorkspace(workspace);changed('identity');}
     });
   }
 } catch(error) {showError(error);$('login').disabled=true;}
 
 export const room={
-  open:loadWorkspace,guard:protectDraft,canWrite,save,logout,execute:executeCurrent,
-  current:()=>workspace,isLoading:()=>loading,
+  open:loadWorkspace,leavePage,confirm:confirmAction,guard:protectDraft,canWrite,save,saveAll,hasUnsaved,scope,scopeCurrent,activity,logout,execute:executeCurrent,
+  current:()=>workspace,isLoading:()=>loading,identityLoading:()=>!!user&&!identity,
+  registerDraft(id,draft){drafts.set(id,draft);return()=>drafts.delete(id);},
+  draftChanged(){scheduleSave();},
   setText(text){$('editor').value=text;dirty();},
-  async readRecord(id){
-    if(!canWrite())throw Error('로그인 후 승인된 학교 공간 또는 개인 공간을 선택하세요.');
-    const snapshot=session.checkpoint(),store=identity.service,data=await bounded(store.load(snapshot.uid,id));
-    if(!session.current(snapshot))throw Error('학습 공간이 바뀌어 이전 응답을 취소했습니다.');return data;
+  async history(id,snapshot=scope()){
+    if(!canWrite()||!scopeCurrent(snapshot))throw Error('로그인과 학습 공간을 확인해 주세요.');
+    const items=await bounded(snapshot.store.revisions(snapshot.uid,id));
+    if(!scopeCurrent(snapshot))return [];return items;
   },
-  async writeRecord(id,code,version){
+  async readRecord(id,snapshot=scope()){
     if(!canWrite())throw Error('로그인 후 승인된 학교 공간 또는 개인 공간을 선택하세요.');
-    if(!await protectDraft())throw Error('편집 중인 코드를 먼저 보관하세요.');
-    const snapshot=session.checkpoint(),store=identity.service;
-    const next=await bounded(store.mutate(snapshot.uid,id,'save',{code,title:labels.get(id),completed:false,runState:'idle'},version));
-    if(!session.current(snapshot))throw Error('학습 공간이 바뀌었습니다. 저장 결과를 새 공간에 적용하지 않습니다.');
-    lastWrite=Date.now();return next;
+    if(!scopeCurrent(snapshot))throw Object.assign(Error('학습 공간이 바뀌었습니다.'),{code:'stale-scope'});
+    const data=await bounded(snapshot.store.load(snapshot.uid,id));
+    if(!scopeCurrent(snapshot))throw Object.assign(Error('학습 공간이 바뀌었습니다.'),{code:'stale-scope'});return data;
+  },
+  async writeRecord(id,code,version,snapshot=scope()){
+    if(!canWrite())throw Error('로그인 후 승인된 학교 공간 또는 개인 공간을 선택하세요.');
+    if(code.length>MAX_CODE)throw Error('학습 기록은 최대 20,000자까지 저장할 수 있습니다. 내용을 줄이거나 내려받아 보관하세요.');
+    return mutateRecord(snapshot,id,'save',{code,title:labels.get(id),completed:false,runState:'idle'},version);
   }
 };

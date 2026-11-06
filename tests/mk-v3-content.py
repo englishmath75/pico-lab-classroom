@@ -49,9 +49,16 @@ for a in activities:
   code=a['code']+"\nassert len(turtle._commands)>0\nassert len(turtle._commands)<=24000\n"
   r=subprocess.run(['python','-c',code],text=True,capture_output=True,timeout=10,env={**os.environ,'PYTHONPATH':str(pathlib.Path('mk/runtime').resolve())})
   assert r.returncode==0,(a['id'],r.stderr)
-# Distribution excludes teacher originals, reference captures, SW course content and video UI.
+# Distribution excludes teacher originals, reference captures and SW course content.
+# The optional avatar's local camera preview is not SW lesson video content.
 for file in pathlib.Path('mk/src').rglob('*'):
- if file.suffix in ['.html','.js','.css']:assert not any(token in file.read_text() for token in ['df.shape','DataFrame','축제 간식','<video','시험예상']),file
+ if file.suffix in ['.html','.js','.css']:
+  source=file.read_text()
+  assert not any(token in source for token in ['df.shape','DataFrame','축제 간식','시험예상']),file
+  if '<video' in source:
+   assert file.name=='ai-avatar.html',file
+   videos=re.findall(r'<video\b[^>]*>',source)
+   assert len(videos)==1 and 'id="camera"' in videos[0] and 'src=' not in videos[0],file
 for fn in ['activities.json','lessons.json','questions.json']:
  assert not any(s in (p/fn).read_text() for s in ['import pandas','패킹','딕셔너리','튜플'])
 print('PASS 10 units; 40 questions; 20 candidates/10 core; 63 public cases; 24 multiplication cases; 12 star cases; Turtle runtime calls; AST scope and distribution contracts')

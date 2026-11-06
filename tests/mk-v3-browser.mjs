@@ -1,3 +1,4 @@
+import {verifyListAndAnswers} from './mk-list-answer-browser.mjs';
 import {chromium,expect as playwrightExpect} from '@playwright/test';
 import {createServer} from 'node:http';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
@@ -46,6 +47,7 @@ try{
  ];
  await expect(page.locator('[data-list-op]')).toHaveCount(cases.length);
  for(const [index,entry] of cases.entries()){
+   await page.locator('[data-list-op]').first().click();
    await page.locator('[data-list-op]').nth(index).click();
    const values=await page.locator('#list-after .list-cell strong').allTextContents();
    if(JSON.stringify(values)!==JSON.stringify(entry.values))throw Error('Index operation output mismatch: '+entry.label);
@@ -62,6 +64,9 @@ try{
  }
  await shot(page,'00-index-color-diff');
  evidence.push({indexExplorer:'11/11 commands correct with added/removed/moved/selected visual differences'});
+ await verifyListAndAnswers(page,{open,shot});
+ await page.setViewportSize({width:1366,height:950});
+ evidence.push({listAndAnswer:'6 routes, cumulative edits, mobile and 40 answer checks'});
 
  for(const [name,path] of [['00-review','/python-review.html#basics'],['02-list','/?page=activity&id=mk3-list-edit'],['03-fstring','/?page=activity&id=mk3-fstring'],['04-gugudan','/?page=activity&id=mk3-gugudan-horizontal-fstring'],['05-codeup','/?page=codeup&id=1173'],['06-inquiry-a','/list-tuple-dictionary.html'],['07-report','/?page=report']]){await open(page,path);await shot(page,name);}
  await open(page,'/?page=questions');await expect(page.locator('[data-question]')).toHaveCount(40);await page.getByLabel('q01 답',{exact:true}).fill('30');await page.locator('[data-check=q01]').click();await expect(page.locator('[data-question=q01] .feedback')).toContainText('다시');await page.locator('#wrong-only').check();await expect(page.locator('[data-question]')).toHaveCount(1);await page.locator('#retry-questions').click();await expect(page.locator('[data-question]')).toHaveCount(40);await page.getByLabel('q19 답',{exact:true}).fill('28');await page.locator('[data-check=q19]').click();await expect(page.locator('[data-question=q19] .feedback')).toContainText('다시');await page.getByLabel('q19 답',{exact:true}).fill('2 8');await page.locator('[data-check=q19]').click();await expect(page.locator('[data-question=q19] .feedback')).toContainText('맞았습니다');
@@ -120,6 +125,9 @@ try{
  if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1))throw Error('Reverse comparison mobile overflow');
  await shot(page,'reverse-comparison-mobile');
  evidence.push({reverseComparison:'PASS: two methods, result None, state snapshots, 4 steps, autoplay, load real Python code, 390px responsive'});
+ const sandboxOutput=await run(page,'import js\nprint(hasattr(js, "document"))\nprint(hasattr(js, "parent"))\nprint(js.location.origin)');
+ if(sandboxOutput.trim()!=='False\nFalse\nnull')throw Error('Python sandbox exposed a non-opaque parent context: '+sandboxOutput);
+ evidence.push({pythonIsolation:'no document, no parent, opaque null origin'});
  evidence.push({status:'pass',checks:['6 menus','legacy aliases','40 questions and wrong-only','stdin and horizontal output','real Turtle commands','real matplotlib with Korean font','Turtle and matplotlib PNG exports','per-run isolation and stop','390/768/1366/1920','200% zoom','keyboard focus']});
  console.log('PASS MK V3 content, runtime, responsive and keyboard browser checks');
 }catch(error){if(context){const pages=context.pages();if(pages.length)await shot(pages.at(-1),'failure').catch(()=>{});}throw error;}
