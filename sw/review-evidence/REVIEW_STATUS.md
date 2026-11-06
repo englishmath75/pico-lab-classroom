@@ -1,3 +1,13 @@
+# 최신 수정 — 00. Python 핵심 복습
+
+운영 화면의 중복 목차·과도한 빈 공간을 수정하고 빌드·배포·공개 검증을 완료했습니다. 현재 소스는 71481bc0abc7dbaf015987abdf45611b18a1ad78, 게시는 3a9fd1f4e422feefb2f1a65dfde9ef1a5ad9d941입니다.
+
+[수정 원인·검증·전후 화면](PYTHON_REVIEW_FIX_20261107.md) · [운영 배포 성공](https://github.com/englishmath75/sw/actions/runs/42273574240)
+
+아래는 이전 통합판의 배포 및 실계정 검증 기록입니다. 새 수정의 에뮬레이터 저장 검사를 실계정 재검사로 합산하지 않았습니다.
+
+---
+
 # SW V2 운영 배포 완료
 
 [SW 운영 주소](https://sw.englishmath.kr/)에서 목차·초기화면 수정본과 실제 Python 실행을 확인했습니다.

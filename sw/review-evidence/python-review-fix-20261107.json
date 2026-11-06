@@ -1,0 +1,121 @@
+{
+  "checkedAt": "2026-11-07T03:52:33+09:00",
+  "scope": "SW 00 Python review layout and related four documents",
+  "sourceSha": "71481bc0abc7dbaf015987abdf45611b18a1ad78",
+  "publisherSha": "3a9fd1f4e422feefb2f1a65dfde9ef1a5ad9d941",
+  "sourceRun": 42272230384,
+  "publisherValidationRun": 42273569495,
+  "productionRun": 42273574240,
+  "status": "PASS",
+  "production": {
+    "sourceSha": "71481bc0abc7dbaf015987abdf45611b18a1ad78",
+    "environment": "Production anonymous Chromium; no Google login or physical camera",
+    "checks": [
+      "home, legacy lesson and common menu",
+      "native data lab, actual Python shape (3,2)",
+      "pink avatar menu; eight animals; camera inactive; no save"
+    ],
+    "realGoogle": "NOT_RUN",
+    "independentBrowser": "NOT_RUN",
+    "schoolPC": "NOT_RUN",
+    "physicalCamera": "NOT_RUN",
+    "siteVersion": {
+      "source_repository": "englishmath75/pico-lab-classroom",
+      "source_sha": "71481bc0abc7dbaf015987abdf45611b18a1ad78",
+      "publisher_repository": "englishmath75/sw",
+      "publisher_sha": "3a9fd1f4e422feefb2f1a65dfde9ef1a5ad9d941",
+      "release_policy": "pinned validated SW source"
+    },
+    "status": "PASS"
+  },
+  "counts": {
+    "core": 19,
+    "rules": 35,
+    "content": 4,
+    "browserScenarios": 12,
+    "internalLinks": 1029
+  },
+  "ui": {
+    "before": {
+      "nestedOldSidebar": true,
+      "mainStartPx": 100000
+    },
+    "after": {
+      "nestedOldSidebar": false,
+      "mainStartPx": 0,
+      "topicLinks": 7
+    },
+    "viewportsTestedInCI": [
+      1440,
+      390
+    ],
+    "actualPublicRoutes": [
+      "python-review",
+      "math-function-graphs",
+      "physics-explanation",
+      "graphics-gallery"
+    ],
+    "publicAccountState": "anonymous"
+  },
+  "saveRetest": {
+    "environment": "Firebase emulator, separate Chromium context",
+    "status": "PASS",
+    "actualGoogleAtThisSha": "NOT_RUN"
+  },
+  "protected": {
+    "mkAndCommercialPublicAssetComparison": "PASS",
+    "productionDeploymentsChangedByThisFix": false,
+    "firebaseRulesChangedByThisFix": false,
+    "sourceMainOrMkPrMerged": false
+  },
+  "limitations": {
+    "priorAcceptanceCounts": {
+      "PASS": 51,
+      "BLOCKED": 3,
+      "NOT_RUN": 4
+    },
+    "schoolPC": "NOT_RUN",
+    "physicalCamera": "NOT_RUN",
+    "realSecondStudent": "BLOCKED"
+  },
+  "artifacts": [
+    {
+      "id": 13532386128,
+      "name": "github-pages",
+      "size_in_bytes": 596689522,
+      "url": "https://api.github.com/repos/englishmath75/sw/actions/artifacts/13532386128",
+      "archive_download_url": "https://api.github.com/repos/englishmath75/sw/actions/artifacts/13532386128/zip",
+      "expired": false,
+      "created_at": "2026-11-06T18:47:22Z",
+      "expires_at": "2026-11-07T18:47:06Z",
+      "updated_at": "2026-11-06T18:47:22Z",
+      "digest": "sha256:8235fc1e6e3323bbf0014dd1b38d2e23093e24918434bc10904664f119355a2b",
+      "workflow_run": {
+        "id": 42273574240,
+        "repository_id": 1436412978,
+        "head_repository_id": 1436412978,
+        "head_branch": "main",
+        "head_sha": "3a9fd1f4e422feefb2f1a65dfde9ef1a5ad9d941"
+      }
+    },
+    {
+      "id": 13531333792,
+      "name": "sw-production-verification",
+      "size_in_bytes": 704203,
+      "url": "https://api.github.com/repos/englishmath75/sw/actions/artifacts/13531333792",
+      "archive_download_url": "https://api.github.com/repos/englishmath75/sw/actions/artifacts/13531333792/zip",
+      "expired": false,
+      "created_at": "2026-11-06T18:52:32Z",
+      "expires_at": "2026-12-06T18:52:31Z",
+      "updated_at": "2026-11-06T18:52:32Z",
+      "digest": "sha256:010edbd18f8b070d0d7b36571f1b1ffdf58333fce394d22584bed83d5ff911b9",
+      "workflow_run": {
+        "id": 42273574240,
+        "repository_id": 1436412978,
+        "head_repository_id": 1436412978,
+        "head_branch": "main",
+        "head_sha": "3a9fd1f4e422feefb2f1a65dfde9ef1a5ad9d941"
+      }
+    }
+  ]
+}
