@@ -36,3 +36,6 @@ h1{text-wrap:balance}
 .sidebar .brand img{width:180px;max-width:100%;height:auto;aspect-ratio:2048/1529;object-fit:contain;background:#faf8f1;border:1px solid #e4dfd1;border-radius:10px;padding:8px}
 .sidebar .brand strong{font-size:22px;font-weight:800;line-height:1.35;letter-spacing:-.6px;margin:12px 0 8px;word-break:keep-all}
 @media(max-width:900px){.sidebar .brand img{width:140px}.sidebar .brand strong{font-size:20px}}
+
+/* Keep the logo clear of the two-row mobile account bar. */
+@media(max-width:650px){.sidebar{padding-top:116px}}
