@@ -11,7 +11,7 @@ const root=path.resolve('public/pandas-data-lab'),base=process.env.AVATAR_LIVE_U
  fs.mkdirSync('avatar-evidence',{recursive:true});
  for(const width of [1366,390]){await page.setViewportSize({width,height:width===390?844:768});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await page.screenshot({path:`avatar-evidence/${width}.png`,fullPage:true});}
  for(let i=0;i<8;i++){await page.locator('.animal-option').nth(i).click();assert.equal(await page.locator('.animal-option').nth(i).getAttribute('aria-pressed'),'true');}
- await page.locator('#smile').fill('.82');await page.waitForFunction(()=>document.querySelector('#mission-smile').classList.contains('done'));
+ await page.locator('#smile').fill('0.82');await page.waitForFunction(()=>document.querySelector('#mission-smile').classList.contains('done'));
  await page.locator('#blink').fill('1');await page.waitForTimeout(100);await page.locator('#blink').fill('0');assert.ok(await page.locator('#mission-blink').evaluate(e=>e.classList.contains('done')));
  await page.locator('#tilt').fill('-20');await page.locator('#tilt').fill('20');assert.ok(await page.locator('#mission-tilt').evaluate(e=>e.classList.contains('done')));
  await page.locator('#snapshot').click();assert.ok((await page.locator('#code').inputValue()).startsWith('smile_score = 0.820'));
