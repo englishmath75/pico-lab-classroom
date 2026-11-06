@@ -16,7 +16,7 @@ const results=[],errors=[],devices=[],vendorCache=new Map(),dist=resolve('dist')
 let browser,server,origin,lastPage;
 const frame=p=>p.frameLocator('#sw-classroom-frame');
 const fixture='SW_V2_EMULATOR_20261107';
-async function admin(fn){return env.withSecurityRulesDisabled(c=>fn(c.firestore()));}
+async function admin(fn){let value;await env.withSecurityRulesDisabled(async c=>{value=await fn(c.firestore());});return value;}
 async function record(uid,id){return admin(async db=>{const s=await getDocFromServer(doc(db,'users',uid,'workspaces',id));return s.exists()?s.data():null;});}
 async function scope(uid){return admin(async db=>{const out={};for(const g of ['workspaces','progress','revisions','submissions','limits'])out[g]=(await getDocs(collection(db,'users',uid,g))).docs.map(d=>[d.id,d.data()]).sort();return JSON.stringify(out);});}
 const value=async(uid,id)=>{const r=await record(uid,id);return r?JSON.parse(r.code).value:null;};
@@ -44,7 +44,7 @@ async function device(path='/?page=home',{clock=false,camera=false}={}){
 }
 async function login(p,person){
  const popup=p.waitForEvent('popup');await p.locator('#sw-login').click();const q=await popup;await q.waitForLoadState();await q.getByText(person.email,{exact:true}).click();
- await expect(p.locator('#sw-user')).toHaveText(person.name);await expect(p.locator('#sw-space')).toHaveText('2026학년도 2학년 1반');
+ await expect(p.locator('#sw-user')).toContainText(person.name);await expect(p.locator('#sw-space')).toHaveText('2026학년도 2학년 1반');
  await expect(p.locator('#sw-message')).not.toContainText('승인 정보를 읽지 못했습니다');
 }
 async function nav(p,id){await p.locator('a[data-route="'+id+'"]').click();await expect(p).toHaveURL(new RegExp('[?&]page='+id+'(?:&|$)'));if(id!=='data-lab'&&id!=='practice'&&id!=='library')await expect(p.locator('#sw-classroom-frame')).toBeVisible();}
@@ -84,7 +84,7 @@ try{
   await expect(frame(p).locator('#editor')).toBeVisible();await frame(p).locator('#editor').fill('print("'+fixture+'")');
   await expect.poll(async()=> (await record(people.student.uid,'lesson-01'))?.code,{timeout:100000}).toBe('print("'+fixture+'")');
   await expect(p.locator('#sw-save-state')).toContainText('클라우드 저장 완료');
-  for(const id of ['home','data','exam','report','python-review','data-lab','library','lesson']){await nav(p,id);await expect(p.locator('#sw-user')).toHaveText(people.student.name);assert.equal(await p.evaluate(()=>performance.timeOrigin),t);}
+  for(const id of ['home','data','exam','report','python-review','data-lab','library','lesson']){await nav(p,id);await expect(p.locator('#sw-user')).toContainText(people.student.name);assert.equal(await p.evaluate(()=>performance.timeOrigin),t);}
   await expect(frame(p).locator('#editor')).toHaveValue('print("'+fixture+'")');await shot(p,'lesson-account-restored');
  });
  await scenario('step predictions/input, ungraded review, seven report fields and data lab stay dirty across screens',async()=>{
@@ -131,7 +131,7 @@ try{
  });
  assert.equal(errors.length,0,'Unexpected page errors: '+JSON.stringify(errors));
 } catch(error){
- console.error(error);if(lastPage&&!lastPage.isClosed()){console.log('SW_FAILURE_DOM '+(await lastPage.locator('body').innerText().catch(()=>'' )).slice(0,6000));await lastPage.screenshot({path:resolve(artifacts,'failure.png')}).catch(()=>{});await writeFile(resolve(artifacts,'failure.html'),await lastPage.content().catch(()=>''));}
+ console.error(error);console.log('SW_RECORD_DEBUG '+await scope(people.student.uid));console.log('SW_BROWSER_ERRORS '+JSON.stringify(errors));if(lastPage&&!lastPage.isClosed()){console.log('SW_EDITOR_DEBUG '+JSON.stringify(await lastPage.locator('#sw-classroom-frame').evaluate(el=>({src:el.src,editor:el.contentDocument?.querySelector('#editor')?.value,lesson:el.contentDocument?.querySelector('#heroTitle')?.textContent})).catch(()=>null)));console.log('SW_FAILURE_DOM '+(await lastPage.locator('body').innerText().catch(()=>'' )).slice(0,6000));await lastPage.screenshot({path:resolve(artifacts,'failure.png')}).catch(()=>{});await writeFile(resolve(artifacts,'failure.html'),await lastPage.content().catch(()=>''));}
  process.exitCode=1;
 } finally {
  await writeFile(resolve(artifacts,'browser-results.json'),JSON.stringify({sourceSha:process.env.GITHUB_SHA,environment:'GitHub Actions Chromium; Firebase Auth and Firestore emulators; MOCK_MEDIA; independent contexts are not real Google independent-browser evidence',results,errors,notRun:['real Google login','independent real browser restoration','physical school PCs','physical camera','29 physical PCs']},null,2));

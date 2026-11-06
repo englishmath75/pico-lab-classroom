@@ -51,7 +51,7 @@ import providedData from '../provided-data.json';
   $('sw-submit').hidden=route?.storageMode==='none'||!store.writable;
   $('sw-resolve').hidden=!error&&!store.errors.size;
   $('sw-login').textContent=user?'계정 바꾸기':'Google 로그인';
-  $('sw-user').textContent=user?(user.displayName||'로그인한 사용자'):'로그인 전';
+  $('sw-user').textContent=user?((user.displayName||'로그인한 사용자')+' · '+(user.email||'')):'로그인 전';
   const cls=identity?.classes?.find(c=>c.id===identity.profile?.classId);
   $('sw-space').textContent=(cls?(cls.title.includes('2026')?cls.title:'2026학년도 '+cls.title):null)|| (user?'기존 고2 학급 확인':'고2 · 소프트웨어와 생활');
   $('sw-teacher').hidden=!identity?.staff;$('sw-refresh').hidden=!user;

@@ -1,7 +1,11 @@
-# SW V2 integration — work in progress
+# SW V2 통합 작업 상태
 
-Baseline source c38e7ce5e057b68898d086dde1caaaceae4f6d00; publisher 17162105ba32ac5075017115901800cb298068a0. Existing pink avatar design is preserved. This branch is not production-ready and must not be merged into main or published before all required tests and rules approval.
+SW 전용 브랜치: work/sw-v2-unified-20261106.
+기준 source c38e7ce5e057b68898d086dde1caaaceae4f6d00 / publisher 17162105ba32ac5075017115901800cb298068a0.
+원본 콘텐츠와 분홍 아바타 메뉴, 고2 표기·로고·16px 표시를 보존합니다.
 
-Local Work execution environment was unavailable on resume. Implementation and isolated validation are being prepared through the GitHub connector and GitHub Actions. Prior unfinished local worktree is not overwritten. MK 7f1f2af / PR39 and commercial source 0c9ecc0 remain untouched.
+통합 구현·빌드·기존 게시 경로 검사에 도달했으며 브라우저 회귀 시험과 수정이 진행 중입니다. 검증 완료 전 운영 배포하지 않습니다.
+현재 운영 Firebase 규칙은 학교 계정으로 전체 재확인했고 기존 MK 포함 스냅샷과 동일합니다. 규칙 확장은 미승인·미적용입니다.
+실제 Google 계정의 새 SW 통합 기능 운영 시험, 독립 브라우저, 실제 학교 PC·카메라 시험은 아직 수행하지 않았습니다.
 
-The rules file under sw/security/proposed.rules is a proposal only. Current Firebase console read is blocked by missing school-account authentication. No production rules deployment, student-data migration, deletion, or SW production deployment has been performed.
+MK 7f1f2af 계열 / PR39와 상용 사이트 원본 0c9ecc0는 변경하지 않았습니다. SW source main 및 publisher main도 아직 변경하지 않았습니다.

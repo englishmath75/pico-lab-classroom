@@ -55,7 +55,7 @@ export class ClassroomStore{
  }
  async autoSave(){
   for(const d of this.dirty()){
-   if(d.saving||d.kind==='conflict'||this.errors.has(d.id)||this.now()-d.dirtyAt<60000)continue;
+   if(d.saving||d.kind==='error'||d.kind==='conflict'||this.errors.has(d.id)||this.now()-d.dirtyAt<60000)continue;
    try{await d.save();}catch{}
   }
  }
