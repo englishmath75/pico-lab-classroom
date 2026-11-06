@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#662AEF">
-<meta name="description" content="영수쌤의 Python 교실 질문 보충: 8비트가 0~255인 이유, FF와 0xFF, RGB 색상 코드, Arduino PWM을 읽고 실험하며 배우는 디지털 참고서">
-<title>질문 보충 01 · 왜 FF는 255일까? | 영수쌤의 Python 교실</title>
+<meta name="description" content="영수쌤의 파이썬 교실 질문 보충: 8비트가 0~255인 이유, FF와 0xFF, RGB 색상 코드, Arduino PWM을 읽고 실험하며 배우는 디지털 참고서">
+<title>질문 보충 01 · 왜 FF는 255일까? | 영수쌤의 파이썬 교실</title>
 <style>
 :root{--ink:#26203b;--muted:#665f7e;--line:#e8e0f6;--cream:#fff8f3;--purple:#6732e9;--pink:#ec438b;--mint:#06ab9c;--gold:#e3a63d;font:15px/1.8 "Pretendard","Malgun Gothic",system-ui,sans-serif;color:var(--ink);background:var(--cream)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:linear-gradient(165deg,#fff8f3,#f8f2ff 42%,#fffaf5)}button,input{font:inherit}button{cursor:pointer}a{color:#5724ba}a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #efb627;outline-offset:3px}code,pre,.digit{font-family:Consolas,"Courier New",monospace}
@@ -38,7 +38,7 @@ main{width:100%;max-width:1260px;padding:24px 28px 72px;margin:auto;min-width:0}
 <body>
 <div class="layout">
 <aside class="sidebar" aria-label="보충 학습 메뉴">
-<a class="brand" href="./" aria-label="영수쌤의 Python 교실 홈페이지"><img src="./assets/englishmath-logo.png?v=20261028-original" alt="englishmath 로고"><div><strong>영수쌤의 Python 교실</strong><br><small>3단원 데이터 분석 · 소프트웨어와 생활</small></div></a>
+<a class="brand" href="./" aria-label="영수쌤의 파이썬 교실 홈페이지"><img src="./assets/englishmath-logo.png?v=20261028-original" alt="englishmath 로고"><div><strong>영수쌤의 파이썬 교실</strong><br><small>3단원 데이터 분석 · 소프트웨어와 생활</small></div></a>
 <nav class="course" aria-label="3단원 수업과 질문 보충">
 <div class="inquiry-tree"><button type="button" class="inquiry-title" aria-expanded="true">★ 궁금증을 파헤치는 탐구실</button><div class="inquiry-items"><div class="inquiry-item"><a class="topic-title" href="./list-tuple-dictionary.html">A. 리스트·튜플·딕셔너리 비교 실습</a><button type="button" class="inquiry-toggle" aria-expanded="false" aria-label="목차 열기 또는 닫기">⌄</button><div class="topic-toc" hidden><a href="./list-tuple-dictionary.html#list">00. 리스트 명령어와 슬라이싱</a><a href="./list-tuple-dictionary.html#practice">01. 한 개의 Python 파일로 실습하기</a><a href="./list-tuple-dictionary.html#packing">02. 튜플 패킹과 언패킹</a></div></div><div class="inquiry-item"><a class="topic-title is-open" href="./questions-supplement.html#top" aria-current="page">B. 진법표현</a><button type="button" class="inquiry-toggle" aria-expanded="true" aria-label="목차 열기 또는 닫기">⌄</button><div class="topic-toc"><a href="#top">00. 오늘의 질문</a><a href="#bits">01. 8비트는 왜 256가지일까?</a><a href="#hex">02. FF는 왜 255일까?</a><a href="#python">03. 0x는 왜 붙일까?</a><a href="#rgb">04. # 색상 코드는?</a><a href="#arduino">05. Arduino와 연결</a><a href="#live">06. 실험실</a><a href="#quiz">07. 확인 문제</a><a href="#record">08. 질문 기록</a></div></div><div class="inquiry-item"><a class="topic-title" href="./radians.html#question">C. 호도법(라디안)</a><button type="button" class="inquiry-toggle" aria-expanded="false" aria-label="목차 열기 또는 닫기">⌄</button><div class="topic-toc" hidden><a href="./radians.html#question">00. 오늘의 질문</a><a href="./radians.html#angles">01. 각도와 라디안</a><a href="./radians.html#definition">02. 라디안의 정의</a><a href="./radians.html#thirty">03. 30도는 왜 π/6일까?</a><a href="./radians.html#full-turn">04. 원 한 바퀴는 왜 2π일까?</a><a href="./radians.html#python">05. Python math.radians()</a><a href="./radians.html#trig">06. sin·cos와 라디안</a><a href="./radians.html#experiment">07. 직접 실험하기</a><a href="./radians.html#quiz">08. 확인 문제</a></div></div><div class="inquiry-item"><a class="topic-title" href="./four-turtles.html#goals">D. 네 마리 거북이로 함수 그래프 그리기 (시험예상)</a><button type="button" class="inquiry-toggle" aria-expanded="false" aria-label="목차 열기 또는 닫기">⌄</button><div class="topic-toc" hidden><a href="./four-turtles.html#goals">00. 오늘의 질문</a><a href="./four-turtles.html#compare">01. 원본 전체 코드</a><a href="./four-turtles.html#objects">02. 클래스와 네 객체</a><a href="./four-turtles.html#colors">03. 설정과 역할 나누기</a><a href="./four-turtles.html#practice">04. 원본 수정 예상문제</a><a href="./four-turtles.html#answer">05. 모범답안 확인</a><a href="./four-turtles.html#execution">06. 함께 그래프 그리기</a><a href="./four-turtles.html#rubric">07. 채점 기준</a></div></div></div></div>
 <a href="./python-review.html">00. Python 핵심 복습</a>
@@ -53,7 +53,7 @@ main{width:100%;max-width:1260px;padding:24px 28px 72px;margin:auto;min-width:0}
 <main>
 <nav class="inquiry-quickbar" aria-label="탐구실 A부터 D까지"><a href="./list-tuple-dictionary.html">A. 리스트·튜플·딕셔너리 비교 실습</a><a href="./questions-supplement.html#top" aria-current="page">B. 진법표현</a><a href="./radians.html#question">C. 호도법(라디안)</a><a href="./four-turtles.html#goals">D. 네 마리 거북이로 함수 그래프 그리기 (시험예상)</a></nav>
 <header class="hero" id="top">
-<span class="eyebrow">✦ 질문 보충 01 · 영수쌤의 Python 교실</span>
+<span class="eyebrow">✦ 질문 보충 01 · 영수쌤의 파이썬 교실</span>
 <h1>왜 <em>FF</em>는 <em>255</em>일까?</h1>
 <p>8비트부터 16진수, Python, Arduino, 웹 색상 코드까지 연결하는 특별한 수업</p>
 <div class="hero-equation" aria-label="같은 255를 세 진법으로 표현">
@@ -186,7 +186,7 @@ analogWrite(LED, 0xFF);  // 위의 255와 같은 숫자</code></pre>
 <div class="revision"><b>질문 01 · 진법과 색상</b> — 8비트와 0~255, FF와 16진수, 0x 접두사, RGB 색상, Arduino PWM</div>
 <div class="chapter-links" style="margin-top:16px"><a href="./python-review.html">00차시 핵심 복습으로</a><a href="./math-function-graphs.html">수학 함수 그래프로</a><a href="./">3단원 수업 안내로</a></div>
 </section>
-<footer class="footer">영수쌤의 Python 교실 · 학생 질문 보충실 · 3단원 「현상을 분석하는 소프트웨어」</footer>
+<footer class="footer">영수쌤의 파이썬 교실 · 학생 질문 보충실 · 3단원 「현상을 분석하는 소프트웨어」</footer>
 </main>
 </div>
 <script>

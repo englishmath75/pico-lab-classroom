@@ -64,3 +64,21 @@
  .classroom-page .side .brand .classroom-name{font-size:18px}
  .classroom-page .side .brand .classroom-unit{font-size:16px;margin-top:12px}
 }
+
+/* Shared englishmath brand contract: original logo, 180px / 22px. */
+.classroom-page .side .brand .classroom-name{font-family:Arial, 'Malgun Gothic', sans-serif;font-size:22px;font-weight:800;line-height:1.35;letter-spacing:-.6px;white-space:normal;word-break:keep-all;margin-top:12px}
+.classroom-page .side .brand img{width:180px;max-width:100%;height:auto;margin:0 auto 12px}
+.classroom-page .table-illustration{min-width:0;padding:24px}
+.classroom-page .table-illustration .table-label{font-size:18px;font-weight:800;color:#284458}
+.classroom-page .table-illustration table{width:100%;font:700 20px/1.6 Consolas,monospace;font-variant-numeric:tabular-nums}
+.classroom-page .table-illustration th,.classroom-page .table-illustration td{padding:13px 12px;border-bottom:2px solid #dce4e9}
+.classroom-page .table-illustration thead th{font-size:16px;font-weight:800;color:#344f62;background:#edf2f5}
+.classroom-page .table-illustration tbody tr:nth-child(even) td{background:#f5f8fa}
+.classroom-page .table-illustration tbody th{background:#f7ebca;color:#725718;font-weight:800}
+.classroom-page .table-illustration p{align-items:center;gap:12px;flex-wrap:wrap}
+.classroom-page .table-illustration p code{font-size:18px;font-weight:700}
+.classroom-page .table-illustration p b{font-size:22px;font-weight:800}
+.classroom-page .table-illustration small{font-size:14px;color:#4c6273;line-height:1.65}
+@media(min-width:1001px){.classroom-page .classroom-hero{grid-template-columns:minmax(0,1.15fr) minmax(310px,1fr);gap:28px}}
+@media(max-width:850px){.classroom-page .side .brand img{width:140px}.classroom-page .side .brand .classroom-name{font-size:20px}}
+@media(max-width:480px){.classroom-page .table-illustration{padding:16px}.classroom-page .table-illustration th,.classroom-page .table-illustration td{padding:12px 8px}.classroom-page .table-illustration table{font-size:18px}.classroom-page .classroom-hero{padding:20px}}
