@@ -73,8 +73,8 @@ try{
    await p.getByRole('button',{name:'이전 단계',exact:true}).click();await expect(p.getByRole('button',{name:'다음 단계',exact:true})).toBeEnabled();await p.getByRole('button',{name:'최종 결과',exact:true}).click();
   }
   await nav(p,'home');await expect(p.locator('iframe[sandbox]')).toHaveCount(0);
-  await p.locator('.sw-external a').evaluate(a=>({href:a.href,target:a.target})).then(a=>{assert.equal(a.href,'https://englishmath-python.vercel.app/data-lab');assert.equal(a.target,'_blank');});
-  await expect(p.locator('.sw-external')).toContainText('새 파이썬 교실 체험 ↗');await expect(p.locator('#sw-save')).toBeHidden();
+  await expect(p.locator('.sw-external')).toHaveCount(0);
+  await expect(p.locator('a[href*="englishmath-python.vercel.app"]')).toHaveCount(0);await expect(p.locator('#sw-save')).toBeHidden();
   await expect(frame(p).locator('.sw-home-route a')).toHaveCount(4);
   await expect(frame(p).locator('.sw-home-inquiries a')).toHaveCount(4);
   await expect(frame(p).locator('#home > .classroom-hero')).toBeVisible();

@@ -19,7 +19,7 @@ test('provided CSV bytes, protected runtime and all four inquiries survive packa
  for(const file of ['list-tuple-dictionary.html','questions-supplement.html','radians.html','four-turtles.html'])assert((await readFile('dist/sw-content/'+file,'utf8')).length>1000);
  const manifest=JSON.parse(await readFile('sw/datalab/content/runtime-assets.json','utf8'));for(const p of manifest)assert((await readFile('dist'+p)).length>0);
  const candidate=await readFile('dist/index.html','utf8');assert(/sw-assets\/app\.[0-9a-f]{12}\.js/.test(candidate));assert(candidate.includes('data-sw-integrated="2"'));
- assert(!candidate.includes('새 데이터 분석 시각화 실험실'));assert(candidate.includes('새 파이썬 교실 체험 ↗'));
+ assert(!candidate.includes('새 데이터 분석 시각화 실험실'));assert(!candidate.includes('새 파이썬 교실 체험 ↗'));assert(!candidate.includes('englishmath-python.vercel.app'));
 });
 
 test('published lesson and teacher storage guidance matches account storage',async()=>{
