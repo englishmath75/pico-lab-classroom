@@ -67,7 +67,7 @@ async function navigate(next,{push=true,open=true}={}){
  const mainPage=['review','inquiry'].includes(page)||url.searchParams.get('from')==='review'?'review':['lesson','activity','codeup'].includes(page)?url.searchParams.get('from')==='questions'?'questions':'lessons':page;
  document.querySelectorAll('.sidebar nav>a').forEach(a=>{const yes=new URL(a.href).searchParams.get('page')===mainPage;if(yes)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
  $('sidebar').classList.remove('open');$('menu-toggle').setAttribute('aria-expanded','false');
- document.title=(document.querySelector('#page-content h1')?.textContent||'수업 안내')+' | 영수쌤의 Python 교실';
+ document.title=(document.querySelector('#page-content h1')?.textContent||'수업 안내')+' | 영수쌤의 파이썬 교실';
  shownWorkspace=active;
  configurePractice(active);
  wirePage(page);

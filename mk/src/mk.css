@@ -30,3 +30,9 @@ h1{text-wrap:balance}
 .list-legend-dot.selected{background:#e7e1ff;border-color:#7653cb}
 .index-controls button[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 2px 8px #6d5ce720}
 @media(prefers-reduced-motion:reduce){.list-cell{transition:none}}
+
+/* Shared englishmath brand contract; preserve the original logo pixels. */
+.sidebar .brand{font-family:Arial, 'Malgun Gothic', sans-serif;text-align:center}
+.sidebar .brand img{width:180px;max-width:100%;height:auto;aspect-ratio:2048/1529;object-fit:contain;background:#faf8f1;border:1px solid #e4dfd1;border-radius:10px;padding:8px}
+.sidebar .brand strong{font-size:22px;font-weight:800;line-height:1.35;letter-spacing:-.6px;margin:12px 0 8px;word-break:keep-all}
+@media(max-width:900px){.sidebar .brand img{width:140px}.sidebar .brand strong{font-size:20px}}
