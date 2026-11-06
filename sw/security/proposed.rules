@@ -26,6 +26,8 @@ service cloud.firestore {
     // SW V2: finite learning records; MK workspaceId remains unchanged.
     function swWorkspaceId(id) {
       return workspaceId(id) || id in [
+        'sw2-inquiry-d-state',
+        'sw2-kosis',
         'sw2-lesson-01-state',
         'sw2-lesson-02-state',
         'sw2-lesson-03-state',

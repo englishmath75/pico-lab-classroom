@@ -1,0 +1,10 @@
+html,body{margin:0!important;min-width:0!important;max-width:100%!important;background:transparent!important}
+.layout{display:block!important;min-width:0!important}
+main.main,main{margin:0!important;padding:8px!important;min-width:0!important;max-width:100%!important;width:auto!important}
+aside.side:has(.brand),.student-entry,.student-entry-bar,.side-foot,.skip{display:none!important}
+aside.side:not(:has(.brand)){position:static!important;width:auto!important;max-height:none!important}
+.top{position:static!important} textarea{max-width:100%;box-sizing:border-box}
+[hidden]{display:none!important} .table-illustration{min-width:0}.df-scroll,pre{max-width:100%}
+@media print{.sw-frame-note,button,input[type=file]{display:none!important}}
+
+html,body,.layout{min-height:0!important} aside.sidebar{position:static!important;height:auto!important;max-height:none!important}aside.sidebar .brand,.legacy{display:none!important}aside.sidebar #lessonNav{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}

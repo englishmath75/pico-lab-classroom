@@ -1,7 +1,7 @@
 const seq=n=>Array.from({length:n},(_,i)=>String(i+1).padStart(2,'0'));
 export const units=['SW01','SW03','SW04'];
 export const legacyIds=['lesson-00',...seq(10).map(n=>'lesson-'+n),...seq(10).map(n=>'scratch-'+n),...'abcd'.split('').map(n=>'inquiry-'+n)];
-export const newIds=[...seq(10).map(n=>'sw2-lesson-'+n+'-state'),'sw2-review','sw2-report','sw2-basics','sw2-binary','sw2-first-analysis','sw2-simulation','sw2-free-code','sw2-free-state',...seq(10).flatMap(n=>['sw2-archive-'+n,'sw2-archive2-'+n]),...seq(18).map(n=>'sw2-mastery-'+n),...units.flatMap(n=>['sw2-datalab-'+n+'-code','sw2-datalab-'+n+'-state'])];
+export const newIds=[...seq(10).map(n=>'sw2-lesson-'+n+'-state'),'sw2-inquiry-d-state','sw2-kosis','sw2-review','sw2-report','sw2-basics','sw2-binary','sw2-first-analysis','sw2-simulation','sw2-free-code','sw2-free-state',...seq(10).flatMap(n=>['sw2-archive-'+n,'sw2-archive2-'+n]),...seq(18).map(n=>'sw2-mastery-'+n),...units.flatMap(n=>['sw2-datalab-'+n+'-code','sw2-datalab-'+n+'-state'])];
 export const activityIds=[...legacyIds,...newIds];
 const allowed=new Set(activityIds);
 export const validActivity=id=>typeof id==='string'&&allowed.has(id);
@@ -16,7 +16,7 @@ export function titleFor(id){
  if(id.startsWith('sw2-archive2-'))return '이전 통합 예제 '+Number(n);
  if(id.startsWith('sw2-archive-'))return '이전 차시 예제 '+Number(n);
  if(id.startsWith('sw2-mastery-'))return '기초 다지기 '+Number(n);
- return ({'sw2-review':'복습 답안·오답','sw2-report':'SW 탐구 보고서','sw2-basics':'Python 핵심 복습 답안','sw2-binary':'진법 표현 답안','sw2-first-analysis':'전체 과정 해석','sw2-simulation':'생물 다양성 모의실험','sw2-free-code':'자료 연결 자유 실습','sw2-free-state':'자유 실습 입력·자료'})[id]||id;
+ return ({'sw2-inquiry-d-state':'네 마리 거북이 설명·자기 점검','sw2-kosis':'KOSIS 인구 탐구 보고서','sw2-review':'복습 답안·오답','sw2-report':'SW 탐구 보고서','sw2-basics':'Python 핵심 복습 답안','sw2-binary':'진법 표현 답안','sw2-first-analysis':'전체 과정 해석','sw2-simulation':'생물 다양성 모의실험','sw2-free-code':'자료 연결 자유 실습','sw2-free-state':'자유 실습 입력·자료'})[id]||id;
 }
 const frame=(label,file,storageMode='none',ids=[])=>({label,file,kind:'frame',storageMode,activityIds:ids,aliases:[file],mount:'legacy-frame',dispose:'release-frame'});
 export const routes={
@@ -35,7 +35,9 @@ export const routes={
  simulation:frame('생물 다양성 모의실험','simulation.html','mixed',['sw2-simulation','sw2-free-code','sw2-free-state']),
  avatar:frame('AI 표정 아바타 실험실','ai-avatar.html'),
  'avatar-notices':frame('아바타 공개 SW 안내','ai-avatar-notices.html'),
- ...Object.fromEntries(['lesson01-guide','list-tuple-dictionary','radians','four-turtles','textbook-classroom','textbook-guide','kosis-project','math-function-graphs','physics-explanation','graphics-gallery','teacher-10','video-player'].map(id=>[id,frame(id,id+'.html')])),
+ ...Object.fromEntries(['lesson01-guide','list-tuple-dictionary','radians','textbook-classroom','textbook-guide','math-function-graphs','physics-explanation','graphics-gallery','teacher-10','video-player'].map(id=>[id,frame(id,id+'.html')])),
+ 'four-turtles':frame('D. 네 마리 거북이','four-turtles.html','mixed',['inquiry-d','sw2-inquiry-d-state']),
+ 'kosis-project':frame('KOSIS 인구 탐구','kosis-project.html','report',['sw2-kosis']),
  practice:{label:'자유 Python 실습실',kind:'practice',storageMode:'code',activityIds:legacyIds,aliases:['student-room.html'],mount:'practice',dispose:'engine'},
  library:{label:'내 학습 보관함',kind:'library',storageMode:'none',activityIds:[],aliases:['student-room.html?panel=library'],mount:'library',dispose:'generation'},
  teacher:{label:'교사용 관리실',kind:'teacher',storageMode:'none',activityIds:[],aliases:['student-room.html?panel=teacher'],mount:'teacher',dispose:'generation'},
@@ -57,9 +59,10 @@ export function resolveRoute(input,base='https://sw.englishmath.kr/'){
  return {id:page,...routes[page],params:Object.fromEntries(q),hash,url:'/?'+q+hash};
 }
 export function routeForActivity(id){
- if(/^lesson-\d\d$/.test(id)||/^sw2-lesson-\d\d-state$/.test(id))return '/?page=lesson&lesson='+Math.max(1,Number(id.match(/\d\d/)[0]));
+ if(id==='inquiry-d')return '/?page=four-turtles';
+ if(/^lesson-(?:0[1-9]|10)$/.test(id)||/^sw2-lesson-\d\d-state$/.test(id))return '/?page=lesson&lesson='+Math.max(1,Number(id.match(/\d\d/)[0]));
  if(id.startsWith('sw2-datalab-'))return '/?page=data-lab&unit='+id.split('-')[2];
- const page=({'sw2-review':'exam','sw2-report':'report','sw2-basics':'python-review','sw2-binary':'questions-supplement','sw2-first-analysis':'first-analysis','sw2-simulation':'simulation','sw2-free-code':'lab','sw2-free-state':'lab'})[id];
+ const page=({'sw2-inquiry-d-state':'four-turtles','sw2-kosis':'kosis-project','sw2-review':'exam','sw2-report':'report','sw2-basics':'python-review','sw2-binary':'questions-supplement','sw2-first-analysis':'first-analysis','sw2-simulation':'simulation','sw2-free-code':'lab','sw2-free-state':'lab'})[id];
  if(page)return '/?page='+page;
  if(id.startsWith('sw2-archive2-'))return '/?page=final-course#unit-'+Number(id.slice(-2));
  if(id.startsWith('sw2-archive-'))return '/?page=examples#unit-'+Number(id.slice(-2));

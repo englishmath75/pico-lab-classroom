@@ -44,7 +44,7 @@ export class ClassroomStore{
  dirty(){return [...this.drafts.values()].filter(d=>d.dirty);}
  async flush(ids=null){
   const selected=ids?ids.map(id=>this.draft(id)):this.dirty();
-  let ok=true;for(const d of selected){
+  let ok=!selected.some(d=>this.errors.has(d.id));for(const d of selected){
    if(!d.dirty)continue;
    if(this.errors.has(d.id)){ok=false;continue;}
    try{if(!await d.save())ok=false;}catch{ok=false;}
@@ -61,12 +61,17 @@ export class ClassroomStore{
  async remote(id){return this.service.load(this.uid,id);}
  async useRemote(id){
   const d=this.draft(id);if(d.saving)throw Error('진행 중인 저장 응답을 먼저 확인해 주세요.');
-  d.discard();await d.load({force:true});if(structured(id))decode(id,d.data.code);
+  const gen=this.generation,edit=d.edit,remote=await this.remote(id);
+  if(gen!==this.generation||edit!==d.edit)throw Error('계정 또는 초안이 바뀌었습니다. 다시 비교해 주세요.');
+  const data=remote?{title:remote.title,code:remote.code,completed:!!remote.completed,runState:remote.runState||'idle'}:{title:titleFor(id),code:structured(id)?encode(id,{}):'',completed:false,runState:'idle'};
+  if(structured(id))decode(id,data.code);
+  d.data=data;d.base={...data};d.version=remote?.version||0;d.loaded=true;d.dirty=false;d.dirtyAt=0;d.edit++;d.notify('loaded');
   this.errors.delete(id);this.temp.clear();this.onChange();
  }
- async keepMine(id){
+ async keepMine(id,comparedVersion){
   const d=this.draft(id),generation=this.generation,edit=d.edit,remote=await this.remote(id);
   if(generation!==this.generation||edit!==d.edit)throw Error('계정 또는 초안이 바뀌었습니다. 다시 비교해 주세요.');
+  if(comparedVersion!==undefined&&(remote?.version||0)!==comparedVersion)throw Error('비교한 뒤 서버 저장본이 다시 바뀌었습니다. 다시 비교해 주세요.');
   d.version=remote?.version||0;d.loaded=true;this.errors.delete(id);return d.save();
  }
  async submit(id,classId){

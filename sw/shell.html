@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko" data-sw-integrated="2"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102b3b"><meta name="referrer" content="same-origin"><title>영수쌤의 파이썬 교실 · 고2 소프트웨어와 생활</title>
+<link rel="stylesheet" href="./classroom.css"><link rel="stylesheet" href="./classroom-brand.css?v=20261106-avatar-sidebar">
+<link rel="stylesheet" href="./sw-assets/site.css"><link rel="stylesheet" href="./sw-assets/app.css">
+<script type="module" src="./sw-assets/app.js"></script></head>
+<body class="classroom-page sw-shell"><a class="skip" href="#sw-main">본문으로 이동</a><div class="layout"><aside class="side"><a aria-label="01. 수업 안내" class="brand brand-mk-aligned" href="./"><img alt="영어수학 교육 로고" src="./assets/englishmath-logo.png?v=20261028-original"/><strong class="classroom-name">영수쌤의<br/> 파이썬 교실</strong><span class="classroom-unit">고2 | 소프트웨어와 생활</span><span class="classroom-subject">3단원. 현상을 분석하는 소프트웨어<br/> (데이터 분석)</span></a>
+<nav aria-label="수업 메뉴">
+<a class="nav avatar-nav" href="./ai-avatar.html" data-route="avatar" AVATAR_CURRENT><span class="avatar-extra">추가 체험</span><span>AI 표정 아바타 실험실</span></a>
+<a class="nav" href="/?page=python-review" data-route="python-review">00. Python 핵심 복습</a>
+<a class="nav" href="/?page=home" data-route="home">01. 수업 안내</a>
+<a class="nav" href="/?page=lesson&amp;lesson=1" data-route="lesson">02. 차시별 실습</a>
+<a class="nav" href="/?page=data-lab&amp;unit=SW01" data-route="data-lab">데이터 시각화 실험실</a>
+<a class="nav" href="/?page=data" data-route="data">03. 실습 자료</a>
+<a class="nav" href="/?page=exam" data-route="exam">04. 복습 문제</a>
+<a class="nav" href="/?page=report" data-route="report">05. 탐구 보고서</a>
+<a class="nav" href="/?page=practice" data-route="practice">자유 Python 실습실</a>
+<a class="nav" href="/?page=library" data-route="library">내 학습 보관함</a>
+<a class="nav" href="/?page=teacher" data-route="teacher" id="sw-teacher" hidden>교사용 관리실</a>
+<a class="nav experience-link" href="/?page=first-analysis" data-route="first-analysis">전체체험 · 데이터 분석 따라 하기</a>
+</nav><div class="sw-external"><a href="https://englishmath-python.vercel.app/data-lab" target="_blank" rel="noopener noreferrer">새 파이썬 교실 체험 ↗</a><small>외부 사이트 · SW 학습 기록과 별도</small></div></aside>
+<main id="sw-main" class="main sw-main"><section class="sw-account" aria-label="공통 로그인과 계정 저장">
+<strong id="sw-user">로그인 전</strong><span id="sw-space">고2 · 소프트웨어와 생활</span>
+<button class="btn primary" id="sw-login">Google 로그인</button><button class="btn secondary" id="sw-end">이 PC 학습 마치기</button>
+<button class="btn primary" id="sw-save" hidden>계정에 저장</button><button class="btn secondary" id="sw-submit" hidden>선생님께 제출</button>
+<button class="btn secondary" id="sw-export">초안 내려받기</button><label class="btn secondary">백업 가져오기<input type="file" id="sw-import" accept=".json,application/json" hidden></label>
+<button class="btn secondary" id="sw-resolve" hidden>저장 문제 확인</button><span class="sw-status" id="sw-save-state" role="status" aria-live="polite">로그인 상태 확인 중</span>
+</section><section class="panel" id="sw-registration" hidden><h2>학급 등록 요청</h2><label>기존 SW 학급 <select id="sw-register-class"></select></label><button class="btn primary" id="sw-register">선택한 학급에 승인 요청</button></section>
+<section class="sw-idle" id="sw-idle" hidden><strong>공용 PC 보호</strong><p id="sw-idle-count"></p><button class="btn primary" id="sw-continue">계속 학습하기</button></section>
+<p id="sw-message" role="status"></p><div id="sw-view"></div></main></div>
+<dialog id="sw-dialog" aria-labelledby="sw-dialog-title"><h2 id="sw-dialog-title"></h2><div id="sw-dialog-body"></div><div id="sw-dialog-actions"></div></dialog>
+</body></html>

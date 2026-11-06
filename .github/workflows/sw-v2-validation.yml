@@ -29,8 +29,20 @@ jobs:
         run: node --test sw/tests/store.test.mjs
       - name: Shared rules regression in emulator only
         run: npx firebase emulators:exec --config sw/firebase.test.json --project demo-englishmath-python --only firestore 'node --test --test-concurrency=1 sw/tests/student-security.test.mjs sw/tests/grade1-isolation.test.mjs'
-      - name: Existing SW baseline build
-        run: npm run build -- --base=/sw/
+      - run: npm ci --prefix sw
+      - name: Integrated SW build
+        run: npm run build:sw
+      - name: Existing publication layout and links
+        run: |
+          python3 sw/publisher/package_site.py dist --source-sha "$GITHUB_SHA"
+          python3 sw/publisher/finalize_brand.py --dist dist --source-sha "$GITHUB_SHA"
+          python3 sw/publisher/check_site.py dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sw-v2-site-candidate
+          path: dist/
+          retention-days: 14
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
