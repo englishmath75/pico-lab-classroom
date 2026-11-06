@@ -9,6 +9,18 @@ export function transform(name,s){
  }
 
  function replace(a,b){if(!s.includes(a))throw Error(name+': missing patch anchor '+a.slice(0,80));s=s.replace(a,b);}
+
+ if(name==='index.html'){
+  replace("<section class=\"avatar-launch\" aria-label=\"AI 표정 아바타 실험실 바로가기\"><div><strong>추가 체험 · AI 표정 아바타 실험실</strong><p>동물 8종과 내 표정으로 배우는 Python 조건문 · 카메라 없이도 체험할 수 있어요.</p></div><a href=\"./ai-avatar.html\">아바타 실험실 시작 →</a></section>",'');
+  replace("<div class=\"actions\"><a class=\"btn secondary\" href=\"./python-review.html\">00차시 Python 복습 →</a><a class=\"btn primary\" href=\"./lesson01-guide.html\">1차시 수업 시작 →</a><a class=\"btn experience-link\" href=\"./first-analysis.html\">전체체험</a></div>","<div class=\"actions\"><a class=\"btn primary\" href=\"./lesson01-guide.html\">1차시 수업 시작 →</a><a class=\"btn secondary\" href=\"./python-review.html\">00차시 Python 복습 →</a><a class=\"btn ghost\" href=\"/?page=library\">내 학습 이어가기 →</a></div>");
+  replace('<div class="lesson-intro">',"<nav class=\"sw-home-route\" aria-label=\"수업 진행 순서\"><a href=\"./step-by-step.html?lesson=1\"><b>02</b><span>차시별 실습<small>예측 · 실행 · 해석</small></span></a><a href=\"./?page=data\"><b>03</b><span>실습 자료<small>CSV · 예제 확인</small></span></a><a href=\"./?page=exam\"><b>04</b><span>복습 문제<small>답안 · 오답 확인</small></span></a><a href=\"./?page=report\"><b>05</b><span>탐구 보고서<small>결과를 글로 정리</small></span></a></nav><div class=\"lesson-intro\">");
+  replace('1차시 → 전체 과정 따라 하기(추가 1회) → 기존 2~10차시 순서로 진행합니다. 모든 차시에서 예제를 VS Code로 직접 실행하고 저장합니다.','1차시 → 전체 과정 따라 하기(추가 1회) → 2~10차시 순서로 진행합니다. 각 차시의 5단계 실습을 SW에서 실행하고 계정에 저장합니다. VS Code에서도 이어서 연습할 수 있습니다.');
+  replace('<div class="panel supplemental"><h3>2. 보충 학습과 선택 탐구</h3>',"<section class=\"panel sw-home-extras\" aria-labelledby=\"sw-extra-title\"><span class=\"section-label\">수업과 함께 활용하기</span><h3 id=\"sw-extra-title\">2. 추가 실습·탐구</h3><div class=\"resource-grid\"><a href=\"/?page=data-lab&amp;unit=SW01\">데이터 시각화 실험실<span>코드를 실행하고 표의 변화를 확인합니다.</span></a><a href=\"/?page=practice\">자유 Python 실습실<span>내 코드를 작성하고 계정에 저장합니다.</span></a><a href=\"./first-analysis.html\">전체체험 · 데이터 분석 따라 하기<span>1차시 다음, 축제 간식 자료로 전체 과정을 익힙니다.</span></a></div><section class=\"avatar-launch\" aria-label=\"AI 표정 아바타 실험실 바로가기\"><div><strong>추가 체험 · AI 표정 아바타 실험실</strong><p>동물 8종과 내 표정으로 배우는 Python 조건문 · 카메라 없이도 체험할 수 있어요.</p></div><a href=\"./ai-avatar.html\">아바타 실험실 시작 →</a></section></section><div class=\"panel supplemental\"><h3>3. 보충 학습과 선택 탐구</h3>");
+  replace('기초 실습을 마친 뒤, 필요한 자료만 골라 활용하세요.</p>','기초 실습을 마친 뒤, 필요한 자료만 골라 활용하세요.</p>'+"<div class=\"resource-grid sw-home-inquiries\" aria-label=\"보충 탐구 A부터 D\"><a href=\"./list-tuple-dictionary.html\">A. 리스트·튜플·딕셔너리 비교</a><a href=\"./questions-supplement.html\">B. 진법 표현</a><a href=\"./radians.html\">C. 호도법(라디안)</a><a href=\"./four-turtles.html\">D. 네 마리 거북이</a></div>");
+  replace('선택 2. 파이썬 자유 실습</button>','자료 연결 자유 실습</button>');
+  replace('3. 이전 예제 모음 · 필요할 때만 활용','4. 이전 예제 모음 · 필요할 때만 활용');
+ }
+
  if(name==='step-by-step.js'){
   replace("verified,revision:z.revision","verified,stdin:typeof z.stdin==='string'?z.stdin:'',quiz:z.quiz||{},quizGraded:!!z.quizGraded,revision:z.revision");
   replace("function saveEditor(){const r=record();","function saveEditor(){const r=record();r.stdin=$('stdin').value;");

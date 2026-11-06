@@ -8,3 +8,18 @@ aside.side:not(:has(.brand)){position:static!important;width:auto!important;max-
 @media print{.sw-frame-note,button,input[type=file]{display:none!important}}
 
 html,body,.layout{min-height:0!important} aside.sidebar{position:static!important;height:auto!important;max-height:none!important}aside.sidebar .brand,.legacy{display:none!important}aside.sidebar #lessonNav{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+
+/* SW home follows the course order; shared course typography and DataFrame sizes stay intact. */
+#home .classroom-hero{padding:28px;margin-bottom:18px}
+#home .classroom-hero .actions{margin-bottom:0}
+.sw-home-route{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0 28px}
+.sw-home-route a{display:flex;align-items:flex-start;gap:12px;min-width:0;border:1px solid #cbdde3;border-radius:12px;padding:17px 15px;background:#fff;color:#173e4c;text-decoration:none;font-weight:700}
+.sw-home-route a:hover{background:#edf7f7;border-color:#137d80}
+.sw-home-route b{color:#137d80;font-size:20px;line-height:1.5}
+.sw-home-route small{display:block;color:#647b8c;font-size:13px;font-weight:400;margin-top:3px}
+#home .sw-home-extras{margin-top:24px}
+#home .sw-home-extras .avatar-launch{margin:18px 0 0}
+#home .sw-home-inquiries{grid-template-columns:repeat(2,minmax(0,1fr));margin:16px 0}
+#home .resource-grid a{overflow-wrap:anywhere}
+@media(max-width:760px){.sw-home-route{grid-template-columns:repeat(2,minmax(0,1fr))}.sw-home-route a{padding:14px 12px}#home .classroom-hero{padding:20px}#home .sw-home-inquiries{grid-template-columns:1fr}}
+@media(max-width:420px){.sw-home-route{grid-template-columns:minmax(0,1fr)}}

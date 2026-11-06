@@ -46,12 +46,14 @@ async function login(p,person){
  const popup=p.waitForEvent('popup');await p.locator('#sw-login').click();const q=await popup;await q.waitForLoadState();await q.getByText(person.email,{exact:true}).click();
  await expect(p.locator('#sw-user')).toContainText(person.name);await expect(p.locator('#sw-space')).toHaveText('2026학년도 2학년 1반');
  await expect(p.locator('#sw-message')).not.toContainText('승인 정보를 읽지 못했습니다');
+ await expect(p.locator('#sw-message')).not.toContainText('학습을 마쳤습니다');
+ await expect(p.locator('#sw-message')).not.toContainText('15분 동안');
 }
 async function nav(p,id){await p.locator('a[data-route="'+id+'"]').click();await expect(p).toHaveURL(new RegExp('[?&]page='+id+'(?:&|$)'));if(id!=='data-lab'&&id!=='practice'&&id!=='library')await expect(p.locator('#sw-classroom-frame')).toBeVisible();}
 async function scenario(name,fn){
  const started=Date.now();try{await fn();results.push({name,status:'PASS',durationMs:Date.now()-started,environment:'Chromium + Firebase emulators'});console.log('PASS',name);}catch(e){results.push({name,status:'FAIL',error:e.message,durationMs:Date.now()-started});throw e;}
 }
-async function shot(p,name){await p.screenshot({path:resolve(artifacts,name+'.png'),fullPage:false});if(['datalab-python-table','lesson-account-restored','avatar-common-menu','layout-390'].includes(name)){const b=await p.screenshot({type:'jpeg',quality:55,fullPage:false});console.log('SW_PREVIEW '+name+' '+b.toString('base64'));}}
+async function shot(p,name){await p.screenshot({path:resolve(artifacts,name+'.png'),fullPage:false});if(['datalab-python-table','lesson-account-restored','avatar-common-menu','layout-390','home-390','home-1440'].includes(name)){const b=await p.screenshot({type:'jpeg',quality:55,fullPage:false});console.log('SW_PREVIEW '+name+' '+b.toString('base64'));}}
 try{
  await seed();const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.svg':'image/svg+xml','.wasm':'application/wasm','.py':'text/plain','.csv':'text/csv'};
  server=createServer(async(req,res)=>{try{let pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);if(pathname.endsWith('/'))pathname+='index.html';const file=resolve(dist,'.'+pathname);if(!file.startsWith(dist+sep))throw Error('path');res.writeHead(200,{'Content-Type':types[extname(file)]||'application/octet-stream'});res.end(await readFile(file));}catch{res.writeHead(404).end();}});
@@ -73,6 +75,12 @@ try{
   await nav(p,'home');await expect(p.locator('iframe[sandbox]')).toHaveCount(0);
   await p.locator('.sw-external a').evaluate(a=>({href:a.href,target:a.target})).then(a=>{assert.equal(a.href,'https://englishmath-python.vercel.app/data-lab');assert.equal(a.target,'_blank');});
   await expect(p.locator('.sw-external')).toContainText('새 파이썬 교실 체험 ↗');await expect(p.locator('#sw-save')).toBeHidden();
+  await expect(frame(p).locator('.sw-home-route a')).toHaveCount(4);
+  await expect(frame(p).locator('.sw-home-inquiries a')).toHaveCount(4);
+  await expect(frame(p).locator('#home > .classroom-hero')).toBeVisible();
+  await expect(frame(p).locator('.sw-home-extras .avatar-launch')).toBeVisible();
+  for(const width of [390,1440]){await p.setViewportSize({width,height:1000});await expect.poll(()=>p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);await expect.poll(()=>frame(p).locator('body').evaluate(e=>e.scrollWidth<=e.ownerDocument.documentElement.clientWidth+2)).toBe(true);await shot(p,'home-'+width);}
+
   await p.context().close();
  });
  await scenario('isolated Python: input, Korean matplotlib, PNG download, loop stop and denied network',async()=>{

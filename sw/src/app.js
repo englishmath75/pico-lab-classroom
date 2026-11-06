@@ -316,6 +316,7 @@ import providedData from '../provided-data.json';
   cloud.observe(async next=>{
    const generation=++sessionGeneration;release();user=next;identity=null;store.change(next?.uid||null,false);updateStatus();
    if(next){
+    say('');lastActivity=Date.now();
     try{
      const result=await cloud.identity(next);if(generation!==sessionGeneration)return;identity=result;store.writable=result.profile?.status==='approved';
      $('sw-registration').hidden=!!result.profile||!!result.staff;
