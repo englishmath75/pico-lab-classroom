@@ -21,3 +21,13 @@ test('provided CSV bytes, protected runtime and all four inquiries survive packa
  const candidate=await readFile('dist/index.html','utf8');assert(/sw-assets\/app\.[0-9a-f]{12}\.js/.test(candidate));assert(candidate.includes('data-sw-integrated="2"'));
  assert(!candidate.includes('새 데이터 분석 시각화 실험실'));assert(candidate.includes('새 파이썬 교실 체험 ↗'));
 });
+
+test('published lesson and teacher storage guidance matches account storage',async()=>{
+ const lesson=await readFile('dist/sw-content/step-by-step.html','utf8');
+ const teacher=await readFile('dist/sw-content/teacher-10.html','utf8');
+ assert(!lesson.includes('학습 진도와 입력 내용은 현재 기기의 브라우저에만 저장됩니다.'));
+ assert(lesson.includes('상단의 클라우드 저장 완료 표시를 확인하세요.'));
+ assert(!teacher.includes('학습 기록은 브라우저 로컬 저장이며 자동 제출되지 않습니다.'));
+ assert(teacher.includes('다른 PC에서도 같은 계정으로 이어서 학습합니다.'));
+ assert(teacher.includes('선생님께 제출은 별도로 선택합니다.'));
+});
