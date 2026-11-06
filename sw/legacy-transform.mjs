@@ -65,6 +65,8 @@ if(/^#unit-\\d+$/.test(location.hash))state.current=Math.max(0,Math.min(17,Numbe
 `+s.slice(end);
  }
  if(name==='simulation.html'){
+  replace('내용은 현재 브라우저에만 자동 저장됩니다.','작성한 학습물은 현재 계정에 저장합니다. 위쪽 저장 상태를 확인하세요.');
+
   s=s.replaceAll("localStorage.","window.ClassroomTemporaryStorage.");
   
   replace('s.dataset="sports";s.csv=csv();','s.dataset="sports";s.dataMode="fictional-edited";s.csv=csv();');

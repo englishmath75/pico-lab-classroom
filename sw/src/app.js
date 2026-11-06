@@ -32,13 +32,14 @@ import providedData from '../provided-data.json';
  function updateStatus(){
   if(!store)return;
   const dirty=store.dirty(),all=[...store.drafts.values()],active=currentIds().map(id=>store.draft(id));
-  const error=active.find(d=>d.error)||all.find(d=>d.dirty&&d.error);
+  const error=active.find(d=>d.error)||all.find(d=>d.dirty&&d.error);const readError=[...store.errors.values()][0];
   const saving=all.some(d=>d.kind==='saving'||d.kind==='queued');
   let label;
   if(ending)label='학습 종료 처리 중';
   else if(!user)label=dirty.length?'메모리 임시 보관 · 로그인 필요':'로그인 필요';
   else if(!identity)label='승인 확인 중';
   else if(!store.writable)label=identity.profile?.status==='pending'?'학급 승인 대기':identity.profile?.status==='blocked'?'저장 권한이 중지됨':'학급 등록 필요';
+  else if(readError)label='읽기 실패 · '+readError.message;
   else if(error)label=(error.kind==='conflict'?'충돌 · ':'저장 실패 · ')+error.error.message;
   else if(saving)label='저장 대기·처리 중 · 남은 초안 '+dirty.length+'개';
   else if(dirty.length)label='변경됨 · 저장할 초안 '+dirty.length+'개';
@@ -52,8 +53,8 @@ import providedData from '../provided-data.json';
   $('sw-login').textContent=user?'계정 바꾸기':'Google 로그인';
   $('sw-user').textContent=user?(user.displayName||'로그인한 사용자'):'로그인 전';
   const cls=identity?.classes?.find(c=>c.id===identity.profile?.classId);
-  $('sw-space').textContent=cls?.title|| (user?'기존 고2 학급 확인':'고2 · 소프트웨어와 생활');
-  $('sw-teacher').hidden=!identity?.staff;
+  $('sw-space').textContent=(cls?(cls.title.includes('2026')?cls.title:'2026학년도 '+cls.title):null)|| (user?'기존 고2 학급 확인':'고2 · 소프트웨어와 생활');
+  $('sw-teacher').hidden=!identity?.staff;$('sw-refresh').hidden=!user;
  }
  function release(){
   viewGeneration++;try{frame?.contentWindow?.SWRelease?.();frame?.contentWindow?.SWDispose?.();}catch{}
@@ -89,6 +90,7 @@ import providedData from '../provided-data.json';
   updateStatus();
   const ids=route.id==='practice'?[route.params.workspace]:route.id==='examples'?[...route.activityIds,'sw2-free-code','sw2-free-state']:route.activityIds;
   await store.prepare(ids);if(gen!==viewGeneration)return false;
+  if(ids?.some(id=>store.errors.has(id))){$('sw-view').textContent='기존 학습 기록을 읽지 못해 편집 화면을 열지 않았습니다. 위쪽 저장 문제 확인에서 다시 읽거나 서버 원문과 초안을 확인하세요.';updateStatus();return false;}
   $('sw-view').replaceChildren();document.title=route.label+' | 영수쌤의 파이썬 교실';
   if(route.kind==='frame')mountFrame(gen);
   else if(route.kind==='practice')mountPractice();
@@ -132,7 +134,7 @@ import providedData from '../provided-data.json';
    writeState:part=>{if(gen===viewGeneration)store.set(stateId,{...store.get(stateId),...part,providedData:providedData[unit]});},
    save:()=>store.flush([codeId,stateId]),
    navigate:id=>navigate('/?page=data-lab&unit='+id),
-   openLibrary:()=>navigate('/?page=library')
+   openLibrary:()=>navigate('/?page=library'),importFile:file=>importFile(file)
   });
  }
  function mountPractice(){
@@ -189,7 +191,7 @@ import providedData from '../provided-data.json';
      ['최근 이력',async()=>{
       const history=await cloud.service.revisions(user.uid,id);if(gen!==viewGeneration)return;$('sw-history').replaceChildren();
       for(const old of history){const b=document.createElement('button');b.className='btn secondary';b.textContent=titleFor(id)+' · 이전 버전 '+old.version+' 복원';
-       b.onclick=async()=>{if(await ask('이전본 복원','이전본을 현재 활동의 새 버전으로 저장합니다. 현재 초안은 먼저 내려받을 수 있습니다.',[['restore','새 버전으로 복원'],['cancel','취소']])!=='restore')return;await store.prepare([id]);if(store.errors.has(id)){say('현재 저장본을 읽지 못했습니다.',true);return;}if(structured(id))decode(id,old.code);store.draft(id).update({title:old.title,code:old.code,completed:!!old.completed,runState:old.runState||'idle'});await store.flush([id]);await navigate(routeForActivity(id));};$('sw-history').append(b);
+       b.onclick=async()=>{if(await ask('이전본 복원','이전본을 현재 활동의 새 버전으로 저장합니다. 현재 초안은 먼저 내려받을 수 있습니다.',[['restore','새 버전으로 복원'],['cancel','취소']])!=='restore')return;if(gen!==viewGeneration)return;await store.prepare([id]);if(gen!==viewGeneration)return;if(store.errors.has(id)){say('현재 저장본을 읽지 못했습니다.',true);return;}if(structured(id))decode(id,old.code);store.draft(id).update({title:old.title,code:old.code,completed:!!old.completed,runState:old.runState||'idle'});await store.flush([id]);await navigate(routeForActivity(id));};$('sw-history').append(b);
       }
      }]
     ]){const b=document.createElement('button');b.className='btn secondary';b.textContent=label;b.onclick=()=>Promise.resolve(fn()).catch(e=>say(e.message,true));row.append(b);}
@@ -223,9 +225,13 @@ import providedData from '../provided-data.json';
   $('sw-teacher-class').onchange=()=>list().catch(e=>say(readableError(e),true));await list();
  }
  async function importFile(file){
+  const generation=sessionGeneration,sourceRoute=route?.url,unit=route?.id==='data-lab'?route.params.unit:null;
+  const current=()=>generation===sessionGeneration&&sourceRoute===route?.url;
   try{
    if(file.size>1000000)throw Error('1MB 이하의 SW 학습 백업을 선택해 주세요.');
-   const text=await file.text(),items=importRecords(JSON.parse(text));
+   const text=await file.text();if(!current())return;let items;
+   if(file.name?.endsWith('.py')&&unit)items=[{id:'sw2-datalab-'+unit+'-code',value:text}];
+   else {const value=JSON.parse(text);if(unit&&value?.version===1&&typeof value.code==='string'&&typeof value.csv==='string'&&typeof value.concept==='string')items=[{id:'sw2-datalab-'+unit+'-code',value:value.code},{id:'sw2-datalab-'+unit+'-state',value:{csv:value.csv,concept:value.concept,dataMode:'fictional-edited',providedData:providedData[unit]}}];else items=importRecords(value);}
    if(items.some(r=>!validActivity(r.id)))throw Error('알 수 없는 활동이 있는 백업입니다.');
    const checked=items.map(r=>{
     const data=r.data||{title:titleFor(r.id),code:structured(r.id)?encode(r.id,r.value):String(r.value),runState:'idle',completed:false};
@@ -234,11 +240,11 @@ import providedData from '../provided-data.json';
    });
    const preview=checked.map(r=>titleFor(r.id)+'\n'+r.data.code.slice(0,250)).join('\n\n');
    if(await ask('내 자료 가져오기 미리보기',preview+'\n\n본인 자료인 경우에만 가져오세요. 원본 파일은 지우지 않습니다.',[['import','본인 자료 가져오기'],['cancel','취소']])!=='import')return;
-   await store.prepare(checked.map(r=>r.id));
+   if(!current())return;await store.prepare(checked.map(r=>r.id));if(!current())return;
    if(checked.some(r=>store.errors.has(r.id)))throw Error('기존 저장본을 읽지 못해 가져오기를 중단했습니다.');
    const collisions=checked.filter(r=>{const d=store.draft(r.id);return(d.version||d.dirty)&&d.data.code!==r.data.code;});
    if(collisions.length&&await ask('기존 기록과 충돌',collisions.map(r=>titleFor(r.id)).join('\n')+'\n기존 내용 대신 선택한 백업을 새 버전으로 저장합니다.',[['replace','백업 내용으로 변경'],['cancel','취소']])!=='replace')return;
-   let changed=0;for(const r of checked){const d=store.draft(r.id);if(d.data.code===r.data.code)continue;d.update({title:r.data.title||titleFor(r.id),code:r.data.code,completed:!!r.data.completed,runState:['idle','success','error'].includes(r.data.runState)?r.data.runState:'idle'});changed++;}
+   if(!current())return;let changed=0;for(const r of checked){const d=store.draft(r.id);if(d.data.code===r.data.code)continue;d.update({title:r.data.title||titleFor(r.id),code:r.data.code,completed:!!r.data.completed,runState:['idle','success','error'].includes(r.data.runState)?r.data.runState:'idle'});changed++;}
    store.temp.clear();say(changed?'가져온 초안 '+changed+'개 · 계정 저장 상태를 확인해 주세요.':'이미 같은 내용입니다. 중복 저장하지 않았습니다.');
    await navigate(route.url,{replace:true});
   }catch(e){say(e.message,true);}
@@ -286,6 +292,7 @@ import providedData from '../provided-data.json';
   const response=await fetch('/student-config.json',{cache:'no-store'});if(!response.ok)throw Error('로그인 설정을 불러오지 못했습니다.');
   const config=await response.json(),emulator=config.emulator===true&&['localhost','127.0.0.1'].includes(location.hostname)&&config.firebase?.projectId==='demo-englishmath-python';
   cloud=createCloud(config.firebase,emulator);store=new ClassroomStore(cloud.service,{onChange:updateStatus});
+  $('sw-refresh').onclick=async()=>{const uid=user?.uid,gen=sessionGeneration;if(!uid)return;try{const next=await cloud.identity(user);if(uid!==user?.uid||gen!==sessionGeneration)return;identity=next;store.writable=next.profile?.status==='approved';$('sw-registration').hidden=!!next.profile||!!next.staff;await navigate(route.url,{replace:true});updateStatus();}catch(e){say(readableError(e),true);}};
   $('sw-login').onclick=()=>void login();$('sw-end').onclick=()=>void finish();$('sw-export').onclick=backup;
   $('sw-save').onclick=async()=>{const ok=await store.flush();if(!ok)say('아직 저장되지 않은 초안이 있습니다. 위쪽 상태를 확인해 주세요.',true);};
   $('sw-resolve').onclick=()=>resolveFailure().catch(e=>say(readableError(e),true));

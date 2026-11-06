@@ -66,7 +66,8 @@ export function importRecords(value){
  if(value?.application==='englishmath-sw'&&value.schemaVersion===1&&Array.isArray(value.records))return value.records;
  let key;if(value?.records&&typeof value.records==='object')key=keys.step;
  else if(value?.report&&value?.answers)key=keys.main;
- else if(value?.notes&&Array.isArray(value.done))key=keys.mastery;
+ else if(value?.notes&&Array.isArray(value.done)&&Object.hasOwn(value,'current'))key=keys.mastery;
+ else if(value?.notes&&Array.isArray(value.done)&&Object.hasOwn(value,'lesson'))key=keys.final;
  if(!key)throw Error('지원하는 SW 학습 백업 형식이 아닙니다.');
  return Object.entries(project(key,JSON.stringify(value))).map(([id,value])=>({id,value}));
 }

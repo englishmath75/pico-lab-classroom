@@ -51,7 +51,7 @@ async function nav(p,id){await p.locator('a[data-route="'+id+'"]').click();await
 async function scenario(name,fn){
  const started=Date.now();try{await fn();results.push({name,status:'PASS',durationMs:Date.now()-started,environment:'Chromium + Firebase emulators'});console.log('PASS',name);}catch(e){results.push({name,status:'FAIL',error:e.message,durationMs:Date.now()-started});throw e;}
 }
-async function shot(p,name){await p.screenshot({path:resolve(artifacts,name+'.png'),fullPage:false});}
+async function shot(p,name){await p.screenshot({path:resolve(artifacts,name+'.png'),fullPage:false});if(['datalab-python-table','lesson-account-restored','avatar-common-menu','layout-390'].includes(name)){const b=await p.screenshot({type:'jpeg',quality:55,fullPage:false});console.log('SW_PREVIEW '+name+' '+b.toString('base64'));}}
 try{
  await seed();const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.svg':'image/svg+xml','.wasm':'application/wasm','.py':'text/plain','.csv':'text/csv'};
  server=createServer(async(req,res)=>{try{let pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);if(pathname.endsWith('/'))pathname+='index.html';const file=resolve(dist,'.'+pathname);if(!file.startsWith(dist+sep))throw Error('path');res.writeHead(200,{'Content-Type':types[extname(file)]||'application/octet-stream'});res.end(await readFile(file));}catch{res.writeHead(404).end();}});
@@ -131,7 +131,7 @@ try{
  });
  assert.equal(errors.length,0,'Unexpected page errors: '+JSON.stringify(errors));
 } catch(error){
- console.error(error);if(lastPage&&!lastPage.isClosed()){await lastPage.screenshot({path:resolve(artifacts,'failure.png')}).catch(()=>{});await writeFile(resolve(artifacts,'failure.html'),await lastPage.content().catch(()=>''));}
+ console.error(error);if(lastPage&&!lastPage.isClosed()){console.log('SW_FAILURE_DOM '+(await lastPage.locator('body').innerText().catch(()=>'' )).slice(0,6000));await lastPage.screenshot({path:resolve(artifacts,'failure.png')}).catch(()=>{});await writeFile(resolve(artifacts,'failure.html'),await lastPage.content().catch(()=>''));}
  process.exitCode=1;
 } finally {
  await writeFile(resolve(artifacts,'browser-results.json'),JSON.stringify({sourceSha:process.env.GITHUB_SHA,environment:'GitHub Actions Chromium; Firebase Auth and Firestore emulators; MOCK_MEDIA; independent contexts are not real Google independent-browser evidence',results,errors,notRun:['real Google login','independent real browser restoration','physical school PCs','physical camera','29 physical PCs']},null,2));

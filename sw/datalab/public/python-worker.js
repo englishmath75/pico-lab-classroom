@@ -61,7 +61,7 @@ self.onmessage = async ({data}) => {
     const packageStart = now();
     await runtime.loadPackagesFromImports(code);
     const packageMs = now()-packageStart;
-    runtime.runPython("import sys\nif 'matplotlib' in sys.modules:\n    import matplotlib, matplotlib.font_manager\n    matplotlib.font_manager.fontManager.addfont('/home/pyodide/NanumGothic-Regular.ttf')\n    matplotlib.rcParams['font.family']='NanumGothic'\n    matplotlib.rcParams['axes.unicode_minus']=False");
+    runtime.runPython("import importlib.util\nif importlib.util.find_spec('matplotlib') is not None:\n    import matplotlib, matplotlib.font_manager\n    matplotlib.font_manager.fontManager.addfont('/home/pyodide/NanumGothic-Regular.ttf')\n    matplotlib.rcParams['font.family']='NanumGothic'\n    matplotlib.rcParams['axes.unicode_minus']=False");
     self.postMessage({id,type:'running'});
     const start = now();
     runtime.globals.set('_pylab_request',JSON.stringify({code,stdin,trace}));

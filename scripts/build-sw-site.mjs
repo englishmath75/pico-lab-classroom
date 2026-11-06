@@ -30,12 +30,13 @@ for(const file of originals){
  }
  if(file==='index.html')html=html.replace(/(<div[^>]*id="examQuiz"[^>]*>)/,'<label>문항 보기<select id="sw-exam-filter"><option value="all">전체 문항</option><option value="wrong">오답 기록 문항</option></select></label>$1');
  if(file==='mastery.html')html=html.replace(/(<button\b[^>]*id="run"[^>]*>.*?<\/button>)/,'$1<button class="btn secondary" id="sw-stop">실행 중지</button>');
- html=relative(html).replaceAll('../video-player.html','/sw-content/video-player-embed.html');
+ html=relative(html).replace(/(<iframe\b[^>]*src=["'])\.\.\/video-player\.html/g,'$1/sw-content/video-player-embed.html');
  html=html.replace(/<head>/i,'<head><base href="../"><script src="../sw-assets/legacy-bridge.js"></script>');
  html=html.replace(/<\/head>/i,'<link rel="stylesheet" href="../sw-assets/legacy.css"></head>');
  await writeFile(path.join(out,'sw-content',file),html);
 }
-const embed=relative(removeSessions(await readFile('public/pandas-data-lab/video-player.html','utf8'))).replace(/<head>/i,'<head><base href="../">');
+await cp('sw/src/video-bridge.js',path.join(assets,'video-bridge.js'));
+const embed=relative(removeSessions(await readFile('public/pandas-data-lab/video-player.html','utf8'))).replace(/<head>/i,'<head><base href="../"><script src="../sw-assets/video-bridge.js"></script>');
 await writeFile(path.join(out,'sw-content/video-player-embed.html'),embed);
 for(const name of ['step-by-step.js','app.js','final-classroom.js','mastery.js','ai-avatar.js']){
  const original=await readFile(path.join(out,name),'utf8');
