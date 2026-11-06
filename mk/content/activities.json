@@ -1,0 +1,1326 @@
+[
+  {
+    "id": "mk3-basics",
+    "title": "값과 리스트, 출력의 첫걸음",
+    "topic": "list",
+    "code": "name = \"Python\"\na = [10, 20, \"보검\", \"사랑해\"]\nprint(name, \"교실\")\nprint(a)\nprint(\"첫 원소:\", a[0])\nprint(\"마지막 원소:\", a[-1])\nprint(\"길이:\", len(a))\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "변수는 값에 붙인 이름입니다. 리스트는 순서가 있는 여러 값을 담습니다. 첫 인덱스는 0, 마지막은 -1입니다. 서로 다른 종류의 값을 담을 수 있지만 숫자와 글자가 섞인 리스트는 크기 정렬에 사용하지 않습니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-turtle-square",
+    "title": "거북이의 첫 사각형",
+    "topic": "turtle",
+    "code": "import turtle\nturtle.speed(0)\nturtle.pencolor(\"coral\")\nturtle.pensize(3)\nfor i in range(4):\n    turtle.forward(100)\n    turtle.left(90)\nturtle.done()\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "거북이는 중앙 (0, 0)에서 오른쪽을 바라봅니다. forward는 이동 거리, left는 현재 방향에서 반시계 회전할 각도입니다. 4번의 90도 회전으로 출발 방향으로 돌아옵니다.",
+    "trace": [
+      [
+        "반복 i",
+        "위치 x",
+        "위치 y",
+        "방향"
+      ],
+      [
+        "0",
+        "100",
+        "0",
+        "90°"
+      ],
+      [
+        "1",
+        "100",
+        "100",
+        "180°"
+      ],
+      [
+        "2",
+        "0",
+        "100",
+        "270°"
+      ],
+      [
+        "3",
+        "0",
+        "0",
+        "360°"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-turtle-coordinates",
+    "title": "펜을 들고 좌표 이동",
+    "topic": "turtle",
+    "code": "import turtle\nturtle.speed(0)\nturtle.penup()\nturtle.goto(-120, -60)\nturtle.pendown()\nturtle.pencolor(\"#D35F56\")\nturtle.goto(120, -60)\nturtle.goto(0, 120)\nturtle.goto(-120, -60)\nprint(\"삼각형의 세 꼭짓점을 연결했습니다.\")\nturtle.done()\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "penup은 이동 자국을 남기지 않고 pendown은 이동 자국을 남깁니다. goto(x, y)는 목표 위치를 정합니다. x는 오른쪽, y는 위쪽으로 증가합니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-turtle-circles",
+    "title": "리스트 색상으로 그리는 원 무늬",
+    "topic": "turtle",
+    "code": "import turtle\nturtle.bgcolor(\"#182334\")\nturtle.speed(0)\nturtle.pensize(2)\ncolors = [\"red\", \"yellow\", \"green\", \"cyan\", \"blue\", \"magenta\"]\nfor i in range(36):\n    turtle.pencolor(colors[i % len(colors)])\n    turtle.circle(100)\n    turtle.left(10)\nturtle.done()\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "선생님의 turtle01을 수업용으로 재구성했습니다. 나머지 연산 %로 색상의 인덱스를 0~5로 순환합니다. 원 36개 × 10도 = 한 바퀴입니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-turtle-star",
+    "title": "별 나선과 반복 변수",
+    "topic": "turtle",
+    "code": "import turtle\nturtle.bgcolor(\"#182334\")\nturtle.speed(0)\ncolors = [\"purple\", \"blue\", \"cyan\", \"green\", \"yellow\", \"orange\", \"red\"]\nfor x in range(150):\n    turtle.pencolor(colors[x % len(colors)])\n    turtle.pensize(x / 40 + 1)\n    turtle.forward(x * 2)\n    turtle.left(144)\nturtle.done()\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "turtle02의 거리와 선 굵기 변화를 살펴봅니다. 반복 변수 x가 커지면서 이동 거리와 선 굵기가 함께 증가합니다. 144도는 별 모양의 꺾임을 만듭니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-turtle-illusion",
+    "title": "일곱 색의 사각 나선",
+    "topic": "turtle",
+    "code": "import turtle\nturtle.bgcolor(\"#182334\")\nturtle.speed(0)\ncolors = [\"#33FF33\", \"#33FF57\", \"#FF3333\", \"#F3FF33\", \"#FF33F3\", \"#00FFFF\", \"#FF005D\"]\nfor i in range(160):\n    turtle.pencolor(colors[i % len(colors)])\n    turtle.pensize(i // 50 + 1)\n    turtle.forward(i * 1.5)\n    turtle.right(91)\nturtle.done()\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "turtle03의 원본은 색이 7개인데 i % 6을 사용해 마지막 색을 쓰지 않았습니다. 학생용은 i % len(colors)로 수정했습니다. 90도를 91도로 바꾸면 다음 사각형이 조금씩 돌아갑니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-plot-line",
+    "title": "하루의 기온: 선그래프",
+    "topic": "matplotlib",
+    "code": "import matplotlib.pyplot as plt\nhours = [9, 11, 13, 15, 17]\ntemperatures = [17, 20, 23, 22, 19]\nplt.plot(hours, temperatures, marker=\"o\", color=\"#3684B5\")\nplt.title(\"시간에 따른 기온\")\nplt.xlabel(\"시각\")\nplt.ylabel(\"기온 (℃)\")\nplt.grid(True)\nplt.show()\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "x와 y의 같은 인덱스 원소가 한 점을 만듭니다. 선그래프는 시간처럼 순서가 있는 값의 변화에 어울립니다. x와 y 리스트의 길이는 같아야 합니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-plot-bar",
+    "title": "우리 모둠의 독서량: 막대그래프",
+    "topic": "matplotlib",
+    "code": "import matplotlib.pyplot as plt\nnames = [\"가\", \"나\", \"다\", \"라\"]\nbooks = [4, 7, 5, 3]\nplt.bar(names, books, color=\"#64C9AE\")\nplt.title(\"모둠별 독서량\")\nplt.xlabel(\"모둠\")\nplt.ylabel(\"권수\")\nplt.show()\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "서로 다른 항목의 크기는 막대로 비교합니다. 항목의 이름은 첫 리스트, 높이는 둘째 리스트에 대응합니다. 항목 사이를 선으로 연결할 필요는 없습니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-plot-scatter",
+    "title": "두 값의 관계: 산점도",
+    "topic": "matplotlib",
+    "code": "import matplotlib.pyplot as plt\npractice = [1, 2, 2, 3, 4, 5]\nscore = [45, 55, 62, 68, 75, 88]\nplt.scatter(practice, score, color=\"#9274D4\")\nplt.title(\"가상 자료: 연습 횟수와 점수\")\nplt.xlabel(\"연습 횟수\")\nplt.ylabel(\"점수\")\nplt.grid(True)\nplt.show()\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "각 점은 한 관측값입니다. 연습 횟수 2의 점이 둘인 이유를 찾으세요. 점들이 함께 증가해도 연습만이 점수의 원인이라고 단정하지 않습니다. 이 자료는 실제 학생 성적이 아닌 가상 자료입니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-plot-math",
+    "title": "반복으로 만드는 y = x²",
+    "topic": "matplotlib",
+    "code": "import matplotlib.pyplot as plt\nx_values = []\ny_values = []\nfor x in range(-5, 6):\n    x_values.append(x)\n    y_values.append(x * x)\nplt.plot(x_values, y_values, marker=\"o\")\nplt.title(\"y = x²\")\nplt.xlabel(\"x\")\nplt.ylabel(\"y\")\nplt.grid(True)\nplt.show()\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "range(-5, 6)은 -5부터 5까지입니다. 매 반복마다 두 리스트에 한 원소씩 추가해 길이를 맞춥니다. x가 -2, 0, 2일 때 y를 먼저 예측하세요.",
+    "trace": []
+  },
+  {
+    "id": "mk3-plot-conditional",
+    "title": "조건에 따라 점의 색 나누기",
+    "topic": "matplotlib",
+    "code": "import matplotlib.pyplot as plt\nx_values = []\ny_values = []\ncolors = []\nfor x in range(-5, 6):\n    x_values.append(x)\n    y_values.append(x * x)\n    if x < 0:\n        colors.append(\"coral\")\n    else:\n        colors.append(\"skyblue\")\nplt.scatter(x_values, y_values, c=colors)\nplt.title(\"조건에 따른 점의 색\")\nplt.grid(True)\nplt.show()\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "좌표 리스트와 색 리스트의 길이를 맞춥니다. x < 0이면 코랄, 나머지는 스카이 색입니다. 조건을 x % 2 == 0으로 바꾸면 어떤 점이 같은 색일까요?",
+    "trace": []
+  },
+  {
+    "id": "mk3-list-edit",
+    "title": "리스트 수정·추가·삭제 추적",
+    "topic": "list",
+    "code": "a = [10, 20, 30, 40, 50]\nprint(\"처음:\", a)\na[3] = \"테스트\"\nprint(\"3번 수정:\", a)\na.append(60)\nprint(\"끝에 추가:\", a)\na.insert(1, 15)\nprint(\"1번에 삽입:\", a)\na.remove(20)\nprint(\"값 20 삭제:\", a)\ndel a[0]\nprint(\"0번 삭제:\", a)\nfor i in range(len(a)):\n    print(\"인덱스\", i, \"값\", a[i])\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "append는 끝에 추가, insert는 지정 인덱스 앞에 삽입합니다. remove는 처음 만난 같은 값을 지우고 del a[0]은 0번 자리를 지웁니다. 삽입·삭제 뒤 뒤쪽 인덱스가 달라집니다.",
+    "trace": [
+      [
+        "명령",
+        "리스트",
+        "인덱스 변화"
+      ],
+      [
+        "처음",
+        "[10, 20, 30, 40, 50]",
+        "0~4"
+      ],
+      [
+        "a[3] = \"테스트\"",
+        "[10, 20, 30, \"테스트\", 50]",
+        "길이 유지"
+      ],
+      [
+        "append(60)",
+        "[10, 20, 30, \"테스트\", 50, 60]",
+        "60 → 5"
+      ],
+      [
+        "insert(1, 15)",
+        "[10, 15, 20, 30, \"테스트\", 50, 60]",
+        "20: 1 → 2"
+      ],
+      [
+        "remove(20)",
+        "[10, 15, 30, \"테스트\", 50, 60]",
+        "30: 3 → 2"
+      ],
+      [
+        "del a[0]",
+        "[15, 30, \"테스트\", 50, 60]",
+        "15: 1 → 0"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-list-slices",
+    "title": "다섯 가지 슬라이싱",
+    "topic": "list",
+    "code": "a = [10, 20, 30, 40, 50]\nprint(\"원본:\", a)\nprint(\"a[1:3]\", a[1:3])\nprint(\"a[:3]\", a[:3])\nprint(\"a[2:]\", a[2:])\nprint(\"a[::2]\", a[::2])\nprint(\"a[::-1]\", a[::-1])\nprint(\"원본은 그대로:\", a)\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "a[시작:끝:간격]에서 끝 인덱스는 포함하지 않습니다. 생략하면 시작·끝을 자동으로 정합니다. -1 간격은 뒤에서 앞으로 읽습니다. 슬라이싱은 새 리스트를 만들고 원본을 바꾸지 않습니다.",
+    "trace": [
+      [
+        "표현",
+        "선택 인덱스",
+        "결과"
+      ],
+      [
+        "a[1:3]",
+        "1, 2",
+        "[20, 30]"
+      ],
+      [
+        "a[:3]",
+        "0, 1, 2",
+        "[10, 20, 30]"
+      ],
+      [
+        "a[2:]",
+        "2, 3, 4",
+        "[30, 40, 50]"
+      ],
+      [
+        "a[::2]",
+        "0, 2, 4",
+        "[10, 30, 50]"
+      ],
+      [
+        "a[::-1]",
+        "4, 3, 2, 1, 0",
+        "[50, 40, 30, 20, 10]"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-list-sort",
+    "title": "정렬과 뒤집기는 다릅니다",
+    "topic": "list",
+    "code": "a = [30, 10, 40, 20]\nprint(\"역순 복사:\", a[::-1])\nprint(\"원본:\", a)\na.reverse()\nprint(\"reverse 뒤:\", a)\na.sort()\nprint(\"sort 뒤:\", a)\nresult = a.sort()\nprint(\"sort의 반환값:\", result)\nprint(\"변경된 원본:\", a)\na.reverse()\nprint(\"정렬 뒤 역순:\", a)\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "reverse는 현재 순서를 뒤집을 뿐 크기순으로 정렬하지 않습니다. sort는 원본을 오름차순으로 바꾸고 None을 반환합니다. a = a.sort()를 쓰면 a가 리스트가 아닌 None이 됩니다. 내림차순이 필요하면 정렬한 뒤 뒤집으세요.",
+    "trace": []
+  },
+  {
+    "id": "mk3-list-search",
+    "title": "합계·개수·위치를 반복으로 찾기",
+    "topic": "list",
+    "code": "scores = [70, 90, 80, 90, 60]\ntotal = 0\ncount = 0\nfor i in range(len(scores)):\n    total += scores[i]\n    if scores[i] == 90:\n        count += 1\n        print(\"90의 인덱스:\", i)\nprint(\"합계:\", total)\nprint(\"90의 개수:\", count)\nprint(\"80이 있나요?\", 80 in scores)\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "합계는 total, 조건을 만족하는 개수는 count에 누적합니다. in은 포함 여부만 알려주고 위치는 알려주지 않습니다. 없는 값을 remove하면 오류가 나므로 포함 여부를 먼저 확인할 수 있습니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-control",
+    "title": "조건과 반복으로 분류하기",
+    "topic": "control",
+    "code": "words = [\"python\", \"list\", \"turtle\", \"hi\"]\nfor word in words:\n    if len(word) >= 5:\n        print(word, \"긴 단어\")\n    else:\n        print(word, \"짧은 단어\")\nnumber = 1\nwhile number <= 3:\n    print(\"복습\", number)\n    number += 1\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "for는 항목을 하나씩 꺼내고 if/else는 조건에 따라 한 갈래를 선택합니다. while은 조건을 계속 확인하므로 number를 증가시키지 않으면 끝나지 않습니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-fstring",
+    "title": "콤마 print와 f-string 나란히",
+    "topic": "fstring",
+    "code": "dan = 3\nnum = 4\nprint(dan, \"x\", num, \"=\", dan * num)\nprint(f\"{dan} x {num} = {dan * num}\")\nprint(3, 4)\nprint(\"3\", \"4\", sep=\"\")\nprint(f\"{3}{4}\")\nprint(f\"{3 + 4}\")\nprint(f\"정수 두 칸: [{num:2d}]\")\nprint(f\"오른쪽 세 칸: [{num:>3}]\")\nprint(f\"소수 한 자리: {10 / 3:.1f}\")\nprint(\"첫째\", \"둘째\", sep=\" / \", end=\"!\")\nprint(\"다음 출력\")\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "print(값, 값)은 기본 공백을 사이에 넣습니다. f\"{변수}\"는 문자열 안에서 값을 끼우며 공백을 직접 적습니다. {3}{4}는 붙여 쓴 34, {3+4}는 계산한 7입니다. :2d는 정수 최소 두 칸, :>3은 오른쪽 정렬, :.1f는 소수 한 자리입니다. sep는 값 사이, end는 출력 마지막을 정합니다.",
+    "trace": [
+      [
+        "표현",
+        "출력",
+        "공백"
+      ],
+      [
+        "print(3, 4)",
+        "3 4",
+        "자동 1칸"
+      ],
+      [
+        "print(\"3\", \"4\", sep=\"\")",
+        "34",
+        "없음"
+      ],
+      [
+        "print(f\"{3}{4}\")",
+        "34",
+        "직접 지정"
+      ],
+      [
+        "print(f\"{3 + 4}\")",
+        "7",
+        "계산"
+      ],
+      [
+        "f\"[{4:2d}]\"",
+        "[ 4]",
+        "앞 1칸"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-gugudan-vertical-comma",
+    "title": "세로 구구단 · 콤마 print",
+    "topic": "nested",
+    "code": "# 입력: 시작 단, 끝 단을 각각 한 줄에 입력한다.\nstart = int(input())\nend = int(input())\nif 2 <= start <= end <= 9:\n    for dan in range(start, end + 1):\n        print(\"[\", dan, \"단]\", sep=\"\")\n        for num in range(1, 10):\n            print(dan, \"x\", num, \"=\", dan * num)\n        print()\nelse:\n    print(\"2~9 사이에서 시작 단이 끝 단보다 크지 않게 입력하세요.\")\n",
+    "stdin": "2\n4\n",
+    "scope": "core",
+    "description": "바깥 반복은 단, 안쪽 반복은 곱하는 수입니다. 한 단의 1~9를 아래로 출력한 다음 다음 단으로 이동합니다. 시작 단과 끝 단은 두 줄로 입력하며 양 끝을 포함합니다. 2~9 범위, 시작≤끝 조건을 확인합니다. f-string의 :2d는 결과 앞 공백을 추가해 열을 맞춥니다.",
+    "trace": [
+      [
+        "바깥",
+        "안쪽",
+        "출력 순서"
+      ],
+      [
+        "dan=2",
+        "num=1,2,3…",
+        "2×1,2×2,2×3…"
+      ],
+      [
+        "dan=3",
+        "num=1,2,3…",
+        "3×1,3×2,3×3…"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-gugudan-vertical-fstring",
+    "title": "세로 구구단 · f-string",
+    "topic": "nested",
+    "code": "# 입력: 첫 줄 시작 단, 둘째 줄 끝 단\nstart = int(input())\nend = int(input())\nif 2 <= start <= end <= 9:\n    for dan in range(start, end + 1):\n        print(f\"[{dan}단]\")\n        for num in range(1, 10):\n            print(f\"{dan} x {num} = {dan * num}\")\n        print()\nelse:\n    print(\"2~9 사이에서 시작 단이 끝 단보다 크지 않게 입력하세요.\")\n",
+    "stdin": "2\n4\n",
+    "scope": "core",
+    "description": "바깥 반복은 단, 안쪽 반복은 곱하는 수입니다. 한 단의 1~9를 아래로 출력한 다음 다음 단으로 이동합니다. 시작 단과 끝 단은 두 줄로 입력하며 양 끝을 포함합니다. 2~9 범위, 시작≤끝 조건을 확인합니다. f-string의 :2d는 결과 앞 공백을 추가해 열을 맞춥니다.",
+    "trace": [
+      [
+        "바깥",
+        "안쪽",
+        "출력 순서"
+      ],
+      [
+        "dan=2",
+        "num=1,2,3…",
+        "2×1,2×2,2×3…"
+      ],
+      [
+        "dan=3",
+        "num=1,2,3…",
+        "3×1,3×2,3×3…"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-gugudan-horizontal-comma",
+    "title": "가로 구구단 · 콤마 print",
+    "topic": "nested",
+    "code": "# 콤마 출력은 값 사이 공백을 넣는다. 행별 마지막 print()가 줄을 바꾼다.\n# f-string 비교 예제는 계산 결과를 2칸으로 맞추므로 공백이 달라질 수 있다.\nstart = int(input())\nend = int(input())\nif 2 <= start <= end <= 9:\n    for num in range(1, 10):\n        for dan in range(start, end + 1):\n            print(dan, \"x\", num, \"=\", dan * num, end=\"   \")\n        print()\nelse:\n    print(\"2~9 사이에서 시작 단이 끝 단보다 크지 않게 입력하세요.\")\n",
+    "stdin": "2\n4\n",
+    "scope": "core",
+    "description": "바깥 반복은 곱하는 수, 안쪽 반복은 단입니다. 같은 곱하는 수의 여러 단이 한 행에 놓입니다. 안쪽 반복이 끝난 뒤 print()로 줄을 바꿉니다. 시작 단과 끝 단은 두 줄로 입력하며 양 끝을 포함합니다. 2~9 범위, 시작≤끝 조건을 확인합니다. f-string의 :2d는 결과 앞 공백을 추가해 열을 맞춥니다.",
+    "trace": [
+      [
+        "바깥",
+        "안쪽",
+        "출력 순서"
+      ],
+      [
+        "num=1",
+        "dan=2,3,4",
+        "2×1   3×1   4×1"
+      ],
+      [
+        "num=2",
+        "dan=2,3,4",
+        "2×2   3×2   4×2"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-gugudan-horizontal-fstring",
+    "title": "가로 구구단 · f-string",
+    "topic": "nested",
+    "code": "# 같은 곱하는 수를 기준으로 여러 단을 한 행에 나란히 출력\nstart = int(input())\nend = int(input())\nif 2 <= start <= end <= 9:\n    for num in range(1, 10):\n        for dan in range(start, end + 1):\n            print(f\"{dan} x {num} = {dan * num:2d}\", end=\"   \")\n        print()\nelse:\n    print(\"2~9 사이에서 시작 단이 끝 단보다 크지 않게 입력하세요.\")\n",
+    "stdin": "2\n4\n",
+    "scope": "core",
+    "description": "바깥 반복은 곱하는 수, 안쪽 반복은 단입니다. 같은 곱하는 수의 여러 단이 한 행에 놓입니다. 안쪽 반복이 끝난 뒤 print()로 줄을 바꿉니다. 시작 단과 끝 단은 두 줄로 입력하며 양 끝을 포함합니다. 2~9 범위, 시작≤끝 조건을 확인합니다. f-string의 :2d는 결과 앞 공백을 추가해 열을 맞춥니다.",
+    "trace": [
+      [
+        "바깥",
+        "안쪽",
+        "출력 순서"
+      ],
+      [
+        "num=1",
+        "dan=2,3,4",
+        "2×1   3×1   4×1"
+      ],
+      [
+        "num=2",
+        "dan=2,3,4",
+        "2×2   3×2   4×2"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-stars-left",
+    "title": "왼쪽 증가 별 찍기",
+    "topic": "nested",
+    "code": "n = int(input())\nif 1 <= n <= 20:\n    for row in range(1, n + 1):\n        for space in range(0):\n            print(\" \", end=\"\")\n        for col in range(row):\n            print(\"*\", end=\"\")\n        print()\nelse:\n    print(\"높이는 1~20으로 입력하세요.\")\n",
+    "stdin": "3\n",
+    "scope": "core",
+    "description": "바깥 반복의 row가 행 번호입니다. 먼저 공백 0개, 다음 별 row개를 출력합니다. end=\"\"는 줄을 유지하며 마지막 print()가 한 행을 마칩니다.",
+    "trace": [
+      [
+        "행 row",
+        "공백 수",
+        "별 수"
+      ],
+      [
+        "1",
+        "0",
+        "1"
+      ],
+      [
+        "2",
+        "0",
+        "2"
+      ],
+      [
+        "3",
+        "0",
+        "3"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-stars-decrease",
+    "title": "왼쪽 감소 별 찍기",
+    "topic": "nested",
+    "code": "n = int(input())\nif 1 <= n <= 20:\n    for row in range(1, n + 1):\n        for space in range(0):\n            print(\" \", end=\"\")\n        for col in range(n - row + 1):\n            print(\"*\", end=\"\")\n        print()\nelse:\n    print(\"높이는 1~20으로 입력하세요.\")\n",
+    "stdin": "3\n",
+    "scope": "core",
+    "description": "바깥 반복의 row가 행 번호입니다. 먼저 공백 0개, 다음 별 n - row + 1개를 출력합니다. end=\"\"는 줄을 유지하며 마지막 print()가 한 행을 마칩니다.",
+    "trace": [
+      [
+        "행 row",
+        "공백 수",
+        "별 수"
+      ],
+      [
+        "1",
+        "0",
+        "3"
+      ],
+      [
+        "2",
+        "0",
+        "2"
+      ],
+      [
+        "3",
+        "0",
+        "1"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-stars-right",
+    "title": "오른쪽 정렬 별 찍기",
+    "topic": "nested",
+    "code": "n = int(input())\nif 1 <= n <= 20:\n    for row in range(1, n + 1):\n        for space in range(n - row):\n            print(\" \", end=\"\")\n        for col in range(row):\n            print(\"*\", end=\"\")\n        print()\nelse:\n    print(\"높이는 1~20으로 입력하세요.\")\n",
+    "stdin": "3\n",
+    "scope": "core",
+    "description": "바깥 반복의 row가 행 번호입니다. 먼저 공백 n - row개, 다음 별 row개를 출력합니다. end=\"\"는 줄을 유지하며 마지막 print()가 한 행을 마칩니다.",
+    "trace": [
+      [
+        "행 row",
+        "공백 수",
+        "별 수"
+      ],
+      [
+        "1",
+        "2",
+        "1"
+      ],
+      [
+        "2",
+        "1",
+        "2"
+      ],
+      [
+        "3",
+        "0",
+        "3"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-stars-pyramid",
+    "title": "피라미드 별 찍기",
+    "topic": "nested",
+    "code": "n = int(input())\nif 1 <= n <= 20:\n    for row in range(1, n + 1):\n        for space in range(n - row):\n            print(\" \", end=\"\")\n        for col in range(2 * row - 1):\n            print(\"*\", end=\"\")\n        print()\nelse:\n    print(\"높이는 1~20으로 입력하세요.\")\n",
+    "stdin": "3\n",
+    "scope": "core",
+    "description": "바깥 반복의 row가 행 번호입니다. 먼저 공백 n - row개, 다음 별 2 * row - 1개를 출력합니다. end=\"\"는 줄을 유지하며 마지막 print()가 한 행을 마칩니다.",
+    "trace": [
+      [
+        "행 row",
+        "공백 수",
+        "별 수"
+      ],
+      [
+        "1",
+        "2",
+        "1"
+      ],
+      [
+        "2",
+        "1",
+        "3"
+      ],
+      [
+        "3",
+        "0",
+        "5"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-stars-fstring",
+    "title": "행 번호와 f-string 비교",
+    "topic": "fstring",
+    "code": "# 먼저 중첩 반복으로 배운 별을, 행 번호와 함께 f-string으로 표시한다.\n# 숫자 폭 맞춤·문자열 곱셈은 앞 단계에서 설명한 뒤 비교한다.\nn = int(input())\nif 1 <= n <= 20:\n    for row in range(1, n + 1):\n        print(f\"{row:2d}행 | {'*' * row}\")\nelse:\n    print(\"높이는 1~20으로 입력하세요.\")\n",
+    "stdin": "5\n",
+    "scope": "core",
+    "description": "먼저 중첩 반복으로 별을 출력한 뒤 비교합니다. 문자열에 정수를 곱하면 그만큼 반복한 문자열이 됩니다. f-string은 행 번호를 두 칸으로 맞추고 별 문자열을 끼워 넣습니다. 기본 중첩 반복 풀이를 생략하지 않습니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-grid-bridge",
+    "title": "리스트 안에 행 리스트 넣기",
+    "topic": "codeup",
+    "code": "board = []\nvalue = 1\nfor row in range(3):\n    line = []\n    for col in range(4):\n        line.append(value)\n        value += 1\n    board.append(line)\nprint(board)\nprint(\"둘째 행 셋째 열:\", board[1][2])\n",
+    "stdin": "",
+    "scope": "optional",
+    "description": "board[row][col]은 행을 먼저 고른 뒤 그 안의 열을 고릅니다. 행마다 line = []로 새 리스트를 만드세요. 같은 행 리스트를 재사용하면 한 곳을 바꿨을 때 다른 행도 변할 수 있습니다. 격자 3문제의 선택 심화 연결 활동입니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-inquiry-a",
+    "title": "A. 리스트 명령어와 슬라이싱 실험실",
+    "topic": "list",
+    "code": "a = [10, 20, 30, 40, 50]\nprint(\"처음:\", a)\na[3] = \"테스트\"\nprint(\"3번 수정:\", a)\na.append(60)\nprint(\"끝에 추가:\", a)\na.insert(1, 15)\nprint(\"1번에 삽입:\", a)\na.remove(20)\nprint(\"값 20 삭제:\", a)\ndel a[0]\nprint(\"0번 삭제:\", a)\nfor i in range(len(a)):\n    print(\"인덱스\", i, \"값\", a[i])\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "예측 → 실행 → 인덱스 추적으로 확인합니다. 원소 수정은 길이를 유지하지만 삽입·삭제는 뒤의 자리를 옮깁니다. 아래 슬라이싱과 정렬 실습까지 이어 보세요.",
+    "trace": []
+  },
+  {
+    "id": "mk3-inquiry-b",
+    "title": "B. 숫자가 색이 되는 진법 탐구",
+    "topic": "codeup",
+    "code": "import turtle\nbits = [1, 0, 1, 1]\nvalue = 0\nfor bit in bits:\n    value = value * 2 + bit\n    print(\"현재 십진값:\", value)\nprint(\"1011₂ =\", value)\nturtle.pencolor(\"#6D5CE7\")\nturtle.pensize(20)\nturtle.forward(150)\nturtle.done()\n",
+    "stdin": "",
+    "scope": "optional",
+    "description": "선택 체험입니다. 2진수는 자리가 바뀔 때 2배가 됩니다. 1011₂는 8+0+2+1=11입니다. 16진수 한 자리는 0~9와 A~F로 0~15를 나타냅니다. RGB는 #RRGGBB, 각 두 자리가 0~255의 빛 세기를 나타내며 #FF0000은 빨강입니다. 기본 평가 범위에 자동 포함되지 않습니다.",
+    "trace": [
+      [
+        "자리",
+        "계산",
+        "누적"
+      ],
+      [
+        "1",
+        "0×2+1",
+        "1"
+      ],
+      [
+        "0",
+        "1×2+0",
+        "2"
+      ],
+      [
+        "1",
+        "2×2+1",
+        "5"
+      ],
+      [
+        "1",
+        "5×2+1",
+        "11"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-inquiry-c",
+    "title": "C. 각도와 라디안, 회전의 비밀",
+    "topic": "turtle",
+    "code": "import math\nimport turtle\nangle = 60\nrad = angle * math.pi / 180\nprint(\"각도:\", angle, \"라디안:\", rad)\nturtle.speed(0)\nfor i in range(6):\n    turtle.forward(70)\n    turtle.left(angle)\nturtle.done()\n",
+    "stdin": "",
+    "scope": "optional",
+    "description": "선택 체험입니다. 한 바퀴 360° = 2π rad, 반 바퀴 180° = π rad입니다. rad = degree × π / 180으로 바꿉니다. Turtle의 left는 기본적으로 각도를, math.sin과 math.cos는 라디안을 받습니다. 60°를 여섯 번 돌면 출발 방향으로 돌아옵니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-inquiry-d",
+    "title": "D. 네 마리 거북이의 좌표·반복 탐구",
+    "topic": "turtle",
+    "code": "import turtle\na = turtle.Turtle()\nb = turtle.Turtle()\nc = turtle.Turtle()\nd = turtle.Turtle()\npens = [a, b, c, d]\ncolors = [\"coral\", \"skyblue\", \"seagreen\", \"violet\"]\nfor i in range(4):\n    pens[i].pencolor(colors[i])\n    pens[i].setheading(i * 90)\n    for step in range(4):\n        pens[i].forward(70)\n        pens[i].left(90)\nturtle.done()\n",
+    "stdin": "",
+    "scope": "optional",
+    "description": "선택 체험입니다. 네 개의 거북이를 리스트에 넣고 같은 명령을 반복합니다. 시작 방향은 0°, 90°, 180°, 270°입니다. 바깥 반복은 거북이를 고르고 안쪽 반복은 사각형의 네 변을 그립니다. 라이브러리의 기존 명령을 호출하는 활동이며 새 클래스를 정의하는 수업이 아닙니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-gravity",
+    "title": "속도·중력의 변화 관찰",
+    "topic": "matplotlib",
+    "code": "import matplotlib.pyplot as plt\ny = 100\nvelocity = 0\nheights = []\ntimes = []\nfor step in range(10):\n    times.append(step)\n    heights.append(y)\n    print(step, y, velocity)\n    velocity -= 2\n    y += velocity\nplt.plot(times, heights, marker=\"o\")\nplt.xlabel(\"단계\")\nplt.ylabel(\"높이\")\nplt.title(\"속도를 바꾸면 위치도 달라져요\")\nplt.show()\n",
+    "stdin": "",
+    "scope": "optional",
+    "description": "선택 체험입니다. 이산적인 간단한 모형입니다. 매 단계 속도를 2만큼 줄이고 그 속도를 위치에 더합니다. 실제 중력의 단위·정밀한 물리 계산을 평가하지 않습니다. velocity -= 2를 -= 1로 바꿔 낙하 모양을 비교하세요.",
+    "trace": []
+  },
+  {
+    "id": "mk3-coordinates",
+    "title": "수학 좌표와 화면 좌표",
+    "topic": "turtle",
+    "code": "import turtle\nturtle.speed(0)\nturtle.penup()\nturtle.goto(-200, 0)\nturtle.pendown()\nturtle.goto(200, 0)\nturtle.penup()\nturtle.goto(0, -180)\nturtle.pendown()\nturtle.goto(0, 180)\nturtle.penup()\nturtle.goto(80, 60)\nturtle.dot(16, \"coral\")\nprint(\"수학 좌표: (80, 60)\")\nprint(\"600×440 화면: x =\", 300 + 80, \"y =\", 220 - 60)\nturtle.done()\n",
+    "stdin": "",
+    "scope": "core",
+    "description": "Turtle은 중앙이 원점이고 위쪽으로 y가 증가합니다. 웹 Canvas는 왼쪽 위가 원점이고 아래쪽으로 y가 증가합니다. 너비 600·높이 440 화면에서 screenX=300+x, screenY=220-y로 연결합니다.",
+    "trace": []
+  },
+  {
+    "id": "mk3-cu1173",
+    "title": "1173 · 30분전",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "parts = input().split()\nhour = int(parts[0])\nminute = int(parts[1])\nif minute >= 30:\n    minute -= 30\nelse:\n    minute += 30\n    hour -= 1\n    if hour < 0:\n        hour = 23\nprint(hour, minute)\n",
+    "stdin": "8 45\n",
+    "description": "시와 분에서 30분을 빼고, 자정을 넘으면 전날 시각으로 이어 보세요. 경계를 따로 다루는 조건 연습입니다.",
+    "tests": [
+      {
+        "input": "8 45\n",
+        "expected": "8 15\n"
+      },
+      {
+        "input": "0 20\n",
+        "expected": "23 50\n"
+      },
+      {
+        "input": "17 30\n",
+        "expected": "17 0\n"
+      }
+    ],
+    "trace": [
+      [
+        "단계",
+        "hour",
+        "minute"
+      ],
+      [
+        "입력",
+        "0",
+        "20"
+      ],
+      [
+        "분 빌리기",
+        "-1",
+        "50"
+      ],
+      [
+        "전날로 순환",
+        "23",
+        "50"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-cu1173-v",
+    "title": "1173 · 30분전 · 변형 연습",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "parts = input().split()\nhour = int(parts[0])\nminute = int(parts[1])\nlead = int(parts[2])\ntotal = hour * 60 + minute - lead\nif total < 0:\n    total += 24 * 60\nprint(total // 60, total % 60)\n",
+    "stdin": "10 15 45\n",
+    "description": "동아리 준비 알림: 시·분·준비 시간(1~120분)을 한 줄로 입력받아, 준비 시작 시각을 출력하세요.",
+    "tests": [
+      {
+        "input": "10 15 45\n",
+        "expected": "9 30\n"
+      },
+      {
+        "input": "0 10 120\n",
+        "expected": "22 10\n"
+      },
+      {
+        "input": "8 0 30\n",
+        "expected": "7 30\n"
+      }
+    ],
+    "trace": []
+  },
+  {
+    "id": "mk3-cu1218",
+    "title": "1218 · 삼각형 판단하기",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "parts = input().split()\na = int(parts[0])\nb = int(parts[1])\nc = int(parts[2])\nif a + b <= c:\n    print(\"삼각형아님\")\nelif a == b and b == c:\n    print(\"정삼각형\")\nelif a == b or b == c:\n    print(\"이등변삼각형\")\nelif a * a + b * b == c * c:\n    print(\"직각삼각형\")\nelse:\n    print(\"삼각형\")\n",
+    "stdin": "2 2 5\n",
+    "description": "길이가 작은 순서로 주어진 세 변으로 삼각형을 만들 수 있는지 먼저 확인하고 모양을 분류합니다.",
+    "tests": [
+      {
+        "input": "2 2 5\n",
+        "expected": "삼각형아님\n"
+      },
+      {
+        "input": "4 4 4\n",
+        "expected": "정삼각형\n"
+      },
+      {
+        "input": "6 8 10\n",
+        "expected": "직각삼각형\n"
+      },
+      {
+        "input": "4 4 6\n",
+        "expected": "이등변삼각형\n"
+      },
+      {
+        "input": "4 5 6\n",
+        "expected": "삼각형\n"
+      }
+    ],
+    "trace": [
+      [
+        "입력",
+        "성립 검사",
+        "분류"
+      ],
+      [
+        "2 2 5",
+        "2+2 ≤ 5",
+        "삼각형아님"
+      ],
+      [
+        "4 4 4",
+        "4+4 > 4",
+        "정삼각형"
+      ],
+      [
+        "3 4 5",
+        "3+4 > 5",
+        "직각삼각형"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-cu1218-v",
+    "title": "1218 · 삼각형 판단하기 · 변형 연습",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "parts = input().split()\nsides = []\nfor part in parts:\n    sides.append(int(part))\nsides.sort()\nif sides[0] + sides[1] > sides[2]:\n    print(sides[0] + sides[1] + sides[2])\nelse:\n    print(\"불가\")\n",
+    "stdin": "5 3 4\n",
+    "description": "순서 없이 주어진 막대 세 개로 삼각형을 만들 수 있으면 둘레를, 없으면 불가를 출력하세요.",
+    "tests": [
+      {
+        "input": "5 3 4\n",
+        "expected": "12\n"
+      },
+      {
+        "input": "5 1 2\n",
+        "expected": "불가\n"
+      },
+      {
+        "input": "3 3 3\n",
+        "expected": "9\n"
+      }
+    ],
+    "trace": []
+  },
+  {
+    "id": "mk3-cu1274",
+    "title": "1274 · 소수 판별",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "n = int(input())\nprime = n >= 2\ndivisor = 2\nwhile divisor * divisor <= n:\n    if n % divisor == 0:\n        prime = False\n        break\n    divisor += 1\nif prime:\n    print(\"prime\")\nelse:\n    print(\"not prime\")\n",
+    "stdin": "1\n",
+    "description": "1과 자신 이외의 약수가 있는지 찾아 소수 여부를 판단합니다.",
+    "tests": [
+      {
+        "input": "1\n",
+        "expected": "not prime\n"
+      },
+      {
+        "input": "2\n",
+        "expected": "prime\n"
+      },
+      {
+        "input": "49\n",
+        "expected": "not prime\n"
+      },
+      {
+        "input": "97\n",
+        "expected": "prime\n"
+      }
+    ],
+    "trace": [
+      [
+        "n",
+        "검사 후보",
+        "결과"
+      ],
+      [
+        "1",
+        "검사 전",
+        "소수 아님"
+      ],
+      [
+        "2",
+        "2×2>2",
+        "소수"
+      ],
+      [
+        "9",
+        "2, 3",
+        "3에서 약수 발견"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-cu1274-v",
+    "title": "1274 · 소수 판별 · 변형 연습",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "n = int(input())\ncount = 0\nfor candidate in range(1, n + 1):\n    if n % candidate == 0:\n        print(candidate)\n        count += 1\nprint(\"개수\", count)\n",
+    "stdin": "1\n",
+    "description": "1~100 사이의 n을 받아 n의 모든 양의 약수를 한 줄씩 출력하고, 마지막에 약수 개수를 출력하세요.",
+    "tests": [
+      {
+        "input": "1\n",
+        "expected": "1\n개수 1\n"
+      },
+      {
+        "input": "7\n",
+        "expected": "1\n7\n개수 2\n"
+      },
+      {
+        "input": "6\n",
+        "expected": "1\n2\n3\n6\n개수 4\n"
+      }
+    ],
+    "trace": []
+  },
+  {
+    "id": "mk3-cu1281",
+    "title": "1281 · 홀수는 더하고 짝수는 빼고 3",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "parts = input().split()\na = int(parts[0])\nb = int(parts[1])\ntotal = 0\nfor i in range(a, b + 1):\n    if i % 2 == 1:\n        if i != a:\n            print(\"+\", end=\"\")\n        print(i, end=\"\")\n        total += i\n    else:\n        print(\"-\", i, sep=\"\", end=\"\")\n        total -= i\nprint(\"=\", total, sep=\"\")\n",
+    "stdin": "3 5\n",
+    "description": "구간의 각 수를 홀짝에 따라 더하거나 빼고, 계산 과정의 식과 합계를 함께 만듭니다.",
+    "tests": [
+      {
+        "input": "3 5\n",
+        "expected": "3-4+5=4\n"
+      },
+      {
+        "input": "4 7\n",
+        "expected": "-4+5-6+7=2\n"
+      },
+      {
+        "input": "6 6\n",
+        "expected": "-6=-6\n"
+      }
+    ],
+    "trace": [
+      [
+        "i",
+        "만들어진 식",
+        "누적"
+      ],
+      [
+        "3",
+        "3",
+        "3"
+      ],
+      [
+        "4",
+        "3-4",
+        "-1"
+      ],
+      [
+        "5",
+        "3-4+5",
+        "4"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-cu1281-v",
+    "title": "1281 · 홀수는 더하고 짝수는 빼고 3 · 변형 연습",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "parts = input().split()\na = int(parts[0])\nb = int(parts[1])\ntotal = 0\nfor i in range(a, b + 1):\n    if i % 3 == 0:\n        total += i * 2\n    else:\n        total += i\nprint(total)\n",
+    "stdin": "1 3\n",
+    "description": "점수 변화 기록: a~b 중 3의 배수는 두 배로 더하고 나머지는 그대로 더합니다. 합계만 출력하세요.",
+    "tests": [
+      {
+        "input": "1 3\n",
+        "expected": "9\n"
+      },
+      {
+        "input": "3 3\n",
+        "expected": "6\n"
+      },
+      {
+        "input": "4 6\n",
+        "expected": "21\n"
+      }
+    ],
+    "trace": []
+  },
+  {
+    "id": "mk3-cu1411",
+    "title": "1411 · 빠진 카드",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "n = int(input())\ncards = []\nfor i in range(n - 1):\n    cards.append(int(input()))\nfor number in range(1, n + 1):\n    if number not in cards:\n        print(number)\n",
+    "stdin": "5\n2\n5\n1\n4\n",
+    "description": "1부터 N까지 있어야 할 번호와 실제 남은 번호를 비교해 빠진 하나를 찾습니다.",
+    "tests": [
+      {
+        "input": "5\n2\n5\n1\n4\n",
+        "expected": "3\n"
+      },
+      {
+        "input": "3\n3\n2\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "4\n1\n3\n2\n",
+        "expected": "4\n"
+      }
+    ],
+    "trace": [
+      [
+        "N",
+        "남은 카드",
+        "검사 결과"
+      ],
+      [
+        "5",
+        "[2, 5, 1, 4]",
+        "1,2 있음 / 3 없음"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-cu1411-v",
+    "title": "1411 · 빠진 카드 · 변형 연습",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "n = int(input())\nused = []\nfor i in range(n - 2):\n    used.append(int(input()))\nfor number in range(1, n + 1):\n    if number not in used:\n        print(number)\n",
+    "stdin": "5\n1\n3\n5\n",
+    "description": "대출된 사물함 두 칸: 첫 줄 N(3~50), 다음 N−2줄에 사용 중인 서로 다른 번호가 있습니다. 비어 있는 두 번호를 오름차순으로 한 줄씩 출력하세요.",
+    "tests": [
+      {
+        "input": "5\n1\n3\n5\n",
+        "expected": "2\n4\n"
+      },
+      {
+        "input": "3\n2\n",
+        "expected": "1\n3\n"
+      },
+      {
+        "input": "4\n2\n3\n",
+        "expected": "1\n4\n"
+      }
+    ],
+    "trace": []
+  },
+  {
+    "id": "mk3-cu1412",
+    "title": "1412 · 알파벳 개수 출력하기",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "text = input()\nalphabet = \"abcdefghijklmnopqrstuvwxyz\"\ncounts = []\nfor i in range(26):\n    counts.append(0)\nfor char in text:\n    for i in range(26):\n        if char == alphabet[i]:\n            counts[i] += 1\nfor i in range(26):\n    print(alphabet[i], \":\", counts[i], sep=\"\")\n",
+    "stdin": "a! a?\n",
+    "description": "소문자 알파벳마다 등장 횟수를 따로 세어, 나오지 않은 문자도 0으로 나타냅니다.",
+    "tests": [
+      {
+        "input": "a! a?\n",
+        "expected": "a:2\nb:0\nc:0\nd:0\ne:0\nf:0\ng:0\nh:0\ni:0\nj:0\nk:0\nl:0\nm:0\nn:0\no:0\np:0\nq:0\nr:0\ns:0\nt:0\nu:0\nv:0\nw:0\nx:0\ny:0\nz:0\n"
+      },
+      {
+        "input": "zzz\n",
+        "expected": "a:0\nb:0\nc:0\nd:0\ne:0\nf:0\ng:0\nh:0\ni:0\nj:0\nk:0\nl:0\nm:0\nn:0\no:0\np:0\nq:0\nr:0\ns:0\nt:0\nu:0\nv:0\nw:0\nx:0\ny:0\nz:3\n"
+      },
+      {
+        "input": "hello world.\n",
+        "expected": "a:0\nb:0\nc:0\nd:1\ne:1\nf:0\ng:0\nh:1\ni:0\nj:0\nk:0\nl:3\nm:0\nn:0\no:2\np:0\nq:0\nr:1\ns:0\nt:0\nu:0\nv:0\nw:1\nx:0\ny:0\nz:0\n"
+      }
+    ],
+    "trace": [
+      [
+        "읽은 문자",
+        "일치 인덱스",
+        "counts 변화"
+      ],
+      [
+        "a",
+        "0",
+        "0 → 1"
+      ],
+      [
+        "!",
+        "없음",
+        "변화 없음"
+      ],
+      [
+        "a",
+        "0",
+        "1 → 2"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-cu1412-v",
+    "title": "1412 · 알파벳 개수 출력하기 · 변형 연습",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "text = input()\nvowels = \"aeiou\"\nfor vowel in vowels:\n    count = 0\n    for char in text:\n        if char == vowel:\n            count += 1\n    print(vowel, \":\", count, sep=\"\")\n",
+    "stdin": "apple!\n",
+    "description": "모음 관찰: 같은 입력에서 a e i o u의 개수만 이 순서로 출력하세요. 각 줄은 문자:개수 형식입니다.",
+    "tests": [
+      {
+        "input": "apple!\n",
+        "expected": "a:1\ne:1\ni:0\no:0\nu:0\n"
+      },
+      {
+        "input": "sky\n",
+        "expected": "a:0\ne:0\ni:0\no:0\nu:0\n"
+      },
+      {
+        "input": "audio\n",
+        "expected": "a:1\ne:0\ni:1\no:1\nu:1\n"
+      }
+    ],
+    "trace": []
+  },
+  {
+    "id": "mk3-cu1425",
+    "title": "1425 · 자리 배치",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "parts = input().split()\nn = int(parts[0])\nc = int(parts[1])\nparts = input().split()\nheights = []\nfor part in parts:\n    heights.append(int(part))\nheights.sort()\nfor i in range(n):\n    print(heights[i], end=\" \")\n    if (i + 1) % c == 0:\n        print()\nif n % c != 0:\n    print()\n",
+    "stdin": "5 2\n170 150 160 155 165\n",
+    "description": "숫자를 오름차순으로 정리한 다음 한 줄에 정해진 개수씩 배치합니다.",
+    "tests": [
+      {
+        "input": "5 2\n170 150 160 155 165\n",
+        "expected": "150 155 \n160 165 \n170 \n"
+      },
+      {
+        "input": "1 3\n158\n",
+        "expected": "158 \n"
+      },
+      {
+        "input": "4 2\n160 150 160 140\n",
+        "expected": "140 150 \n160 160 \n"
+      }
+    ],
+    "trace": [
+      [
+        "정렬 결과",
+        "i+1",
+        "줄바꿈"
+      ],
+      [
+        "[150, 155, 160, 165, 170]",
+        "1, 2",
+        "2에서"
+      ],
+      [
+        "같은 리스트",
+        "3, 4",
+        "4에서"
+      ],
+      [
+        "같은 리스트",
+        "5",
+        "마지막 남은 행"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-cu1425-v",
+    "title": "1425 · 자리 배치 · 변형 연습",
+    "topic": "codeup",
+    "scope": "core",
+    "code": "parts = input().split()\nn = int(parts[0])\nc = int(parts[1])\nparts = input().split()\ncards = []\nfor part in parts:\n    cards.append(int(part))\ncards.sort()\ncards.reverse()\nfor i in range(n):\n    print(cards[i], end=\" \")\n    if (i + 1) % c == 0:\n        print()\nif n % c != 0:\n    print()\n",
+    "stdin": "3 2\n4 8 2\n",
+    "description": "전시 카드 배치: 첫 줄 N C, 둘째 줄 N개의 번호를 받아 큰 번호부터 C개씩 출력하세요. 행 마지막 공백도 유지합니다.",
+    "tests": [
+      {
+        "input": "3 2\n4 8 2\n",
+        "expected": "8 4 \n2 \n"
+      },
+      {
+        "input": "2 1\n5 9\n",
+        "expected": "9 \n5 \n"
+      },
+      {
+        "input": "1 2\n7\n",
+        "expected": "7 \n"
+      }
+    ],
+    "trace": []
+  },
+  {
+    "id": "mk3-cu1468",
+    "title": "1468 · 2차원 배열 지그재그 채우기 2-1",
+    "topic": "codeup",
+    "scope": "optional",
+    "code": "n = int(input())\nboard = []\nvalue = 1\nfor row in range(n):\n    line = []\n    for col in range(n):\n        line.append(value)\n        value += 1\n    if row % 2 == 1:\n        line.reverse()\n    board.append(line)\nfor row in range(n):\n    for col in range(n):\n        print(board[row][col], end=\" \")\n    print()\n",
+    "stdin": "1\n",
+    "description": "번호를 행마다 이어 채우되 두 번째·네 번째 행은 반대 방향으로 읽도록 만듭니다.",
+    "tests": [
+      {
+        "input": "1\n",
+        "expected": "1 \n"
+      },
+      {
+        "input": "2\n",
+        "expected": "1 2 \n4 3 \n"
+      },
+      {
+        "input": "3\n",
+        "expected": "1 2 3 \n6 5 4 \n7 8 9 \n"
+      }
+    ],
+    "trace": [
+      [
+        "행 인덱스",
+        "채운 행",
+        "뒤집은 뒤"
+      ],
+      [
+        "0",
+        "[1,2,3]",
+        "[1,2,3]"
+      ],
+      [
+        "1",
+        "[4,5,6]",
+        "[6,5,4]"
+      ],
+      [
+        "2",
+        "[7,8,9]",
+        "[7,8,9]"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-cu1468-v",
+    "title": "1468 · 2차원 배열 지그재그 채우기 2-1 · 변형 연습",
+    "topic": "codeup",
+    "scope": "optional",
+    "code": "parts = input().split()\nh = int(parts[0])\nw = int(parts[1])\nvalue = 1\nfor row in range(h):\n    line = []\n    for col in range(w):\n        line.append(value)\n        value += 1\n    if row % 2 == 1:\n        line.reverse()\n    for value_in_row in line:\n        print(value_in_row, end=\" \")\n    print()\n",
+    "stdin": "2 3\n",
+    "description": "직사각형 전시 번호: 한 줄에 행 수와 열 수(각 1~10)를 받아 같은 지그재그 규칙으로 출력하세요.",
+    "tests": [
+      {
+        "input": "2 3\n",
+        "expected": "1 2 3 \n6 5 4 \n"
+      },
+      {
+        "input": "3 1\n",
+        "expected": "1 \n2 \n3 \n"
+      },
+      {
+        "input": "1 2\n",
+        "expected": "1 2 \n"
+      }
+    ],
+    "trace": []
+  },
+  {
+    "id": "mk3-cu6097",
+    "title": "6097 · 설탕과자 뽑기 · Python 대응",
+    "topic": "codeup",
+    "scope": "optional",
+    "code": "parts = input().split()\nh = int(parts[0])\nw = int(parts[1])\nboard = []\nfor row in range(h):\n    line = []\n    for col in range(w):\n        line.append(0)\n    board.append(line)\nn = int(input())\nfor stick in range(n):\n    parts = input().split()\n    length = int(parts[0])\n    direction = int(parts[1])\n    row = int(parts[2]) - 1\n    col = int(parts[3]) - 1\n    for i in range(length):\n        if direction == 0:\n            board[row][col + i] = 1\n        else:\n            board[row + i][col] = 1\nfor row in range(h):\n    for col in range(w):\n        print(board[row][col], end=\" \")\n    print()\n",
+    "stdin": "3 3\n2\n2 0 1 1\n2 1 2 3\n",
+    "description": "격자에 길이·방향·시작 위치가 정해진 막대를 놓고 가려진 칸을 표시합니다.",
+    "tests": [
+      {
+        "input": "3 3\n2\n2 0 1 1\n2 1 2 3\n",
+        "expected": "1 1 0 \n0 0 1 \n0 0 1 \n"
+      },
+      {
+        "input": "1 1\n1\n1 0 1 1\n",
+        "expected": "1 \n"
+      },
+      {
+        "input": "2 2\n2\n2 0 1 1\n2 1 1 1\n",
+        "expected": "1 1 \n1 0 \n"
+      }
+    ],
+    "trace": [
+      [
+        "명령",
+        "0번 시작 좌표",
+        "바뀌는 칸"
+      ],
+      [
+        "길이2 가로 (1,1)",
+        "row0 col0",
+        "[0][0], [0][1]"
+      ],
+      [
+        "길이2 세로 (2,3)",
+        "row1 col2",
+        "[1][2], [2][2]"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-cu6097-v",
+    "title": "6097 · 설탕과자 뽑기 · Python 대응 · 변형 연습",
+    "topic": "codeup",
+    "scope": "optional",
+    "code": "parts = input().split()\nh = int(parts[0])\nw = int(parts[1])\nboard = []\nfor row in range(h):\n    line = []\n    for col in range(w):\n        line.append(0)\n    board.append(line)\nn = int(input())\nfor i in range(n):\n    parts = input().split()\n    row = int(parts[0]) - 1\n    col = int(parts[1]) - 1\n    board[row][col] = 1\ncount = 0\nfor row in range(h):\n    for col in range(w):\n        count += board[row][col]\nprint(count)\n",
+    "stdin": "2 2\n3\n1 1\n1 1\n2 2\n",
+    "description": "격자 전시판: h w, 이어 표시할 점의 수 n과 각 점의 행·열을 입력받아 표시된 칸의 총개수를 출력하세요. 같은 점이 여러 번 입력돼도 한 칸입니다.",
+    "tests": [
+      {
+        "input": "2 2\n3\n1 1\n1 1\n2 2\n",
+        "expected": "2\n"
+      },
+      {
+        "input": "1 1\n1\n1 1\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "2 3\n2\n1 3\n2 1\n",
+        "expected": "2\n"
+      }
+    ],
+    "trace": []
+  },
+  {
+    "id": "mk3-cu6098",
+    "title": "6098 · 성실한 개미 · Python 대응",
+    "topic": "codeup",
+    "scope": "optional",
+    "code": "board = []\nfor row in range(10):\n    parts = input().split()\n    line = []\n    for part in parts:\n        line.append(int(part))\n    board.append(line)\nrow = 1\ncol = 1\nwhile True:\n    if board[row][col] == 2:\n        board[row][col] = 9\n        break\n    board[row][col] = 9\n    if board[row][col + 1] != 1:\n        col += 1\n    elif board[row + 1][col] != 1:\n        row += 1\n    else:\n        break\nfor row in range(10):\n    for col in range(10):\n        print(board[row][col], end=\" \")\n    print()\n",
+    "stdin": "1 1 1 1 1 1 1 1 1 1\n1 2 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n",
+    "description": "오른쪽을 우선하고 막히면 아래로 가는 정해진 이동 규칙을 한 걸음씩 추적합니다.",
+    "tests": [
+      {
+        "input": "1 1 1 1 1 1 1 1 1 1\n1 2 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n",
+        "expected": "1 1 1 1 1 1 1 1 1 1 \n1 9 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n"
+      },
+      {
+        "input": "1 1 1 1 1 1 1 1 1 1\n1 0 0 2 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n",
+        "expected": "1 1 1 1 1 1 1 1 1 1 \n1 9 9 9 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n"
+      },
+      {
+        "input": "1 1 1 1 1 1 1 1 1 1\n1 0 1 1 1 1 1 1 1 1\n1 0 1 1 1 1 1 1 1 1\n1 2 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 1\n",
+        "expected": "1 1 1 1 1 1 1 1 1 1 \n1 9 1 1 1 1 1 1 1 1 \n1 9 1 1 1 1 1 1 1 1 \n1 9 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n1 1 1 1 1 1 1 1 1 1 \n"
+      }
+    ],
+    "trace": [
+      [
+        "단계",
+        "행 인덱스",
+        "열 인덱스",
+        "이유"
+      ],
+      [
+        "시작",
+        "1",
+        "1",
+        "(2,2)를 0부터 계산"
+      ],
+      [
+        "오른쪽 길",
+        "1",
+        "2",
+        "오른쪽 우선"
+      ],
+      [
+        "오른쪽 벽",
+        "2",
+        "2",
+        "아래로 이동"
+      ]
+    ]
+  },
+  {
+    "id": "mk3-cu6098-v",
+    "title": "6098 · 성실한 개미 · Python 대응 · 변형 연습",
+    "topic": "codeup",
+    "scope": "optional",
+    "code": "board = []\nfor row in range(5):\n    parts = input().split()\n    line = []\n    for part in parts:\n        line.append(int(part))\n    board.append(line)\nrow = 1\ncol = 1\ncount = 1\nwhile True:\n    if board[row][col + 1] == 0:\n        col += 1\n    elif board[row + 1][col] == 0:\n        row += 1\n    else:\n        break\n    count += 1\nprint(count)\n",
+    "stdin": "1 1 1 1 1\n1 0 0 0 1\n1 1 1 0 1\n1 1 1 0 1\n1 1 1 1 1\n",
+    "description": "전시관 로봇: 0 길·1 벽으로 된 5×5 격자에서 (2,2)로 출발합니다. 오른쪽 우선, 막히면 아래로 이동하며 방문한 칸 수를 출력하세요. 테두리는 벽이고 시작은 길입니다.",
+    "tests": [
+      {
+        "input": "1 1 1 1 1\n1 0 0 0 1\n1 1 1 0 1\n1 1 1 0 1\n1 1 1 1 1\n",
+        "expected": "5\n"
+      },
+      {
+        "input": "1 1 1 1 1\n1 0 1 1 1\n1 1 1 1 1\n1 1 1 1 1\n1 1 1 1 1\n",
+        "expected": "1\n"
+      },
+      {
+        "input": "1 1 1 1 1\n1 0 1 1 1\n1 0 1 1 1\n1 0 1 1 1\n1 1 1 1 1\n",
+        "expected": "3\n"
+      }
+    ],
+    "trace": []
+  }
+]
