@@ -4,7 +4,7 @@ const {chromium}=require(process.env.AVATAR_PLAYWRIGHT_MODULE||'playwright');
 const root=path.resolve('public/pandas-data-lab'),base=process.env.AVATAR_LIVE_URL||'https://sw.englishmath.kr/';
 (async()=>{
  const browser=await chromium.launch({headless:true});const context=await browser.newContext();const page=await context.newPage();page.setDefaultTimeout(20000);
- const requests=[],errors=[];page.on('request',r=>requests.push({url:r.url(),method:r.method(),body:r.postData()}));page.on('pageerror',e=>errors.push(String(e)));
+ const requests=[],errors=[];page.on('request',r=>requests.push({url:r.url(),method:r.method(),body:r.postData()}));page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')console.log('Browser:',m.text());});page.on('requestfailed',r=>console.log('Request failure:',r.url(),r.failure()?.errorText));
  if(!process.env.AVATAR_LIVE_URL)await context.route('https://sw.englishmath.kr/**',async r=>{const u=new URL(r.request().url());let file=path.join(root,decodeURIComponent(u.pathname));if(u.pathname==='/')file=path.join(root,'index.html');if(!file.startsWith(root)||!fs.existsSync(file))return r.fulfill({status:404,body:'Missing test asset'});const ext=path.extname(file);const mime={'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.wasm':'application/wasm','.css':'text/css','.json':'application/json','.png':'image/png','.zip':'application/zip'}[ext]||'application/octet-stream';await r.fulfill({status:200,contentType:mime,body:fs.readFileSync(file)});});
  const response=await page.goto(base+'ai-avatar.html');assert.equal(response.status(),200);
  await page.locator('.animal-option').last().waitFor();assert.equal(await page.locator('.animal-option').count(),8);

@@ -82,7 +82,7 @@ function sendSnapshot(){const body=$('code').value.replace(/^smile_score = .*\nb
 $('code').value=snapshotCode(values)+defaultCode();$('snapshot').onclick=sendSnapshot;
 $('example').onclick=()=>{$('code').value=snapshotCode(values)+defaultCode(threshold());$('snapshot-status').textContent='현재 점수와 기준으로 예제를 다시 만들었습니다.';};
 $('run-python').onclick=async()=>{
- if(runner)return;$('run-python').disabled=true;$('stop-python').disabled=false;$('output').textContent='';
+ if(runner)return;$('run-python').disabled=true;$('stop-python').disabled=false;$('output').textContent='';$('python-status').textContent='Python 실행 환경 준비 중…';
  const job=runPython($('code').value,{},text=>$('python-status').textContent=text);runner=job;
  try{const result=await job.promise;$('output').textContent=result.output||'(출력 없음 — print()를 사용해 보세요.)';$('python-status').textContent='실제 Python 실행 완료 · 버튼을 눌렀을 때의 코드 결과입니다.';}
  catch(error){$('output').textContent=String(error.message);$('python-status').textContent='실행을 완료하지 못했습니다. 코드와 준비 상태를 확인한 뒤 다시 실행하세요.';}
