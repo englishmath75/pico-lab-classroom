@@ -1,0 +1,25 @@
+
+/* Match the MK sidebar identity while keeping the SW theme. */
+.classroom-page .side .brand.brand-mk-aligned{display:flex;flex-direction:column;align-items:center;text-align:center;font-family:Arial,'Malgun Gothic',sans-serif}
+.classroom-page .side .brand.brand-mk-aligned img{box-sizing:border-box;width:140px;max-width:100%;height:auto;aspect-ratio:2048/1529;object-fit:contain;background:#faf8f1;border:1px solid #e4dfd1;border-radius:10px;padding:8px;margin:0 auto}
+.classroom-page .side .brand.brand-mk-aligned .classroom-name{font-size:20px;font-weight:800;line-height:1.35;letter-spacing:-.6px;margin:8px 0 5px;text-align:center}
+.classroom-page .side .brand.brand-mk-aligned .classroom-unit{font-size:12px;line-height:1.75;font-weight:700;letter-spacing:0;margin:6px 0;color:#e8cd8b;word-break:keep-all}
+.classroom-page .side .brand.brand-mk-aligned .classroom-subject{font-size:11px;line-height:1.75;font-weight:400;letter-spacing:0;margin:0;color:#c6d8e2;word-break:keep-all}
+@media(max-width:900px){.classroom-page .side .brand.brand-mk-aligned img{width:110px}.classroom-page .side .brand.brand-mk-aligned .classroom-name{font-size:18px}}
+@media(max-height:740px) and (min-width:901px){.classroom-page .side .brand.brand-mk-aligned img{width:95px}.classroom-page .side .brand.brand-mk-aligned .classroom-name{font-size:17px}}
+
+/* Compact mobile identity: one line per label, no inherited flex gap. */
+@media(max-width:850px){
+.classroom-page .side{padding:16px 12px 12px}
+.classroom-page .side .brand.brand-mk-aligned{gap:0;margin:0 0 10px;padding:0 0 12px}
+.classroom-page .side .brand.brand-mk-aligned img{width:90px;padding:6px;margin:0 auto 8px}
+.classroom-page .side .brand.brand-mk-aligned br{display:none}
+.classroom-page .side .brand.brand-mk-aligned .classroom-name{font-size:22px;line-height:1.4;margin:0 0 5px;white-space:nowrap}
+.classroom-page .side .brand.brand-mk-aligned .classroom-unit{font-size:14px;line-height:1.5;margin:0 0 3px;white-space:nowrap}
+.classroom-page .side .brand.brand-mk-aligned .classroom-subject{font-size:clamp(10px,3vw,13px);line-height:1.5;margin:0;white-space:nowrap;letter-spacing:-.3px}
+.classroom-page .side nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.classroom-page .side .nav{width:100%;padding:8px 6px;margin:0;font-size:13px;line-height:1.5;white-space:nowrap;text-align:center}
+.classroom-page .side .nav[href*="/data-lab"]{grid-column:1/-1}
+.classroom-page .side .nav.avatar-nav{grid-column:1/-1;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;padding:9px 8px;margin:0 0 4px;font-size:14px;line-height:1.5}
+.classroom-page .side .avatar-extra{padding:2px 7px;font-size:11px}
+}
