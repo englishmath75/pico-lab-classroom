@@ -1,0 +1,43 @@
+name: MK final login and persistence validation
+on:
+  push:
+    branches: [work/mk-unified-login-20261106]
+  pull_request:
+    branches: [feat/mk-native-avatar-20261106]
+permissions:
+  contents: read
+concurrency:
+  group: mk-final-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install matplotlib
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build:mk
+      - run: python3 tests/mk-v3-content.py && python3 tests/mk-question-audit.py
+      - run: node --test tests/mk-learning-draft.test.mjs tests/mk-persistence.test.mjs tests/mk-list-answer.test.mjs tests/mk-reverse-compare.test.mjs
+      - name: Existing production rules, isolated test data only
+        run: npx firebase emulators:exec --project demo-englishmath-python --only auth,firestore 'node --test --test-concurrency=1 tests/student-security.test.mjs tests/grade1-isolation.test.mjs && node tests/mk-unified-browser.mjs'
+      - run: node tests/mk-v3-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mk-final-test-evidence
+          path: .artifacts
+          include-hidden-files: true

@@ -1,8 +1,11 @@
 import {animals,avatarSVG,extractSignals,smooth,classify,clamp,defaultCode,snapshotCode} from './ai-avatar-core.mjs';
 import {runPython} from './ai-avatar-run.js';
 const $=id=>document.getElementById(id), zero=()=>({smile:0,blink:0,tilt:0});
+const embedded=parent!==window&&new URLSearchParams(location.search).get('embedded')==='1';
+if(embedded)document.body.classList.add('avatar-embedded');
+else location.replace(new URL('./?page=avatar',location.href));
 let values=zero(),raw=zero(),baseline=zero(),flags={},selected='cat',mode='virtual';
-let stream=null,landmarker=null,frame=0,epoch=0,starting=false,lastTime=-1,lastFrame=0,interval=70,averageMs=0;
+let stream=null,landmarker=null,frame=0,epoch=0,starting=false,lastTime=-1,lastFrame=0,interval=70,averageMs=0,startTimer=null,disposed=false;
 let runner=null,mission={smile:false,blink:false,tilt:false},heldSince=null,blinkSince=null,left=false,right=false;
 const threshold=()=>({smile:+$('smile-threshold').value,blink:+$('blink-threshold').value,tilt:+$('tilt-threshold').value});
 function resetMissions(){mission={smile:false,blink:false,tilt:false};heldSince=null;blinkSince=null;left=false;right=false;for(const key of Object.keys(mission)){const card=$('mission-'+key);card.classList.remove('done');card.querySelector('strong').textContent='아직 성공하지 않았어요';}$('mission-feedback').textContent=(mode==='virtual'?'가상 미션':'카메라 미션')+' · 세 가지 동작에 도전하세요.';}
@@ -27,6 +30,7 @@ $('avatar').innerHTML=avatarSVG(selected);
 function setMode(next){mode=next;$('mode').textContent=next==='camera'?'카메라 실측값 · 내 PC 내부 처리':'가상 실험값 · 실제 얼굴 인식 아님';$('signal-hint').textContent=next==='camera'?'슬라이더는 실측값 표시입니다. 값을 직접 바꾸려면 가상 모드로 전환하세요.':'슬라이더를 움직여 가상 실험값을 바꾸세요. 실제 얼굴 인식값이 아닙니다.';for(const id of ['smile','blink','tilt'])$(id).disabled=next==='camera';$('calibrate').disabled=next!=='camera';resetMissions();}
 function stopCamera(message='카메라가 꺼졌습니다. 가상 모드로 실습할 수 있습니다.'){
  epoch++;starting=false;cancelAnimationFrame(frame);frame=0;
+ clearTimeout(startTimer);startTimer=null;
  if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;
  $('camera').pause();$('camera').srcObject=null;$('camera').hidden=true;$('preview').checked=false;$('camera-placeholder').hidden=false;
  landmarker?.close();landmarker=null;values=zero();raw=zero();baseline=zero();flags={};lastTime=-1;averageMs=0;interval=70;
@@ -37,7 +41,7 @@ function stopCamera(message='카메라가 꺼졌습니다. 가상 모드로 실�
  setMode('virtual');render();
 }
 async function startCamera(){
- if(starting||stream)return;starting=true;const own=++epoch;const began=performance.now();const deadline=setTimeout(()=>{if(own===epoch)stopCamera('카메라/모델 준비가 지연되었습니다. 가상 모드를 사용하거나 다시 시도해 주세요.');},60000);$('start-camera').disabled=true;$('stop-camera').disabled=false;$('camera-status').textContent='카메라 권한을 확인하고 있습니다…';
+ if(disposed||starting||stream)return;starting=true;const own=++epoch;const began=performance.now();const deadline=setTimeout(()=>{if(own===epoch)stopCamera('카메라/모델 준비가 지연되었습니다. 가상 모드를 사용하거나 다시 시도해 주세요.');},60000);startTimer=deadline;$('start-camera').disabled=true;$('stop-camera').disabled=false;$('camera-status').textContent='카메라 권한을 확인하고 있습니다…';
  try{
  if(!navigator.mediaDevices?.getUserMedia)throw Object.assign(Error(),{name:'Unsupported'});
  const acquired=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});
@@ -56,7 +60,7 @@ async function startCamera(){
  $('camera-placeholder').innerHTML='<span class="camera-symbol">◉</span><strong>내 PC에서 표정을 인식하고 있어요</strong><p>영상은 숨겨져 있습니다.<br>아래에서 미리보기만 선택할 수 있어요.</p>';
  for(const track of stream.getTracks())track.onended=()=>stopCamera('카메라 연결이 끝났습니다. 가상 모드로 전환했습니다.');
  frame=requestAnimationFrame(tick);
- }catch(error){if(own!==epoch)return;const messages={NotAllowedError:'카메라 권한이 거절되었거나 관리자가 차단했습니다.',NotFoundError:'연결된 카메라가 없습니다.',NotReadableError:'카메라를 다른 앱에서 사용 중이거나 장치를 열 수 없습니다.',Unsupported:'이 브라우저는 카메라를 지원하지 않습니다.'};stopCamera((messages[error.name]||'표정 모델을 준비하지 못했습니다. 네트워크나 기기 지원 상태를 확인해 주세요.')+' 가상 모드로 같은 수업을 할 수 있습니다.');}finally{clearTimeout(deadline);}
+ }catch(error){if(own!==epoch)return;const messages={NotAllowedError:'카메라 권한이 거절되었거나 관리자가 차단했습니다.',NotFoundError:'연결된 카메라가 없습니다.',NotReadableError:'카메라를 다른 앱에서 사용 중이거나 장치를 열 수 없습니다.',Unsupported:'이 브라우저는 카메라를 지원하지 않습니다.'};stopCamera((messages[error.name]||'표정 모델을 준비하지 못했습니다. 네트워크나 기기 지원 상태를 확인해 주세요.')+' 가상 모드로 같은 수업을 할 수 있습니다.');}finally{clearTimeout(deadline);if(startTimer===deadline)startTimer=null;}
 }
 function tick(now){
  if(!landmarker||!stream||mode!=='camera')return;
@@ -92,7 +96,31 @@ $('stop-python').onclick=()=>runner?.stop();
 $('download').onclick=()=>{const blob=new Blob([snapshotCode({smile:.82,blink:.12,tilt:15})+defaultCode(threshold())],{type:'text/x-python;charset=utf-8'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='avatar-virtual-conditions.py';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 function end(){stopCamera('학습 종료 · 카메라와 임시값을 지웠습니다.');runner?.stop();$('code').value=snapshotCode(zero())+defaultCode();$('output').textContent='학습을 종료했습니다.';$('snapshot-status').textContent='이전 점수를 지웠습니다.';resetMissions();}
 $('end').onclick=end;
-addEventListener('pagehide',end);document.addEventListener('visibilitychange',()=>{if(document.hidden)end();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)end();});
 // Virtual hold detection without collecting or persisting scores.
-setInterval(()=>{if(mode==='virtual'&&!document.hidden)updateMissions(performance.now());},100);
+const holdTimer=setInterval(()=>{if(mode==='virtual'&&!document.hidden)updateMissions(performance.now());},100);
 setMode('virtual');render();
+
+// Only layout and actual user activity cross into the classroom shell. No
+// camera values, Python source, results, identity or auth tokens are messaged.
+let resizeObserver=null,resizeFrame=0,lastActivity=-Infinity;
+const bridgeListeners=new AbortController();
+const tellClassroom=(event,extra={})=>{if(embedded&&!disposed)parent.postMessage({type:'mk-avatar',event,...extra},location.origin);};
+if(embedded){
+ const reportSize=()=>{if(disposed)return;cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(()=>{resizeFrame=0;tellClassroom('resize',{height:Math.ceil(document.querySelector('.layout').getBoundingClientRect().height)+2});});};
+ resizeObserver=new ResizeObserver(reportSize);resizeObserver.observe(document.querySelector('.layout'));
+ for(const name of ['pointerdown','keydown','touchstart','input'])addEventListener(name,event=>{
+  if(!event.isTrusted||disposed)return;const now=performance.now();if(now-lastActivity<1000)return;lastActivity=now;tellClassroom('activity');
+ },{capture:true,passive:true,signal:bridgeListeners.signal});
+ tellClassroom('ready');reportSize();
+}
+function dispose(){
+ if(disposed)return;disposed=true;
+ clearInterval(holdTimer);clearTimeout(startTimer);cancelAnimationFrame(resizeFrame);resizeObserver?.disconnect();bridgeListeners.abort();
+ end();
+}
+// The trusted same-origin parent invokes this synchronously before removing
+// the iframe. pagehide covers browser navigation or closing the entire tab.
+addEventListener('mk-avatar-dispose',dispose,{once:true});addEventListener('pagehide',dispose,{once:true});
+
+if(embedded)document.querySelector('a[href="./ai-avatar-notices.html"]').addEventListener('click',event=>{event.preventDefault();tellClassroom('notices');},{signal:bridgeListeners.signal});

@@ -32,11 +32,13 @@ import { initializeFirestore, memoryLocalCache, connectFirestoreEmulator,
 export const MAX_CODE = 20000, SAVE_INTERVAL = 60000, WRITE_GAP = 16000;
 export function validWorkspace(id) { return /^(lesson-(0[0-9]|10)|scratch-(0[1-9]|10)|inquiry-[a-d])$/.test(id) || MK_ACTIVITY_IDS.includes(id); }
 export function readableError(error) {
-  if (error.code === 'conflict') return '다른 기기에서 저장한 새 코드가 있습니다. 현재 코드를 .py로 내려받은 뒤 클라우드 코드를 다시 불러오세요.';
+  if(error.code==='auth/popup-closed-by-user')return 'Google 로그인을 취소했습니다. 다시 로그인할 수 있습니다.';
+  if(error.code==='auth/popup-blocked')return '브라우저에서 로그인 팝업을 허용한 뒤 다시 시도해 주세요.';
+  if (error.code === 'conflict') return '다른 기기에서 저장한 새 기록이 있습니다. 현재 학습물을 내려받은 뒤 저장본을 다시 불러오세요.';
   if (error.code === 'cooldown') return '저장 간격을 확인하고 있습니다. 16초 뒤 다시 저장해 주세요.';
-  if (error.code === 'daily-limit') return '오늘의 저장 횟수에 도달했습니다. .py 파일로 내려받아 보관하세요.';
+  if (error.code === 'daily-limit') return '오늘의 저장 횟수에 도달했습니다. 미저장 학습물을 내려받아 보관하세요.';
   if (/permission-denied/.test(error.code || '')) return '저장 권한이 없습니다. 학급 승인 상태와 계정을 확인해 주세요.';
-  if (/unavailable|deadline|network/.test(error.code || '') || globalThis.navigator?.onLine === false) return '인터넷 연결로 저장하지 못했습니다. 이 화면을 유지하고 .py 파일을 내려받아 주세요.';
+  if (/unavailable|deadline|network/.test(error.code || '') || globalThis.navigator?.onLine === false) return '연결 문제로 저장하지 못했습니다. 이 화면을 유지하거나 미저장 학습물을 내려받아 주세요.';
   return error.message || '처리하지 못했습니다. 연결 상태를 확인해 주세요.';
 }
 export function createCloud(config, emulator = false) {
