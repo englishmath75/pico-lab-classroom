@@ -13,6 +13,8 @@ export function transform(name,s){
   replace("$('downloadCsv').onclick=()=>$('csvFileLink').click();render();","$('downloadCsv').onclick=()=>$('csvFileLink').click();render();");
  }
  if(name==='app.js'){
+  replace('function screen(name){','function screen(name){const requested=new URLSearchParams(location.search).get("page")||"home";if(name!==requested&&name!=="home"){window.SWPage.navigate("/?page="+(name==="lesson"?"examples":name));return;}');
+
   replace('$(\"saveStatus\").textContent=\"✓ 자동 저장됨\"','$(\"saveStatus\").textContent=\"메모리 임시 보관\"');
   replace('exam:{}}','exam:{},examGraded:false,wrong:[],dataMode:\"provided\",stdin:\"\"}');
   replace('function loadCode(i){','function loadCode(i){if(state.code&&state.code!==LESSONS[i][5]&&!confirm(\"작성한 코드를 예제로 바꿀까요? 필요한 초안은 먼저 내려받아 주세요.\"))return;');
@@ -20,6 +22,8 @@ export function transform(name,s){
   replace('state.csv=await f.text();','state.dataMode=\"user-file\";state.csv=await f.text();');
   replace('state.csv=$(\"csvInput\").value;save()','state.csv=$(\"csvInput\").value;if(state.dataMode!==\"user-file\")state.dataMode=\"fictional-edited\";save()');
   replace('code:$(\"pythonCode\").value,csv:state.csv','code:$(\"pythonCode\").value,stdin:$(\"stdin\").value,csv:state.csv');
+  replace('function renderExam(){','function filterExam(){document.querySelectorAll("#examQuiz .quiz-item").forEach((el,i)=>el.hidden=state.examFilter==="wrong"&&!(state.wrong||[]).includes(i));$("sw-exam-filter").value=state.examFilter||"all";}$("sw-exam-filter").onchange=e=>{state.examFilter=e.target.value;filterExam();save();};function renderExam(){');
+  replace('$("examResult").textContent=""}','$("examResult").textContent="";filterExam()}');
   replace('const exam=window.COURSE_LESSONS.flatMap(l=>l.quiz);',`const exam=window.COURSE_LESSONS.flatMap(l=>l.quiz);
 document.addEventListener('change',e=>{
  const m=/^(eq|lq)(\\d+)$/.exec(e.target.name||'');if(!m)return;

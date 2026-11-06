@@ -87,7 +87,7 @@ import providedData from '../provided-data.json';
   $('sw-view').textContent='학습 기록을 확인하고 있습니다…';
   for(const a of document.querySelectorAll('[data-route]')){const selected=a.dataset.route===route.id;a.classList.toggle('active',selected);if(selected)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');}
   updateStatus();
-  const ids=route.id==='practice'?[route.params.workspace]:route.activityIds;
+  const ids=route.id==='practice'?[route.params.workspace]:route.id==='examples'?[...route.activityIds,'sw2-free-code','sw2-free-state']:route.activityIds;
   await store.prepare(ids);if(gen!==viewGeneration)return false;
   $('sw-view').replaceChildren();document.title=route.label+' | 영수쌤의 파이썬 교실';
   if(route.kind==='frame')mountFrame(gen);

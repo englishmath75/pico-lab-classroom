@@ -1,0 +1,139 @@
+import assert from 'node:assert/strict';
+import {chromium,expect as pwExpect} from '@playwright/test';
+import {createServer} from 'node:http';
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {resolve,extname,sep} from 'node:path';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+import {initializeTestEnvironment} from '@firebase/rules-unit-testing';
+import {doc,collection,getDocFromServer,getDocs,setDoc,Timestamp} from 'firebase/firestore';
+const expect=pwExpect.configure({timeout:25000}),exec=promisify(execFile),projectId='demo-englishmath-python',artifacts=resolve('sw/evidence');
+for(const k of ['FIRESTORE_EMULATOR_HOST','FIREBASE_AUTH_EMULATOR_HOST'])if(process.env[k]&&!/^(127\.0\.0\.1|localhost):\d+$/.test(process.env[k]))throw Error('Local emulator only');
+await mkdir(artifacts,{recursive:true});
+const env=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8080,rules:await readFile('sw/security/proposed.rules','utf8')}});
+const people=Object.fromEntries(['student','other','avatar','idle'].map(k=>[k,{uid:'sw-v2-'+k,email:'sw-v2-'+k+'@muhak-g-h.gne.go.kr',name:'SW 검증 '+k}]));
+const results=[],errors=[],devices=[],vendorCache=new Map(),dist=resolve('dist');
+let browser,server,origin,lastPage;
+const frame=p=>p.frameLocator('#sw-classroom-frame');
+const fixture='SW_V2_EMULATOR_20261107';
+async function admin(fn){return env.withSecurityRulesDisabled(c=>fn(c.firestore()));}
+async function record(uid,id){return admin(async db=>{const s=await getDocFromServer(doc(db,'users',uid,'workspaces',id));return s.exists()?s.data():null;});}
+async function scope(uid){return admin(async db=>{const out={};for(const g of ['workspaces','progress','revisions','submissions','limits'])out[g]=(await getDocs(collection(db,'users',uid,g))).docs.map(d=>[d.id,d.data()]).sort();return JSON.stringify(out);});}
+const value=async(uid,id)=>{const r=await record(uid,id);return r?JSON.parse(r.code).value:null;};
+async function seed(){
+ await env.clearFirestore();await admin(async db=>{
+  await Promise.all([setDoc(doc(db,'config/access'),{allowedDomains:['muhak-g-h.gne.go.kr'],allowedEmails:[]}),setDoc(doc(db,'classes/class-2-1'),{title:'2026학년도 2학년 1반',active:true}),
+   ...Object.values(people).map(p=>setDoc(doc(db,'users',p.uid),{email:p.email,displayName:p.name,classId:'class-2-1',status:'approved',createdAt:Timestamp.now(),updatedAt:Timestamp.now()}))]);
+ });
+ const cleared=await fetch('http://127.0.0.1:9099/emulator/v1/projects/'+projectId+'/accounts',{method:'DELETE'});assert(cleared.ok);
+ const imported=await fetch('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/projects/'+projectId+'/accounts:batchCreate',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer owner'},body:JSON.stringify({users:Object.values(people).map(p=>({localId:p.uid,email:p.email,emailVerified:true,displayName:p.name,providerUserInfo:[{providerId:'google.com',rawId:p.email,email:p.email,displayName:p.name}]}))})});assert(imported.ok);
+}
+async function device(path='/?page=home',{clock=false,camera=false}={}){
+ const context=await browser.newContext({locale:'ko-KR',viewport:{width:1440,height:1000},permissions:camera?['camera']:[]});
+ await context.route('**/student-config.json',r=>r.fulfill({json:{enabled:true,emulator:true,firebase:{apiKey:'fake-api-key',authDomain:projectId+'.firebaseapp.com',projectId,appId:'sw-emulator-test'}}}));
+ await context.route('https://**/*',async r=>{
+  const url=new URL(r.request().url());if(!['apis.google.com','www.gstatic.com'].includes(url.hostname))return r.abort();
+  if(!vendorCache.has(url.href))vendorCache.set(url.href,exec('curl',['--fail','--silent','--show-error','--location','--retry','1','--max-time','30','--url',url.href],{encoding:'buffer',maxBuffer:64000000}).then(x=>x.stdout));
+  await r.fulfill({body:await vendorCache.get(url.href),contentType:'text/javascript'});
+ });
+ const p=await context.newPage();lastPage=p;if(clock)await p.clock.install();
+ p.on('pageerror',e=>errors.push({url:p.url(),message:e.message}));
+ await p.addInitScript(()=>{try{if(navigator.mediaDevices){const original=navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);navigator.mediaDevices.getUserMedia=async c=>{const stream=await original(c);top.__mockTracks??=[];top.__mockTracks.push(...stream.getTracks());return stream;};}}catch{}});
+ const writes=[];p.on('request',r=>{if(/\/documents:commit$|Firestore\/Commit|Firestore\/Write\/channel/.test(r.url())&&/writes|commit/i.test(r.postData()||''))writes.push(r.url());});
+ devices.push({context,page:p,writes});await p.goto(origin+path);await expect(p.locator('#sw-save-state')).not.toHaveText('로그인 상태 확인 중');return {context,page:p,writes};
+}
+async function login(p,person){
+ const popup=p.waitForEvent('popup');await p.locator('#sw-login').click();const q=await popup;await q.waitForLoadState();await q.getByText(person.email,{exact:true}).click();
+ await expect(p.locator('#sw-user')).toHaveText(person.name);await expect(p.locator('#sw-space')).toHaveText('2026학년도 2학년 1반');
+ await expect(p.locator('#sw-message')).not.toContainText('승인 정보를 읽지 못했습니다');
+}
+async function nav(p,id){await p.locator('a[data-route="'+id+'"]').click();await expect(p).toHaveURL(new RegExp('[?&]page='+id+'(?:&|$)'));if(id!=='data-lab'&&id!=='practice'&&id!=='library')await expect(p.locator('#sw-classroom-frame')).toBeVisible();}
+async function scenario(name,fn){
+ const started=Date.now();try{await fn();results.push({name,status:'PASS',durationMs:Date.now()-started,environment:'Chromium + Firebase emulators'});console.log('PASS',name);}catch(e){results.push({name,status:'FAIL',error:e.message,durationMs:Date.now()-started});throw e;}
+}
+async function shot(p,name){await p.screenshot({path:resolve(artifacts,name+'.png'),fullPage:false});}
+try{
+ await seed();const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.svg':'image/svg+xml','.wasm':'application/wasm','.py':'text/plain','.csv':'text/csv'};
+ server=createServer(async(req,res)=>{try{let pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);if(pathname.endsWith('/'))pathname+='index.html';const file=resolve(dist,'.'+pathname);if(!file.startsWith(dist+sep))throw Error('path');res.writeHead(200,{'Content-Type':types[extname(file)]||'application/octet-stream'});res.end(await readFile(file));}catch{res.writeHead(404).end();}});
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));origin='http://127.0.0.1:'+server.address().port;
+ browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']});
+ await scenario('native data lab: pandas-only first program, actual Python table and unit navigation',async()=>{
+  const {page:p}=await device('/?page=data-lab&unit=SW01');
+  await expect(p.locator('.visual-editor .cm-content')).toBeVisible();const code=await p.locator('.cm-content').innerText();
+  assert.equal((code.match(/^import /gm)||[]).length,1);assert(code.includes('import pandas as pd'));assert(!code.includes('StringIO'));
+  await p.getByRole('button',{name:'▶ 실제 Python 실행',exact:true}).click();
+  await expect(p.getByTestId('data-status')).toContainText('실행 완료',{timeout:150000});await expect(p.getByTestId('data-stdout')).toContainText('(3, 2)');
+  await expect(p.locator('table').first()).toBeVisible();await shot(p,'datalab-python-table');
+  await nav(p,'home');await expect(p.locator('iframe[sandbox]')).toHaveCount(0);
+  await p.locator('.sw-external a').evaluate(a=>({href:a.href,target:a.target})).then(a=>{assert.equal(a.href,'https://englishmath-python.vercel.app/data-lab');assert.equal(a.target,'_blank');});
+  await expect(p.locator('.sw-external')).toContainText('새 파이썬 교실 체험 ↗');await expect(p.locator('#sw-save')).toBeHidden();
+  await p.context().close();
+ });
+ await scenario('isolated Python: input, Korean matplotlib, PNG download, loop stop and denied network',async()=>{
+  const {page:p}=await device('/?page=practice&workspace=scratch-01');await expect(p.locator('#sw-code')).toBeVisible();
+  await p.locator('#sw-code').fill('name=input()\nprint("안녕",name)');await p.locator('#sw-stdin').fill('파이썬');await p.locator('#sw-run').click();await expect(p.locator('#sw-output')).toContainText('안녕 파이썬',{timeout:150000});
+  await p.locator('#sw-code').fill('import matplotlib.pyplot as plt\nplt.plot([1,2,3],[2,4,3])\nplt.title("가상 자료 분석")\nplt.show()');await p.locator('#sw-run').click();await expect(p.locator('#sw-plot img')).toBeVisible({timeout:150000});
+  await expect(p.locator('#sw-output')).not.toContainText('Glyph');const d=p.waitForEvent('download');await p.getByRole('link',{name:'그래프 PNG 내려받기'}).click();assert((await d).suggestedFilename().endsWith('.png'));await shot(p,'python-korean-plot');
+  await p.locator('#sw-code').fill('from js import fetch\nfetch("https://example.invalid/private")\nprint("request attempted")');await p.locator('#sw-run').click();await expect(p.locator('#sw-run')).toBeEnabled({timeout:150000});
+  await p.locator('#sw-code').fill('while True:\n    pass');await p.locator('#sw-run').click();await expect(p.locator('#sw-run-state')).toContainText('실행',{timeout:150000});await p.locator('#sw-stop').click();await expect(p.locator('#sw-run')).toBeEnabled();await expect(p.locator('iframe[sandbox]')).toHaveCount(0);
+  await p.context().close();
+ });
+ let school,home;
+ await scenario('one login survives menu movement; 60-second automatic code save',async()=>{
+  school=await device('/?page=lesson&lesson=1');const p=school.page;await login(p,people.student);const t=await p.evaluate(()=>performance.timeOrigin);
+  await expect(frame(p).locator('#editor')).toBeVisible();await frame(p).locator('#editor').fill('print("'+fixture+'")');
+  await expect.poll(async()=> (await record(people.student.uid,'lesson-01'))?.code,{timeout:100000}).toBe('print("'+fixture+'")');
+  await expect(p.locator('#sw-save-state')).toContainText('클라우드 저장 완료');
+  for(const id of ['home','data','exam','report','python-review','data-lab','library','lesson']){await nav(p,id);await expect(p.locator('#sw-user')).toHaveText(people.student.name);assert.equal(await p.evaluate(()=>performance.timeOrigin),t);}
+  await expect(frame(p).locator('#editor')).toHaveValue('print("'+fixture+'")');await shot(p,'lesson-account-restored');
+ });
+ await scenario('step predictions/input, ungraded review, seven report fields and data lab stay dirty across screens',async()=>{
+  const p=school.page;await frame(p).locator('#predictInput').fill('예측 '+fixture);await frame(p).locator('#reflection').fill('해석 '+fixture);await frame(p).locator('#stdin').fill('7\n8');await frame(p).locator('#lessonQuiz input[type=radio]').first().check();
+  await nav(p,'exam');await frame(p).locator('input[name=eq0][value="1"]').check();await frame(p).locator('input[name=eq1][value="2"]').check();
+  await nav(p,'report');const fields=frame(p).locator('[data-report]');await expect(fields).toHaveCount(7);for(let i=0;i<7;i++)await fields.nth(i).fill(fixture+' 보고서 '+i);
+  await nav(p,'data-lab');await p.locator('.cm-content').fill('import pandas as pd\ndf = pd.DataFrame({"값":[1,2]})\nbefore = df.copy()\nresult = df.copy()\nprint(result.shape)');
+  await p.getByLabel('예측한 답').first().fill('(2, 1)');await p.getByLabel('분석·해석').fill('두 행 한 열 '+fixture);
+  await nav(p,'report');await expect(frame(p).locator('[data-report=question]')).toHaveValue(fixture+' 보고서 0');
+  await p.locator('#sw-end').click();await p.getByRole('button',{name:'모두 저장 후 종료',exact:true}).click();await expect(p.locator('#sw-user')).toHaveText('로그인 전',{timeout:160000});
+  assert.equal((await value(people.student.uid,'sw2-review')).graded,false);assert.equal((await value(people.student.uid,'sw2-review')).answers[0],1);assert.equal((await value(people.student.uid,'sw2-report')).next,fixture+' 보고서 6');assert.equal((await value(people.student.uid,'sw2-lesson-01-state')).stdin,'7\n8');
+  await expect(p.locator('iframe[sandbox]')).toHaveCount(0);await shot(p,'finish-cleared');
+ });
+ await scenario('separate browser context restores server records; next shared-PC account cannot see prior answers',async()=>{
+  home=await device('/?page=report');const p=home.page;assert.notEqual(home.context,school.context);await login(p,people.student);
+  await expect(frame(p).locator('[data-report=question]')).toHaveValue(fixture+' 보고서 0');await nav(p,'exam');await expect(frame(p).locator('input[name=eq0][value="1"]')).toBeChecked();
+  await nav(p,'lesson');await expect(frame(p).locator('#predictInput')).toHaveValue('예측 '+fixture);await expect(frame(p).locator('#reflection')).toHaveValue('해석 '+fixture);await expect(frame(p).locator('#stdin')).toHaveValue('7\n8');
+  await nav(p,'data-lab');await expect(p.getByLabel('분석·해석')).toHaveValue('두 행 한 열 '+fixture);await expect(p.getByLabel('예측한 답').first()).toHaveValue('(2, 1)');
+  await nav(p,'library');await expect(p.locator('.sw-record')).toHaveCount(6);
+  await p.locator('#sw-end').click();await expect(p.locator('#sw-user')).toHaveText('로그인 전');await login(p,people.other);await nav(p,'report');await expect(frame(p).locator('[data-report=question]')).toHaveValue('');await nav(p,'lesson');await expect(frame(p).locator('#editor')).toHaveValue('');
+  await p.context().close();await school.context.close();
+ });
+ await scenario('avatar: zero writes, no automatic camera, MOCK_MEDIA start/stop/dispose and memory cleared',async()=>{
+  const {page:p,writes}=await device('/ai-avatar.html',{camera:true});await login(p,people.avatar);
+  await expect(frame(p).locator('#animals button')).toHaveCount(8);await expect(p.locator('#sw-save')).toBeHidden();assert.equal(await frame(p).locator('#camera').evaluate(v=>v.srcObject),null);
+  const initial=await scope(people.avatar.uid),n=writes.length;
+  await frame(p).locator('#code').fill('print("avatar-only private transient")');
+  await frame(p).locator('#start-camera').click();await expect.poll(()=>p.evaluate(()=>top.__mockTracks?.filter(t=>t.readyState==='live').length||0),{timeout:150000}).toBeGreaterThan(0);
+  await frame(p).locator('#stop-camera').click();await expect.poll(()=>p.evaluate(()=>top.__mockTracks.every(t=>t.readyState==='ended'))).toBe(true);
+  await frame(p).locator('#start-camera').click();await expect.poll(()=>p.evaluate(()=>top.__mockTracks.filter(t=>t.readyState==='live').length),{timeout:150000}).toBeGreaterThan(0);
+  await nav(p,'home');await expect.poll(()=>p.evaluate(()=>top.__mockTracks.every(t=>t.readyState==='ended'))).toBe(true);
+  await nav(p,'avatar');await expect(frame(p).locator('#code')).not.toHaveValue('print("avatar-only private transient")');assert.equal(await scope(people.avatar.uid),initial);assert.equal(writes.length,n);await shot(p,'avatar-common-menu');
+  await p.locator('#sw-end').click();await expect(p.locator('#sw-user')).toHaveText('로그인 전');await p.context().close();
+ });
+ await scenario('idle warning and 15-minute clearing use fake clock, never a real school-PC claim',async()=>{
+  const {page:p}=await device('/?page=practice',{clock:true});await login(p,people.idle);await expect(p.locator('#sw-code')).toBeVisible();await p.clock.fastForward(14*60000+1000);await expect(p.locator('#sw-idle')).toBeVisible();await p.clock.fastForward(60000);await expect(p.locator('#sw-user')).toHaveText('로그인 전');await p.context().close();
+ });
+ await scenario('legacy links, responsive 390/1440/1920, keyboard and 200 percent text scaling',async()=>{
+  const {page:p}=await device('/step-by-step.html?lesson=7');await expect(p).toHaveURL(/page=lesson&lesson=7/);await expect(frame(p).locator('#heroTitle')).toContainText('7차시');
+  for(const width of [390,1440,1920]){await p.setViewportSize({width,height:1000});await expect.poll(()=>p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);await shot(p,'layout-'+width);}
+  await p.addStyleTag({content:'html{font-size:200%}'});await p.locator('#sw-login').focus();await p.keyboard.press('Tab');assert(await p.evaluate(()=>document.activeElement.id==='sw-end'));await shot(p,'text-scale-200');
+  await p.reload();await expect(p).toHaveURL(/page=lesson&lesson=7/);await expect(p.locator('#sw-user')).toHaveText('로그인 전');
+  await nav(p,'home');await p.goBack();await expect(p).toHaveURL(/page=lesson&lesson=7/);await p.context().close();
+ });
+ assert.equal(errors.length,0,'Unexpected page errors: '+JSON.stringify(errors));
+} catch(error){
+ console.error(error);if(lastPage&&!lastPage.isClosed()){await lastPage.screenshot({path:resolve(artifacts,'failure.png')}).catch(()=>{});await writeFile(resolve(artifacts,'failure.html'),await lastPage.content().catch(()=>''));}
+ process.exitCode=1;
+} finally {
+ await writeFile(resolve(artifacts,'browser-results.json'),JSON.stringify({sourceSha:process.env.GITHUB_SHA,environment:'GitHub Actions Chromium; Firebase Auth and Firestore emulators; MOCK_MEDIA; independent contexts are not real Google independent-browser evidence',results,errors,notRun:['real Google login','independent real browser restoration','physical school PCs','physical camera','29 physical PCs']},null,2));
+ for(const d of devices)await d.context.close().catch(()=>{});await browser?.close();await env.cleanup();await new Promise(r=>server?server.close(r):r());
+}

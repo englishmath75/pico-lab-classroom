@@ -54,7 +54,7 @@ export function resolveRoute(input,base='https://sw.englishmath.kr/'){
  if(page==='lesson')q.set('lesson',String(Math.max(1,Math.min(10,Number(u.searchParams.get('lesson'))||1))));
  if(page==='data-lab')q.set('unit',units.includes(u.searchParams.get('unit'))?u.searchParams.get('unit'):'SW01');
  if(page==='practice'){const id=u.searchParams.get('workspace')||u.searchParams.get('id');q.set('workspace',validActivity(id)&&!structured(id)?id:'scratch-01');}
- if(page==='video-player'){const id=u.searchParams.get('lesson');if(/^(?:[1-9]|10)$/.test(id||''))q.set('lesson',id);}
+ if(page==='video-player'){for(const key of ['lesson','episode','layout','embed']){const value=u.searchParams.get(key);if(/^[a-zA-Z0-9-]{1,50}$/.test(value||''))q.set(key,value);}}
  const hash=/^#[\w-]{1,80}$/.test(u.hash)?u.hash:'';
  return {id:page,...routes[page],params:Object.fromEntries(q),hash,url:'/?'+q+hash};
 }

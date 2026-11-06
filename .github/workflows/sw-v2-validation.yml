@@ -28,7 +28,7 @@ jobs:
       - name: Storage and route contracts
         run: node --test sw/tests/store.test.mjs
       - name: Shared rules regression in emulator only
-        run: npx firebase emulators:exec --config sw/firebase.test.json --project demo-englishmath-python --only firestore 'node --test --test-concurrency=1 sw/tests/student-security.test.mjs sw/tests/grade1-isolation.test.mjs'
+        run: npx firebase emulators:exec --config sw/firebase.test.json --project demo-englishmath-python --only firestore 'node --test --test-concurrency=1 sw/tests/student-security.test.mjs sw/tests/grade1-isolation.test.mjs sw/tests/new-activities.test.mjs'
       - run: npm ci --prefix sw
       - name: Integrated SW build
         run: npm run build:sw
@@ -37,6 +37,9 @@ jobs:
           python3 sw/publisher/package_site.py dist --source-sha "$GITHUB_SHA"
           python3 sw/publisher/finalize_brand.py --dist dist --source-sha "$GITHUB_SHA"
           python3 sw/publisher/check_site.py dist
+      - run: npx playwright install --with-deps chromium
+      - name: Actual browser, isolated Python, and emulator storage
+        run: npx firebase emulators:exec --config sw/firebase.test.json --project demo-englishmath-python --only auth,firestore 'node sw/tests/browser.mjs'
       - uses: actions/upload-artifact@v4
         with:
           name: sw-v2-site-candidate

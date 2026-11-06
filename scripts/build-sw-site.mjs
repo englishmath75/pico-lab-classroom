@@ -28,7 +28,7 @@ for(const file of originals){
   if(!expression.test(html))throw Error('Missing code editor: '+file);
   html=html.replace(expression,'$1<label>실행 입력 · 한 줄에 하나<textarea id="stdin" rows="3"></textarea></label>');
  }
- if(file==='mastery.html')html=html.replace('</button><button', '</button><button'); // Existing content kept; stop is added beside run.
+ if(file==='index.html')html=html.replace(/(<div[^>]*id="examQuiz"[^>]*>)/,'<label>문항 보기<select id="sw-exam-filter"><option value="all">전체 문항</option><option value="wrong">오답 기록 문항</option></select></label>$1');
  if(file==='mastery.html')html=html.replace(/(<button\b[^>]*id="run"[^>]*>.*?<\/button>)/,'$1<button class="btn secondary" id="sw-stop">실행 중지</button>');
  html=relative(html).replaceAll('../video-player.html','/sw-content/video-player-embed.html');
  html=html.replace(/<head>/i,'<head><base href="../"><script src="../sw-assets/legacy-bridge.js"></script>');

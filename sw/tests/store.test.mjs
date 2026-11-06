@@ -78,3 +78,20 @@ test('rules proposal preserves old allowlist and full MK/cohort/public tail byte
  for(const id of newIds)assert.ok(next.includes("'"+id+"'"));
  assert.ok(!next.includes('allow read, write: if true'));
 });
+
+test('failure reading a selected remote copy preserves dirty text',async()=>{
+ const {store,service}=fixture();await store.prepare(['lesson-01']);store.set('lesson-01','precious draft');
+ service.load=async()=>{throw Error('offline');};await assert.rejects(store.useRemote('lesson-01'));
+ assert.equal(store.get('lesson-01'),'precious draft');assert.equal(store.draft('lesson-01').dirty,true);
+});
+test('explicit keep-mine refuses a version changed since the comparison',async()=>{
+ const {store,records}=fixture();await store.prepare(['lesson-01']);store.set('lesson-01','mine');
+ records.set('a/lesson-01',{code:'another change',title:'other',version:3});
+ await assert.rejects(store.keepMine('lesson-01',2));assert.equal(store.draft('lesson-01').version,0);assert.equal(store.get('lesson-01'),'mine');
+});
+test('valid envelope with malformed field shapes cannot overwrite a server record',async()=>{
+ const {store,records,writes}=fixture(),code=encode('sw2-lesson-01-state',{predict:'invalid map'});
+ records.set('a/sw2-lesson-01-state',{code,title:'raw',version:7});await store.prepare(['sw2-lesson-01-state']);
+ assert.equal(await store.flush(['sw2-lesson-01-state']),false);assert.equal(store.set('sw2-lesson-01-state',{predict:{0:'new'}}),false);
+ assert.equal(store.draft('sw2-lesson-01-state').data.code,code);assert.equal(writes.length,0);
+});

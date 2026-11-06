@@ -1,10 +1,11 @@
+import {validateValue} from './schema.js';
 import {LearningDraft} from './learning-draft.js';
 import {SpaceWriteQueue} from './write-queue.js';
 import {validActivity,structured,titleFor} from './registry.js';
 export function encode(id,value){return JSON.stringify({schemaVersion:1,kind:id,value});}
 export function decode(id,code){
  let d;try{d=JSON.parse(code);}catch{throw Error('저장된 JSON을 읽지 못했습니다. 원문을 내려받아 보관하세요.');}
- if(!d||d.schemaVersion!==1||d.kind!==id||!d.value||typeof d.value!=='object'||Array.isArray(d.value))throw Error('지원하지 않는 학습 기록 형식입니다. 원문을 보존합니다.');
+ if(!d||d.schemaVersion!==1||d.kind!==id||!d.value||typeof d.value!=='object'||Array.isArray(d.value)||!validateValue(id,d.value))throw Error('지원하지 않는 학습 기록 형식입니다. 원문을 보존합니다.');
  return d.value;
 }
 export class ClassroomStore{
@@ -39,6 +40,7 @@ export class ClassroomStore{
  get(id){const d=this.draft(id);if(!structured(id))return d.data.code;try{return decode(id,d.data.code);}catch(e){this.errors.set(id,e);return {};}}
  set(id,value,extra={}){
   if(this.errors.has(id)){this.onChange();return false;}
+  if(structured(id)&&!validateValue(id,value))throw Error('학습 기록 형식이 맞지 않아 변경하지 않았습니다.');
   const d=this.draft(id);d.update({...d.data,...extra,code:structured(id)?encode(id,value):String(value)});return true;
  }
  dirty(){return [...this.drafts.values()].filter(d=>d.dirty);}

@@ -11,7 +11,7 @@ export function rawFor(key,store){
  if(key===keys.step){data={lesson:0,records:{}};for(let i=0;i<10;i++){const meta=get('sw2-lesson-'+num(i)+'-state');data.records[i]={...meta,code:get('lesson-'+num(i))};}}
  if(key===keys.main){
   const free=get('sw2-free-state'),review=get('sw2-review');
-  data={done:[],answers:{},lesson:0,code:get('sw2-free-code'),report:get('sw2-report'),exam:review.answers||{},examGraded:!!review.graded,wrong:review.wrong||[],...free};
+  data={done:[],answers:{},lesson:0,code:get('sw2-free-code'),report:get('sw2-report'),exam:review.answers||{},examGraded:!!review.graded,wrong:review.wrong||[],examFilter:review.filter||'all',...free};
   if(!data.csv||free.dataMode==='user-file')delete data.csv;
   for(let i=0;i<10;i++){const a=get('sw2-archive-'+num(i));data.answers[i]=a.answers||{};if(a.completed)data.done.push(i);}
  }
@@ -40,7 +40,7 @@ export function project(key,raw){
   out['sw2-lesson-'+num(i)+'-state']={step:r.step??0,done:r.done??[],predict:r.predict??{},reflection:r.reflection??'',verified:r.verified??{},revision:r.revision??'20261027-classroom',stdin:r.stdin??'',quiz:r.quiz??{},quizGraded:!!r.quizGraded};
  }
  if(key===keys.main){
-  out['sw2-report']=obj(x.report);out['sw2-review']={answers:obj(x.exam),graded:!!x.examGraded,wrong:x.wrong||[]};
+  out['sw2-report']=obj(x.report);out['sw2-review']={answers:obj(x.exam),graded:!!x.examGraded,wrong:x.wrong||[],filter:x.examFilter||'all'};
   out['sw2-free-code']=String(x.code??'');
   out['sw2-free-state']={dataset:x.dataset||'sports',dataMode:x.dataMode||'provided',stdin:x.stdin||'',providedVersion:'SW-20261106'};
   if(x.dataMode!=='user-file'&&typeof x.csv==='string')out['sw2-free-state'].csv=x.csv;
