@@ -9,7 +9,8 @@ await cp('dist/sw-runtime',base+'/sw-runtime',{recursive:true});
 await cp('sw/datalab/public',base+'/sw-runtime',{recursive:true});
 await build({stdin:{contents:`import {PythonEngine} from './sw/datalab/lib/engine';window.makeEngine=()=>{let e=new PythonEngine(s=>window.engineState=s);e.setPreparationAllowed(false);return e};`,resolveDir:process.cwd()},bundle:true,format:'iife',platform:'browser',outfile:base+'/integration-engine.js'});
 const types={'.js':'text/javascript','.json':'application/json','.wasm':'application/wasm','.html':'text/html','.py':'text/plain'};
-const server=createServer(async(req,res)=>{try{if(req.url==='/test'){res.setHeader('Content-Type','text/html');res.end('<script src="/integration-engine.js"></script>');return;}const p=resolve(base,'.'+new URL(req.url,'http://local').pathname);assert(p.startsWith(base+sep));res.setHeader('Content-Type',types[extname(p)]||'application/octet-stream');res.end(await readFile(p));}catch{res.writeHead(404).end();}});
+let failPackage=false,blockedPackages=0;
+const server=createServer(async(req,res)=>{try{res.setHeader('Cache-Control','no-store');if(failPackage&&/\/pandas-[^/]+\.whl(?:\?|$)/.test(req.url)){blockedPackages++;res.writeHead(503).end('intentional package outage');return;}if(req.url==='/test'){res.setHeader('Content-Type','text/html');res.end('<script src="/integration-engine.js"></script>');return;}const p=resolve(base,'.'+new URL(req.url,'http://local').pathname);assert(p.startsWith(base+sep));res.setHeader('Content-Type',types[extname(p)]||'application/octet-stream');res.end(await readFile(p));}catch{res.writeHead(404).end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;
 const browser=await chromium.launch({headless:true});const page=await browser.newPage();await page.goto(origin+'/test');
 const filter=process.env.SW_EXTRA_ONLY;
@@ -54,8 +55,12 @@ try{
   const r=await run('S=0\nfor I in range(12000):\n    S+=I\nprint(S)',[],true);assert(!r.error);assert(r.traceLimited);assert.equal(r.stdout,'71994000\n');assert.equal(r.finalState.globals.S,71994000);
  });
  await check('package failure can retry without stale state',async()=>{
-  let blocked=0;await page.context().route('**/pandas-*.whl',r=>{blocked++;return r.abort();});const a=await run('import pandas as pd\nprint(pd.DataFrame({"A":[1]}).shape)',[],false);assert(blocked>0,'package request actually interrupted');assert(a.error||a.stderr||a.limited);
-  await page.context().unroute('**/pandas-*.whl');const b=await run('import pandas as pd\nprint(pd.DataFrame({"A":[1]}).shape)',[],false);assert(!b.error);assert.equal(b.stdout,'(1, 1)\n');
+  // Fault injection at the asset server also covers opaque-frame Worker requests.
+  // Browser route interception does not consistently see those requests in CI.
+  failPackage=true;blockedPackages=0;
+  try {const a=await run('import pandas as pd\nprint(pd.DataFrame({"A":[1]}).shape)',[],false);assert(blockedPackages>0,'package request actually interrupted');assert(a.error||a.stderr||a.limited);}
+  finally {failPackage=false;}
+  const b=await run('import pandas as pd\nprint(pd.DataFrame({"A":[1]}).shape)',[],false);assert(!b.error);assert.equal(b.stdout,'(1, 1)\n');
  });
  const changes={SWX0125:[['self.vy += 0.15','self.vy += 0.45'],['self.vx *= 0.96','self.vx *= 0.70']],SWX0126:[['"amp": 60','"amp": 100'],['"speed": 1.5','"speed": 4.0']],SWX0127:[['self.angle += 0.04','self.angle += 0.10'],["s['z'] -= 20","s['z'] -= 40"]],SWX0128:[['self.dt = 0.008','self.dt = 0.004'],['scale = 11.5','scale = 16.5']]};
  for(const [id,pairs] of Object.entries(changes))await check(id+' actual Python parameters change recorded artwork geometry',async()=>{
