@@ -8,7 +8,7 @@ import providedData from '../provided-data.json';
 (function startApp(){
  'use strict';
  const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- let cloud,user=null,identity=null,store,route,frame=null,disposeView=()=>{},engine=null,viewGeneration=0,sessionGeneration=0,lastActivity=Date.now(),ending=false,autoBusy=false,guestBackup=null,dialogResolve=null;
+ let cloud,user=null,identity=null,authReady=false,store,route,frame=null,disposeView=()=>{},engine=null,viewGeneration=0,sessionGeneration=0,lastActivity=Date.now(),ending=false,autoBusy=false,guestBackup=null,dialogResolve=null;
  const download=(name,text,type='application/json;charset=utf-8')=>{const u=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);};
  const activeExerciseIds=new Set();
  const side=document.querySelector('.side'),sideNav=side?.querySelector('nav');
@@ -92,6 +92,7 @@ import providedData from '../provided-data.json';
   route=next;if(replace)history.replaceState(null,'',next.url);else history.pushState(null,'',next.url);
   release();const gen=viewGeneration;
   $('sw-view').textContent='학습 기록을 확인하고 있습니다…';
+  if(!authReady)return false;
   for(const a of document.querySelectorAll('[data-route]')){const selected=a.dataset.route===route.id;a.classList.toggle('active',selected);if(selected)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');}
   updateStatus();
   const ids=route.id==='exercise'?[route.params.exercise]:route.id==='practice'?[route.params.workspace,'sw2-free-state']:route.id==='examples'?[...route.activityIds,'sw2-free-code','sw2-free-state']:route.activityIds;
@@ -327,7 +328,7 @@ import providedData from '../provided-data.json';
   addEventListener('popstate',()=>void navigate(location.href,{replace:true}));
   addEventListener('beforeunload',e=>{if(store.dirty().length){e.preventDefault();e.returnValue='';}});
   cloud.observe(async next=>{
-   const generation=++sessionGeneration;release();user=next;identity=null;store.change(next?.uid||null,false);updateStatus();
+   const generation=++sessionGeneration;authReady=false;release();user=next;identity=null;store.change(next?.uid||null,false);updateStatus();
    if(next){
     say('');lastActivity=Date.now();
     try{
@@ -339,10 +340,10 @@ import providedData from '../provided-data.json';
     }catch(e){if(generation===sessionGeneration)say('승인 정보를 읽지 못했습니다. '+readableError(e),true);}
    }else $('sw-registration').hidden=true;
    if(generation!==sessionGeneration)return;
-   await navigate(route?.url||location.href,{replace:true});
+   authReady=true;await navigate(route?.url||location.href,{replace:true});
    if(guestBackup){const backupData=guestBackup;guestBackup=null;await importFile(new Blob([JSON.stringify(backupData)],{type:'application/json'}));}
   });
-  await navigate(location.href,{replace:true});
+  $('sw-view').textContent='로그인 상태와 학습 기록을 확인하고 있습니다…';
   setInterval(()=>{
    if(!autoBusy&&!ending){autoBusy=true;store.autoSave().finally(()=>{autoBusy=false;});}
    const elapsed=Date.now()-lastActivity;

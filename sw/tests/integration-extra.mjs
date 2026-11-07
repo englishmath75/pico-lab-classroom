@@ -12,7 +12,7 @@ const types={'.js':'text/javascript','.json':'application/json','.wasm':'applica
 let failPackage=false,blockedPackages=0;
 const server=createServer(async(req,res)=>{try{res.setHeader('Cache-Control','no-store');if(failPackage&&/\/pandas-[^/]+\.whl(?:\?|$)/.test(req.url)){blockedPackages++;res.writeHead(503).end('intentional package outage');return;}if(req.url==='/test'){res.setHeader('Content-Type','text/html');res.end('<script src="/integration-engine.js"></script>');return;}const p=resolve(base,'.'+new URL(req.url,'http://local').pathname);assert(p.startsWith(base+sep));res.setHeader('Content-Type',types[extname(p)]||'application/octet-stream');res.end(await readFile(p));}catch{res.writeHead(404).end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;
-const browser=await chromium.launch({headless:true});const page=await browser.newPage();await page.goto(origin+'/test');
+const browser=await chromium.launch({headless:true});let page=await browser.newPage();await page.goto(origin+'/test');
 const filter=process.env.SW_EXTRA_ONLY;
 const results=filter?JSON.parse(await readFile(evidence+'/extra-runtime.json','utf8')).filter(r=>!r.name.includes(filter)):[];
 async function run(code,inputs=[],trace=true,files={}){return page.evaluate(async args=>{const e=window.makeEngine();try{return await e.run(...args);}finally{e.dispose();}},[code,inputs,trace,files]);}
@@ -55,12 +55,17 @@ try{
   const r=await run('S=0\nfor I in range(12000):\n    S+=I\nprint(S)',[],true);assert(!r.error);assert(r.traceLimited);assert.equal(r.stdout,'71994000\n');assert.equal(r.finalState.globals.S,71994000);
  });
  await check('package failure can retry without stale state',async()=>{
-  // Fault injection at the asset server also covers opaque-frame Worker requests.
-  // Browser route interception does not consistently see those requests in CI.
-  failPackage=true;blockedPackages=0;
-  try {const a=await run('import pandas as pd\nprint(pd.DataFrame({"A":[1]}).shape)',[],false);assert(blockedPackages>0,'package request actually interrupted');assert(a.error||a.stderr||a.limited);}
-  finally {failPackage=false;}
-  const b=await run('import pandas as pd\nprint(pd.DataFrame({"A":[1]}).shape)',[],false);assert(!b.error);assert.equal(b.stdout,'(1, 1)\n');
+  // A fresh browser context avoids Pyodide's package cache from earlier cases.
+  // Server-side failure reaches opaque-frame Worker requests consistently.
+  const previous=page,isolated=await browser.newContext();
+  page=await isolated.newPage();await page.goto(origin+'/test');
+  try {
+   failPackage=true;blockedPackages=0;
+   const a=await run('import pandas as pd\nprint(pd.DataFrame({"A":[1]}).shape)',[],false);
+   assert(blockedPackages>0,'package request actually interrupted');assert(a.error||a.stderr||a.limited);
+   failPackage=false;
+   const b=await run('import pandas as pd\nprint(pd.DataFrame({"A":[1]}).shape)',[],false);assert(!b.error);assert.equal(b.stdout,'(1, 1)\n');
+  } finally {failPackage=false;page=previous;await isolated.close();}
  });
  const changes={SWX0125:[['self.vy += 0.15','self.vy += 0.45'],['self.vx *= 0.96','self.vx *= 0.70']],SWX0126:[['"amp": 60','"amp": 100'],['"speed": 1.5','"speed": 4.0']],SWX0127:[['self.angle += 0.04','self.angle += 0.10'],["s['z'] -= 20","s['z'] -= 40"]],SWX0128:[['self.dt = 0.008','self.dt = 0.004'],['scale = 11.5','scale = 16.5']]};
  for(const [id,pairs] of Object.entries(changes))await check(id+' actual Python parameters change recorded artwork geometry',async()=>{
