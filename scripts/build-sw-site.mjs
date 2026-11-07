@@ -12,7 +12,10 @@ const lessons=await json('sw/datalab/content/sw-visual-lessons.json');const lega
 await writeFile('sw/provided-data.json',JSON.stringify(Object.fromEntries([...lessons.map(l=>[l.id,{id:l.id,version:l.contentVersion,sha256:sha(l.csv),source:'provided-fictional'}]),...Object.entries(legacyData).map(([id,d])=>[id,{id,version:'SW-20261106',sha256:sha(d.csv),source:'provided-fictional'}])]),null,2));
 await build({entryPoints:['sw/src/app.js'],outfile:path.join(assets,'app.js'),bundle:true,minify:true,format:'esm',platform:'browser',target:'es2022',jsx:'automatic',sourcemap:false,legalComments:'eof'});
 await build({entryPoints:['sw/src/legacy-bridge.js'],outfile:path.join(assets,'legacy-bridge.js'),bundle:true,minify:true,format:'iife',target:'es2022'});
-await cp('sw/src/styles.css',path.join(assets,'site.css'));await cp('sw/src/legacy.css',path.join(assets,'legacy.css'));
+await cp('sw/src/styles.css',path.join(assets,'site.css'));
+const commonCSS=(await readFile('sw/src/styles.css','utf8')).split('/* Shared trace views:')[1];
+await writeFile(path.join(assets,'practice.css'),'/* Shared trace views:'+commonCSS+'\n'+await readFile('sw/datalab/components/visual/visual.css','utf8'));
+await cp('sw/src/legacy.css',path.join(assets,'legacy.css'));
 const removeSessions=s=>s.replace(/<script\b[^>]*src=["'][^"']*(?:shared-pc-session|student-entry|python-runtime)\.js[^"']*["'][^>]*>\s*<\/script>/gi,'');
 function relative(s){
  // HTML parser in the existing publisher resolves attributes before flattening.
@@ -33,7 +36,7 @@ for(const file of originals){
  if(file==='mastery.html')html=html.replace(/(<button\b[^>]*id="run"[^>]*>.*?<\/button>)/,'$1<button class="btn secondary" id="sw-stop">실행 중지</button>');
  html=relative(html).replace(/(<iframe\b[^>]*src=["'])\.\.\/video-player\.html/g,'$1/sw-content/video-player-embed.html');
  html=html.replace(/<head>/i,'<head><base href="../"><script src="../sw-assets/legacy-bridge.js"></script>');
- html=html.replace(/<\/head>/i,'<link rel="stylesheet" href="../sw-assets/legacy.css"></head>');
+ html=html.replace(/<\/head>/i,'<link rel="stylesheet" href="../sw-assets/legacy.css"><link rel="stylesheet" href="../sw-assets/practice.css"></head>');
  await writeFile(path.join(out,'sw-content',file),html);
 }
 await cp('sw/src/video-bridge.js',path.join(assets,'video-bridge.js'));

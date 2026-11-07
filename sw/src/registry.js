@@ -1,12 +1,15 @@
+import exercises from '../exercises.json' with {type:'json'};
+export {exercises};
 const seq=n=>Array.from({length:n},(_,i)=>String(i+1).padStart(2,'0'));
 export const units=['SW01','SW03','SW04'];
 export const legacyIds=['lesson-00',...seq(10).map(n=>'lesson-'+n),...seq(10).map(n=>'scratch-'+n),...'abcd'.split('').map(n=>'inquiry-'+n)];
 export const newIds=[...seq(10).map(n=>'sw2-lesson-'+n+'-state'),'sw2-inquiry-d-state','sw2-kosis','sw2-review','sw2-report','sw2-basics','sw2-binary','sw2-first-analysis','sw2-simulation','sw2-free-code','sw2-free-state',...seq(10).flatMap(n=>['sw2-archive-'+n,'sw2-archive2-'+n]),...seq(18).map(n=>'sw2-mastery-'+n),...units.flatMap(n=>['sw2-datalab-'+n+'-code','sw2-datalab-'+n+'-state'])];
-export const activityIds=[...legacyIds,...newIds];
+export const activityIds=[...legacyIds,...newIds,...exercises.map(e=>e.id)];
 const allowed=new Set(activityIds);
 export const validActivity=id=>typeof id==='string'&&allowed.has(id);
-export const structured=id=>newIds.includes(id)&&!id.endsWith('-code');
+export const structured=id=>id.startsWith('sw3-2026-g2-')||newIds.includes(id)&&!id.endsWith('-code');
 export function titleFor(id){
+ if(id.startsWith("sw3-2026-g2-"))return exercises.find(e=>e.id===id)?.title||id;
  const n=id.match(/(?:lesson|archive2?|mastery)-(\d\d)/)?.[1];
  if(id.startsWith('lesson-'))return Number(n)+'차시 코드';
  if(id.startsWith('sw2-lesson-'))return Number(n)+'차시 예측·단계·확인 문제';
@@ -20,6 +23,7 @@ export function titleFor(id){
 }
 const frame=(label,file,storageMode='none',ids=[])=>({label,file,kind:'frame',storageMode,activityIds:ids,aliases:[file],mount:'legacy-frame',dispose:'release-frame'});
 export const routes={
+ exercise:{label:"Python 통합 실습",kind:"exercise",storageMode:"mixed",activityIds:[],aliases:[],mount:"exercise",dispose:"engine"},
  home:frame('01. 수업 안내','index.html'),
  data:frame('03. 실습 자료','index.html','mixed',['sw2-free-code','sw2-free-state']),
  exam:frame('04. 복습 문제','index.html','answers',['sw2-review']),
@@ -51,6 +55,7 @@ export function resolveRoute(input,base='https://sw.englishmath.kr/'){
  if(page==='review')page='python-review';
  if(!routes[page])return null;
  const q=new URLSearchParams({page});
+ if(page==='exercise'){const id=u.searchParams.get('exercise');if(!exercises.some(e=>e.id===id))return null;q.set('exercise',id);}
  if(page==='lesson')q.set('lesson',String(Math.max(1,Math.min(10,Number(u.searchParams.get('lesson'))||1))));
  if(page==='data-lab')q.set('unit',units.includes(u.searchParams.get('unit'))?u.searchParams.get('unit'):'SW01');
  if(page==='practice'){const id=u.searchParams.get('workspace')||u.searchParams.get('id');q.set('workspace',validActivity(id)&&!structured(id)?id:'scratch-01');}
@@ -59,6 +64,7 @@ export function resolveRoute(input,base='https://sw.englishmath.kr/'){
  return {id:page,...routes[page],params:Object.fromEntries(q),hash,url:'/?'+q+hash};
 }
 export function routeForActivity(id){
+ if(id.startsWith("sw3-2026-g2-"))return "/?page=exercise&exercise="+id;
  if(id==='inquiry-d')return '/?page=four-turtles';
  if(/^lesson-(?:0[1-9]|10)$/.test(id)||/^sw2-lesson-\d\d-state$/.test(id))return '/?page=lesson&lesson='+Math.max(1,Number(id.match(/\d\d/)[0]));
  if(id.startsWith('sw2-datalab-'))return '/?page=data-lab&unit='+id.split('-')[2];

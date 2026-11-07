@@ -18,18 +18,20 @@ export default function Editor({
   onRun,
   line,
   dark,
+  executedLine = 0,
 }: {
   code: string;
   onChange: (code: string) => void;
   onRun: () => void;
   line: number;
   dark: boolean;
+  executedLine?: number;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
-  const props = useRef({ onChange, onRun, line });
+  const props = useRef({ onChange, onRun, line, executedLine });
   useEffect(() => {
-    props.current = { onChange, onRun, line };
+    props.current = { onChange, onRun, line, executedLine };
   });
   useEffect(() => {
     if (!host.current) return;
@@ -40,14 +42,11 @@ export default function Editor({
           const v = view.current;
           if (!v) return;
           const n = props.current.line;
-          this.decorations =
-            n > 0 && n <= v.state.doc.lines
-              ? Decoration.set([
-                  Decoration.line({ class: "active-python-line" }).range(
-                    v.state.doc.line(n).from,
-                  ),
-                ])
-              : Decoration.none;
+          const marks = [];
+          for (const [row, cls] of [[props.current.executedLine, 'executed-python-line'],[n,'active-python-line']] as const) {
+            if(row>0&&row<=v.state.doc.lines) marks.push(Decoration.line({class:cls}).range(v.state.doc.line(row).from));
+          }
+          this.decorations = Decoration.set(marks,true);
         }
       },
       { decorations: (v) => v.decorations },
@@ -107,6 +106,6 @@ export default function Editor({
   }, [code]);
   useEffect(() => {
     view.current?.dispatch({});
-  }, [line]);
+  }, [line, executedLine]);
   return <div className="editor-host" ref={host} />;
 }

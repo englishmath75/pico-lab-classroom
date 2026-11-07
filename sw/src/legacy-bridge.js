@@ -77,9 +77,57 @@ addEventListener('DOMContentLoaded',()=>{
  if(api.id==='data'||api.id==='lab'){
   const n=document.createElement('p');n.className='notice';n.textContent=api.value('sw2-free-state').dataMode==='user-file'&&!$('csvInput')?.value?'코드는 복원되었습니다. 사용자 CSV 재선택이 필요합니다. 파일 내용은 계정에 업로드하지 않았습니다.':'직접 선택한 CSV 파일은 계정에 업로드하지 않습니다. 다른 PC에서는 코드를 불러온 뒤 CSV를 다시 선택하세요. 교재의 가상 자료는 저장·복원할 수 있습니다.';$('uploadCsv')?.parentElement.append(n);
  }
+ // Adapt existing lesson editors without changing their saved record keys.
+ let legacyDispose=()=>{},legacyKey='',legacyHost=null,legacyEpoch=0;
+ const mountLegacy=async()=>{
+  const cfg=window.SWPracticeConfig;if(!cfg||disposed||cfg.key===legacyKey)return;
+  const allowed={lesson:'editor',mastery:'code','final-course':'final-code',lab:'pythonCode','four-turtles':'studentCode'};
+  if(allowed[api.id]!==cfg.editor)return;
+  const field=$(cfg.editor);if(!field)return;
+  legacyKey=cfg.key;const epoch=++legacyEpoch;legacyDispose();legacyHost?.remove();
+  const host=document.createElement('div');host.className='sw-legacy-practice';field.after(host);legacyHost=host;
+  const inputField=$(cfg.input);const hidden=[field,...(inputField?[inputField.closest('label')||inputField]:[]),...(cfg.hide||[]).map($).filter(Boolean)];hidden.forEach(n=>n.classList.add('sw-legacy-hidden'));
+  const files={};try{for(const name of new Set(cfg.files||[])){const response=await fetch('./datasets/'+name);if(!response.ok)throw Error(name);files[name]=await response.text();}}catch(e){host.textContent='준비 자료를 읽지 못했습니다. 새로고침 후 다시 시도하세요: '+e;legacyKey='';return;}
+  if(epoch!==legacyEpoch||disposed)return;
+  const listeners=new Set();const notify=()=>listeners.forEach(f=>f());
+  const watch=[field,$(cfg.input),...(cfg.watch||[]).map($)].filter(Boolean);
+  watch.forEach(n=>n.addEventListener('input',notify));
+  const stop=api.mountLegacyPractice(host,{...cfg,files,
+   readCode:()=>field.value,writeCode:code=>{field.value=code;field.dispatchEvent(new Event('input',{bubbles:true}));},
+   readInput:()=>$(cfg.input)?.value||'',writeInput:stdin=>{if($(cfg.input)){$(cfg.input).value=stdin;$(cfg.input).dispatchEvent(new Event('input',{bubbles:true}));}},
+   readContext:()=>cfg.context?.()||{},subscribe:callback=>{listeners.add(callback);return()=>listeners.delete(callback);}
+  });
+  legacyDispose=()=>{stop();watch.forEach(n=>n.removeEventListener('input',notify));listeners.clear();};
+ };
+ window.addEventListener('sw:practice',mountLegacy);void mountLegacy();
+ // Only audited registry entries become executable. Shell commands, expected
+ // outputs and unregistered snippets retain their original presentation.
+ const mounted=new Map();
+ const mountObserver=new IntersectionObserver(entries=>{for(const entry of entries){if(!entry.isIntersecting)continue;const item=[...mounted.values()].find(x=>x.host===entry.target);if(!item||item.started)continue;item.started=true;mountObserver.unobserve(item.host);void api.mountExample(item.content,item.id).then(dispose=>{if(disposed||!item.host.isConnected)dispose();else item.dispose=dispose;}).catch(()=>{item.content.textContent='실습을 준비하지 못했습니다. 새로고침 후 다시 시도하세요.';});}},{rootMargin:'300px'});
+ const normalize=s=>s.replace(/\r\n/g,'\n').trim();
+ const candidates=api.examples||[];const downloads=api.downloadExamples||[];
+ const attach=()=>{
+  for(const a of document.querySelectorAll('a[href$=".py"]')){
+   if(a.dataset.swExecutable)continue;const file=new URL(a.href).pathname.split('/').pop();const item=downloads.find(e=>e.source.split('/').pop()===file);if(!item)continue;
+   a.dataset.swExecutable='1';const link=document.createElement('a');link.href='/?page=exercise&exercise='+item.id;link.className='sw-exercise-link';link.textContent=' · 웹에서 수정·실행 →';a.after(link);
+  }
+
+  for(const [pre,item] of mounted)if(!pre.isConnected||normalize(pre.tagName==='TEXTAREA'?pre.value:pre.textContent)!==item.original){item.dispose?.();item.host.remove();mounted.delete(pre);}
+  for(const pre of document.querySelectorAll('pre,textarea#code')){
+   if(pre.closest('.sw-practice')||mounted.has(pre)||api.id==='lesson'&&pre.id==='snippet')continue;
+   const original=normalize(pre.tagName==='TEXTAREA'?pre.value:pre.textContent);if(!original)continue;
+   const example=candidates.find(e=>normalize(e.originalCode)===original);
+   if(!example)continue;
+   const host=document.createElement('div');host.dataset.exercise=example.id;
+   const link=document.createElement('a');link.href='/?page=exercise&exercise='+example.id;link.textContent='이 실습만 크게 열기 →';
+   host.append(link);const content=document.createElement('div');host.append(content);pre.after(host);
+   const item={host,content,original,id:example.id,dispose:null,started:false};mounted.set(pre,item);mountObserver.observe(host);
+  }
+ };
+ let attachPending=false;const scheduleAttach=()=>{if(attachPending)return;attachPending=true;requestAnimationFrame(()=>{attachPending=false;if(!disposed)attach();});};const practiceObserver=new MutationObserver(scheduleAttach);practiceObserver.observe(document.body,{subtree:true,childList:true,characterData:true});attach();
  const resize=()=>api.height(Math.ceil(document.body.getBoundingClientRect().height));
  const observer=new ResizeObserver(resize);observer.observe(document.body);resize();
- window.SWRelease=()=>{if(disposed)return;disposed=true;observer.disconnect();window.SWDispose?.();window.ClassroomPython.dispose();};
+ window.SWRelease=()=>{if(disposed)return;disposed=true;mountObserver.disconnect();legacyEpoch++;legacyDispose();window.removeEventListener('sw:practice',mountLegacy);practiceObserver.disconnect();for(const item of mounted.values())item.dispose?.();observer.disconnect();window.SWDispose?.();window.ClassroomPython.dispose();};
  api.ready(document.title);
 });
 })();

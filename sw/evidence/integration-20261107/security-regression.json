@@ -1,0 +1,33 @@
+{
+  "environment": "Firebase Auth + Firestore emulators; demo-englishmath-python",
+  "rulesSha256": "d3e9eef2efbb38a244f0f8030c3e8834c77b6dd27e8bc08946b975dafec68821",
+  "results": [
+    {
+      "name": "all 64 new finite IDs save and restore without opening MK or personal paths",
+      "status": "PASS"
+    },
+    {
+      "name": "pending cannot save new activities; teachers see only explicit submissions",
+      "status": "PASS"
+    },
+    {
+      "name": "new IDs do not widen MK allowlists, preserve grade/year and deny arbitrary IDs",
+      "status": "PASS"
+    },
+    {
+      "name": "29 concurrent simulated student initial reads and saves remain separated",
+      "status": "PASS"
+    },
+    {
+      "name": "new exercise records are owned; class, site and year boundaries stay closed",
+      "status": "PASS"
+    },
+    {
+      "name": "library paginates more than 150 authorized exercise records without cross-user reads",
+      "status": "PASS"
+    }
+  ],
+  "passed": 6,
+  "failed": 0,
+  "productionApplied": false
+}

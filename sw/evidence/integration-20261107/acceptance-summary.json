@@ -1,0 +1,12 @@
+{
+  "sourceSha": "local working tree",
+  "software": 118,
+  "field": 2,
+  "statuses": {
+    "BLOCKED": 6,
+    "FIELD_PENDING": 2,
+    "PASS": 112
+  },
+  "productionDeployed": false,
+  "timestampKST": "2026-11-07T14:01:09.789935+09:00"
+}

@@ -8,7 +8,7 @@ export const keys={
 export function rawFor(key,store){
  let transient;try{transient=JSON.parse(store.temp.get(key)||'null');}catch{}
  const get=id=>store.get(id);let data;
- if(key===keys.step){data={lesson:0,records:{}};for(let i=0;i<10;i++){const meta=get('sw2-lesson-'+num(i)+'-state');data.records[i]={...meta,code:get('lesson-'+num(i))};}}
+ if(key===keys.step){data={lesson:0,records:{}};for(let i=0;i<10;i++){const meta=get('sw2-lesson-'+num(i)+'-state');const draft=store.draft('lesson-'+num(i));data.records[i]={...meta,...(draft.version||draft.dirty?{code:get('lesson-'+num(i))}:{})};}}
  if(key===keys.main){
   const free=get('sw2-free-state'),review=get('sw2-review');
   data={done:[],answers:{},lesson:0,code:get('sw2-free-code'),report:get('sw2-report'),exam:review.answers||{},examGraded:!!review.graded,wrong:review.wrong||[],examFilter:review.filter||'all',...free};

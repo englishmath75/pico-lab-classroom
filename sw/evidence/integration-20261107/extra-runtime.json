@@ -1,0 +1,54 @@
+[
+  {
+    "name": "whole run shows final values without print; run IDs and input hashes change",
+    "status": "PASS"
+  },
+  {
+    "name": "safe object snapshot never calls user repr or __dict__ property",
+    "status": "PASS"
+  },
+  {
+    "name": "function call line stays unfinished until return, nested local state is visible",
+    "status": "PASS"
+  },
+  {
+    "name": "manual stop leaves UI responsive and next run fresh",
+    "status": "PASS"
+  },
+  {
+    "name": "four Turtle original completes every recorded step; shared history preserves clear and reset",
+    "status": "PASS"
+  },
+  {
+    "name": "20k trace boundary does not truncate whole computation",
+    "status": "PASS"
+  },
+  {
+    "name": "package failure can retry without stale state",
+    "status": "PASS"
+  },
+  {
+    "name": "large pandas table retains real shape, dtypes, missing values and explicit truncation",
+    "status": "PASS"
+  },
+  {
+    "name": "input missing / invalid and UTF8 data / generated file",
+    "status": "PASS"
+  },
+  {
+    "name": "SWX0125 actual Python parameters change recorded artwork geometry",
+    "status": "PASS"
+  },
+  {
+    "name": "SWX0126 actual Python parameters change recorded artwork geometry",
+    "status": "PASS"
+  },
+  {
+    "name": "SWX0127 actual Python parameters change recorded artwork geometry",
+    "status": "PASS"
+  },
+  {
+    "name": "SWX0128 actual Python parameters change recorded artwork geometry",
+    "status": "PASS"
+  }
+]

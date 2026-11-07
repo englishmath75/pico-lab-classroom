@@ -24,7 +24,7 @@ async function seed(extra=[]) {
     ]);
   });
 }
-before(async()=>{env=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8080,rules:readFileSync('sw/security/proposed.rules','utf8')}});});
+before(async()=>{env=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8080,rules:readFileSync(process.env.SW_RULES_FILE||'sw/security/proposed.rules','utf8')}});});
 beforeEach(async()=>{await env.clearFirestore();await seed();});
 after(async()=>env?.cleanup());
 test('학생 A 저장 후 다른 기기에서 다시 읽기, 학생 B 접근 차단',async()=>{

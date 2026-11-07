@@ -1,0 +1,67 @@
+name: SW integrated Python acceptance
+on:
+  push:
+    branches: [work/sw-integrated-20261107]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sw-integrated-validation
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci && npm ci --prefix sw
+      - name: Stable registry and source audit
+        run: node sw/audit-exercises.mjs
+      - name: Build exact candidate
+        run: |
+          npm run build:sw
+          python3 sw/publisher/package_site.py dist --source-sha "$GITHUB_SHA"
+          python3 sw/publisher/finalize_brand.py --dist dist --source-sha "$GITHUB_SHA"
+          python3 sw/publisher/check_site.py dist
+      - name: Existing lesson and storage contracts
+        run: node --test sw/tests/store.test.mjs sw/tests/content.test.mjs
+      - run: npx playwright install --with-deps chromium
+      - name: Actual Python execution and step boundaries
+        run: node sw/tests/integration-browser.mjs
+      - name: Edited artwork, long trace and retry
+        run: node sw/tests/integration-extra.mjs
+      - name: Desktop and mobile interaction
+        run: node sw/tests/integration-ui.mjs
+      - name: Account ownership, restore and teacher submission
+        run: npx firebase emulators:exec --config sw/firebase.integration.json --project demo-englishmath-python --only auth,firestore 'SW_RULES_FILE=sw/security/integration-proposed.rules node --test --test-concurrency=1 sw/tests/student-security.test.mjs sw/tests/grade1-isolation.test.mjs sw/tests/integration-security.test.mjs && node sw/tests/integration-accounts.mjs'
+      - name: Every registered example executes in a fresh runtime
+        env:
+          SW_CATALOG_JOBS: 2
+        run: node sw/tests/catalog-browser.mjs
+      - name: Protected sites remain unchanged (read only)
+        run: node sw/publisher/protected-sites.mjs
+      - name: Record observed acceptance results
+        env:
+          SW_VALIDATED: 1
+        run: node sw/audit-exercises.mjs && python3 sw/write-acceptance.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sw-integrated-site-candidate
+          path: dist/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sw-integrated-acceptance-evidence
+          path: sw/evidence/
+          retention-days: 30

@@ -1,0 +1,16 @@
+{
+  "baselineSource": "c38e7ce5e057b68898d086dde1caaaceae4f6d00",
+  "courseSha256": "c3056a03e2173ad83803c7d817bd4a6eef031b864ed3ab92b66a5f9c5d123e86",
+  "lessons": 10,
+  "stages": 50,
+  "courseQuestions": 20,
+  "reportFields": [
+    "question",
+    "source",
+    "method",
+    "finding",
+    "graph",
+    "limits",
+    "next"
+  ]
+}

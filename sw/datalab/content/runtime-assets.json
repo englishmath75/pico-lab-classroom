@@ -17,5 +17,8 @@
   "/sw-runtime/pyodide/python_dateutil-2.9.0.post0-py2.py3-none-any.whl",
   "/sw-runtime/pyodide/pytz-2025.2-py2.py3-none-any.whl",
   "/sw-runtime/pyodide/six-1.17.0-py2.py3-none-any.whl",
-  "/sw-runtime/NanumGothic-Regular.ttf"
+  "/sw-runtime/NanumGothic-Regular.ttf",
+  "/sw-runtime/runtime/classroom_graphics.py",
+  "/sw-runtime/runtime/tkinter.py",
+  "/sw-runtime/runtime/pygame.py"
 ]

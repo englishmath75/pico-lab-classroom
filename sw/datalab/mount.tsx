@@ -4,3 +4,7 @@ import DataLab from './components/DataLab';
 export function mountDataLab(node:HTMLElement,bridge:any){
  const root=createRoot(node);root.render(<DataLab bridge={bridge}/>);return()=>root.unmount();
 }
+import Practice from './components/Practice';
+export function mountPracticeLab(node:HTMLElement,bridge:any){
+ const root=createRoot(node);root.render(<Practice bridge={bridge}/>);return()=>root.unmount();
+}

@@ -1,0 +1,33 @@
+{
+  "results": [
+    {
+      "name": "first pandas page, no early stdout, real table at last step and rewind",
+      "status": "PASS"
+    },
+    {
+      "name": "regular lesson uses common editor, true run, and original progress",
+      "status": "PASS"
+    },
+    {
+      "name": "Turtle moves, rotates without drawing, replays exactly and invalidates edited code",
+      "status": "PASS"
+    },
+    {
+      "name": "step controls and code usable at 390px",
+      "status": "PASS"
+    },
+    {
+      "name": "all 18 mastery editors and 10 archived editors mount",
+      "status": "PASS"
+    },
+    {
+      "name": "CP949 CSV import, file download, reset undo and invalidation",
+      "status": "PASS"
+    },
+    {
+      "name": "artwork replay, pause, seek, speed and route disposal",
+      "status": "PASS"
+    }
+  ],
+  "errors": []
+}

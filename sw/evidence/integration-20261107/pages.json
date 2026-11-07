@@ -1,0 +1,194 @@
+[
+  {
+    "id": "exercise",
+    "url": "https://sw.englishmath.kr/?page=exercise",
+    "file": "native component",
+    "kind": "exercise"
+  },
+  {
+    "id": "home",
+    "url": "https://sw.englishmath.kr/?page=home",
+    "file": "index.html",
+    "kind": "frame"
+  },
+  {
+    "id": "data",
+    "url": "https://sw.englishmath.kr/?page=data",
+    "file": "index.html",
+    "kind": "frame"
+  },
+  {
+    "id": "exam",
+    "url": "https://sw.englishmath.kr/?page=exam",
+    "file": "index.html",
+    "kind": "frame"
+  },
+  {
+    "id": "report",
+    "url": "https://sw.englishmath.kr/?page=report",
+    "file": "index.html",
+    "kind": "frame"
+  },
+  {
+    "id": "lab",
+    "url": "https://sw.englishmath.kr/?page=lab",
+    "file": "index.html",
+    "kind": "frame"
+  },
+  {
+    "id": "examples",
+    "url": "https://sw.englishmath.kr/?page=examples",
+    "file": "index.html",
+    "kind": "frame"
+  },
+  {
+    "id": "final-course",
+    "url": "https://sw.englishmath.kr/?page=final-course",
+    "file": "index.html",
+    "kind": "frame"
+  },
+  {
+    "id": "lesson",
+    "url": "https://sw.englishmath.kr/?page=lesson",
+    "file": "step-by-step.html",
+    "kind": "frame"
+  },
+  {
+    "id": "python-review",
+    "url": "https://sw.englishmath.kr/?page=python-review",
+    "file": "python-review.html",
+    "kind": "frame"
+  },
+  {
+    "id": "questions-supplement",
+    "url": "https://sw.englishmath.kr/?page=questions-supplement",
+    "file": "questions-supplement.html",
+    "kind": "frame"
+  },
+  {
+    "id": "first-analysis",
+    "url": "https://sw.englishmath.kr/?page=first-analysis",
+    "file": "first-analysis.html",
+    "kind": "frame"
+  },
+  {
+    "id": "mastery",
+    "url": "https://sw.englishmath.kr/?page=mastery",
+    "file": "mastery.html",
+    "kind": "frame"
+  },
+  {
+    "id": "simulation",
+    "url": "https://sw.englishmath.kr/?page=simulation",
+    "file": "simulation.html",
+    "kind": "frame"
+  },
+  {
+    "id": "avatar",
+    "url": "https://sw.englishmath.kr/?page=avatar",
+    "file": "ai-avatar.html",
+    "kind": "frame"
+  },
+  {
+    "id": "avatar-notices",
+    "url": "https://sw.englishmath.kr/?page=avatar-notices",
+    "file": "ai-avatar-notices.html",
+    "kind": "frame"
+  },
+  {
+    "id": "lesson01-guide",
+    "url": "https://sw.englishmath.kr/?page=lesson01-guide",
+    "file": "lesson01-guide.html",
+    "kind": "frame"
+  },
+  {
+    "id": "list-tuple-dictionary",
+    "url": "https://sw.englishmath.kr/?page=list-tuple-dictionary",
+    "file": "list-tuple-dictionary.html",
+    "kind": "frame"
+  },
+  {
+    "id": "radians",
+    "url": "https://sw.englishmath.kr/?page=radians",
+    "file": "radians.html",
+    "kind": "frame"
+  },
+  {
+    "id": "textbook-classroom",
+    "url": "https://sw.englishmath.kr/?page=textbook-classroom",
+    "file": "textbook-classroom.html",
+    "kind": "frame"
+  },
+  {
+    "id": "textbook-guide",
+    "url": "https://sw.englishmath.kr/?page=textbook-guide",
+    "file": "textbook-guide.html",
+    "kind": "frame"
+  },
+  {
+    "id": "math-function-graphs",
+    "url": "https://sw.englishmath.kr/?page=math-function-graphs",
+    "file": "math-function-graphs.html",
+    "kind": "frame"
+  },
+  {
+    "id": "physics-explanation",
+    "url": "https://sw.englishmath.kr/?page=physics-explanation",
+    "file": "physics-explanation.html",
+    "kind": "frame"
+  },
+  {
+    "id": "graphics-gallery",
+    "url": "https://sw.englishmath.kr/?page=graphics-gallery",
+    "file": "graphics-gallery.html",
+    "kind": "frame"
+  },
+  {
+    "id": "teacher-10",
+    "url": "https://sw.englishmath.kr/?page=teacher-10",
+    "file": "teacher-10.html",
+    "kind": "frame"
+  },
+  {
+    "id": "video-player",
+    "url": "https://sw.englishmath.kr/?page=video-player",
+    "file": "video-player.html",
+    "kind": "frame"
+  },
+  {
+    "id": "four-turtles",
+    "url": "https://sw.englishmath.kr/?page=four-turtles",
+    "file": "four-turtles.html",
+    "kind": "frame"
+  },
+  {
+    "id": "kosis-project",
+    "url": "https://sw.englishmath.kr/?page=kosis-project",
+    "file": "kosis-project.html",
+    "kind": "frame"
+  },
+  {
+    "id": "practice",
+    "url": "https://sw.englishmath.kr/?page=practice",
+    "file": "native component",
+    "kind": "practice"
+  },
+  {
+    "id": "library",
+    "url": "https://sw.englishmath.kr/?page=library",
+    "file": "native component",
+    "kind": "library"
+  },
+  {
+    "id": "teacher",
+    "url": "https://sw.englishmath.kr/?page=teacher",
+    "file": "native component",
+    "kind": "teacher"
+  },
+  {
+    "id": "data-lab",
+    "url": "https://sw.englishmath.kr/?page=data-lab",
+    "file": "native component",
+    "kind": "datalab"
+  }
+]

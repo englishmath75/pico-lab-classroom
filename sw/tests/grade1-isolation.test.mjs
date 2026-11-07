@@ -11,7 +11,7 @@ let env;
 const auth=(uid,email=uid+'@muhak-g-h.gne.go.kr')=>env.authenticatedContext(uid,{email,email_verified:true,firebase:{sign_in_provider:'google.com'}}).firestore();
 const profile=(uid,cls)=>({email:uid+'@muhak-g-h.gne.go.kr',displayName:uid,classId:cls,status:'approved',createdAt:Timestamp.now(),updatedAt:Timestamp.now()});
 const code=(value,cls)=>({code:value,title:'실습',runState:'success',completed:false,classId:cls});
-before(async()=>{env=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8080,rules:readFileSync('sw/security/proposed.rules','utf8')}})});
+before(async()=>{env=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8080,rules:readFileSync(process.env.SW_RULES_FILE||'sw/security/proposed.rules','utf8')}})});
 beforeEach(async()=>{await env.clearFirestore();await env.withSecurityRulesDisabled(async c=>{
   const db=c.firestore();await Promise.all([
     setDoc(doc(db,'config/access'),{allowedDomains:['muhak-g-h.gne.go.kr'],allowedEmails:[]}),

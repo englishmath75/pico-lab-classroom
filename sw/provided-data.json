@@ -1,0 +1,44 @@
+{
+  "SW01": {
+    "id": "SW01",
+    "version": "1.0.0",
+    "sha256": "c8f056b930fd56593fcddaec3174edd005b9f96dec3939b95b085ab7dac19028",
+    "source": "provided-fictional"
+  },
+  "SW03": {
+    "id": "SW03",
+    "version": "1.0.0",
+    "sha256": "c8f056b930fd56593fcddaec3174edd005b9f96dec3939b95b085ab7dac19028",
+    "source": "provided-fictional"
+  },
+  "SW04": {
+    "id": "SW04",
+    "version": "1.0.0",
+    "sha256": "c8f056b930fd56593fcddaec3174edd005b9f96dec3939b95b085ab7dac19028",
+    "source": "provided-fictional"
+  },
+  "sports": {
+    "id": "sports",
+    "version": "SW-20261106",
+    "sha256": "5317602d7772986954cda362e51ecb069aecb5d710bc088a9c0fc25d5ec43a63",
+    "source": "provided-fictional"
+  },
+  "population": {
+    "id": "population",
+    "version": "SW-20261106",
+    "sha256": "4593b56b69231d2b79af8b0a4bb24999c7eaec7369d92b55978758d6951d40ef",
+    "source": "provided-fictional"
+  },
+  "cafe": {
+    "id": "cafe",
+    "version": "SW-20261106",
+    "sha256": "cfaa1c1899a4817720d7d8062c789a70dc539ba774af7df91d4685a9ad48850a",
+    "source": "provided-fictional"
+  },
+  "climate": {
+    "id": "climate",
+    "version": "SW-20261106",
+    "sha256": "9dadff19b1d70fbc0a37cd13a0a4b0c271faeb64f7e07d6647348e0a65047d10",
+    "source": "provided-fictional"
+  }
+}

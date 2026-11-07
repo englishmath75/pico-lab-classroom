@@ -1,0 +1,421 @@
+{
+  "version": "20261107",
+  "status": "REFERENCE_FIXTURES_NOT_WEBSITE_PASS",
+  "fixtures": [
+    {
+      "id": "V01",
+      "file": "01_variables.py",
+      "runtime": "python",
+      "purpose": "print 없이 변수 생성·변경·삭제",
+      "expected": [
+        "x는 10에서 15로 변한다.",
+        "name은 생성 뒤 삭제된다.",
+        "stdout은 비어 있다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V02",
+      "file": "02_alias_copy.py",
+      "runtime": "python",
+      "purpose": "공유 참조와 복사",
+      "expected": [
+        "books와 same은 같은 객체 [9,5,2].",
+        "copy는 별도 객체 [3,5,2]."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V03",
+      "file": "03_nested_cycle.py",
+      "runtime": "python",
+      "purpose": "중첩 공유·순환 참조",
+      "expected": [
+        "outer의 두 항목은 동일 inner를 참조한다.",
+        "cycle은 자신을 참조하고 시각화는 무한 재귀에 빠지지 않는다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V04",
+      "file": "04_collections.py",
+      "runtime": "python",
+      "purpose": "기초 자료구조의 타입·내용",
+      "expected": [
+        "tuple, dict, set, 비어 있는 각 타입을 구분한다.",
+        "set의 순서를 보장하는 것처럼 표현하지 않는다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V05",
+      "file": "05_for_if_break_continue.py",
+      "runtime": "python",
+      "purpose": "분기·for·break·continue 실행 순서",
+      "expected": [
+        "total=5, i=4, verdict='통과'.",
+        "실제로 실행한 줄만 단계로 표시한다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "5\n통과\n",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V06",
+      "file": "06_while.py",
+      "runtime": "python",
+      "purpose": "while의 조건·반복·종료",
+      "expected": [
+        "출력은 단계마다 3,2,1이 누적되고 마지막 count는 0."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "3\n2\n1\n",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V07",
+      "file": "07_multiline.py",
+      "runtime": "python",
+      "purpose": "여러 줄 문장과 소스 위치",
+      "expected": [
+        "total=6.",
+        "줄 강조가 값 생성 시점과 모순되지 않는다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "6\n",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V08",
+      "file": "08_function_frame.py",
+      "runtime": "python",
+      "purpose": "검증용 함수 프레임·호출·복귀",
+      "expected": [
+        "함수 안 value=4, result=8.",
+        "복귀 후 answer=8. 학년별 수업 범위를 새로 늘리는 예제는 아니다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "8\n",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V09",
+      "file": "09_expected_runtime_error.py",
+      "runtime": "python",
+      "purpose": "의도적 IndexError",
+      "expected": [
+        "오류 줄과 x=10, items=[] 상태를 확인한다.",
+        "마지막 print는 실행되지 않는다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": "IndexError",
+      "expectedStdout": "",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": false,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V10",
+      "file": "10_expected_syntax_error.py",
+      "runtime": "python",
+      "purpose": "의도적 SyntaxError",
+      "expected": [
+        "실행 전 문법 오류를 표시하고 이전 실행 결과를 새 결과로 남기지 않는다."
+      ],
+      "expectedSyntaxError": true,
+      "expectedRuntimeError": "SyntaxError",
+      "expectedStdout": null,
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": false,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V11",
+      "file": "11_input.py",
+      "runtime": "python",
+      "purpose": "입력·입력 부족·잘못된 숫자",
+      "expected": [
+        "기본 입력 민지,17에서 name='민지', age=17, 결과에 '민지 18'이 포함된다.",
+        "프롬프트 표시 방식은 콘솔 계약에 따르되 입력과 시점을 일치시킨다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": null,
+      "defaultInputs": [
+        "민지",
+        "17"
+      ],
+      "safeForLocalReferenceRun": false,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V12",
+      "file": "12_pandas_csv.py",
+      "runtime": "pandas",
+      "purpose": "pandas 단독 import·CSV·표·출력",
+      "expected": [
+        "sales.csv를 같은 실습 가상 경로에 제공한다.",
+        "before sales=12,20,16; result sales=14,22,18.",
+        "첫 단계에 최종 출력이 나타나면 실패."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "(3, 2)\n18.0\n",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": false,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V13",
+      "file": "13_matplotlib_two_figures.py",
+      "runtime": "matplotlib",
+      "purpose": "다중 Figure·한글·표시 이벤트",
+      "expected": [
+        "두 Figure를 확인한다.",
+        "각 show 전에는 해당 최종 그림이 미리 나타나지 않는다.",
+        "제목·축 한글이 정상 표시된다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "첫 그래프 표시\n",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": false,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V14",
+      "file": "14_turtle_steps.py",
+      "runtime": "turtle",
+      "purpose": "전진·회전·펜 상태",
+      "expected": [
+        "첫 전진 (100,0), 회전 후 방향90, 다음 전진 (100,50).",
+        "펜을 든 20 구간에는 선이 없다.",
+        "최종 위치는 (100,80), 방향90. 부동소수점 오차 허용."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": false,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V15",
+      "file": "15_turtle_mandala.py",
+      "runtime": "turtle",
+      "purpose": "기존 수업 형태의 36원 만다라",
+      "expected": [
+        "검정 배경에 36회 원과 10도 회전.",
+        "circle·bgcolor 오류나 선분 상한에 의한 조용한 잘림이 없다.",
+        "전체 회전은 360도이고 거북이는 원점 근처로 돌아온다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": false,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V16",
+      "file": "16_turtle_four.py",
+      "runtime": "turtle",
+      "purpose": "네 마리 거북이",
+      "expected": [
+        "각 방향은 0,90,180,270도.",
+        "각 위치는 (60,0),(0,60),(-60,0),(0,-60)에 근접.",
+        "각 객체와 그림 상태가 구분된다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": false,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V17",
+      "file": "17_turtle_style_clear.py",
+      "runtime": "turtle",
+      "purpose": "배경·색·굵기·clear·home",
+      "expected": [
+        "clear는 첫 경로를 지우고 당시 위치를 유지한다.",
+        "그 후 회전·전진·home을 기록대로 되돌릴 수 있다.",
+        "home 후 위치(0,0), 방향0. 부동소수점 오차 허용."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": false,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V18",
+      "file": "18_random_replay.py",
+      "runtime": "python",
+      "purpose": "난수 기록 재생",
+      "expected": [
+        "한 실행에서 얻은 두 값은 이전·다음 이동으로 바뀌지 않는다.",
+        "새 실행 결과가 이전과 반드시 달라야 한다는 판정은 하지 않는다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": null,
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V19",
+      "file": "19_isolation_a.py",
+      "runtime": "python",
+      "purpose": "실행 A의 변수·모듈 변경",
+      "expected": [
+        "뒤의 B 실행은 독립된 상태여야 한다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "99\n",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V20",
+      "file": "20_isolation_b.py",
+      "runtime": "python",
+      "purpose": "새 실행 B의 격리 확인",
+      "expected": [
+        "같은 UI에서 A 후 B 실행 시 둘 다 False."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "False\nFalse\n",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V21",
+      "file": "21_long_finite_trace.py",
+      "runtime": "python",
+      "purpose": "전체 실행과 추적 상한 분리",
+      "expected": [
+        "전체 실행은 499500으로 끝난다.",
+        "추적이 한도에 걸리면 부분 기록·중단 위치를 명시한다.",
+        "일반 수업 예제는 따로 전수 완주 기준을 충족해야 한다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "499500\n",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V22",
+      "file": "22_intentional_infinite_loop.py",
+      "runtime": "python",
+      "purpose": "의도적 무한 반복·중지 검증",
+      "expected": [
+        "중지 가능한 격리된 웹 실행 환경에서만 실행한다.",
+        "중지 후 편집 내용이 남고 정상 예제를 다시 실행할 수 있다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": null,
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": false,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V23",
+      "file": "23_text_not_html.py",
+      "runtime": "python",
+      "purpose": "출력 문자열 안전한 표시",
+      "expected": [
+        "태그를 굵은 글자 HTML로 해석하지 않고 그대로 문자로 표시한다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "<b>학생이 입력한 문자열</b>\n",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V24",
+      "file": "24_dataframe_no_print.py",
+      "runtime": "pandas",
+      "purpose": "print 없는 DataFrame 상태",
+      "expected": [
+        "before books=3,5,2; df books=4,6,3.",
+        "selected는 A와 B, shape=(2,2).",
+        "stdout 없이 표 상태를 단계로 본다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": false,
+      "websiteVerificationStatus": "NOT_RUN"
+    },
+    {
+      "id": "V25",
+      "file": "25_import_only.py",
+      "runtime": "python",
+      "purpose": "출력 없는 import",
+      "expected": [
+        "정상 실행이며 stdout이 비어 있음을 알린다.",
+        "그래픽이나 값을 가짜로 생성하지 않는다."
+      ],
+      "expectedSyntaxError": false,
+      "expectedRuntimeError": null,
+      "expectedStdout": "",
+      "defaultInputs": [],
+      "safeForLocalReferenceRun": true,
+      "websiteVerificationStatus": "NOT_RUN"
+    }
+  ],
+  "currentContentTests": [
+    {
+      "id": "CURRENT_GALLERY",
+      "source": "최신 SW 전수 목록의 네온 파티클·오로라·워프 터널·로렌츠 및 추가 작품",
+      "requirement": "원본 수업 코드를 확보하고 웹 전환 후 Python 매개변수 두 개 이상을 바꾸어 실제 차이를 기록",
+      "status": "NOT_RUN"
+    }
+  ]
+}

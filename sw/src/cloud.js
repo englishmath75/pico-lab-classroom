@@ -3,7 +3,7 @@ import { initializeAuth, inMemoryPersistence, browserPopupRedirectResolver, Goog
   onAuthStateChanged, signOut, connectAuthEmulator } from 'firebase/auth';
 import { initializeFirestore, memoryLocalCache, connectFirestoreEmulator,
   doc, collection, getDocFromServer, getDocsFromServer, query, where, limit,
-  orderBy, runTransaction, serverTimestamp, Timestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
+  orderBy, documentId, startAfter, runTransaction, serverTimestamp, Timestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 
 export const MAX_CODE = 20000, SAVE_INTERVAL = 60000, WRITE_GAP = 16000;
 import {validActivity as validWorkspace} from './registry.js';
@@ -56,22 +56,31 @@ export function createCloud(config, emulator = false) {
     approve(uid, status) { return updateDoc(doc(db, 'users', uid), { status, updatedAt: serverTimestamp() }); },
     async teacherDetails(uid, classId) {
       const [progress, submissions, quota] = await Promise.all([
-        getDocsFromServer(query(collection(db, 'users', uid, 'progress'), limit(50))),
-        getDocsFromServer(query(collection(db, 'users', uid, 'submissions'), where('classId','==',classId), limit(50))),
+        allDocuments(collection(db,'users',uid,'progress')),
+        allDocuments(query(collection(db,'users',uid,'submissions'),where('classId','==',classId))),
         getDocFromServer(doc(db, 'users', uid, 'limits', 'state'))
       ]);
-      return { progress: progress.docs.map(d => d.data()), submissions: submissions.docs.map(d => d.data()), quota: quota.data() };
+      return { progress: progress.map(d => d.data()), submissions: submissions.map(d => d.data()), quota: quota.data() };
     }
   };
 }
 
+async function allDocuments(base, batchSize=50) {
+  const docs=[];let cursor;
+  for(;;){
+    const constraints=[orderBy(documentId()),limit(batchSize)];if(cursor)constraints.push(startAfter(cursor));
+    const result=await getDocsFromServer(query(base,...constraints));docs.push(...result.docs);
+    if(result.size<batchSize)break;cursor=result.docs.at(-1);
+  }
+  return docs;
+}
 export class StudentStore {
   constructor(db) { this.db = db; }
   ref(uid, group, id) { return doc(this.db, 'users', uid, group, id); }
   async load(uid, id) { const d = await getDocFromServer(this.ref(uid, 'workspaces', id)); return d.exists() ? d.data() : null; }
   async list(uid) {
-    const d = await getDocsFromServer(query(collection(this.db, 'users', uid, 'workspaces'), limit(150)));
-    return d.docs.map(x => x.data()).sort((a,b) => (b.savedAt?.toMillis() || 0) - (a.savedAt?.toMillis() || 0));
+    const docs = await allDocuments(collection(this.db,'users',uid,'workspaces'),150);
+    return docs.map(x => x.data()).sort((a,b) => (b.savedAt?.toMillis() || 0) - (a.savedAt?.toMillis() || 0));
   }
   async revisions(uid, id) {
     const d = await getDocsFromServer(query(collection(this.db, 'users', uid, 'revisions'), where('workspaceId','==',id), limit(10)));

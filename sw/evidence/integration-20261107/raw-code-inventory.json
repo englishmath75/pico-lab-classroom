@@ -1,0 +1,1136 @@
+[
+  {
+    "source": "public/pandas-data-lab/ai-avatar.html",
+    "line": 29,
+    "selector": "#code",
+    "section": "code",
+    "title": "03 Python이 판단하게 해 볼까요?",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/ai-avatar.html",
+    "line": 29,
+    "selector": "#output",
+    "section": "output",
+    "title": "03 Python이 판단하게 해 볼까요?",
+    "kind": "pre",
+    "originalCode": "아직 실행하지 않았습니다."
+  },
+  {
+    "source": "public/pandas-data-lab/first-analysis.html",
+    "line": 5,
+    "selector": null,
+    "section": "prepare",
+    "title": "시작 전. 내 실습 폴더 만들기",
+    "kind": "pre",
+    "originalCode": "python -m pip install pandas matplotlib"
+  },
+  {
+    "source": "public/pandas-data-lab/first-analysis.html",
+    "line": 5,
+    "selector": null,
+    "section": "prepare",
+    "title": "시작 전. 내 실습 폴더 만들기",
+    "kind": "pre",
+    "originalCode": "python my_analysis.py"
+  },
+  {
+    "source": "public/pandas-data-lab/first-analysis.html",
+    "line": 7,
+    "selector": null,
+    "section": "step1",
+    "title": "1. CSV를 표로 읽기",
+    "kind": "pre",
+    "originalCode": "# 1. 도구를 준비하고 원본 CSV를 DataFrame으로 읽습니다.\nfrom pathlib import Path\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\nfolder = Path(__file__).resolve().parent\nraw = pd.read_csv(folder / 'festival_orders.csv', encoding='utf-8-sig')\nprint('원본 행·열:', raw.shape)\nprint(raw.head())\n\n"
+  },
+  {
+    "source": "public/pandas-data-lab/first-analysis.html",
+    "line": 17,
+    "selector": null,
+    "section": "step2",
+    "title": "2. 중복과 공백 정리",
+    "kind": "pre",
+    "originalCode": "# 2. 중복 주문과 글자 양쪽의 공백을 정리합니다.\ndf = raw.drop_duplicates(subset='order_id').copy()\nprint('중복 제거:', len(raw) - len(df), '행')\ndf['menu'] = df['menu'].str.strip()\n\n"
+  },
+  {
+    "source": "public/pandas-data-lab/first-analysis.html",
+    "line": 22,
+    "selector": null,
+    "section": "step3",
+    "title": "3. 숫자 변환과 분석 대상 선택",
+    "kind": "pre",
+    "originalCode": "# 3. 숫자로 바꾸고, 분석할 수 없는 수량을 별도로 보관합니다.\ndf['quantity'] = pd.to_numeric(df['quantity'], errors='coerce')\ndf['unit_price'] = pd.to_numeric(\n    df['unit_price'].str.replace(',', '', regex=False), errors='coerce'\n)\nprint('수량 결측:', df['quantity'].isna().sum(), '행')\nvalid = (df['quantity'] > 0) & (df['unit_price'] > 0)\nexcluded = df.loc[~valid].copy()\nexcluded.to_csv(folder / 'excluded_orders.csv', index=False, encoding='utf-8-sig')\ndf = df.loc[valid].copy()\nprint('분석 제외:', len(excluded), '행')\nprint('분석에 사용:', len(df), '행')\n\n"
+  },
+  {
+    "source": "public/pandas-data-lab/first-analysis.html",
+    "line": 35,
+    "selector": null,
+    "section": "step4",
+    "title": "4. 판매량과 매출 비교",
+    "kind": "pre",
+    "originalCode": "# 4. 주문별 매출을 계산하고 메뉴별로 판매량·매출을 합칩니다.\ndf['revenue'] = df['quantity'] * df['unit_price']\nsummary = df.groupby('menu')[['quantity', 'revenue']].sum()\nsummary = summary.sort_values('revenue', ascending=False)\nprint(summary.to_string(float_format=lambda x: f'{x:.0f}'))\nprint('총판매량:', int(df['quantity'].sum()), '개')\nprint('총매출:', int(df['revenue'].sum()), '원')\n\n"
+  },
+  {
+    "source": "public/pandas-data-lab/first-analysis.html",
+    "line": 43,
+    "selector": null,
+    "section": "step5",
+    "title": "5. 가공한 표 저장",
+    "kind": "pre",
+    "originalCode": "# 5. 정제한 표와 요약표를 새 CSV 파일로 저장합니다.\ndf.to_csv(folder / 'festival_clean.csv', index=False, encoding='utf-8-sig')\nsummary.to_csv(folder / 'menu_summary.csv', encoding='utf-8-sig')\n\n"
+  },
+  {
+    "source": "public/pandas-data-lab/first-analysis.html",
+    "line": 47,
+    "selector": null,
+    "section": "step6",
+    "title": "6. 그래프 저장과 현상 해석",
+    "kind": "pre",
+    "originalCode": "# 6. 판매량과 매출을 서로 다른 축에 그린 뒤 이미지로 저장합니다.\nfig, axes = plt.subplots(1, 2, figsize=(10, 4))\naxes[0].bar(summary.index, summary['quantity'], color='#137d80')\naxes[0].set(title='Items sold by menu', ylabel='Quantity (items)')\naxes[1].bar(summary.index, summary['revenue'], color='#b59b58')\naxes[1].set(title='Revenue by menu', ylabel='Revenue (KRW)')\nfor ax in axes:\n    ax.set_ylim(bottom=0)\n    ax.tick_params(axis='x', labelrotation=15)\nfig.suptitle('School festival — fictional practice data')\nfig.tight_layout()\nfig.savefig(folder / 'festival_chart.png', dpi=160)\nprint('저장 완료: festival_clean.csv, menu_summary.csv, excluded_orders.csv, festival_chart.png')\nplt.show()\n"
+  },
+  {
+    "source": "public/pandas-data-lab/first-analysis.html",
+    "line": 62,
+    "selector": "#analysisNote",
+    "section": "analysisNote",
+    "title": "7. 결과를 근거로 설명하기",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/four-turtles.html",
+    "line": 10,
+    "selector": null,
+    "section": "compare",
+    "title": "수정의 출발점 · 원본 전체 코드",
+    "kind": "pre",
+    "originalCode": "# math 모듈과 반복문을 사용해 여러 수학 함수를 그리는 코드\n\nimport math\nimport turtle\n\nscreen = turtle.Screen()\nscreen.bgcolor(\"black\")\n\npen = turtle.Turtle()\npen.speed(0)\npen.hideturtle()\npen.pensize(2)\n\n# 좌표계 설정\npen.penup()\npen.goto(-300, 0)\npen.pendown()\npen.color(\"white\")\npen.goto(300, 0)\n\npen.penup()\npen.goto(0, -300)\npen.pendown()\npen.goto(0, 300)\n\n# 다항함수: y = ax^2 + b\npen.penup()\npen.color(\"cyan\")\na, b = 0.01, -50\nfor x in range(-200, 201):\n    y = a * (x**2) + b\n    if abs(y) <= 300:\n        pen.goto(x, y)\n        pen.pendown()\n    else:\n        pen.penup()\n\n# 지수함수: y = ae^x + b (스케일 조정)\npen.penup()\npen.color(\"magenta\")\na, b = 5, -100\nfor x in range(-150, 60):\n    y = a * math.exp(x / 20) + b\n    if abs(y) <= 300:\n        pen.goto(x, y)\n        pen.pendown()\n    else:\n        pen.penup()\n\n# 로그함수: y = aln(x) + b (스케일 조정)\npen.penup()\npen.color(\"yellow\")\na, b = 50, 0\nfor x in range(1, 300):\n    y = a * math.log(x / 10) + b\n    if abs(y) <= 300:\n        pen.goto(x, y)\n        pen.pendown()\n    else:\n        pen.penup()\n\n# 원의 방정식: x^2 + y^2 = r^2\npen.penup()\npen.color(\"lime\")\nr = 100\nfor angle in range(361):\n    rad = math.radians(angle)\n    x = r * math.cos(rad)\n    y = r * math.sin(rad)\n    pen.goto(x, y)\n    if angle == 0:\n        pen.pendown()\n\nturtle.done()\n"
+  },
+  {
+    "source": "public/pandas-data-lab/four-turtles.html",
+    "line": 84,
+    "selector": null,
+    "section": "objects",
+    "title": "원본 · 객체 하나",
+    "kind": "pre",
+    "originalCode": "pen = turtle.Turtle()"
+  },
+  {
+    "source": "public/pandas-data-lab/four-turtles.html",
+    "line": 84,
+    "selector": null,
+    "section": "objects",
+    "title": "수정 · 서로 다른 객체 네 개",
+    "kind": "pre",
+    "originalCode": "pen1 = turtle.Turtle()\npen2 = turtle.Turtle()\npen3 = turtle.Turtle()\npen4 = turtle.Turtle()"
+  },
+  {
+    "source": "public/pandas-data-lab/four-turtles.html",
+    "line": 87,
+    "selector": null,
+    "section": "objects",
+    "title": "이름만 늘리면 객체도 늘어날까요?",
+    "kind": "pre",
+    "originalCode": "pen1 = turtle.Turtle()\npen2 = pen1"
+  },
+  {
+    "source": "public/pandas-data-lab/four-turtles.html",
+    "line": 88,
+    "selector": null,
+    "section": "colors",
+    "title": "설정은 해당 객체에 적용됩니다",
+    "kind": "pre",
+    "originalCode": "pen1.speed(0)\npen1.hideturtle()\npen1.pensize(2)\n\npen2.speed(0)\npen2.hideturtle()\npen2.pensize(2)"
+  },
+  {
+    "source": "public/pandas-data-lab/four-turtles.html",
+    "line": 94,
+    "selector": null,
+    "section": "colors",
+    "title": "지수함수 블록을 바꾸는 예",
+    "kind": "pre",
+    "originalCode": "# 원본\npen.color(\"magenta\")\npen.goto(x, y)\n\n# 수정\npen2.color(\"magenta\")\npen2.goto(x, y)"
+  },
+  {
+    "source": "public/pandas-data-lab/four-turtles.html",
+    "line": 100,
+    "selector": "#studentCode",
+    "section": "studentCode",
+    "title": "시험예상 · 원본을 수정해 완성하세요",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/four-turtles.html",
+    "line": 100,
+    "selector": "#studentReason",
+    "section": "studentReason",
+    "title": "시험예상 · 원본을 수정해 완성하세요",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/four-turtles.html",
+    "line": 100,
+    "selector": null,
+    "section": "copyAnswer",
+    "title": "① 원본 상단에서 교체할 객체 생성·설정 부분",
+    "kind": "pre",
+    "originalCode": "pen1 = turtle.Turtle()\npen2 = turtle.Turtle()\npen3 = turtle.Turtle()\npen4 = turtle.Turtle()\n\npen1.speed(0)\npen1.hideturtle()\npen1.pensize(2)\n\npen2.speed(0)\npen2.hideturtle()\npen2.pensize(2)\n\npen3.speed(0)\npen3.hideturtle()\npen3.pensize(2)\n\npen4.speed(0)\npen4.hideturtle()\npen4.pensize(2)\n"
+  },
+  {
+    "source": "public/pandas-data-lab/four-turtles.html",
+    "line": 120,
+    "selector": null,
+    "section": "answerStatus",
+    "title": "③ 이유를 설명하는 예시",
+    "kind": "pre",
+    "originalCode": "# math 모듈과 반복문을 사용해 여러 수학 함수를 그리는 코드\n\nimport math\nimport turtle\n\nscreen = turtle.Screen()\nscreen.bgcolor(\"black\")\n\npen1 = turtle.Turtle()\npen2 = turtle.Turtle()\npen3 = turtle.Turtle()\npen4 = turtle.Turtle()\n\npen1.speed(0)\npen1.hideturtle()\npen1.pensize(2)\n\npen2.speed(0)\npen2.hideturtle()\npen2.pensize(2)\n\npen3.speed(0)\npen3.hideturtle()\npen3.pensize(2)\n\npen4.speed(0)\npen4.hideturtle()\npen4.pensize(2)\n\n# 좌표계 설정\npen1.penup()\npen1.goto(-300, 0)\npen1.pendown()\npen1.color(\"white\")\npen1.goto(300, 0)\n\npen1.penup()\npen1.goto(0, -300)\npen1.pendown()\npen1.goto(0, 300)\n\n# 다항함수: y = ax^2 + b\npen1.penup()\npen1.color(\"cyan\")\na, b = 0.01, -50\nfor x in range(-200, 201):\n    y = a * (x**2) + b\n    if abs(y) <= 300:\n        pen1.goto(x, y)\n        pen1.pendown()\n    else:\n        pen1.penup()\n\n# 지수함수: y = ae^x + b (스케일 조정)\npen2.penup()\npen2.color(\"magenta\")\na, b = 5, -100\nfor x in range(-150, 60):\n    y = a * math.exp(x / 20) + b\n    if abs(y) <= 300:\n        pen2.goto(x, y)\n        pen2.pendown()\n    else:\n        pen2.penup()\n\n# 로그함수: y = aln(x) + b (스케일 조정)\npen3.penup()\npen3.color(\"yellow\")\na, b = 50, 0\nfor x in range(1, 300):\n    y = a * math.log(x / 10) + b\n    if abs(y) <= 300:\n        pen3.goto(x, y)\n        pen3.pendown()\n    else:\n        pen3.penup()\n\n# 원의 방정식: x^2 + y^2 = r^2\npen4.penup()\npen4.color(\"lime\")\nr = 100\nfor angle in range(361):\n    rad = math.radians(angle)\n    x = r * math.cos(rad)\n    y = r * math.sin(rad)\n    pen4.goto(x, y)\n    if angle == 0:\n        pen4.pendown()\n\nturtle.done()\n"
+  },
+  {
+    "source": "public/pandas-data-lab/four-turtles.html",
+    "line": 213,
+    "selector": null,
+    "section": "animationReference",
+    "title": "네 객체가 따로 기억하는 위치",
+    "kind": "pre",
+    "originalCode": "import math\nimport turtle\n\nS = turtle.Screen()\nS.bgcolor(\"black\")\nS.setup(760, 760)\nS.setworldcoordinates(-330, -330, 330, 330)\nS.tracer(0)\n\npen1 = turtle.Turtle()\npen2 = turtle.Turtle()\npen3 = turtle.Turtle()\npen4 = turtle.Turtle()\n\npen1.color(\"cyan\")\npen2.color(\"magenta\")\npen3.color(\"yellow\")\npen4.color(\"lime\")\n\nfor P in (pen1, pen2, pen3, pen4):\n    P.speed(0)\n    P.pensize(2)\n    P.hideturtle()\n    P.penup()\n\nA = 0.01\nB = -50\n\nC = 5\nD = -100\n\nE = 50\nF = 0\n\nR = 100\n\nfor I in range(401):\n\n    X = I - 200\n    Y = A * X**2 + B\n\n    if abs(Y) <= 300:\n        pen1.goto(X, Y)\n        pen1.pendown()\n    else:\n        pen1.penup()\n\n    if I < 210:\n        X = I - 150\n        Y = C * math.exp(X / 20) + D\n\n        if abs(Y) <= 300:\n            pen2.goto(X, Y)\n            pen2.pendown()\n        else:\n            pen2.penup()\n\n    if I < 299:\n        X = I + 1\n        Y = E * math.log(X / 10) + F\n\n        if abs(Y) <= 300:\n            pen3.goto(X, Y)\n            pen3.pendown()\n        else:\n            pen3.penup()\n\n    if I <= 360:\n        T = math.radians(I)\n        X = R * math.cos(T)\n        Y = R * math.sin(T)\n\n        pen4.goto(X, Y)\n        pen4.pendown()\n\n    S.update()\n\nturtle.done()\n"
+  },
+  {
+    "source": "public/pandas-data-lab/graphics-gallery.html",
+    "line": 3,
+    "selector": null,
+    "section": "source-p1",
+    "title": "01. 3D 파티클 웨이브",
+    "kind": "pre",
+    "originalCode": "펼치면 원본 코드를 불러옵니다."
+  },
+  {
+    "source": "public/pandas-data-lab/graphics-gallery.html",
+    "line": 3,
+    "selector": null,
+    "section": "source-p2",
+    "title": "02. 네온 파티클 폭발",
+    "kind": "pre",
+    "originalCode": "펼치면 원본 코드를 불러옵니다."
+  },
+  {
+    "source": "public/pandas-data-lab/graphics-gallery.html",
+    "line": 3,
+    "selector": null,
+    "section": "source-p3",
+    "title": "03. 오로라 시각화",
+    "kind": "pre",
+    "originalCode": "펼치면 원본 코드를 불러옵니다."
+  },
+  {
+    "source": "public/pandas-data-lab/graphics-gallery.html",
+    "line": 3,
+    "selector": null,
+    "section": "source-p4",
+    "title": "04. 초공간 워프 터널",
+    "kind": "pre",
+    "originalCode": "펼치면 원본 코드를 불러옵니다."
+  },
+  {
+    "source": "public/pandas-data-lab/graphics-gallery.html",
+    "line": 3,
+    "selector": null,
+    "section": "source-p5",
+    "title": "05. 블랙홀 입자 시뮬레이션",
+    "kind": "pre",
+    "originalCode": "펼치면 원본 코드를 불러옵니다."
+  },
+  {
+    "source": "public/pandas-data-lab/graphics-gallery.html",
+    "line": 3,
+    "selector": null,
+    "section": "source-p6",
+    "title": "06. 로렌츠 카오스 홀로그램",
+    "kind": "pre",
+    "originalCode": "펼치면 원본 코드를 불러옵니다."
+  },
+  {
+    "source": "public/pandas-data-lab/graphics-gallery.html",
+    "line": 3,
+    "selector": null,
+    "section": "status-p6",
+    "title": "Windows VS Code 실행 순서",
+    "kind": "pre",
+    "originalCode": "py -m pip install pygame\npy zero02.py\n\n# py 명령이 없는 환경\npython -m pip install pygame\npython zero02.py"
+  },
+  {
+    "source": "public/pandas-data-lab/index.html",
+    "line": 11,
+    "selector": "#final-code",
+    "section": "final-code",
+    "title": "① 오늘의 Pandas 코드",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/index.html",
+    "line": 11,
+    "selector": "#final-note",
+    "section": "final-note",
+    "title": "② 실제 자료 탐구 과제",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/index.html",
+    "line": 12,
+    "selector": "#pythonCode",
+    "section": "pythonCode",
+    "title": "1. 코드 입력·실행·결과 확인",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/index.html",
+    "line": 12,
+    "selector": "#pythonOutput",
+    "section": "pythonOutput",
+    "title": "1. 코드 입력·실행·결과 확인",
+    "kind": "pre",
+    "originalCode": "실행 결과가 이곳에 표시됩니다."
+  },
+  {
+    "source": "public/pandas-data-lab/index.html",
+    "line": 13,
+    "selector": "#csvInput",
+    "section": "csvInput",
+    "title": "1. 실습용 CSV 선택·확인",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/kosis-project.html",
+    "line": 3,
+    "selector": null,
+    "section": "preview",
+    "title": "권장 정제 형식",
+    "kind": "pre",
+    "originalCode": "year,population\n2020,123456\n2021,122900\n2022,121350\n2023,120700\n2024,119800"
+  },
+  {
+    "source": "public/pandas-data-lab/kosis-project.html",
+    "line": 8,
+    "selector": "#code-preview",
+    "section": "code-preview",
+    "title": "직접 정제하는 방법",
+    "kind": "pre",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/kosis-project.html",
+    "line": 8,
+    "selector": "#report",
+    "section": "report",
+    "title": "5. 실제 데이터 해석 보고서 완성",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/lesson01-guide.html",
+    "line": 3,
+    "selector": null,
+    "section": "basics",
+    "title": "3. 판다스와 데이터프레임",
+    "kind": "pre",
+    "originalCode": "import pandas as pd\n\ndata = {\n    'item': ['juice', 'bread', 'milk'],\n    'sales': [12, 20, 16]\n}\ndf = pd.DataFrame(data)\nprint(df)"
+  },
+  {
+    "source": "public/pandas-data-lab/lesson01-guide.html",
+    "line": 10,
+    "selector": null,
+    "section": "index-title",
+    "title": "1. 행과 열의 개수 확인하기",
+    "kind": "pre",
+    "originalCode": "print(df.shape)      # (3, 2)\nprint(df.index)      # RangeIndex(start=0, stop=3, step=1)\nprint(df.columns)    # Index(['item', 'sales'], dtype='object')"
+  },
+  {
+    "source": "public/pandas-data-lab/lesson01-guide.html",
+    "line": 12,
+    "selector": null,
+    "section": "index-title",
+    "title": "2. 인덱스를 1, 2, 3으로 바꾸는 두 가지 방법",
+    "kind": "pre",
+    "originalCode": "df = pd.DataFrame({\n    'item': ['juice', 'bread', 'milk'],\n    'sales': [12, 20, 16]\n}, index=[1, 2, 3])\nprint(df)"
+  },
+  {
+    "source": "public/pandas-data-lab/lesson01-guide.html",
+    "line": 16,
+    "selector": null,
+    "section": "index-title",
+    "title": "2. 인덱스를 1, 2, 3으로 바꾸는 두 가지 방법",
+    "kind": "pre",
+    "originalCode": "df.index = range(1, len(df) + 1)\nprint(df)"
+  },
+  {
+    "source": "public/pandas-data-lab/lesson01-guide.html",
+    "line": 17,
+    "selector": null,
+    "section": "index-title",
+    "title": "3. 인덱스 이름과 실제 행 위치는 다릅니다",
+    "kind": "pre",
+    "originalCode": "print(df.loc[1])    # 인덱스 이름이 1인 행\nprint(df.iloc[0])   # 첫 번째 위치의 행"
+  },
+  {
+    "source": "public/pandas-data-lab/lesson01-guide.html",
+    "line": 18,
+    "selector": null,
+    "section": "index-title",
+    "title": "4. 인덱스를 실제 열로 추가한다면?",
+    "kind": "pre",
+    "originalCode": "df2 = df.reset_index()\nprint(df2.shape)    # (3, 3)"
+  },
+  {
+    "source": "public/pandas-data-lab/lesson01-guide.html",
+    "line": 19,
+    "selector": null,
+    "section": "dims",
+    "title": "선택 참고 1. 자료구조의 차원",
+    "kind": "pre",
+    "originalCode": "import numpy as np\nscores = np.array([\n    [[80, 90], [70, 85]],\n    [[95, 88], [75, 92]]\n])\nprint(scores.shape)  # (2, 2, 2)"
+  },
+  {
+    "source": "public/pandas-data-lab/list-tuple-dictionary.html",
+    "line": 35,
+    "selector": null,
+    "section": "status",
+    "title": "3. 한 개의 Python 파일로 실습하기",
+    "kind": "pre",
+    "originalCode": "# ==========================================\n# 1. 리스트 (List)\n# ==========================================\na = [30, 40, 50, 60, 70]\nprint(a)\n\na.append(9)\nprint(a)\n\na.insert(2, 17)\nprint(a)\n\na.remove(60)\nprint(a)\n\ndel a[0]\nprint(a)\n\nprint(a[1:4])\nprint(a[:3])\nprint(a[2:])\nprint(a[::2])\nprint(a[::-1])\n\na.sort()\nprint(a)\n\na.reverse()\nprint(a)\n\n\n# ==========================================\n# 2. 튜플 (Tuple & 패킹/언패킹)\n# ==========================================\nt = (10, 20, 30, 20, 40)\nprint(t)\n\nprint(t[0])\nprint(t[1:3])\nprint(t.count(20))\nprint(t.index(30))\n\n# 패킹(Packing) 확인\nbox = 1, 2, 3\nprint(box)\nprint(type(box))\n\n# 언패킹(Unpacking) 확인\nx, y, z = box\nprint(x, y, z)\n\n\n# ==========================================\n# 3. 딕셔너리 (Dictionary)\n# ==========================================\nd = {\"name\": \"영수\", \"kor\": 90, \"eng\": 85}\nprint(d)\n\nprint(d[\"name\"])\nprint(d.get(\"math\", 0))\n\nd[\"math\"] = 95\nprint(d)\n\nd[\"kor\"] = 100\nprint(d)\n\ndel d[\"eng\"]\nprint(d)\n\nval = d.pop(\"math\")\nprint(val)\nprint(d)\n\nprint(list(d.keys()))\nprint(list(d.values()))\nprint(list(d.items()))\n\nfor k, v in d.items():\n    print(k, v)\n\n\n# ==========================================\n# 4. 반복문 실습 1: for item in ... (원소 직접 순회)\n# ==========================================\n\n# (1) 리스트 직접 순회\nfor item in a:\n    print(item)\n\n# (2) 튜플 직접 순회\nfor item in t:\n    print(item)\n\n# (3) 딕셔너리 직접 순회 (기본 순회는 Key 기준)\nfor key in d:\n    print(key, d[key])\n\n\n# ==========================================\n# 5. 반복문 실습 2: for i in range(...) (인덱스/순번 순회)\n# ==========================================\n\n# (1) 리스트 인덱스 순회\nfor i in range(len(a)):\n    print(i, a[i])\n\n# (2) 튜플 인덱스 순회\nfor i in range(len(t)):\n    print(i, t[i])\n\n# (3) 딕셔너리 순번 순회 (Key 리스트 변환 후 접근)\nkeys = list(d.keys())\nfor i in range(len(keys)):\n    key = keys[i]\n    print(i, key, d[key])\n"
+  },
+  {
+    "source": "public/pandas-data-lab/list-tuple-dictionary.html",
+    "line": 154,
+    "selector": "#expectedOutput",
+    "section": "expectedOutput",
+    "title": "4. 정답 — 실행 결과 확인하기",
+    "kind": "pre",
+    "originalCode": "[30, 40, 50, 60, 70]\n[30, 40, 50, 60, 70, 9]\n[30, 40, 17, 50, 60, 70, 9]\n[30, 40, 17, 50, 70, 9]\n[40, 17, 50, 70, 9]\n[17, 50, 70]\n[40, 17, 50]\n[50, 70, 9]\n[40, 50, 9]\n[9, 70, 50, 17, 40]\n[9, 17, 40, 50, 70]\n[70, 50, 40, 17, 9]\n(10, 20, 30, 20, 40)\n10\n(20, 30)\n2\n2\n(1, 2, 3)\n<class 'tuple'>\n1 2 3\n{'name': '영수', 'kor': 90, 'eng': 85}\n영수\n0\n{'name': '영수', 'kor': 90, 'eng': 85, 'math': 95}\n{'name': '영수', 'kor': 100, 'eng': 85, 'math': 95}\n{'name': '영수', 'kor': 100, 'math': 95}\n95\n{'name': '영수', 'kor': 100}\n['name', 'kor']\n['영수', 100]\n[('name', '영수'), ('kor', 100)]\nname 영수\nkor 100\n70\n50\n40\n17\n9\n10\n20\n30\n20\n40\nname 영수\nkor 100\n0 70\n1 50\n2 40\n3 17\n4 9\n0 10\n1 20\n2 30\n3 20\n4 40\n0 name 영수\n1 kor 100\n"
+  },
+  {
+    "source": "public/pandas-data-lab/list-tuple-dictionary.html",
+    "line": 218,
+    "selector": null,
+    "section": "packingStatus",
+    "title": "패킹과 언패킹만 따로 연습하기",
+    "kind": "pre",
+    "originalCode": "# 1. 괄호 없이 쉼표로 값을 묶어 튜플 만들기 (패킹)\nbox = 1, 2, 3\n\n# 2. 값과 자료형 확인\nprint(box)\nprint(type(box))\n\n# 3. 튜플의 값을 세 변수로 나누기 (언패킹)\na, b, c = box\nprint(a, b, c)\n"
+  },
+  {
+    "source": "public/pandas-data-lab/list-tuple-dictionary.html",
+    "line": 230,
+    "selector": null,
+    "section": "packingCode",
+    "title": "이 코드의 실행 결과",
+    "kind": "pre",
+    "originalCode": "(1, 2, 3)\n<class 'tuple'>\n1 2 3"
+  },
+  {
+    "source": "public/pandas-data-lab/mastery.html",
+    "line": 4,
+    "selector": "#code",
+    "section": "code",
+    "title": "② 코드를 수정해서 실행하세요",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/mastery.html",
+    "line": 4,
+    "selector": "#output",
+    "section": "output",
+    "title": "② 코드를 수정해서 실행하세요",
+    "kind": "pre",
+    "originalCode": "여기에 출력이 표시됩니다."
+  },
+  {
+    "source": "public/pandas-data-lab/mastery.html",
+    "line": 4,
+    "selector": "#note",
+    "section": "note",
+    "title": "③ 분석 과제",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/math-function-graphs.html",
+    "line": 6,
+    "selector": null,
+    "section": "copyTurtleStatus",
+    "title": "Turtle 코드 전체",
+    "kind": "pre",
+    "originalCode": "# math 모듈과 반복문을 사용해 여러 수학 함수를 그리는 코드\n\nimport math\nimport turtle\n\nscreen = turtle.Screen()\nscreen.bgcolor(\"black\")\n\npen = turtle.Turtle()\npen.speed(0)\npen.hideturtle()\npen.pensize(2)\n\n# 좌표계 설정\npen.penup()\npen.goto(-300, 0)\npen.pendown()\npen.color(\"white\")\npen.goto(300, 0)\n\npen.penup()\npen.goto(0, -300)\npen.pendown()\npen.goto(0, 300)\n\n# 다항함수: y = ax^2 + b\npen.penup()\npen.color(\"cyan\")\na, b = 0.01, -50\nfor x in range(-200, 201):\n    y = a * (x**2) + b\n    if abs(y) <= 300:\n        pen.goto(x, y)\n        pen.pendown()\n    else:\n        pen.penup()\n\n# 지수함수: y = ae^x + b (스케일 조정)\npen.penup()\npen.color(\"magenta\")\na, b = 5, -100\nfor x in range(-150, 60):\n    y = a * math.exp(x / 20) + b\n    if abs(y) <= 300:\n        pen.goto(x, y)\n        pen.pendown()\n    else:\n        pen.penup()\n\n# 로그함수: y = aln(x) + b (스케일 조정)\npen.penup()\npen.color(\"yellow\")\na, b = 50, 0\nfor x in range(1, 300):\n    y = a * math.log(x / 10) + b\n    if abs(y) <= 300:\n        pen.goto(x, y)\n        pen.pendown()\n    else:\n        pen.penup()\n\n# 원의 방정식: x^2 + y^2 = r^2\npen.penup()\npen.color(\"lime\")\nr = 100\nfor angle in range(361):\n    rad = math.radians(angle)\n    x = r * math.cos(rad)\n    y = r * math.sin(rad)\n    pen.goto(x, y)\n    if angle == 0:\n        pen.pendown()\n\nturtle.done()"
+  },
+  {
+    "source": "public/pandas-data-lab/math-function-graphs.html",
+    "line": 82,
+    "selector": null,
+    "section": "numpy-plot",
+    "title": "NumPy와 Matplotlib — 일차·이차함수, 사인·코사인 그리기",
+    "kind": "pre",
+    "originalCode": "py -m pip install numpy matplotlib"
+  },
+  {
+    "source": "public/pandas-data-lab/math-function-graphs.html",
+    "line": 86,
+    "selector": null,
+    "section": "copyLinearStatus",
+    "title": "실습 1. 일차함수와 이차함수 (두 그래프 창)",
+    "kind": "pre",
+    "originalCode": "import numpy as np\nimport matplotlib.pyplot as plt\n\n# 1. x 구간 설정 (-10부터 10까지 200개 점)\nx = np.linspace(-10, 10, 200)\n\n# 2. y = 2*x + 4 그리기\ny = 2 * x + 4\nplt.plot(x, y, color='cyan', label='y = 2x + 4')\nplt.axhline(0, color='gray', linewidth=1)  # x축\nplt.axvline(0, color='gray', linewidth=1)  # y축\nplt.grid(True, linestyle='--', alpha=0.6)\nplt.title('y = 2x + 4 Graph')\nplt.xlabel('x')\nplt.ylabel('y')\nplt.legend()\nplt.show()\n\n# 3. y = x^2 그리기\n# 첫 번째 창을 닫으면 두 번째 그래프가 나옵니다.\ny = x**2\nplt.plot(x, y, color='cyan', label='y = x^2')\nplt.axhline(0, color='gray', linewidth=1)  # x축\nplt.axvline(0, color='gray', linewidth=1)  # y축\nplt.grid(True, linestyle='--', alpha=0.6)\nplt.title('y = x^2 Graph')\nplt.xlabel('x')\nplt.ylabel('y')\nplt.legend()\nplt.show()\n"
+  },
+  {
+    "source": "public/pandas-data-lab/math-function-graphs.html",
+    "line": 121,
+    "selector": null,
+    "section": "copyTrigStatus",
+    "title": "실습 2. 사인함수와 코사인함수 (한 그래프에 함께)",
+    "kind": "pre",
+    "originalCode": "import numpy as np\nimport matplotlib.pyplot as plt\n\n# 1. x 구간 설정 (-2π부터 2π까지 400개 점 생성)\nx = np.linspace(-2 * np.pi, 2 * np.pi, 400)\n\n# 2. y값 계산 (사인, 코사인)\ny_sin = np.sin(x)\ny_cos = np.cos(x)\n\n# 3. 도화지 생성 및 그래프 그리기\nplt.plot(x, y_sin, label='sin(x)')\nplt.plot(x, y_cos, label='cos(x)')\n\n# 4. 좌표축 및 눈금 설정\nplt.axhline(0, color='gray', linewidth=1)  # x축\nplt.axvline(0, color='gray', linewidth=1)  # y축\nplt.grid(True, linestyle=':', alpha=0.6)\n\n# x축 눈금을 π(파이) 단위 라벨로 보기 쉽게 표시\nplt.xticks(\n    [-2 * np.pi, -np.pi, 0, np.pi, 2 * np.pi],\n    ['-2π', '-π', '0', 'π', '2π']\n)\nplt.ylim(-1.5, 1.5)  # y축 범위 고정\n\n# 5. 제목 및 범례 표시\nplt.title('(Sine & Cosine)')\nplt.xlabel('x')\nplt.ylabel('y')\nplt.legend()\n\n# 6. 화면 출력\nplt.show()\n"
+  },
+  {
+    "source": "public/pandas-data-lab/physics-explanation.html",
+    "line": 4,
+    "selector": null,
+    "section": "",
+    "title": "네 줄의 코드로 이해하는 움직임",
+    "kind": "pre",
+    "originalCode": "x += vx\ny += vy\nvy += 0.15\nvx *= 0.96"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 4,
+    "selector": null,
+    "section": "setup",
+    "title": "설치 없이 먼저 확인할 모듈",
+    "kind": "pre",
+    "originalCode": "import random\nimport math\nimport turtle\n\nprint(random.randint(1, 6))\nprint(math.sin(math.radians(30)))"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 9,
+    "selector": null,
+    "section": "setup",
+    "title": "외부 패키지 예시",
+    "kind": "pre",
+    "originalCode": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport pygame"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 11,
+    "selector": null,
+    "section": "setup",
+    "title": "VS Code 터미널에서 순서대로 실행",
+    "kind": "pre",
+    "originalCode": "py --version\npy -m pip --version\npy -m pip install pygame\npy -m pip install pandas matplotlib\npy -m pip show pygame\npy -m pip uninstall pygame"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 17,
+    "selector": null,
+    "section": "structures",
+    "title": "리스트·튜플·딕셔너리 이해",
+    "kind": "pre",
+    "originalCode": "books = [3, 5, 2]                 # 리스트\nsize = (3, 2)                    # 튜플\nstudent = {\"name\": \"A\", \"books\": 3}  # 딕셔너리\nprint(books[0])     # 3\nprint(size[1])      # 2\nprint(student[\"books\"])  # 3\n\nimport pandas as pd\ndata = {\"name\": [\"A\", \"B\", \"C\"], \"books\": [3, 5, 2]}\ndf = pd.DataFrame(data)\nprint(df.shape)      # (3, 2) / 인덱스 열은 별도 계산 안 함\nprint(df[\"books\"].mean())"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 28,
+    "selector": null,
+    "section": "structures",
+    "title": "반복문·나머지·복합 대입도 함께 복습",
+    "kind": "pre",
+    "originalCode": "colors = [\"red\", \"green\", \"blue\"]\nfor i in range(6):\n    print(i, colors[i % 3])\n\nx = 10\nx += 3         # x = x + 3\nx *= 0.5       # x = x * 0.5"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 37,
+    "selector": null,
+    "section": "turtle",
+    "title": "① 무지개 원형 만다라",
+    "kind": "pre",
+    "originalCode": "import turtle\n\nturtle.bgcolor(\"black\")\nturtle.speed(0)\nturtle.pensize(2)\n\ncolors = [\"red\", \"yellow\", \"green\", \"cyan\", \"blue\", \"magenta\"]\n\nfor i in range(36):\n    turtle.pencolor(colors[i % 6])\n    turtle.circle(100)\n    turtle.left(10)\n\nturtle.done()"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 51,
+    "selector": null,
+    "section": "turtle",
+    "title": "② 별빛 은하수 회오리",
+    "kind": "pre",
+    "originalCode": "import turtle\n\nturtle.bgcolor(\"black\")\nturtle.speed(0)\n\ncolors = [\"purple\", \"blue\", \"cyan\", \"green\", \"yellow\", \"orange\", \"red\"]\n\nfor x in range(150):\n    turtle.pencolor(colors[x % 7])\n    turtle.pensize(x / 40 + 1)\n    turtle.forward(x * 2)\n    turtle.left(144)\n\nturtle.done()"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 65,
+    "selector": null,
+    "section": "turtle",
+    "title": "③ 입체적인 사각형 착시 나선",
+    "kind": "pre",
+    "originalCode": "import turtle\n\nturtle.bgcolor(\"black\")\nturtle.speed(0)\n\ncolors = [\"#33FF33\", \"#33FF57\", \"#3357FF\", \"#F3FF33\", \"#FF33F3\", \"#00FFFF\"]\n\nfor i in range(200):\n    turtle.pencolor(colors[i % 6])\n    turtle.pensize(i // 50 + 1)\n    turtle.forward(i * 1.5)\n    turtle.right(91)\n\nturtle.done()"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 79,
+    "selector": null,
+    "section": "turtle",
+    "title": "④ Turtle 선 색깔을 지정하는 두 가지 방법",
+    "kind": "pre",
+    "originalCode": "import turtle\n\nturtle.pencolor(\"#FF5733\")\nturtle.forward(100)\n\nturtle.pencolor(\"cyan\")\nturtle.forward(100)\n\nturtle.done()"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 89,
+    "selector": null,
+    "section": "tanOn",
+    "title": "사인·코사인·탄젠트 그래프 직접 탐구",
+    "kind": "pre",
+    "originalCode": "import math\nangle = math.radians(30)  # 도를 라디안으로 변환\nprint(round(math.sin(angle), 2))  # 0.5\nprint(round(math.cos(angle), 2))  # 0.87\nprint(round(math.tan(angle), 2))  # 0.58"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 94,
+    "selector": null,
+    "section": "motionReadout",
+    "title": "속도·중력·공기 저항으로 파티클 만들기",
+    "kind": "pre",
+    "originalCode": "# 복잡한 클래스 없이 기본 원리만 알아봅시다.\nx, y = 0, 0\nvx, vy = 6, -3\nfor frame in range(5):\n    x += vx           # x 좌표는 수평 속도만큼 이동\n    y += vy           # y 좌표는 수직 속도만큼 이동\n    vy += 0.15        # 아래 방향 중력\n    vx *= 0.96        # 수평 속도 감쇠\n    print(frame, round(x, 2), round(y, 2))"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 102,
+    "selector": null,
+    "section": "motionReadout",
+    "title": "파티클 수명과 리스트 순회",
+    "kind": "pre",
+    "originalCode": "life = 255\nlife -= 4.5\nprint(life)        # 250.5\n\nparticles = [1, 2, 3]\nfor p in particles[:]:  # 리스트의 복사본 순회\n    if p % 2 == 0:\n        particles.remove(p)\nprint(particles)   # [1, 3]"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 111,
+    "selector": null,
+    "section": "waveCanvas",
+    "title": "④ 파동: sin의 적용",
+    "kind": "pre",
+    "originalCode": "import math\nfor x in range(0, 181, 30):\n    y = math.sin(math.radians(x)) * 40\n    print(x, round(y, 1))"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 114,
+    "selector": null,
+    "section": "particlesCanvas",
+    "title": "⑤ 입자: 방향·속도·중력",
+    "kind": "pre",
+    "originalCode": "import math\nangle = math.radians(30)\nspeed = 10\nvx = math.cos(angle) * speed\nvy = -math.sin(angle) * speed\nprint(round(vx, 2), round(vy, 2))"
+  },
+  {
+    "source": "public/pandas-data-lab/python-review.html",
+    "line": 119,
+    "selector": null,
+    "section": "auroraCanvas",
+    "title": "⑥ 오로라: 겹치는 파동",
+    "kind": "pre",
+    "originalCode": "import math\nx = math.radians(30)\na = math.sin(x) * 60\nb = math.cos(x) * 20\nprint(round(a + b, 2))"
+  },
+  {
+    "source": "public/pandas-data-lab/questions-supplement.html",
+    "line": 110,
+    "selector": null,
+    "section": "python",
+    "title": "Python 코드에서는 왜 0xFF라고 쓸까요?",
+    "kind": "pre",
+    "originalCode": "print(0b11111111)  # 2진수 정수\nprint(255)         # 10진수 정수\nprint(0xFF)        # 16진수 정수\nprint(0o377)       # 8진수 정수\n\nprint(hex(255))     # '0xff' 문자열\nprint(int(\"FF\", 16)) # 255"
+  },
+  {
+    "source": "public/pandas-data-lab/questions-supplement.html",
+    "line": 130,
+    "selector": null,
+    "section": "rgb",
+    "title": "여덟 자리 색상 코드는 무엇인가요?",
+    "kind": "pre",
+    "originalCode": "import turtle\n\nturtle.pencolor(\"#FF5733\")  # Hex 색상\nturtle.forward(100)\n\nturtle.pencolor(\"cyan\")     # 영문 색상 이름\nturtle.forward(100)\nturtle.done()"
+  },
+  {
+    "source": "public/pandas-data-lab/questions-supplement.html",
+    "line": 144,
+    "selector": null,
+    "section": "arduino",
+    "title": "Arduino의 255와 FF는 어떤 관계일까요?",
+    "kind": "pre",
+    "originalCode": "analogWrite(LED, 0);     // PWM 듀티 0%\nanalogWrite(LED, 128);   // PWM 듀티 약 50%\nanalogWrite(LED, 255);   // PWM 듀티 약 100%\nanalogWrite(LED, 0xFF);  // 위의 255와 같은 숫자"
+  },
+  {
+    "source": "public/pandas-data-lab/radians.html",
+    "line": 25,
+    "selector": null,
+    "section": "question",
+    "title": "30도를 넣었는데,왜 0.5236이 나올까요?",
+    "kind": "pre",
+    "originalCode": "import math\n\nprint(math.radians(30))\nprint(math.sin(math.radians(30)))"
+  },
+  {
+    "source": "public/pandas-data-lab/radians.html",
+    "line": 61,
+    "selector": null,
+    "section": "python",
+    "title": "math.radians(30)은 무엇을 계산하나요?",
+    "kind": "pre",
+    "originalCode": "import math\n\nangle = math.radians(30)\n\nprint(angle)\nprint(math.pi / 6)\nprint(math.degrees(angle))"
+  },
+  {
+    "source": "public/pandas-data-lab/radians.html",
+    "line": 69,
+    "selector": "#conversionOutput",
+    "section": "conversionOutput",
+    "title": "실행 결과 예시",
+    "kind": "pre",
+    "originalCode": "0.5235987755982988\n0.5235987755982988\n29.999999999999996"
+  },
+  {
+    "source": "public/pandas-data-lab/radians.html",
+    "line": 79,
+    "selector": null,
+    "section": "trig",
+    "title": "sin·cos는 왜 라디안을 기다릴까요?",
+    "kind": "pre",
+    "originalCode": "import math\n\nangle = math.radians(30)\n\nprint(math.sin(angle))\nprint(math.cos(angle))\nprint(math.sin(30))"
+  },
+  {
+    "source": "public/pandas-data-lab/radians.html",
+    "line": 86,
+    "selector": "#trigOutput",
+    "section": "trigOutput",
+    "title": "sin·cos는 왜 라디안을 기다릴까요?",
+    "kind": "pre",
+    "originalCode": "0.49999999999999994\n0.8660254037844387\n-0.9880316240928618"
+  },
+  {
+    "source": "public/pandas-data-lab/radians.html",
+    "line": 109,
+    "selector": null,
+    "section": "pointText",
+    "title": "스스로 발견하는 세 가지 질문",
+    "kind": "pre",
+    "originalCode": "import math\n\nfor degree in [0, 30, 45, 60, 90, 180, 360]:\n    radian = math.radians(degree)\n    radius = 1\n    arc_length = radius * radian\n    print(f\"{degree:3d}° | rad={radian:.6f} | s={arc_length:.6f}\"\n          f\" | sin={math.sin(radian):.6f} | cos={math.cos(radian):.6f}\")"
+  },
+  {
+    "source": "public/pandas-data-lab/simulation.html",
+    "line": 36,
+    "selector": "#hypothesis",
+    "section": "hypothesis",
+    "title": "1. 실험 전에 생각해 보기",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/simulation.html",
+    "line": 76,
+    "selector": "#codeExample",
+    "section": "codeExample",
+    "title": "3. Pandas로 결과 분석하기",
+    "kind": "pre",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/simulation.html",
+    "line": 87,
+    "selector": "#design",
+    "section": "design",
+    "title": "5. 나의 정책 제안서",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/simulation.html",
+    "line": 88,
+    "selector": "#interpretation",
+    "section": "interpretation",
+    "title": "5. 나의 정책 제안서",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/simulation.html",
+    "line": 89,
+    "selector": "#limitations",
+    "section": "limitations",
+    "title": "5. 나의 정책 제안서",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/simulation.html",
+    "line": 90,
+    "selector": "#proposal",
+    "section": "proposal",
+    "title": "5. 나의 정책 제안서",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/step-by-step.html",
+    "line": 14,
+    "selector": "#snippet",
+    "section": "snippet",
+    "title": "",
+    "kind": "pre",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/step-by-step.html",
+    "line": 14,
+    "selector": "#predictInput",
+    "section": "predictInput",
+    "title": "",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/step-by-step.html",
+    "line": 15,
+    "selector": "#editor",
+    "section": "editor",
+    "title": "3. 코드 입력·실행",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/step-by-step.html",
+    "line": 15,
+    "selector": "#output",
+    "section": "output",
+    "title": "3. 코드 입력·실행",
+    "kind": "pre",
+    "originalCode": "아직 코드를 실행하지 않았습니다."
+  },
+  {
+    "source": "public/pandas-data-lab/step-by-step.html",
+    "line": 15,
+    "selector": "#expectedOutput",
+    "section": "expectedOutput",
+    "title": "3. 코드 입력·실행",
+    "kind": "pre",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/step-by-step.html",
+    "line": 16,
+    "selector": "#reflection",
+    "section": "reflection",
+    "title": "4. 결과 해석·학습 기록",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/student-room.html",
+    "line": 14,
+    "selector": "#editor",
+    "section": "editor",
+    "title": "내 Python 실습실",
+    "kind": "textarea",
+    "originalCode": ""
+  },
+  {
+    "source": "public/pandas-data-lab/student-room.html",
+    "line": 17,
+    "selector": "#output",
+    "section": "output",
+    "title": "내 Python 실습실",
+    "kind": "pre",
+    "originalCode": "실행 결과가 여기에 표시됩니다."
+  },
+  {
+    "source": "public/pandas-data-lab/teacher-10.html",
+    "line": 8,
+    "selector": null,
+    "section": "check",
+    "title": "5. 수업 전 점검",
+    "kind": "pre",
+    "originalCode": "python -m pip install pandas matplotlib\npython lesson_01.py"
+  },
+  {
+    "source": "public/pandas-data-lab/textbook-classroom.html",
+    "line": 3,
+    "selector": null,
+    "section": "u01",
+    "title": "Pandas 연결 예제",
+    "kind": "pre",
+    "originalCode": "import pandas as pd\ndf=pd.DataFrame({'year':[2022,2023,2024], 'temp':[13.2,13.8,14.1]})\nprint(df.shape)\nprint(df['temp'].mean())"
+  },
+  {
+    "source": "public/pandas-data-lab/textbook-classroom.html",
+    "line": 6,
+    "selector": null,
+    "section": "u02",
+    "title": "Pandas 연결 예제",
+    "kind": "pre",
+    "originalCode": "import pandas as pd\nfrom io import StringIO\nraw='year,temp\\n2022,13.2\\n2023,\\n2024,14.1'\ndf=pd.read_csv(StringIO(raw))\nprint(df.isna().sum())\nprint(df.dropna())"
+  },
+  {
+    "source": "public/pandas-data-lab/textbook-classroom.html",
+    "line": 11,
+    "selector": null,
+    "section": "u03",
+    "title": "Pandas 연결 예제",
+    "kind": "pre",
+    "originalCode": "import pandas as pd\nimport matplotlib.pyplot as plt\ndf=pd.DataFrame({'year':[2021,2022,2023,2024], 'temp':[13.1,13.4,13.0,13.8]})\nprint(df.sort_values('year'))\nplt.plot(df['year'],df['temp'],marker='o')\nplt.xlabel('Year');plt.ylabel('Fictional Temperature');plt.title('Practice Only')\nplt.show()"
+  },
+  {
+    "source": "public/pandas-data-lab/textbook-classroom.html",
+    "line": 17,
+    "selector": null,
+    "section": "u04",
+    "title": "Pandas 연결 예제",
+    "kind": "pre",
+    "originalCode": "import pandas as pd\nfrom collections import Counter\ntexts=['기후 변화 대비','기후 위기 대응','기후 변화 교육']\nwords=[w for t in texts for w in t.split()]\nprint(pd.Series(Counter(words)).sort_values(ascending=False))"
+  },
+  {
+    "source": "public/pandas-data-lab/textbook-classroom.html",
+    "line": 21,
+    "selector": null,
+    "section": "u05",
+    "title": "Pandas 연결 예제",
+    "kind": "pre",
+    "originalCode": "import pandas as pd\ndf=pd.DataFrame({'route':['A','B','C'],'wait':[4,12,6]})\nprint(df.sort_values('wait',ascending=False))"
+  },
+  {
+    "source": "public/pandas-data-lab/textbook-classroom.html",
+    "line": 23,
+    "selector": null,
+    "section": "u06",
+    "title": "Pandas 연결 예제",
+    "kind": "pre",
+    "originalCode": "import pandas as pd\ndf=pd.DataFrame({'player':['A','B','C'],'position':['GK','FW','GK'],'overall':[84,90,88]})\nprint(df[(df['position']=='GK')&(df['overall']>85)])"
+  },
+  {
+    "source": "public/pandas-data-lab/textbook-classroom.html",
+    "line": 25,
+    "selector": null,
+    "section": "u07",
+    "title": "Pandas 연결 예제",
+    "kind": "pre",
+    "originalCode": "import pandas as pd\ndf=pd.DataFrame({'year':[2022,2023,2024],'population':[1000,975,950]})\nprint(df.head())\nprint(df.dtypes)"
+  },
+  {
+    "source": "public/pandas-data-lab/textbook-classroom.html",
+    "line": 28,
+    "selector": null,
+    "section": "u08",
+    "title": "Pandas 연결 예제",
+    "kind": "pre",
+    "originalCode": "import pandas as pd\ndf=pd.DataFrame({'year':[2022,2023,2024], 'population':[1000,975,950]})\ndf['change_pct']=df['population'].pct_change()*100\nprint(df)\nprint(df['change_pct'].iloc[-1])"
+  },
+  {
+    "source": "public/pandas-data-lab/textbook-classroom.html",
+    "line": 32,
+    "selector": null,
+    "section": "u09",
+    "title": "Pandas 연결 예제",
+    "kind": "pre",
+    "originalCode": "import pandas as pd\ndf=pd.DataFrame({'city':['A','B'],'before':[100,1000],'after':[90,970]})\ndf['decrease']=df['before']-df['after']\ndf['decrease_pct']=100*df['decrease']/df['before']\nprint(df[['city','decrease','decrease_pct']])"
+  },
+  {
+    "source": "public/pandas-data-lab/textbook-classroom.html",
+    "line": 36,
+    "selector": null,
+    "section": "u10",
+    "title": "Pandas 연결 예제",
+    "kind": "pre",
+    "originalCode": "import pandas as pd\ndf=pd.DataFrame({'group':['A','A','B'],'score':[70,90,80]})\nprint(df.groupby('group')['score'].mean())"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/four_turtles.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import math\nimport turtle\n\nS = turtle.Screen()\nS.bgcolor(\"black\")\nS.setup(760, 760)\nS.setworldcoordinates(-330, -330, 330, 330)\nS.tracer(0)\n\npen1 = turtle.Turtle()\npen2 = turtle.Turtle()\npen3 = turtle.Turtle()\npen4 = turtle.Turtle()\n\npen1.color(\"cyan\")\npen2.color(\"magenta\")\npen3.color(\"yellow\")\npen4.color(\"lime\")\n\nfor P in (pen1, pen2, pen3, pen4):\n    P.speed(0)\n    P.pensize(2)\n    P.hideturtle()\n    P.penup()\n\nA = 0.01\nB = -50\n\nC = 5\nD = -100\n\nE = 50\nF = 0\n\nR = 100\n\nfor I in range(401):\n\n    X = I - 200\n    Y = A * X**2 + B\n\n    if abs(Y) <= 300:\n        pen1.goto(X, Y)\n        pen1.pendown()\n    else:\n        pen1.penup()\n\n    if I < 210:\n        X = I - 150\n        Y = C * math.exp(X / 20) + D\n\n        if abs(Y) <= 300:\n            pen2.goto(X, Y)\n            pen2.pendown()\n        else:\n            pen2.penup()\n\n    if I < 299:\n        X = I + 1\n        Y = E * math.log(X / 10) + F\n\n        if abs(Y) <= 300:\n            pen3.goto(X, Y)\n            pen3.pendown()\n        else:\n            pen3.penup()\n\n    if I <= 360:\n        T = math.radians(I)\n        X = R * math.cos(T)\n        Y = R * math.sin(T)\n\n        pen4.goto(X, Y)\n        pen4.pendown()\n\n    S.update()\n\nturtle.done()\n",
+    "title": "four_turtles"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/four_turtles_objects.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "# math 모듈과 반복문을 사용해 여러 수학 함수를 그리는 코드\n\nimport math\nimport turtle\n\nscreen = turtle.Screen()\nscreen.bgcolor(\"black\")\n\npen1 = turtle.Turtle()\npen2 = turtle.Turtle()\npen3 = turtle.Turtle()\npen4 = turtle.Turtle()\n\npen1.speed(0)\npen1.hideturtle()\npen1.pensize(2)\n\npen2.speed(0)\npen2.hideturtle()\npen2.pensize(2)\n\npen3.speed(0)\npen3.hideturtle()\npen3.pensize(2)\n\npen4.speed(0)\npen4.hideturtle()\npen4.pensize(2)\n\n# 좌표계 설정\npen1.penup()\npen1.goto(-300, 0)\npen1.pendown()\npen1.color(\"white\")\npen1.goto(300, 0)\n\npen1.penup()\npen1.goto(0, -300)\npen1.pendown()\npen1.goto(0, 300)\n\n# 다항함수: y = ax^2 + b\npen1.penup()\npen1.color(\"cyan\")\na, b = 0.01, -50\nfor x in range(-200, 201):\n    y = a * (x**2) + b\n    if abs(y) <= 300:\n        pen1.goto(x, y)\n        pen1.pendown()\n    else:\n        pen1.penup()\n\n# 지수함수: y = ae^x + b (스케일 조정)\npen2.penup()\npen2.color(\"magenta\")\na, b = 5, -100\nfor x in range(-150, 60):\n    y = a * math.exp(x / 20) + b\n    if abs(y) <= 300:\n        pen2.goto(x, y)\n        pen2.pendown()\n    else:\n        pen2.penup()\n\n# 로그함수: y = aln(x) + b (스케일 조정)\npen3.penup()\npen3.color(\"yellow\")\na, b = 50, 0\nfor x in range(1, 300):\n    y = a * math.log(x / 10) + b\n    if abs(y) <= 300:\n        pen3.goto(x, y)\n        pen3.pendown()\n    else:\n        pen3.penup()\n\n# 원의 방정식: x^2 + y^2 = r^2\npen4.penup()\npen4.color(\"lime\")\nr = 100\nfor angle in range(361):\n    rad = math.radians(angle)\n    x = r * math.cos(rad)\n    y = r * math.sin(rad)\n    pen4.goto(x, y)\n    if angle == 0:\n        pen4.pendown()\n\nturtle.done()\n",
+    "title": "four_turtles_objects"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/lesson_01.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import pandas as pd\ndf = pd.DataFrame({'item':['juice','bread','milk'],'sales':[12,20,16]})\nprint(df)\nprint(df.shape)\ndf.index = range(1, len(df) + 1)\nprint(df)\nprint(df.shape)\n",
+    "title": "lesson_01"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/lesson_02.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import pandas as pd\ndf = pd.DataFrame({'item':['A','B','C'],'price':[1000,1500,2000]})\nprint(df.head(2))\nprint(df.shape)\nprint(df.columns.tolist())\nprint(df['price'])\nprint(df['price'].mean())\n",
+    "title": "lesson_02"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/lesson_03.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import pandas as pd\ndf = pd.read_csv('sports_fictional.csv')\nprint(df.head(2))\nprint(df.shape)\nprint(df[['player', 'points']])\nprint(df.loc[0, 'player'])\nprint(df.iloc[0, 0])\n",
+    "title": "lesson_03"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/lesson_04.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import pandas as pd\ndf = pd.DataFrame({'name':['Minji','Yuna','Sora'],'position':['G','F','G'],'points':[17,21,13]})\nprint(df[df['points'] >= 15])\nprint(df.sort_values('points',ascending=False))\nprint(df[(df['position']=='G') & (df['points']>=15)])\n",
+    "title": "lesson_04"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/lesson_05.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import pandas as pd\ndf = pd.DataFrame({'item':['A','A','B','C'],'sales':[10,10,None,30]})\nprint(df.isna().sum())\nprint(df.drop_duplicates())\nprint(df['sales'].fillna(0).mean())\n",
+    "title": "lesson_05"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/lesson_06.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import pandas as pd\ndf = pd.DataFrame({'team':['A','A','B','B'],'points':[10,20,15,25]})\nprint(df.groupby('team')['points'].mean())\nprint(df.groupby('team')['points'].sum())\nprint(df.groupby('team')['points'].count())\n",
+    "title": "lesson_06"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/lesson_07.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import pandas as pd\ntexts = ['climate change','climate risk','climate change']\nprint(pd.Series(' '.join(texts).split()).value_counts())\nleft = pd.DataFrame({'key':['A','B'],'score':[80,90]})\nright = pd.DataFrame({'key':['A','B'],'grade':['B','A']})\nprint(pd.merge(left,right,on='key'))\n",
+    "title": "lesson_07"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/lesson_08.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import pandas as pd\nimport matplotlib.pyplot as plt\ndf = pd.DataFrame({'year':[2021,2022,2023,2024],'temp':[13.1,13.4,13.0,13.8]})\nplt.plot(df['year'],df['temp'],marker='o')\nplt.xlabel('Year')\nplt.ylabel('Temperature (C)')\nplt.title('Fictional climate')\nplt.show()\n",
+    "title": "lesson_08"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/lesson_09.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import pandas as pd\ndf = pd.DataFrame({'year':[2023,2024],'population':[1000,950]})\nprint(df['population'].diff())\nprint(df['population'].pct_change()*100)\nprint(round(df['population'].pct_change().iloc[-1] * 100, 2))\n",
+    "title": "lesson_09"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/lesson_10.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import pandas as pd\ndf = pd.DataFrame({'item':['juice','bread','milk'],'sales':[12,30,18]})\nprint(df.sort_values('sales',ascending=False))\nprint(df['sales'].mean())\nprint(df['sales'].max())\n",
+    "title": "lesson_10"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/list-tuple-dictionary.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "# ==========================================\n# 1. 리스트 (List)\n# ==========================================\na = [30, 40, 50, 60, 70]\nprint(a)\n\na.append(9)\nprint(a)\n\na.insert(2, 17)\nprint(a)\n\na.remove(60)\nprint(a)\n\ndel a[0]\nprint(a)\n\nprint(a[1:4])\nprint(a[:3])\nprint(a[2:])\nprint(a[::2])\nprint(a[::-1])\n\na.sort()\nprint(a)\n\na.reverse()\nprint(a)\n\n\n# ==========================================\n# 2. 튜플 (Tuple & 패킹/언패킹)\n# ==========================================\nt = (10, 20, 30, 20, 40)\nprint(t)\n\nprint(t[0])\nprint(t[1:3])\nprint(t.count(20))\nprint(t.index(30))\n\n# 패킹(Packing) 확인\nbox = 1, 2, 3\nprint(box)\nprint(type(box))\n\n# 언패킹(Unpacking) 확인\nx, y, z = box\nprint(x, y, z)\n\n\n# ==========================================\n# 3. 딕셔너리 (Dictionary)\n# ==========================================\nd = {\"name\": \"영수\", \"kor\": 90, \"eng\": 85}\nprint(d)\n\nprint(d[\"name\"])\nprint(d.get(\"math\", 0))\n\nd[\"math\"] = 95\nprint(d)\n\nd[\"kor\"] = 100\nprint(d)\n\ndel d[\"eng\"]\nprint(d)\n\nval = d.pop(\"math\")\nprint(val)\nprint(d)\n\nprint(list(d.keys()))\nprint(list(d.values()))\nprint(list(d.items()))\n\nfor k, v in d.items():\n    print(k, v)\n\n\n# ==========================================\n# 4. 반복문 실습 1: for item in ... (원소 직접 순회)\n# ==========================================\n\n# (1) 리스트 직접 순회\nfor item in a:\n    print(item)\n\n# (2) 튜플 직접 순회\nfor item in t:\n    print(item)\n\n# (3) 딕셔너리 직접 순회 (기본 순회는 Key 기준)\nfor key in d:\n    print(key, d[key])\n\n\n# ==========================================\n# 5. 반복문 실습 2: for i in range(...) (인덱스/순번 순회)\n# ==========================================\n\n# (1) 리스트 인덱스 순회\nfor i in range(len(a)):\n    print(i, a[i])\n\n# (2) 튜플 인덱스 순회\nfor i in range(len(t)):\n    print(i, t[i])\n\n# (3) 딕셔너리 순번 순회 (Key 리스트 변환 후 접근)\nkeys = list(d.keys())\nfor i in range(len(keys)):\n    key = keys[i]\n    print(i, key, d[key])\n",
+    "title": "list-tuple-dictionary"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/radians_conversion.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import math\n\nangle = math.radians(30)\n\nprint(angle)\nprint(math.pi / 6)\nprint(math.degrees(angle))\n",
+    "title": "radians_conversion"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/radians_experiment.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import math\n\nfor degree in [0, 30, 45, 60, 90, 180, 360]:\n    radian = math.radians(degree)\n    radius = 1\n    arc_length = radius * radian\n    print(f\"{degree:3d}° | rad={radian:.6f} | s={arc_length:.6f}\"\n          f\" | sin={math.sin(radian):.6f} | cos={math.cos(radian):.6f}\")\n",
+    "title": "radians_experiment"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/radians_trig.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import math\n\nangle = math.radians(30)\n\nprint(math.sin(angle))\nprint(math.cos(angle))\nprint(math.sin(30))\n",
+    "title": "radians_trig"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/video_lesson02_books.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import pandas as pd\n\ndata = {\n    'name': ['A', 'B', 'C'],\n    'books': [3, 5, 2]\n}\n\ndf = pd.DataFrame(data)\n\nprint(df)\nprint(df['books'].mean())\n",
+    "title": "video_lesson02_books"
+  },
+  {
+    "source": "public/pandas-data-lab/downloads/video_lesson02_scores.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import pandas as pd\n\ndf = pd.DataFrame({\n    'score': [70, 80, 90]\n})\n\nprint(df['score'].mean())\n",
+    "title": "video_lesson02_scores"
+  },
+  {
+    "source": "public/pandas-data-lab/first-analysis/analyze_festival.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "# 1. 도구를 준비하고 원본 CSV를 DataFrame으로 읽습니다.\nfrom pathlib import Path\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\nfolder = Path(__file__).resolve().parent\nraw = pd.read_csv(folder / 'festival_orders.csv', encoding='utf-8-sig')\nprint('원본 행·열:', raw.shape)\nprint(raw.head())\n\n# 2. 중복 주문과 글자 양쪽의 공백을 정리합니다.\ndf = raw.drop_duplicates(subset='order_id').copy()\nprint('중복 제거:', len(raw) - len(df), '행')\ndf['menu'] = df['menu'].str.strip()\n\n# 3. 숫자로 바꾸고, 분석할 수 없는 수량을 별도로 보관합니다.\ndf['quantity'] = pd.to_numeric(df['quantity'], errors='coerce')\ndf['unit_price'] = pd.to_numeric(\n    df['unit_price'].str.replace(',', '', regex=False), errors='coerce'\n)\nprint('수량 결측:', df['quantity'].isna().sum(), '행')\nvalid = (df['quantity'] > 0) & (df['unit_price'] > 0)\nexcluded = df.loc[~valid].copy()\nexcluded.to_csv(folder / 'excluded_orders.csv', index=False, encoding='utf-8-sig')\ndf = df.loc[valid].copy()\nprint('분석 제외:', len(excluded), '행')\nprint('분석에 사용:', len(df), '행')\n\n# 4. 주문별 매출을 계산하고 메뉴별로 판매량·매출을 합칩니다.\ndf['revenue'] = df['quantity'] * df['unit_price']\nsummary = df.groupby('menu')[['quantity', 'revenue']].sum()\nsummary = summary.sort_values('revenue', ascending=False)\nprint(summary.to_string(float_format=lambda x: f'{x:.0f}'))\nprint('총판매량:', int(df['quantity'].sum()), '개')\nprint('총매출:', int(df['revenue'].sum()), '원')\n\n# 5. 정제한 표와 요약표를 새 CSV 파일로 저장합니다.\ndf.to_csv(folder / 'festival_clean.csv', index=False, encoding='utf-8-sig')\nsummary.to_csv(folder / 'menu_summary.csv', encoding='utf-8-sig')\n\n# 6. 판매량과 매출을 서로 다른 축에 그린 뒤 이미지로 저장합니다.\nfig, axes = plt.subplots(1, 2, figsize=(10, 4))\naxes[0].bar(summary.index, summary['quantity'], color='#137d80')\naxes[0].set(title='Items sold by menu', ylabel='Quantity (items)')\naxes[1].bar(summary.index, summary['revenue'], color='#b59b58')\naxes[1].set(title='Revenue by menu', ylabel='Revenue (KRW)')\nfor ax in axes:\n    ax.set_ylim(bottom=0)\n    ax.tick_params(axis='x', labelrotation=15)\nfig.suptitle('School festival — fictional practice data')\nfig.tight_layout()\nfig.savefig(folder / 'festival_chart.png', dpi=160)\nprint('저장 완료: festival_clean.csv, menu_summary.csv, excluded_orders.csv, festival_chart.png')\nplt.show()\n",
+    "title": "analyze_festival"
+  },
+  {
+    "source": "public/pandas-data-lab/graphics-original/zero02.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import pygame\nimport random\nimport math\n\npygame.init()\nWIDTH, HEIGHT = 1000, 700\nscreen = pygame.display.set_mode((WIDTH, HEIGHT))\npygame.display.set_caption(\"Game Skill VFX Particle Engine\")\nclock = pygame.time.Clock()\n\nclass Particle:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n        angle = random.uniform(0, math.pi * 2)\n        speed = random.uniform(2, 12)\n        self.vx = math.cos(angle) * speed\n        self.vy = math.sin(angle) * speed\n        self.radius = random.uniform(3, 8)\n        self.life = 255  # 수명 및 투명도\n        self.color = random.choice([\n            (255, 50, 150), (50, 200, 255), (255, 220, 50), (180, 50, 255)\n        ])\n\n    def update(self):\n        self.x += self.vx\n        self.y += self.vy\n        self.vy += 0.15  # 중력 적용\n        self.vx *= 0.96  # 공기 저항\n        self.vy *= 0.96\n        self.life -= 4.5 # 감쇠\n\n    def draw(self, surface):\n        if self.life > 0:\n            # 파티클 자체 및 빛나는 후광 효과 구현\n            s = pygame.Surface((self.radius * 4, self.radius * 4), pygame.SRCALPHA)\n            alpha = max(0, int(self.life))\n            color_with_alpha = (*self.color, alpha)\n            \n            # 은은한 발광 효과 원\n            pygame.draw.circle(s, (*self.color, int(alpha * 0.3)), (self.radius * 2, self.radius * 2), self.radius * 2)\n            # 중심 핵심 파티클\n            pygame.draw.circle(s, color_with_alpha, (self.radius * 2, self.radius * 2), self.radius)\n            \n            surface.blit(s, (self.x - self.radius * 2, self.y - self.radius * 2), special_flags=pygame.BLEND_ADD)\n\nparticles = []\nrunning = True\n\nwhile running:\n    clock.tick(60)\n    screen.fill((10, 10, 18))\n\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n        elif event.type == pygame.MOUSEBUTTONDOWN or (event.type == pygame.MOUSEMOTION and event.buttons[0]):\n            mx, my = pygame.mouse.get_pos()\n            for _ in range(30): # 클릭 시 30개의 입자 생성\n                particles.append(Particle(mx, my))\n\n    # 파티클 업데이트 및 렌더링\n    for p in particles[:]:\n        p.update()\n        p.draw(screen)\n        if p.life <= 0:\n            particles.remove(p)\n\n    pygame.display.flip()\n\npygame.quit()",
+    "title": "zero02"
+  },
+  {
+    "source": "public/pandas-data-lab/graphics-original/zero03.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import tkinter as tk\nimport math\nimport time\n\nclass AuroraVisualizer:\n    def __init__(self, root):\n        self.root = root\n        self.root.title(\"Commercial Media Art - Organic Aurora\")\n        self.width = 900\n        self.height = 600\n        \n        self.canvas = tk.Canvas(root, width=self.width, height=self.height, bg='#030308', highlightthickness=0)\n        self.canvas.pack(fill=tk.BOTH, expand=True)\n        \n        self.start_time = time.time()\n        self.animate()\n\n    def animate(self):\n        self.canvas.delete(\"all\")\n        t = time.time() - self.start_time\n        \n        # 4개의 서로 다른 레이어 오로라 곡선 생성\n        layers = [\n            {\"color\": \"#00FFCC\", \"amp\": 60, \"freq\": 0.008, \"speed\": 1.5, \"y_off\": 0},\n            {\"color\": \"#7000FF\", \"amp\": 80, \"freq\": 0.005, \"speed\": 1.0, \"y_off\": 30},\n            {\"color\": \"#FF007F\", \"amp\": 50, \"freq\": 0.012, \"speed\": 2.0, \"y_off\": -20},\n            {\"color\": \"#007FFF\", \"amp\": 70, \"freq\": 0.006, \"speed\": 0.8, \"y_off\": 10}\n        ]\n        \n        for layer in layers:\n            points = []\n            # 화면 왼쪽부터 오른쪽까지 곡선 좌표 계산\n            for x in range(0, self.width + 20, 20):\n                # 복합 삼각함수를 통한 유기적 파동 알고리즘\n                y = (self.height / 2 + layer[\"y_off\"]) + \\\n                    math.sin(x * layer[\"freq\"] + t * layer[\"speed\"]) * layer[\"amp\"] + \\\n                    math.cos(x * 0.015 - t * 1.2) * (layer[\"amp\"] * 0.5)\n                points.extend([x, y])\n            \n            # 다각형 바닥까지 연결하여 그라데이션 면적 표현\n            points.extend([self.width, self.height, 0, self.height])\n            \n            # 곡선 및 면적 그리기 (선과 다각형 조합)\n            self.canvas.create_polygon(points, fill=layer[\"color\"], outline=\"\", stipple=\"gray50\")\n            self.canvas.create_line(points[:-4], fill=layer[\"color\"], width=3)\n        \n        # 30ms 마다 재귀 호출 (약 33 FPS)\n        self.root.after(30, self.animate)\n\nif __name__ == \"__main__\":\n    root = tk.Tk()\n    app = AuroraVisualizer(root)\n    root.mainloop()\n    ",
+    "title": "zero03"
+  },
+  {
+    "source": "public/pandas-data-lab/graphics-original/zero04.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import tkinter as tk\nimport math\nimport random\nimport time\n\nclass WarpDriveTunnel:\n    def __init__(self, root):\n        self.root = root\n        self.root.title(\"Sci-Fi Hyperspace 3D Warp Tunnel\")\n        self.width = 1000\n        self.height = 700\n        self.canvas = tk.Canvas(root, width=self.width, height=self.height, bg='#020208', highlightthickness=0)\n        self.canvas.pack(fill=tk.BOTH, expand=True)\n        \n        # 별 입자 데이터 생성\n        self.stars = [self.reset_star() for _ in range(350)]\n        self.angle = 0\n        self.animate()\n\n    def reset_star(self):\n        return {\n            'x': random.uniform(-self.width, self.width),\n            'y': random.uniform(-self.height, self.height),\n            'z': random.uniform(10, 1000),\n            'color': random.choice([\"#00ffff\", \"#ff00ff\", \"#00ffaa\", \"#ffffff\", \"#ffcc00\"])\n        }\n\n    def animate(self):\n        self.canvas.delete(\"all\")\n        cx, cy = self.width / 2, self.height / 2\n        self.angle += 0.04\n\n        # 1. 중심 3D 회전 다각형 터널 링 렌더링\n        for i in range(14, 0, -1):\n            z = (i * 70 + (time.time() * 250) % 70)\n            scale = 400 / (z + 1)\n            r = 320 * scale\n            if r > 0:\n                points = []\n                for j in range(8):  # 8각형 터널 구조\n                    a = j * (2 * math.pi / 8) + self.angle + (800 / z)\n                    points.extend([cx + math.cos(a) * r, cy + math.sin(a) * r])\n                \n                ring_color = [\"#ff0055\", \"#00f0ff\", \"#7000ff\", \"#ff00aa\", \"#00ffaa\"][i % 5]\n                self.canvas.create_polygon(points, outline=ring_color, fill=\"\", width=max(1, int(3.5 * scale)))\n\n        # 2. 고속 워프 별빛 잔상 렌더링\n        for s in self.stars:\n            s['z'] -= 20  # 고속 전진 속도\n            if s['z'] <= 1:\n                s.update(self.reset_star())\n                s['z'] = 1000\n\n            scale = 400 / s['z']\n            px, py = cx + s['x'] * scale, cy + s['y'] * scale\n            \n            # 속도감을 위한 뒤쪽 연결 잔상 좌표\n            prev_scale = 400 / (s['z'] + 40)\n            prev_px, prev_py = cx + s['x'] * prev_scale, cy + s['y'] * prev_scale\n\n            if 0 <= px <= self.width and 0 <= py <= self.height:\n                w = max(1, int(4 * scale))\n                self.canvas.create_line(prev_px, prev_py, px, py, fill=s['color'], width=w)\n\n        self.root.after(16, self.animate)\n\nif __name__ == \"__main__\":\n    root = tk.Tk()\n    app = WarpDriveTunnel(root)\n    root.mainloop()",
+    "title": "zero04"
+  },
+  {
+    "source": "public/pandas-data-lab/graphics-original/zero06.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import tkinter as tk\nimport math\n\nclass LorenzHologram:\n    def __init__(self, root):\n        self.root = root\n        self.root.title(\"Quantum Math Chaos - 3D Lorenz Attractor Hologram\")\n        self.width = 900\n        self.height = 650\n        self.canvas = tk.Canvas(root, width=self.width, height=self.height, bg='#020205', highlightthickness=0)\n        self.canvas.pack(fill=tk.BOTH, expand=True)\n\n        # 로렌츠 카오스 초기 변수\n        self.x, self.y, self.z = 0.1, 0.0, 0.0\n        self.dt = 0.008\n        self.points = []\n        self.angle = 0\n\n        self.animate()\n\n    def animate(self):\n        # 로렌츠 끌개 미분 방정식 계산 (dx/dt, dy/dt, dz/dt)\n        sigma, rho, beta = 10.0, 28.0, 8.0 / 3.0\n        dx = sigma * (self.y - self.x) * self.dt\n        dy = (self.x * (rho - self.z) - self.y) * self.dt\n        dz = (self.x * self.y - beta * self.z) * self.dt\n\n        self.x += dx\n        self.y += dy\n        self.z += dz\n\n        self.points.append((self.x, self.y, self.z))\n        if len(self.points) > 1300:  # 화면에 유지할 최대 궤적 길이\n            self.points.pop(0)\n\n        self.canvas.delete(\"all\")\n        self.angle += 0.012  # Y축 3D 회전 각도\n\n        cx, cy = self.width / 2, self.height / 2 + 50\n        scale = 11.5\n        cos_a, sin_a = math.cos(self.angle), math.sin(self.angle)\n        \n        prev_px, prev_py = None, None\n        total_pts = len(self.points)\n\n        # 3D 좌표 회전 변환 및 2D 회화식 투영\n        for i, (px, py, pz) in enumerate(self.points):\n            rx = px * cos_a - py * sin_a\n            ry = px * sin_a + py * cos_a\n            rz = pz\n\n            screen_x = cx + rx * scale\n            screen_y = cy - (rz - 25) * scale\n\n            if prev_px is not None:\n                # 궤적 생성 시간에 따른 무지개 네온 그라데이션 색상\n                progress = i / total_pts\n                r = int(255 * progress)\n                g = int(255 * (1 - abs(progress - 0.5) * 2))\n                b = int(255 * (1 - progress))\n                color = f\"#{r:02x}{g:02x}{b:02x}\"\n                \n                self.canvas.create_line(prev_px, prev_py, screen_x, screen_y, fill=color, width=2)\n            \n            prev_px, prev_py = screen_x, screen_y\n\n        self.root.after(15, self.animate)\n\nif __name__ == \"__main__\":\n    root = tk.Tk()\n    app = LorenzHologram(root)\n    root.mainloop()",
+    "title": "zero06"
+  },
+  {
+    "source": "public/pandas-data-lab/math-graph-code/math_turtle_original.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "# math 모듈과 반복문을 사용해 여러 수학 함수를 그리는 코드\n\nimport math\nimport turtle\n\nscreen = turtle.Screen()\nscreen.bgcolor(\"black\")\n\npen = turtle.Turtle()\npen.speed(0)\npen.hideturtle()\npen.pensize(2)\n\n# 좌표계 설정\npen.penup()\npen.goto(-300, 0)\npen.pendown()\npen.color(\"white\")\npen.goto(300, 0)\n\npen.penup()\npen.goto(0, -300)\npen.pendown()\npen.goto(0, 300)\n\n# 다항함수: y = ax^2 + b\npen.penup()\npen.color(\"cyan\")\na, b = 0.01, -50\nfor x in range(-200, 201):\n    y = a * (x**2) + b\n    if abs(y) <= 300:\n        pen.goto(x, y)\n        pen.pendown()\n    else:\n        pen.penup()\n\n# 지수함수: y = ae^x + b (스케일 조정)\npen.penup()\npen.color(\"magenta\")\na, b = 5, -100\nfor x in range(-150, 60):\n    y = a * math.exp(x / 20) + b\n    if abs(y) <= 300:\n        pen.goto(x, y)\n        pen.pendown()\n    else:\n        pen.penup()\n\n# 로그함수: y = aln(x) + b (스케일 조정)\npen.penup()\npen.color(\"yellow\")\na, b = 50, 0\nfor x in range(1, 300):\n    y = a * math.log(x / 10) + b\n    if abs(y) <= 300:\n        pen.goto(x, y)\n        pen.pendown()\n    else:\n        pen.penup()\n\n# 원의 방정식: x^2 + y^2 = r^2\npen.penup()\npen.color(\"lime\")\nr = 100\nfor angle in range(361):\n    rad = math.radians(angle)\n    x = r * math.cos(rad)\n    y = r * math.sin(rad)\n    pen.goto(x, y)\n    if angle == 0:\n        pen.pendown()\n\nturtle.done()\n",
+    "title": "math_turtle_original"
+  },
+  {
+    "source": "public/pandas-data-lab/math-graph-code/matplotlib_linear_quadratic_easy.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import numpy as np\nimport matplotlib.pyplot as plt\n\n# 1. x 구간 설정 (-10부터 10까지 200개 점)\nx = np.linspace(-10, 10, 200)\n\n# 2. y = 2*x + 4 그리기\ny = 2 * x + 4\nplt.plot(x, y, color='cyan', label='y = 2x + 4')\nplt.axhline(0, color='gray', linewidth=1)  # x축\nplt.axvline(0, color='gray', linewidth=1)  # y축\nplt.grid(True, linestyle='--', alpha=0.6)\nplt.title('y = 2x + 4 Graph')\nplt.xlabel('x')\nplt.ylabel('y')\nplt.legend()\nplt.show()\n\n# 3. y = x^2 그리기\n# 첫 번째 창을 닫으면 두 번째 그래프가 나옵니다.\ny = x**2\nplt.plot(x, y, color='cyan', label='y = x^2')\nplt.axhline(0, color='gray', linewidth=1)  # x축\nplt.axvline(0, color='gray', linewidth=1)  # y축\nplt.grid(True, linestyle='--', alpha=0.6)\nplt.title('y = x^2 Graph')\nplt.xlabel('x')\nplt.ylabel('y')\nplt.legend()\nplt.show()\n",
+    "title": "matplotlib_linear_quadratic_easy"
+  },
+  {
+    "source": "public/pandas-data-lab/math-graph-code/matplotlib_sin_cos_easy.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "import numpy as np\nimport matplotlib.pyplot as plt\n\n# 1. x 구간 설정 (-2π부터 2π까지 400개 점 생성)\nx = np.linspace(-2 * np.pi, 2 * np.pi, 400)\n\n# 2. y값 계산 (사인, 코사인)\ny_sin = np.sin(x)\ny_cos = np.cos(x)\n\n# 3. 도화지 생성 및 그래프 그리기\nplt.plot(x, y_sin, label='sin(x)')\nplt.plot(x, y_cos, label='cos(x)')\n\n# 4. 좌표축 및 눈금 설정\nplt.axhline(0, color='gray', linewidth=1)  # x축\nplt.axvline(0, color='gray', linewidth=1)  # y축\nplt.grid(True, linestyle=':', alpha=0.6)\n\n# x축 눈금을 π(파이) 단위 라벨로 보기 쉽게 표시\nplt.xticks(\n    [-2 * np.pi, -np.pi, 0, np.pi, 2 * np.pi],\n    ['-2π', '-π', '0', 'π', '2π']\n)\nplt.ylim(-1.5, 1.5)  # y축 범위 고정\n\n# 5. 제목 및 범례 표시\nplt.title('(Sine & Cosine)')\nplt.xlabel('x')\nplt.ylabel('y')\nplt.legend()\n\n# 6. 화면 출력\nplt.show()\n",
+    "title": "matplotlib_sin_cos_easy"
+  },
+  {
+    "source": "public/pandas-data-lab/math-graph-code/numpy_matplotlib_original.py",
+    "line": 1,
+    "kind": "download",
+    "originalCode": "# numpy 계산과 matplotlib 모듈을 사용해 여러 수학 함수를 그리는 코드\n\nimport numpy as np\nimport matplotlib.pyplot as plt\n\nplt.style.use('dark_background')\nfig, ax = plt.subplots(figsize=(10, 10))\n\n# 변수 설정\na, b = 2, 3\n\n# 1. 다항함수\nx_poly = np.linspace(-5, 5, 400)\ny_poly = a * x_poly**2 + b\nax.plot(x_poly, y_poly, color='cyan', label='Polynomial: y = ax^2 + b')\n\n# 2. 지수함수\nx_exp = np.linspace(-2, 2, 400)\ny_exp = a * np.exp(x_exp) + b\nax.plot(x_exp, y_exp, color='magenta', label='Exponential: y = ae^x + b')\n\n# 3. 로그함수\nx_log = np.linspace(0.1, 10, 400)\ny_log = a * np.log(x_log) + b\nax.plot(x_log, y_log, color='yellow', label='Logarithmic: y = aln(x) + b')\n\n# 4. 원의 방정식\ntheta = np.linspace(0, 2*np.pi, 400)\nr = a\nx_circle = r * np.cos(theta)\ny_circle = r * np.sin(theta)\nax.plot(x_circle, y_circle, color='lime', label='Circle: x^2 + y^2 = a^2')\n\n# 5. 삼각함수 (사인, 코사인 추가)\nx_trig = np.linspace(-2*np.pi, 2*np.pi, 400)\ny_sin = a * np.sin(x_trig) + b\ny_cos = a * np.cos(x_trig) + b\nax.plot(x_trig, y_sin, color='orange', label='Sine: y = asin(x) + b')\nax.plot(x_trig, y_cos, color='deeppink', linestyle='--', label='Cosine: y = acos(x) + b')\n\nax.set_title('High School Math Functions')\nax.grid(True, color='gray', alpha=0.5)\nax.legend()\nax.axis('equal')\n\nplt.tight_layout()\nplt.show()\n",
+    "title": "numpy_matplotlib_original"
+  }
+]

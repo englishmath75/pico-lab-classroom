@@ -1,15 +1,19 @@
 import {createCloud,readableError} from './cloud.js';
 import {ClassroomStore,encode,decode} from './store.js';
-import {resolveRoute,routeForActivity,legacyIds,validActivity,structured,titleFor} from './registry.js';
+import {exercises,resolveRoute,routeForActivity,legacyIds,validActivity,structured,titleFor} from './registry.js';
 import {rawFor,updateRaw,importRecords} from './models.js';
 import {PythonEngine} from '../datalab/lib/engine.ts';
-import {mountDataLab} from '../datalab/mount.tsx';
+import {mountDataLab,mountPracticeLab} from '../datalab/mount.tsx';
 import providedData from '../provided-data.json';
 (function startApp(){
  'use strict';
  const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let cloud,user=null,identity=null,store,route,frame=null,disposeView=()=>{},engine=null,viewGeneration=0,sessionGeneration=0,lastActivity=Date.now(),ending=false,autoBusy=false,guestBackup=null,dialogResolve=null;
  const download=(name,text,type='application/json;charset=utf-8')=>{const u=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);};
+ const activeExerciseIds=new Set();
+ const side=document.querySelector('.side'),sideNav=side?.querySelector('nav');
+ if(sideNav){sideNav.id='sw-sidebar-navigation';const toggle=document.createElement('button');toggle.id='sw-mobile-menu';toggle.className='sw-mobile-menu';toggle.textContent='수업 메뉴 펼치기 · 접기';toggle.setAttribute('aria-controls',sideNav.id);toggle.setAttribute('aria-expanded','false');toggle.onclick=()=>{const open=side.classList.toggle('sw-menu-open');toggle.setAttribute('aria-expanded',String(open));};sideNav.before(toggle);}
+
  const backup=()=>download('SW_learning_backup.json',JSON.stringify(store.backup(),null,2));
  function say(text,bad=false){$('sw-message').textContent=text;$('sw-message').classList.toggle('bad',bad);}
  function ask(title,body,actions){
@@ -24,10 +28,12 @@ import providedData from '../provided-data.json';
  }
  function currentIds(){
   if(!route)return [];
-  if(route.id==='lesson'){const n=String(route.params.lesson).padStart(2,'0');return ['lesson-'+n,'sw2-lesson-'+n+'-state'];}
-  if(route.id==='practice')return [route.params.workspace];
-  if(route.id==='data-lab')return ['sw2-datalab-'+route.params.unit+'-code','sw2-datalab-'+route.params.unit+'-state'];
-  return route.activityIds||[];
+  let ids=route.activityIds||[];
+  if(route.id==='exercise')ids=[route.params.exercise];
+  else if(route.id==='lesson'){const n=String(route.params.lesson).padStart(2,'0');ids=['lesson-'+n,'sw2-lesson-'+n+'-state'];}
+  else if(route.id==='practice')ids=[route.params.workspace,'sw2-free-state'];
+  else if(route.id==='data-lab')ids=['sw2-datalab-'+route.params.unit+'-code','sw2-datalab-'+route.params.unit+'-state'];
+  return [...new Set([...ids,...activeExerciseIds])];
  }
  function updateStatus(){
   if(!store)return;
@@ -47,8 +53,8 @@ import providedData from '../provided-data.json';
   else if(active.some(d=>d.version>0))label='클라우드 저장본 불러옴';
   else label=route?.storageMode==='none'?'이 화면은 저장 대상이 없습니다.':'작성하면 계정에 자동 저장됩니다.';
   $('sw-save-state').textContent=label;
-  $('sw-save').hidden=route?.storageMode==='none';
-  $('sw-submit').hidden=route?.storageMode==='none'||!store.writable;
+  $('sw-save').hidden=route?.storageMode==='none'&&!activeExerciseIds.size;
+  $('sw-submit').hidden=route?.storageMode==='none'&&!activeExerciseIds.size||!store.writable;
   $('sw-resolve').hidden=!error&&!store.errors.size;
   $('sw-login').textContent=user?'계정 바꾸기':'Google 로그인';
   $('sw-user').textContent=user?((user.displayName||'로그인한 사용자')+' · '+(user.email||'')):'로그인 전';
@@ -57,7 +63,7 @@ import providedData from '../provided-data.json';
   $('sw-teacher').hidden=!identity?.staff;$('sw-teacher-menu').hidden=!identity?.staff;$('sw-refresh').hidden=!user;
  }
  function release(){
-  viewGeneration++;try{frame?.contentWindow?.SWRelease?.();frame?.contentWindow?.SWDispose?.();}catch{}
+  viewGeneration++;activeExerciseIds.clear();try{frame?.contentWindow?.SWRelease?.();frame?.contentWindow?.SWDispose?.();}catch{}
   disposeView();disposeView=()=>{};engine?.dispose();engine=null;frame?.remove();frame=null;$('sw-view').replaceChildren();
  }
  function runtime(){
@@ -88,16 +94,17 @@ import providedData from '../provided-data.json';
   $('sw-view').textContent='학습 기록을 확인하고 있습니다…';
   for(const a of document.querySelectorAll('[data-route]')){const selected=a.dataset.route===route.id;a.classList.toggle('active',selected);if(selected)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');}
   updateStatus();
-  const ids=route.id==='practice'?[route.params.workspace]:route.id==='examples'?[...route.activityIds,'sw2-free-code','sw2-free-state']:route.activityIds;
+  const ids=route.id==='exercise'?[route.params.exercise]:route.id==='practice'?[route.params.workspace,'sw2-free-state']:route.id==='examples'?[...route.activityIds,'sw2-free-code','sw2-free-state']:route.activityIds;
   await store.prepare(ids);if(gen!==viewGeneration)return false;
   if(ids?.some(id=>store.errors.has(id))){$('sw-view').textContent='기존 학습 기록을 읽지 못해 편집 화면을 열지 않았습니다. 위쪽 저장 문제 확인에서 다시 읽거나 서버 원문과 초안을 확인하세요.';updateStatus();return false;}
   $('sw-view').replaceChildren();document.title=route.label+' | 영수쌤의 파이썬 교실';
   if(route.kind==='frame')mountFrame(gen);
   else if(route.kind==='practice')mountPractice();
+  else if(route.kind==='exercise')mountExercise();
   else if(route.kind==='datalab')mountDatalab();
   else if(route.kind==='library')await showLibrary(gen);
   else if(route.kind==='teacher')await showTeacher(gen);
-  updateStatus();window.scrollTo(0,0);return true;
+  document.querySelector('.side')?.classList.remove('sw-menu-open');$('sw-mobile-menu')?.setAttribute('aria-expanded','false');updateStatus();window.scrollTo(0,0);return true;
  }
  function mountFrame(gen){
   frame=document.createElement('iframe');frame.id='sw-classroom-frame';frame.title=route.label;frame.allow='camera';frame.referrerPolicy='same-origin';
@@ -110,6 +117,21 @@ import providedData from '../provided-data.json';
   const savingAllowed=route.storageMode!=='none',id=route.id,url=route.url;
   return {
    id,storageMode:route.storageMode,url,
+   examples:exercises.filter(e=>e.pageId===route.file?.replace('.html','')),downloadExamples:exercises.filter(e=>e.source.endsWith('.py')),
+   mountExample:async(host,id)=>{
+    const example=exercises.find(e=>e.id===id);if(!current()||!example)return()=>{};
+    await store.prepare([id]);if(!current())return()=>{};
+    if(store.errors.has(id)){host.textContent='기존 저장본을 읽지 못했습니다. 상단에서 다시 읽어 주세요.';return()=>{};}
+    activeExerciseIds.add(id);updateStatus();const saved=store.get(id);
+    return mountPracticeLab(host,{...example,hasSaved:!!(store.draft(id).version||store.draft(id).dirty),readCode:()=>Object.hasOwn(saved,'code')?saved.code:null,
+     writeCode:code=>{if(current())store.set(id,{...store.get(id),code,teacherCodeVersion:example.teacherCodeVersion,persistenceVersion:1});},
+     readInput:()=>saved.stdin||'',writeInput:stdin=>{if(current())store.set(id,{...store.get(id),stdin,persistenceVersion:1});},
+     save:()=>store.flush([id])});
+   },
+   mountLegacyPractice:(host,config)=>{
+    if(!current())return()=>{};
+    return mountPracticeLab(host,{...config,autoRun:'visible-once',hasSaved:currentIds().some(id=>store.draft(id).version||store.draft(id).dirty),save:()=>store.flush(currentIds())});
+   },
    activity:()=>{if(current())lastActivity=Date.now();},
    read:key=>current()&&savingAllowed?rawFor(key,store):null,
    write:(key,raw,previous,initial)=>{if(current()&&savingAllowed)updateRaw(key,raw,store,previous,{initial});},
@@ -129,7 +151,7 @@ import providedData from '../provided-data.json';
  function mountDatalab(){
   const unit=route.params.unit,codeId='sw2-datalab-'+unit+'-code',stateId='sw2-datalab-'+unit+'-state',gen=viewGeneration;
   disposeView=mountDataLab($('sw-view'),{
-   unit,readState:()=>store.get(stateId),readCode:()=>{const d=store.draft(codeId);return d.version||d.dirty?d.data.code:null;},
+   unit,hasSaved:!!(store.draft(codeId).version||store.draft(codeId).dirty),readState:()=>store.get(stateId),readCode:()=>{const d=store.draft(codeId);return d.version||d.dirty?d.data.code:null;},
    writeCode:value=>{if(gen===viewGeneration)store.set(codeId,value);},
    writeState:part=>{if(gen===viewGeneration)store.set(stateId,{...store.get(stateId),...part,providedData:providedData[unit]});},
    save:()=>store.flush([codeId,stateId]),
@@ -137,40 +159,31 @@ import providedData from '../provided-data.json';
    openLibrary:()=>navigate('/?page=library'),importFile:file=>importFile(file)
   });
  }
+ function mountExercise(){
+  const example=exercises.find(e=>e.id===route.params.exercise),id=example.id,gen=viewGeneration;
+  const host=document.createElement('div');$('sw-view').append(host);
+  const saved=store.get(id);
+  disposeView=mountPracticeLab(host,{...example,hasSaved:!!(store.draft(id).version||store.draft(id).dirty),
+   readCode:()=>Object.hasOwn(saved,'code')?saved.code:null,
+   writeCode:code=>{if(gen===viewGeneration)store.set(id,{...store.get(id),code,teacherCodeVersion:example.teacherCodeVersion,persistenceVersion:1});},
+   readInput:()=>saved.stdin||'',writeInput:stdin=>{if(gen===viewGeneration)store.set(id,{...store.get(id),stdin,persistenceVersion:1});},
+   save:()=>store.flush([id])
+  });
+ }
  function mountPractice(){
-  const id=route.params.workspace,d=store.draft(id);
-  $('sw-view').innerHTML='<section class="panel"><h1>자유 Python 실습실</h1><label>학습 활동 <select id="sw-workspace"></select></label><label>제목 <input id="sw-title" maxlength="80"></label><label>Python 코드<textarea id="sw-code" rows="18" spellcheck="false"></textarea></label><label>표준 입력 · 한 줄에 하나<textarea id="sw-stdin" rows="3"></textarea></label><p>코드는 계정에 저장됩니다. 이 자유 실습의 실행 입력은 현재 화면에서만 사용합니다.</p><div class="actions"><button class="btn primary" id="sw-run">▶ Python 실행</button><button class="btn secondary" id="sw-stop">실행 중지</button><button class="btn secondary" id="sw-default">기본 예제 불러오기</button><button class="btn secondary" id="sw-py">.py 내려받기</button><label class="btn secondary">.py 가져오기<input id="sw-py-import" type="file" accept=".py,text/plain" hidden></label></div><label><input id="sw-completed" type="checkbox"> 이 활동 완료 표시</label><p id="sw-run-state" role="status"></p><pre id="sw-output"></pre><div id="sw-plot"></div></section>';
-  for(const key of legacyIds){const option=document.createElement('option');option.value=key;option.textContent=titleFor(key);$('sw-workspace').append(option);}
-  if(!legacyIds.includes(id))$('sw-workspace').append(new Option(titleFor(id),id));
-  $('sw-workspace').value=id;$('sw-workspace').onchange=e=>void navigate('/?page=practice&workspace='+e.target.value);
-  $('sw-title').value=d.data.title;$('sw-code').value=d.data.code;$('sw-completed').checked=d.data.completed;
-  const collect=()=>store.set(id,$('sw-code').value,{title:$('sw-title').value||titleFor(id),completed:$('sw-completed').checked});
-  for(const key of ['sw-title','sw-code','sw-completed'])$(key).addEventListener('input',collect);
-  const gen=viewGeneration;
-  $('sw-run').onclick=async()=>{
-   collect();$('sw-run').disabled=true;
-   try{const result=await runPython({code:$('sw-code').value,stdin:$('sw-stdin').value},t=>{if(gen===viewGeneration)$('sw-run-state').textContent=t;});
-    if(gen!==viewGeneration)return;$('sw-output').textContent=result.output||'(출력 없음)';$('sw-plot').replaceChildren();
-    if(result.picture){const img=new Image();img.alt='Python으로 만든 그래프';img.src='data:image/png;base64,'+result.picture;$('sw-plot').append(img);const a=document.createElement('a');a.href=img.src;a.download='python-graph.png';a.textContent='그래프 PNG 내려받기';$('sw-plot').append(a);}
-    store.set(id,$('sw-code').value,{runState:'success'});
-   }catch(e){if(gen===viewGeneration){$('sw-output').textContent=e.message;store.set(id,$('sw-code').value,{runState:'error'});}}
-   finally{if(gen===viewGeneration)$('sw-run').disabled=false;}
-  };
-  $('sw-stop').onclick=()=>{engine?.stop();};
-  $('sw-py').onclick=()=>download(id+'.py',$('sw-code').value,'text/x-python;charset=utf-8');
-  $('sw-default').onclick=async()=>{
-   if(d.data.code&&!confirm('작성한 코드를 기본 예제로 바꿀까요? 필요한 코드는 먼저 내려받아 보관하세요.'))return;
-   let code='print("안녕하세요, Python!")\n';
-   if(id==='inquiry-a'||id==='inquiry-c'){
-    const response=await fetch(id==='inquiry-a'?'/downloads/list-tuple-dictionary.py':'/downloads/radians_conversion.py');if(!response.ok){say('예제를 불러오지 못했습니다.',true);return;}code=await response.text();
-   }
-   if(gen!==viewGeneration)return;$('sw-code').value=code;collect();
-  };
-  $('sw-py-import').onchange=async e=>{
-   const f=e.target.files?.[0];if(!f)return;if(f.size>80000){say('코드 크기가 큽니다. 20,000자 한도를 확인해 주세요.',true);return;}
-   const text=await f.text();if(text.length>20000){say('20,000자를 넘었습니다. 파일은 변경하지 않았습니다.',true);return;}
-   if(await ask('Python 파일 가져오기',text.slice(0,1500)+'\n\n이 파일이 본인 자료인지 확인해 주세요. 현재 활동 내용을 바꿉니다.',[['import','미리 본 코드 가져오기'],['cancel','취소']])==='import'&&gen===viewGeneration){$('sw-code').value=text;collect();}
-  };
+  const id=route.params.workspace,d=store.draft(id),gen=viewGeneration;
+  const heading=document.createElement('h1');heading.textContent='자유 Python 실습실';$('sw-view').append(heading);
+  const select=document.createElement('select');select.setAttribute('aria-label','학습 활동');
+  for(const key of legacyIds)select.append(new Option(titleFor(key),key));
+  select.value=id;select.onchange=()=>navigate('/?page=practice&workspace='+select.value);$('sw-view').append(select);
+  const host=document.createElement('div');$('sw-view').append(host);
+  disposeView=mountPracticeLab(host,{id,title:titleFor(id),autoRun:'visible-once',hasSaved:!!(d.version||d.dirty),teacherCode:'books = [3, 5, 2]\nbooks.append(4)\nprint(books)\n',
+   readCode:()=>d.version||d.dirty?d.data.code:null,
+   writeCode:code=>{if(gen===viewGeneration)store.set(id,code);},
+   readInput:()=>store.get('sw2-free-state').practiceInputs?.[id]||'',
+   writeInput:value=>{if(gen===viewGeneration){const saved=store.get('sw2-free-state');store.set('sw2-free-state',{...saved,practiceInputs:{...saved.practiceInputs,[id]:value}});}},
+   save:()=>store.flush([id,'sw2-free-state'])
+  });
  }
  async function showLibrary(gen){
   if(!store.writable){$('sw-view').textContent='로그인과 학급 승인 후 내 학습 보관함을 사용할 수 있습니다.';return;}

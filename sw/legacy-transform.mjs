@@ -32,6 +32,8 @@ export function transform(name,s){
  }
 
  if(name==='step-by-step.js'){
+  replace("code:typeof z.code==='string'?z.code:''", "code:typeof z.code==='string'?z.code:LESSONS[i].steps.slice(0,(z.step||0)+1).map(s=>s.append).join('\\n')");
+  replace("step:0,code:'',done:[]", "step:0,code:LESSONS[i].steps[0].append,done:[]");
   replace("verified,revision:z.revision","verified,stdin:typeof z.stdin==='string'?z.stdin:'',quiz:z.quiz||{},quizGraded:!!z.quizGraded,revision:z.revision");
   replace("function saveEditor(){const r=record();","function saveEditor(){const r=record();r.stdin=$('stdin').value;");
   replace("$('reflection').value=r.reflection;","$('reflection').value=r.reflection;$('stdin').value=r.stdin||'';");
@@ -80,7 +82,7 @@ init();`);
  }
  if(name==='mastery.js'){
   replace('let state={done:[],notes:{},current:0}','let state={done:[],notes:{},current:0,codes:{},choices:{},graded:{},answers:{}}');
-  replace('$("code").value=u[4];','$("code").value=state.codes[state.current]??u[4];');
+  replace('$("code").value=u[4];',`$("code").value=state.codes[state.current]??u[4].replace('df.describe(numeric_only=True)',"df.select_dtypes(include='number').describe()");`);
   replace('value="\'+j+\'">','value="\'+j+\'" \'+(Number(state.choices[state.current])===j?\'checked\':\'\')+\'>');
   replace('const u=UNITS[state.current];$("feedback").textContent=c?', 'const u=UNITS[state.current];state.graded[state.current]=true;state.answers[state.current]=c&&Number(c.value)===u[8]?1:0;save();$("feedback").textContent=c?');
   replace('$("note").oninput=',`$("code").oninput=e=>{state.codes[state.current]=e.target.value;save();};$("choices").onchange=e=>{state.choices[state.current]=Number(e.target.value);state.graded[state.current]=false;save();};$("note").oninput=`);
@@ -109,5 +111,25 @@ $("grade").onclick=function(){state.graded=true;`);
  }
  if(name==='simulation.html')replace('run();\n})();','run();if(state.graded)$("grade").click();\n})();');
  if(name==='ai-avatar.js')replace("addEventListener('pagehide',end);","window.SWDispose=end;addEventListener('pagehide',end);");
+
+ if(name==='four-turtles.js'){
+  replace("let saved=false;","let saved=false;");
+  replace("editor.addEventListener('input',saveDraft);",`if(!saved)editor.value=$('originalCode').textContent;window.SWPracticeConfig={key:'four-turtles-draft',id:'inquiry-d',editor:'studentCode',title:'내 코드로 거북이 객체 실험하기',teacherCode:$('originalCode').textContent,hide:['saveDraft','copyDraft']};window.dispatchEvent(new Event('sw:practice'));editor.addEventListener('input',saveDraft);`);
+  replace("editor.value=$('originalCode').textContent;saveDraft();", "editor.value=$('originalCode').textContent;editor.dispatchEvent(new Event('input',{bubbles:true}));saveDraft();");
+ }
+ if(name==='step-by-step.js'){
+  replace("nav();save();if(r.quizGraded)",`nav();save();window.SWPracticeConfig={key:'lesson-'+(which+1)+'-step-'+(r.step+1),id:'lesson-'+String(which+1).padStart(2,'0'),editor:'editor',input:'stdin',title:(which+1)+'차시 · 직접 실행하고 관찰하기',teacherCode:l.steps.slice(0,r.step+1).map(s=>s.append).join('\\n'),files:LESSONS.map(l=>l.dataset),hide:['run','stop','warmPython','savePy','fullExample','resetLesson','output','plot','graphDownload'],onBusy:busy,onResult:(code,result)=>{const norm=s=>s.replace(/\\s+/g,'');if(!result.error&&!result.limited&&norm(code).includes(norm(s.append))){if(!r.done.includes(r.step))r.done.push(r.step);r.verified[r.step]=code;}else delete r.verified[r.step];save();$('completeLabel').textContent=r.done.length+' / 5단계 완료';nav();}};window.dispatchEvent(new Event('sw:practice'));if(r.quizGraded)`);
+ }
+ if(name==='mastery.js'){
+  replace('save();renderMenu();if(state.graded',`save();renderMenu();window.SWPracticeConfig={key:'mastery-'+state.current,id:'sw2-mastery-'+String(state.current+1).padStart(2,'0'),editor:'code',title:u[1]+' · 직접 실습',teacherCode:u[4].replace('df.describe(numeric_only=True)',\"df.select_dtypes(include='number').describe()\"),correction:state.current===2?'실행용 선생님 코드는 지원되지 않는 describe(numeric_only=True) 대신 숫자 열을 먼저 선택합니다. 기존에 저장한 코드는 유지됩니다.':'',hide:['run','sw-stop','reset','copy','plot','output','runtime']};window.dispatchEvent(new Event('sw:practice'));if(state.graded`);
+ }
+ if(name==='final-classroom.js'){
+  replace("save();}const select=",`save();window.SWPracticeConfig={key:'archive-'+current,id:'sw2-archive2-'+String(current+1).padStart(2,'0'),editor:'final-code',title:d.title+' · 직접 실습',teacherCode:d.code,hide:['final-run','final-copy','final-download-code','final-status']};window.dispatchEvent(new Event('sw:practice'));}const select=`);
+ }
+ if(name==='app.js'){
+  // The CSV remains visible in its original editor and enters Python globals as
+  // explicit runtime input, so line numbers still refer to the student's code.
+  replace('init();',`init();if(new URLSearchParams(location.search).get('page')==='lab'){window.SWPracticeConfig={key:'lab',id:'sw2-free-code',editor:'pythonCode',input:'stdin',title:'자료와 함께 Python 실습',teacherCode:LESSONS[state.lesson][5],context:()=>({COURSE_CSV:state.csv}),watch:['csvInput'],hide:['runPython','copyCode','output','plot','runStatus']};window.dispatchEvent(new Event('sw:practice'));}`);
+ }
  return s;
 }

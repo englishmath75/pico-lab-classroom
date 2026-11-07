@@ -33,3 +33,22 @@ html{scroll-behavior:auto}body{margin:0}.sw-shell{min-width:0}.sw-main{min-width
 .sw-shell .sw-menu-group{margin-top:12px;padding-top:10px}
 .sw-shell .sw-menu-items{grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 8px}
 }
+
+/* Shared trace views: one cursor owns text, memory, tables and graphics. */
+.sw-step-controls{position:sticky;top:0;z-index:3;background:#fff;padding:10px;border:1px solid #d9e2ec;border-radius:12px;display:flex;flex-wrap:wrap;gap:8px}.sw-step-controls button{min-height:44px}.sw-variables{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.sw-variables>div,.sw-object{padding:12px;border:1px solid #d7deea;border-radius:10px;margin:8px 0;overflow:auto}.sw-variables dt{font-weight:700;color:#145971}.sw-variables dd{margin:4px 0;white-space:pre-wrap;overflow-wrap:anywhere}.sw-table-scroll{overflow:auto;max-width:100%}.sw-object table{border-collapse:collapse}.sw-object td,.sw-object th{border:1px solid #dbe2ed;padding:6px 10px;white-space:nowrap}.sw-object small{font-weight:normal}.sw-turtle{margin:12px 0}.sw-turtle svg{border:1px solid #ddd;border-radius:12px}.sw-turtle figcaption{font-size:13px}.executed-python-line{background:#204e45!important;border-left:3px solid #6be6bd}.active-python-line{background:#645328!important;border-left:3px solid #ffdc74}.sw-trace pre{white-space:pre-wrap;overflow-wrap:anywhere}.sw-trace{min-width:0}
+.sw-practice{min-width:0;padding:20px;background:#fff;border:1px solid #dce4ec;border-radius:16px;margin:16px 0}.sw-practice-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}.sw-practice-code,.sw-practice-results{min-width:0}.sw-practice .visual-editor{height:440px;overflow:hidden;border-radius:12px}.sw-practice textarea{width:100%;box-sizing:border-box}.sw-practice button{min-height:42px;padding:8px 12px;border:1px solid #c8d8e1;background:#eff6fa;color:#14384c;border-radius:8px;cursor:pointer}.sw-practice button:disabled{opacity:.5;cursor:default}.sw-practice label{display:block}.sw-practice .visual-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}@media(max-width:900px){.sw-practice-grid{grid-template-columns:1fr}.sw-practice{padding:12px}.sw-practice .visual-editor{height:340px}}
+
+.sw-legacy-hidden{display:none!important}.sw-legacy-practice{min-width:0;width:100%}
+
+@font-face{font-family:SWKorean;src:url('/sw-runtime/NanumGothic-Regular.ttf') format('truetype');font-display:swap}
+body,button,input,textarea{font-family:SWKorean,system-ui,'Malgun Gothic',sans-serif!important}
+pre,code,.cm-content,.cm-scroller{font-family:ui-monospace,Consolas,SWKorean,monospace!important}
+
+.sw-mobile-menu{display:none}
+@media(max-width:900px){.sw-shell .sw-mobile-menu{display:block;width:100%;min-height:44px;padding:10px;border:1px solid #7397a6;border-radius:9px;background:#224b5d;color:white;font-weight:700;margin:14px 0 0}.sw-shell .side>nav{display:none!important}.sw-shell .side.sw-menu-open>nav{display:grid!important}.sw-shell .side .brand img{max-width:90px}}
+
+.sw-practice input[type=file]{width:100%;max-width:100%;min-width:0}
+.sw-practice label{min-width:0;max-width:100%;overflow-wrap:anywhere}
+
+.sw-shell :is(h1,h2,h3,p,a,span,strong,small,label,summary,button,select){font-family:SWKorean,system-ui,"Malgun Gothic",sans-serif!important}
+.sw-practice{font-size:16px;line-height:1.65}.sw-practice h2{font-size:21px;margin:0 0 10px;color:#153d50}.sw-practice label{font-size:14px;color:#3c596a;margin:10px 0}.sw-practice textarea{border:1px solid #b9ced5;border-radius:8px;padding:10px;font-size:15px;min-height:78px}.sw-practice .visual-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.sw-practice .visual-actions button:first-child{font-weight:700}.sw-practice [role=status]{font-size:14px;margin:8px 0}.sw-practice .notice{background:#fff5d8;border-left:3px solid #c8953b;padding:12px}.sw-practice input[type=file]{font-size:13px}

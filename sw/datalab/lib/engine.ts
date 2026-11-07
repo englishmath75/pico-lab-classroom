@@ -131,9 +131,9 @@ export class PythonEngine {
         this.timer = setTimeout(
           () =>
             this.cancel(
-              "실행 제한 8초에 도달했습니다. 반복 조건을 확인하세요.",
+              "실행 제한 30초에 도달했습니다. 반복 조건을 확인하세요.",
             ),
-          8000,
+          30000,
         );
       }
       if (data.type === "result") {
@@ -161,7 +161,7 @@ export class PythonEngine {
         worker.terminate();
         this.worker = null;
         this.prepared = false;
-        this.prepare();
+        // Next run prepares lazily; do not allocate a spare runtime after every result.
       }
       if (data.type === "failure") this.fail(new Error(data.message));
     };
@@ -182,7 +182,7 @@ export class PythonEngine {
     pending?.reject(error);
   }
 
-  run(code: string, stdin: string[] = [], trace = true): Promise<RunResult> {
+  run(code: string, stdin: string[] = [], trace = true, files: Record<string,string> = {}, context: {COURSE_CSV?:string} = {}, exampleId = 'free-practice'): Promise<RunResult> {
     if (this.disposed) return Promise.reject(new Error("종료된 실행기입니다."));
     if (this.pending)
       return Promise.reject(new Error("실행을 중지한 뒤 다시 실행하세요."));
@@ -192,6 +192,8 @@ export class PythonEngine {
       return Promise.reject(
         new Error("입력 큐는 100줄, 한 줄 10,000자 이내로 작성하세요."),
       );
+    if(Object.keys(files).length>20 || Object.entries(files).some(([name,text])=>!/^[^/\\\x00-\x1f]{1,100}\.(csv|txt|json)$/.test(name)||typeof text!=='string'||text.length>1000000))return Promise.reject(new Error("자료는 CSV/TXT/JSON 20개, 각 1 MB 이내입니다."));
+    if(context.COURSE_CSV!==undefined&&(typeof context.COURSE_CSV!=='string'||context.COURSE_CSV.length>1000000))return Promise.reject(new Error('CSV 자료는 1 MB 이내입니다.'));
     this.executionStarted = false;
     this.clickedAt = performance.now();
     this.packagesAt = 0; this.runningAt = 0;
@@ -216,7 +218,7 @@ export class PythonEngine {
           ),
         120000,
       );
-      this.worker!.postMessage({ id, code, stdin, trace });
+      this.worker!.postMessage({ id, code, stdin, trace, files, context, exampleId, runId:crypto.randomUUID() });
     });
   }
 

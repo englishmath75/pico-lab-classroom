@@ -1,0 +1,160 @@
+[
+  {
+    "fixture": "01_variables.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 8,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "02_alias_copy.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 8,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "03_nested_cycle.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 9,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "04_collections.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 13,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "05_for_if_break_continue.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 28,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "06_while.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 15,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "07_multiline.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 12,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "08_function_frame.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 12,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "09_expected_runtime_error.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 8,
+    "traceLimited": false,
+    "error": "IndexError"
+  },
+  {
+    "fixture": "10_expected_syntax_error.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 1,
+    "traceLimited": false,
+    "error": "SyntaxError"
+  },
+  {
+    "fixture": "11_input.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 7,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "14_turtle_steps.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 14,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "15_turtle_mandala.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 155,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "16_turtle_four.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 32,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "17_turtle_style_clear.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 14,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "18_random_replay.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 8,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "21_long_finite_trace.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 2007,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "23_text_not_html.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 5,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "25_import_only.py",
+    "environment": "host CPython reference adapter",
+    "status": "PASS",
+    "events": 6,
+    "traceLimited": false,
+    "error": null
+  },
+  {
+    "fixture": "long-finite-10000",
+    "status": "PASS",
+    "stdout": "49995000\n",
+    "traceLimited": true
+  }
+]
