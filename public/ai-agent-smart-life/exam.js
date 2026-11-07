@@ -18,7 +18,7 @@
  let picked=[];
  function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
  function draw(){
-   picked=shuffle(bank).slice(0,20);
+   picked=shuffle(bank).slice(0,20).map(item=>({lesson:item.lesson,q:window.AASL_shuffleQuestion(item.q).question}));
    $("multiple").innerHTML=picked.map((item,i)=>'<div class="q"><h3>객관식 '+(i+1)+'. '+safe(item.q[0])+'</h3><div class="options">'+
       item.q[1].map((opt,j)=>'<label><input type="radio" name="mc-'+i+'" value="'+j+'"/><span>'+String.fromCharCode(9312+j)+' '+safe(opt)+'</span></label>').join("")+
       '</div><div class="result" id="mc-result-'+i+'" hidden></div></div>').join("");
