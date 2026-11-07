@@ -38,6 +38,7 @@ try{
   for(let i=0;i<2;i++)await box.getByRole('button',{name:'이전',exact:true}).click();await expect(box.locator('svg line')).toHaveCount(1);await expect(box.locator('figcaption')).toContainText('90.0°');
   await box.getByRole('button',{name:'처음',exact:true}).click();await expect(box.locator('svg')).toHaveCount(0);
   await edit(box,'X=7\nprint(X)');await expect(box.getByTestId('trace-stdout')).toHaveCount(0);await box.getByRole('button',{name:'전체 실행',exact:true}).click();await done(box);await expect(box.getByTestId('trace-stdout')).toHaveText('7\n');
+  await box.locator('.cm-content').press('ControlOrMeta+Enter');await done(box);await expect(box.getByTestId('trace-stdout')).toHaveText('(출력 없음)');await box.getByRole('button',{name:'마지막',exact:true}).click();await expect(box.getByTestId('trace-stdout')).toHaveText('7\n');
  });
  await scenario('step controls and code usable at 390px',async()=>{
   await page.setViewportSize({width:390,height:844});await go('/?page=practice');await expect(page.locator('.cm-content')).toBeVisible();

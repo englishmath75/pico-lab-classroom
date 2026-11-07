@@ -7,7 +7,7 @@ import {
   ViewPlugin,
   DecorationSet,
 } from "@codemirror/view";
-import { EditorState } from "@codemirror/state";
+import { EditorState, Prec } from "@codemirror/state";
 import { basicSetup } from "codemirror";
 import { python } from "@codemirror/lang-python";
 import { indentWithTab } from "@codemirror/commands";
@@ -60,7 +60,7 @@ export default function Editor({
           python(),
           ...(dark ? [oneDark] : []),
           mark,
-          keymap.of([
+          Prec.highest(keymap.of([
             {
               key: "Mod-Enter",
               run: () => {
@@ -69,9 +69,11 @@ export default function Editor({
               },
             },
             indentWithTab,
-          ]),
+          ])),
           EditorView.contentAttributes.of({
             "aria-label": "Python 코드 편집기",
+            "aria-keyshortcuts": "Control+Enter Meta+Enter",
+            "aria-description": "Ctrl+Enter로 실행합니다. 편집기를 벗어나려면 Escape를 누른 다음 Tab을 누르세요.",
             spellcheck: "false",
           }),
           EditorView.updateListener.of((u) => {
