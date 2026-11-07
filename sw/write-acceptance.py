@@ -28,9 +28,10 @@ for r in rows:
  if r['id']=='K01':r.update(status='PASS' if os.environ.get('SW_VALIDATED')=='1' else 'BLOCKED',notes='GitHub 현재 커밋 검증 성공 후 확정. 로컬 빌드·회귀 결과만으로 운영 완료로 판정하지 않음.')
  if r['id']=='G08':r.update(status='PASS' if (root/'matplotlib-korean.png').exists() else 'BLOCKED',evidence='matplotlib-korean.png',notes='실제 Pyodide 이미지의 제목·축 한글이 네모 없이 읽히는 것을 시각 확인. 범례는 V13 복수 Figure 검증.')
  if r['id']=='K04':r.update(status='BLOCKED',notes='전체 코드 독립 실행·링크 검사 및 대표 UI는 통과. 모든 페이지의 계정 저장 연결을 하나씩 실제 조작하는 검증은 아직 완료하지 않음.')
- if r['id']=='K09':r.update(evidence='catalog-runtime.json;browser-runtime.json',notes='각 예제의 실제 소요시간(ms), 런타임, 단계 수 기록. 학교 초기 다운로드 속도를 의미하지 않음.')
+ if r['id']=='K08':r.update(status='BLOCKED',notes='390px 반응형·버튼과 한글은 확인. 키보드 전용·터치·확대 조합의 추가 검증 대기.')
+ if r['id']=='K09':r.update(status='BLOCKED',evidence='catalog-runtime.json;browser-runtime.json',notes='예제별 실행 시간은 기록. 콜드·재방문 페이지 로딩 비교는 추가 실측 대기. 학교 초기 다운로드 속도를 의미하지 않음.')
 with path.open('w',encoding='utf-8-sig',newline='') as f:
- w=csv.DictWriter(f,fieldnames=rows[0].keys());w.writeheader();w.writerows(rows)
+ w=csv.DictWriter(f,fieldnames=rows[0].keys(),lineterminator='\n');w.writeheader();w.writerows(rows)
 summary={'sourceSha':os.environ.get('GITHUB_SHA','local working tree'),'software':118,'field':2,'statuses':{s:sum(r['status']==s for r in rows) for s in sorted(set(r['status'] for r in rows))},'productionDeployed':False,'timestampKST':stamp}
 (root/'acceptance-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2))
 print(json.dumps(summary,ensure_ascii=False))

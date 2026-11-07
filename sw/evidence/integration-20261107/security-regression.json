@@ -3,6 +3,78 @@
   "rulesSha256": "d3e9eef2efbb38a244f0f8030c3e8834c77b6dd27e8bc08946b975dafec68821",
   "results": [
     {
+      "name": "same UID, same workspace key: Grade 1 and Grade 2 code, progress and revisions remain independent",
+      "status": "PASS"
+    },
+    {
+      "name": "Grade 1 and Grade 2 separate per-UID quota counters and submissions",
+      "status": "PASS"
+    },
+    {
+      "name": "Grade 1 identity and code are invisible to other students",
+      "status": "PASS"
+    },
+    {
+      "name": "Grade 1 class registration permits pending only, and rejects Grade 2 IDs",
+      "status": "PASS"
+    },
+    {
+      "name": "Only school teacher with existing staff authorization may approve Grade 1 profiles",
+      "status": "PASS"
+    },
+    {
+      "name": "Grade 1 staff cannot read private drafts; only explicitly submitted Grade 1 code",
+      "status": "PASS"
+    },
+    {
+      "name": "Personal Google learner can enroll without a school domain and save private code immediately",
+      "status": "PASS"
+    },
+    {
+      "name": "Personal learner accounts cannot impersonate school enrollment or self-assign another identity",
+      "status": "PASS"
+    },
+    {
+      "name": "Other learners and teachers cannot read or submit personal code",
+      "status": "PASS"
+    },
+    {
+      "name": "Single teacher account can inspect authorized Grade 1 and 2 rosters without cross-grade mixing",
+      "status": "PASS"
+    },
+    {
+      "name": "A future-year Grade 1 record is never reused by the 2026 student workspace",
+      "status": "PASS"
+    },
+    {
+      "name": "Academic-year routes preserve the 2026 Grade 2 root and reject unsupported years",
+      "status": "PASS"
+    },
+    {
+      "name": "Promotion creates a fresh pending profile and preserves the previous year through approval and reload",
+      "status": "PASS"
+    },
+    {
+      "name": "2027 class and teacher access follow the selected grade and retain draft privacy",
+      "status": "PASS"
+    },
+    {
+      "name": "Every finite V3 activity has an authorized bounded save; legacy record is preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "V3 original, variant, report and notebook remain independent across personal and academic years",
+      "status": "PASS"
+    },
+    {
+      "name": "New V3 records remain unreadable by another UID and by staff without submission",
+      "status": "PASS"
+    },
+    {
+      "name": "Raw SDK cannot create arbitrary MK activity IDs or oversize payloads; SW cannot use V3 IDs",
+      "status": "PASS"
+    },
+    {
       "name": "all 64 new finite IDs save and restore without opening MK or personal paths",
       "status": "PASS"
     },
@@ -25,9 +97,61 @@
     {
       "name": "library paginates more than 150 authorized exercise records without cross-user reads",
       "status": "PASS"
+    },
+    {
+      "name": "학생 A 저장 후 다른 기기에서 다시 읽기, 학생 B 접근 차단",
+      "status": "PASS"
+    },
+    {
+      "name": "승인 대기·익명·인증 안 된 이메일·다른 로그인 제공업체 접근 차단",
+      "status": "PASS"
+    },
+    {
+      "name": "허용된 학교 계정은 pending만 생성, 타 도메인은 등록 불가",
+      "status": "PASS"
+    },
+    {
+      "name": "학생 관리자 권한·학급·승인 상태 위조 불가",
+      "status": "PASS"
+    },
+    {
+      "name": "교사는 담당 학급 학생만 승인하고 진행·제출만 읽음",
+      "status": "PASS"
+    },
+    {
+      "name": "학생 제출본만 교사 열람 허용, 타 학급 교사 차단",
+      "status": "PASS"
+    },
+    {
+      "name": "코드 20,000자·문서 필드·고정 작업실·수정 이력 슬롯 제한",
+      "status": "PASS"
+    },
+    {
+      "name": "저장 간격·일일 횟수는 SDK 우회 직접 요청에도 적용",
+      "status": "PASS"
+    },
+    {
+      "name": "동시 편집 충돌이 다른 기기 코드를 덮어쓰지 않음",
+      "status": "PASS"
+    },
+    {
+      "name": "저장 이력 복원용 코드와 현재본이 함께 기록됨",
+      "status": "PASS"
+    },
+    {
+      "name": "수정 이력을 최근 10개로 제한해 저장 공간 증가를 막음",
+      "status": "PASS"
+    },
+    {
+      "name": "29명 동시 저장·불러오기·교차 UID 차단",
+      "status": "PASS"
+    },
+    {
+      "name": "로그아웃·계정 교체 후 늦게 도착한 결과와 학생 코드 제거",
+      "status": "PASS"
     }
   ],
-  "passed": 6,
+  "passed": 37,
   "failed": 0,
   "productionApplied": false
 }

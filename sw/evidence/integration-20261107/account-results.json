@@ -3,31 +3,31 @@
     {
       "name": "new registered exercise saves exact code and input with acknowledged status",
       "status": "PASS",
-      "durationMs": 20698,
+      "durationMs": 20006,
       "environment": "Chromium + Firebase emulators"
     },
     {
       "name": "shared PC finish clears A; B sees own teacher default only",
       "status": "PASS",
-      "durationMs": 6615,
+      "durationMs": 6181,
       "environment": "Chromium + Firebase emulators"
     },
     {
       "name": "A restores in a separate browser context; library links to the same exercise",
       "status": "PASS",
-      "durationMs": 7373,
+      "durationMs": 5343,
       "environment": "Chromium + Firebase emulators"
     },
     {
       "name": "explicit submission is visible to assigned teacher; original cloud draft remains",
       "status": "PASS",
-      "durationMs": 9863,
+      "durationMs": 5075,
       "environment": "Chromium + Firebase emulators"
     },
     {
       "name": "saved empty student code survives fresh teacher defaults",
       "status": "PASS",
-      "durationMs": 14608,
+      "durationMs": 18015,
       "environment": "Chromium + Firebase emulators"
     }
   ],

@@ -3,10 +3,10 @@
   "software": 118,
   "field": 2,
   "statuses": {
-    "BLOCKED": 6,
+    "BLOCKED": 8,
     "FIELD_PENDING": 2,
-    "PASS": 112
+    "PASS": 110
   },
   "productionDeployed": false,
-  "timestampKST": "2026-11-07T14:01:09.789935+09:00"
+  "timestampKST": "2026-11-07T14:10:44.713510+09:00"
 }

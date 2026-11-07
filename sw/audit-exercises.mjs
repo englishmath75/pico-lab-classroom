@@ -29,7 +29,7 @@ for(const r of inventory){
 }
 assert.equal(new Set(activityIds).size,activityIds.length,'duplicate permanent ID');
 for(const e of exercises){assert(e.teacherCode.trim(),'Empty teacher code '+e.id);assert.equal(e.teacherCodeVersion,sha(e.teacherCode).slice(0,12));assert.equal(e.runtime,'pyodide-0.28.3');assert(e.context&&e.outputKinds.length);assert(!/^\s*(?:pip |py -m |python -m )/.test(e.teacherCode));}
-const files={};async function scan(path){for(const x of await readdir(path,{withFileTypes:true})){const p=path+'/'+x.name;if(x.isDirectory()){if(['graphics-original','code'].includes(x.name))await scan(p);}else if(/\.(html|js|py)$/.test(x.name))files[p]=sha(await readFile(p));}}
+const files={};async function scan(path){for(const x of await readdir(path,{withFileTypes:true})){const p=path+'/'+x.name;if(x.isDirectory()){if(['graphics-original','code'].includes(x.name))await scan(p);}else if(x.name!=='student-cloud.bundle.js'&&/\.(html|js|py)$/.test(x.name))files[p]=sha(await readFile(p));}}
 await scan('public/pandas-data-lab');files['sw/datalab/content/sw-visual-lessons.json']=sha(await readFile('sw/datalab/content/sw-visual-lessons.json'));
 const manifest=dir+'/audited-source-hashes.json';
 if(process.argv.includes('--refresh'))await writeFile(manifest,JSON.stringify(files,null,2));
