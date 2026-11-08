@@ -1,0 +1,779 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signed() {
+      return request.auth != null && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+    function own(uid) { return signed() && request.auth.uid == uid; }
+    function staff() {
+      return signed() && exists(/databases/$(database)/documents/staff/$(request.auth.uid));
+    }
+    function teaches(classId) {
+      return staff() && classId in get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.classIds;
+    }
+    function approved(uid) {
+      return own(uid) && get(/databases/$(database)/documents/users/$(uid)).data.status == 'approved'
+        && 'enrollment' in get(/databases/$(database)/documents/users/$(uid)).data;
+    }
+    function allowedEmail() {
+      let access = get(/databases/$(database)/documents/config/access).data;
+      return signed() && (request.auth.token.email in access.allowedEmails
+        || request.auth.token.email.split('@')[1] in access.allowedDomains);
+    }
+    function workspaceId(id) {
+      return id.matches('lesson-(0[0-9]|10)|scratch-(0[1-9]|10)|inquiry-[a-d]');
+    }
+    // SW V2: finite learning records; MK workspaceId remains unchanged.
+    function swWorkspaceId(id) {
+      return workspaceId(id) || id in [
+
+        
+        'sw3-2026-g2-swx0005',
+        'sw3-2026-g2-swx0006',
+        'sw3-2026-g2-swx0007',
+        'sw3-2026-g2-swx0008',
+        'sw3-2026-g2-swx0009',
+        'sw3-2026-g2-swx0010',
+        'sw3-2026-g2-swx0012',
+        'sw3-2026-g2-swx0013',
+        'sw3-2026-g2-swx0014',
+        'sw3-2026-g2-swx0015',
+        'sw3-2026-g2-swx0016',
+        'sw3-2026-g2-swx0017',
+        'sw3-2026-g2-swx0020',
+        'sw3-2026-g2-swx0021',
+        'sw3-2026-g2-swx0022',
+        'sw3-2026-g2-swx0038',
+        'sw3-2026-g2-swx0039',
+        'sw3-2026-g2-swx0040',
+        'sw3-2026-g2-swx0041',
+        'sw3-2026-g2-swx0042',
+        'sw3-2026-g2-swx0043',
+        'sw3-2026-g2-swx0044',
+        'sw3-2026-g2-swx0045',
+        'sw3-2026-g2-swx0047',
+        'sw3-2026-g2-swx0052',
+        'sw3-2026-g2-swx0054',
+        'sw3-2026-g2-swx0055',
+        'sw3-2026-g2-swx0056',
+        'sw3-2026-g2-swx0057',
+        'sw3-2026-g2-swx0058',
+        'sw3-2026-g2-swx0060',
+        'sw3-2026-g2-swx0061',
+        'sw3-2026-g2-swx0062',
+        'sw3-2026-g2-swx0063',
+        'sw3-2026-g2-swx0064',
+        'sw3-2026-g2-swx0065',
+        'sw3-2026-g2-swx0066',
+        'sw3-2026-g2-swx0067',
+        'sw3-2026-g2-swx0068',
+        'sw3-2026-g2-swx0069',
+        'sw3-2026-g2-swx0070',
+        'sw3-2026-g2-swx0071',
+        'sw3-2026-g2-swx0072',
+        'sw3-2026-g2-swx0073',
+        'sw3-2026-g2-swx0075',
+        'sw3-2026-g2-swx0076',
+        'sw3-2026-g2-swx0078',
+        'sw3-2026-g2-swx0080',
+        'sw3-2026-g2-swx0096',
+        'sw3-2026-g2-swx0097',
+        'sw3-2026-g2-swx0098',
+        'sw3-2026-g2-swx0099',
+        'sw3-2026-g2-swx0100',
+        'sw3-2026-g2-swx0101',
+        'sw3-2026-g2-swx0102',
+        'sw3-2026-g2-swx0103',
+        'sw3-2026-g2-swx0104',
+        'sw3-2026-g2-swx0105',
+        'sw3-2026-g2-swx0106',
+        'sw3-2026-g2-swx0107',
+        'sw3-2026-g2-swx0108',
+        'sw3-2026-g2-swx0109',
+        'sw3-2026-g2-swx0110',
+        'sw3-2026-g2-swx0111',
+        'sw3-2026-g2-swx0112',
+        'sw3-2026-g2-swx0113',
+        'sw3-2026-g2-swx0114',
+        'sw3-2026-g2-swx0115',
+        'sw3-2026-g2-swx0116',
+        'sw3-2026-g2-swx0117',
+        'sw3-2026-g2-swx0118',
+        'sw3-2026-g2-swx0119',
+        'sw3-2026-g2-swx0120',
+        'sw3-2026-g2-swx0121',
+        'sw3-2026-g2-swx0122',
+        'sw3-2026-g2-swx0123',
+        'sw3-2026-g2-swx0124',
+        'sw3-2026-g2-swx0125',
+        'sw3-2026-g2-swx0126',
+        'sw3-2026-g2-swx0127',
+        'sw3-2026-g2-swx0128',
+        'sw3-2026-g2-swx0129',
+        'sw3-2026-g2-swx0130',
+        'sw3-2026-g2-swx0131',
+        'sw3-2026-g2-swx0132',
+        'sw3-2026-g2-swx0133',
+        'sw3-2026-g2-swx0134',
+        'sw3-2026-g2-swx0135',
+        'sw3-2026-g2-swx0136',
+        'sw3-2026-g2-swx0137',
+        'sw3-2026-g2-swx0138',
+        'sw3-2026-g2-swx0139',
+        'sw3-2026-g2-swx0140',
+        'sw3-2026-g2-swx0141',
+        'sw3-2026-g2-swx0142',
+        'sw3-2026-g2-swx0158',
+        'sw3-2026-g2-swx0159',
+        'sw3-2026-g2-swx0160',
+        'sw3-2026-g2-swx0161',
+        'sw3-2026-g2-swx0162',
+        'sw3-2026-g2-swx0163',
+        'sw3-2026-g2-swx0164',
+        'sw3-2026-g2-swx0165',
+        'sw3-2026-g2-swx0166',
+        'sw3-2026-g2-swx0167',
+        'sw3-2026-g2-swx0168',
+        'sw3-2026-g2-swx0169',
+        'sw3-2026-g2-swx0170',
+        'sw3-2026-g2-swx0171',
+        'sw3-2026-g2-swx0172',
+        'sw3-2026-g2-swx0173',
+        'sw3-2026-g2-swx0174',
+        'sw3-2026-g2-swx0175',
+        'sw3-2026-g2-swx0176',
+        'sw3-2026-g2-swx0177',
+        'sw3-2026-g2-swx0178',
+        'sw3-2026-g2-swx0179',
+        'sw3-2026-g2-swx0180',
+        'sw3-2026-g2-swx0181',
+        'sw3-2026-g2-swx0182',
+        'sw3-2026-g2-swx0183',
+        'sw3-2026-g2-swx0184',
+        'sw3-2026-g2-swx0185',
+        'sw3-2026-g2-swx0188',
+        'sw3-2026-g2-lesson-1-step-1',
+        'sw3-2026-g2-lesson-1-step-2',
+        'sw3-2026-g2-lesson-1-step-3',
+        'sw3-2026-g2-lesson-1-step-4',
+        'sw3-2026-g2-lesson-1-step-5',
+        'sw3-2026-g2-lesson-2-step-1',
+        'sw3-2026-g2-lesson-2-step-2',
+        'sw3-2026-g2-lesson-2-step-3',
+        'sw3-2026-g2-lesson-2-step-4',
+        'sw3-2026-g2-lesson-2-step-5',
+        'sw3-2026-g2-lesson-3-step-1',
+        'sw3-2026-g2-lesson-3-step-2',
+        'sw3-2026-g2-lesson-3-step-3',
+        'sw3-2026-g2-lesson-3-step-4',
+        'sw3-2026-g2-lesson-3-step-5',
+        'sw3-2026-g2-lesson-4-step-1',
+        'sw3-2026-g2-lesson-4-step-2',
+        'sw3-2026-g2-lesson-4-step-3',
+        'sw3-2026-g2-lesson-4-step-4',
+        'sw3-2026-g2-lesson-4-step-5',
+        'sw3-2026-g2-lesson-5-step-1',
+        'sw3-2026-g2-lesson-5-step-2',
+        'sw3-2026-g2-lesson-5-step-3',
+        'sw3-2026-g2-lesson-5-step-4',
+        'sw3-2026-g2-lesson-5-step-5',
+        'sw3-2026-g2-lesson-6-step-1',
+        'sw3-2026-g2-lesson-6-step-2',
+        'sw3-2026-g2-lesson-6-step-3',
+        'sw3-2026-g2-lesson-6-step-4',
+        'sw3-2026-g2-lesson-6-step-5',
+        'sw3-2026-g2-lesson-7-step-1',
+        'sw3-2026-g2-lesson-7-step-2',
+        'sw3-2026-g2-lesson-7-step-3',
+        'sw3-2026-g2-lesson-7-step-4',
+        'sw3-2026-g2-lesson-7-step-5',
+        'sw3-2026-g2-lesson-8-step-1',
+        'sw3-2026-g2-lesson-8-step-2',
+        'sw3-2026-g2-lesson-8-step-3',
+        'sw3-2026-g2-lesson-8-step-4',
+        'sw3-2026-g2-lesson-8-step-5',
+        'sw3-2026-g2-lesson-9-step-1',
+        'sw3-2026-g2-lesson-9-step-2',
+        'sw3-2026-g2-lesson-9-step-3',
+        'sw3-2026-g2-lesson-9-step-4',
+        'sw3-2026-g2-lesson-9-step-5',
+        'sw3-2026-g2-lesson-10-step-1',
+        'sw3-2026-g2-lesson-10-step-2',
+        'sw3-2026-g2-lesson-10-step-3',
+        'sw3-2026-g2-lesson-10-step-4',
+        'sw3-2026-g2-lesson-10-step-5',
+        'sw3-2026-g2-kosis-project-python',
+        'sw3-2026-g2-simulation-python',
+        'sw3-2026-g2-avatar-python',
+        'sw3-2026-g2-datalab-sw01-1',
+        'sw3-2026-g2-datalab-sw01-2',
+        'sw3-2026-g2-datalab-sw03-1',
+        'sw3-2026-g2-datalab-sw03-2',
+        'sw3-2026-g2-datalab-sw04-1',
+        'sw3-2026-g2-datalab-sw04-2',
+        'sw2-inquiry-d-state',
+        'sw2-kosis',
+        'sw2-lesson-01-state',
+        'sw2-lesson-02-state',
+        'sw2-lesson-03-state',
+        'sw2-lesson-04-state',
+        'sw2-lesson-05-state',
+        'sw2-lesson-06-state',
+        'sw2-lesson-07-state',
+        'sw2-lesson-08-state',
+        'sw2-lesson-09-state',
+        'sw2-lesson-10-state',
+        'sw2-review',
+        'sw2-report',
+        'sw2-basics',
+        'sw2-binary',
+        'sw2-first-analysis',
+        'sw2-simulation',
+        'sw2-free-code',
+        'sw2-free-state',
+        'sw2-archive-01',
+        'sw2-archive2-01',
+        'sw2-archive-02',
+        'sw2-archive2-02',
+        'sw2-archive-03',
+        'sw2-archive2-03',
+        'sw2-archive-04',
+        'sw2-archive2-04',
+        'sw2-archive-05',
+        'sw2-archive2-05',
+        'sw2-archive-06',
+        'sw2-archive2-06',
+        'sw2-archive-07',
+        'sw2-archive2-07',
+        'sw2-archive-08',
+        'sw2-archive2-08',
+        'sw2-archive-09',
+        'sw2-archive2-09',
+        'sw2-archive-10',
+        'sw2-archive2-10',
+        'sw2-mastery-01',
+        'sw2-mastery-02',
+        'sw2-mastery-03',
+        'sw2-mastery-04',
+        'sw2-mastery-05',
+        'sw2-mastery-06',
+        'sw2-mastery-07',
+        'sw2-mastery-08',
+        'sw2-mastery-09',
+        'sw2-mastery-10',
+        'sw2-mastery-11',
+        'sw2-mastery-12',
+        'sw2-mastery-13',
+        'sw2-mastery-14',
+        'sw2-mastery-15',
+        'sw2-mastery-16',
+        'sw2-mastery-17',
+        'sw2-mastery-18',
+        'sw2-datalab-SW01-code',
+        'sw2-datalab-SW01-state',
+        'sw2-datalab-SW03-code',
+        'sw2-datalab-SW03-state',
+        'sw2-datalab-SW04-code',
+        'sw2-datalab-SW04-state'
+      ];
+    }
+    function validCode(d) {
+      return d.code is string && d.code.size() <= 20000 && d.title is string
+        && d.title.size() > 0 && d.title.size() <= 80 && swWorkspaceId(d.workspaceId)
+        && d.lessonId == d.workspaceId && d.runState in ['idle', 'success', 'error']
+        && d.completed is bool && d.version is int && d.version >= 1
+        && d.version <= 1000000 && d.savedAt == request.time;
+    }
+    // A server-time quota document must be committed with every code mutation.
+    // Fixed workspace IDs and a 10-slot revision ring bound storage growth.
+    function ticket(uid, id, kind) {
+      let t = getAfter(/databases/$(database)/documents/users/$(uid)/limits/state).data;
+      return t.updatedAt == request.time && t.workspaceId == id && t.kind == kind;
+    }
+    // SW student affiliation: teacher roster IDs are not a student's grade/class.
+    function swEnrollment(d) {
+      let catalog = get(/databases/$(database)/documents/config/swEnrollment).data;
+      let e = d.enrollment;
+      let school = catalog.schools[e.schoolId];
+      return catalog.enabled == true && school.active == true
+        && e.keys().hasOnly(['schoolId','schoolName','academicYear','grade','classNumber'])
+        && e.schoolName == school.name && e.academicYear == catalog.academicYear
+        && e.grade is int && e.grade in school.grades
+        && e.classNumber is int && e.classNumber in school.classNumbers
+        && d.classId == school.approvalClassId
+        && get(/databases/$(database)/documents/classes/$(d.classId)).data.active == true
+        && request.auth.token.email.split('@')[1] == school.emailDomain
+        && d.displayName is string && d.displayName.size() > 0 && d.displayName.size() <= 40;
+    }
+    match /config/swEnrollment { allow read: if signed(); allow write: if false; }
+    match /config/access { allow read: if signed(); allow write: if false; }
+    match /staff/{uid} { allow get: if own(uid); allow list, write: if false; }
+    match /classes/{classId} {
+      allow read: if signed();
+      allow update: if teaches(classId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'active'])
+        && request.resource.data.title is string && request.resource.data.title.size() <= 80
+        && request.resource.data.active is bool;
+      allow create, delete: if false;
+    }
+    match /users/{uid} {
+      allow get: if own(uid) || teaches(resource.data.classId);
+      allow list: if teaches(resource.data.classId) && request.query.limit <= 100;
+      allow create: if own(uid) && allowedEmail()
+        && request.resource.data.keys().hasOnly(['email','displayName','classId','enrollment','status','createdAt','updatedAt'])
+        && request.resource.data.email == request.auth.token.email
+        && swEnrollment(request.resource.data)
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
+      // User-authorized retirement of test-only approvals: legacy profiles re-enroll as pending.
+      // A real approved/blocked enrollment cannot self-reset or change teacher roster.
+      allow update: if own(uid) && allowedEmail()
+        && (!('enrollment' in resource.data) || resource.data.status == 'pending')
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['email','displayName','classId','enrollment','status','updatedAt'])
+        && request.resource.data.email == request.auth.token.email
+        && (!('enrollment' in resource.data) || request.resource.data.classId == resource.data.classId)
+        && request.resource.data.status == 'pending' && swEnrollment(request.resource.data)
+        && request.resource.data.updatedAt == request.time;
+      allow update: if teaches(resource.data.classId) && request.auth.uid != uid
+        && 'enrollment' in resource.data
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+        && ((resource.data.status == 'pending' && request.resource.data.status == 'approved')
+          || (resource.data.status == 'approved' && request.resource.data.status == 'blocked')
+          || (resource.data.status == 'blocked' && request.resource.data.status == 'approved'))
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+      match /limits/state {
+        allow read: if own(uid) || teaches(get(/databases/$(database)/documents/users/$(uid)).data.classId);
+        allow create, update: if approved(uid)
+          && request.resource.data.keys().hasOnly(['day','count','workspaceId','kind','updatedAt'])
+          && request.resource.data.day == request.time.date()
+          && request.resource.data.updatedAt == request.time
+          && swWorkspaceId(request.resource.data.workspaceId)
+          && request.resource.data.kind in ['save','submit','delete']
+          && request.resource.data.count is int && request.resource.data.count <= 150
+          && ((!exists(/databases/$(database)/documents/users/$(uid)/limits/state)
+                && request.resource.data.count == 1)
+            || (exists(/databases/$(database)/documents/users/$(uid)/limits/state)
+              && request.time >= resource.data.updatedAt + duration.value(15,'s')
+              && ((resource.data.day == request.time.date() && request.resource.data.count == resource.data.count + 1)
+                || (resource.data.day < request.time.date() && request.resource.data.count == 1))))
+          && ((request.resource.data.kind == 'save'
+                && getAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+            || (request.resource.data.kind == 'submit'
+                && getAfter(/databases/$(database)/documents/users/$(uid)/submissions/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+            || (request.resource.data.kind == 'delete'
+                && exists(/databases/$(database)/documents/users/$(uid)/workspaces/$(request.resource.data.workspaceId))
+                && !existsAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(request.resource.data.workspaceId))));
+        allow delete: if false;
+      }
+      match /workspaces/{id} {
+        allow read: if approved(uid);
+        allow create, update: if approved(uid) && swWorkspaceId(id)
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt'])
+          && request.resource.data.workspaceId == id && validCode(request.resource.data)
+          && ticket(uid,id,'save')
+          && ((!exists(/databases/$(database)/documents/users/$(uid)/workspaces/$(id)) && request.resource.data.version == 1)
+            || (exists(/databases/$(database)/documents/users/$(uid)/workspaces/$(id)) && request.resource.data.version == resource.data.version + 1));
+        allow delete: if approved(uid) && ticket(uid,id,'delete');
+      }
+      match /revisions/{id} {
+        allow read: if approved(uid);
+        allow create, update: if approved(uid)
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt','slot'])
+          && validCode(request.resource.data) && request.resource.data.slot is int
+          && request.resource.data.slot >= 0 && request.resource.data.slot < 10
+          && id == request.resource.data.workspaceId + '__' + string(request.resource.data.slot)
+          && ticket(uid,request.resource.data.workspaceId,'save')
+          && request.resource.data.version == getAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.version
+          && request.resource.data.code == getAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.code;
+        allow delete: if approved(uid);
+      }
+      match /progress/{id} {
+        allow read: if approved(uid) || teaches(get(/databases/$(database)/documents/users/$(uid)).data.classId);
+        allow create, update: if approved(uid) && swWorkspaceId(id)
+          && request.resource.data.keys().hasOnly(['workspaceId','runState','completed','savedAt','version'])
+          && ticket(uid,id,'save')
+          && request.resource.data == {
+            'workspaceId':id,
+            'runState':getAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(id)).data.runState,
+            'completed':getAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(id)).data.completed,
+            'savedAt':request.time,
+            'version':getAfter(/databases/$(database)/documents/users/$(uid)/workspaces/$(id)).data.version
+          };
+        allow delete: if approved(uid) && ticket(uid,id,'delete');
+      }
+      match /submissions/{id} {
+        allow read: if approved(uid) || teaches(resource.data.classId);
+        allow create, update: if approved(uid) && swWorkspaceId(id) && ticket(uid,id,'submit')
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt','classId'])
+          && validCode(request.resource.data) && request.resource.data.workspaceId == id
+          && request.resource.data.classId == get(/databases/$(database)/documents/users/$(uid)).data.classId;
+        allow delete: if approved(uid);
+      }
+    }
+    // Academic-year-scoped 2026 Grade 1 cohort is separate from prior/future years and Grade 2.
+    function mkWorkspaceId(id) {
+      return workspaceId(id) || id in [
+        'mk3-basics',
+        'mk3-turtle-square',
+        'mk3-turtle-coordinates',
+        'mk3-turtle-circles',
+        'mk3-turtle-star',
+        'mk3-turtle-illusion',
+        'mk3-plot-line',
+        'mk3-plot-bar',
+        'mk3-plot-scatter',
+        'mk3-plot-math',
+        'mk3-plot-conditional',
+        'mk3-list-edit',
+        'mk3-list-slices',
+        'mk3-list-sort',
+        'mk3-list-search',
+        'mk3-control',
+        'mk3-fstring',
+        'mk3-gugudan-vertical-comma',
+        'mk3-gugudan-vertical-fstring',
+        'mk3-gugudan-horizontal-comma',
+        'mk3-gugudan-horizontal-fstring',
+        'mk3-stars-left',
+        'mk3-stars-decrease',
+        'mk3-stars-right',
+        'mk3-stars-pyramid',
+        'mk3-stars-fstring',
+        'mk3-grid-bridge',
+        'mk3-inquiry-a',
+        'mk3-inquiry-b',
+        'mk3-inquiry-c',
+        'mk3-inquiry-d',
+        'mk3-gravity',
+        'mk3-coordinates',
+        'mk3-cu1173',
+        'mk3-cu1173-v',
+        'mk3-cu1218',
+        'mk3-cu1218-v',
+        'mk3-cu1274',
+        'mk3-cu1274-v',
+        'mk3-cu1281',
+        'mk3-cu1281-v',
+        'mk3-cu1411',
+        'mk3-cu1411-v',
+        'mk3-cu1412',
+        'mk3-cu1412-v',
+        'mk3-cu1425',
+        'mk3-cu1425-v',
+        'mk3-cu1468',
+        'mk3-cu1468-v',
+        'mk3-cu6097',
+        'mk3-cu6097-v',
+        'mk3-cu6098',
+        'mk3-cu6098-v',
+        'mk3-report',
+        'mk3-notebook'
+      ];
+    }
+    function mkValidCode(d) {
+      return d.code is string && d.code.size() <= 20000 && d.title is string
+        && d.title.size() > 0 && d.title.size() <= 80 && mkWorkspaceId(d.workspaceId)
+        && d.lessonId == d.workspaceId && d.runState in ['idle', 'success', 'error']
+        && d.completed is bool && d.version is int && d.version >= 1
+        && d.version <= 1000000 && d.savedAt == request.time;
+    }
+    function grade1Class(classId) {
+      return classId is string && classId.matches('class-1-([1-9]|1[0-2])');
+    }
+    function grade1Teaches(classId) {
+      return grade1Class(classId) && signed()
+        && request.auth.token.email == 'englishmath@muhak-g-h.gne.go.kr'
+        && exists(/databases/$(database)/documents/staff/$(request.auth.uid));
+    }
+    function grade1Approved(uid) {
+      return own(uid) && get(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)).data.status == 'approved';
+    }
+    function grade1Ticket(uid,id,kind) {
+      let t = getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/limits/state).data;
+      return t.updatedAt == request.time && t.workspaceId == id && t.kind == kind;
+    }
+
+    match /cohorts/2026/grade1_users/{uid} {
+      allow get: if own(uid) || grade1Teaches(resource.data.classId);
+      allow list: if grade1Teaches(resource.data.classId) && request.query.limit <= 100;
+      allow create: if own(uid) && allowedEmail()
+        && request.resource.data.keys().hasOnly(['email','displayName','classId','status','createdAt','updatedAt'])
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.displayName is string && request.resource.data.displayName.size() <= 80
+        && request.resource.data.status == 'pending'
+        && grade1Class(request.resource.data.classId)
+        && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
+      allow update: if grade1Teaches(resource.data.classId) && request.auth.uid != uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+        && request.resource.data.status in ['pending','approved','blocked']
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+      match /limits/state {
+        allow read: if own(uid) || grade1Teaches(get(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)).data.classId);
+        allow create, update: if grade1Approved(uid)
+          && request.resource.data.keys().hasOnly(['day','count','workspaceId','kind','updatedAt'])
+          && request.resource.data.day == request.time.date()
+          && request.resource.data.updatedAt == request.time
+          && mkWorkspaceId(request.resource.data.workspaceId)
+          && request.resource.data.kind in ['save','submit','delete']
+          && request.resource.data.count is int && request.resource.data.count <= 150
+          && ((!exists(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/limits/state)
+                && request.resource.data.count == 1)
+            || (exists(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/limits/state)
+              && request.time >= resource.data.updatedAt + duration.value(15,'s')
+              && ((resource.data.day == request.time.date() && request.resource.data.count == resource.data.count + 1)
+                || (resource.data.day < request.time.date() && request.resource.data.count == 1))))
+          && ((request.resource.data.kind == 'save'
+                && getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+            || (request.resource.data.kind == 'submit'
+                && getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/submissions/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+            || (request.resource.data.kind == 'delete'
+                && exists(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId))
+                && !existsAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId))));
+        allow delete: if false;
+      }
+      match /workspaces/{id} {
+        allow read: if grade1Approved(uid);
+        allow create, update: if grade1Approved(uid) && mkWorkspaceId(id)
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt'])
+          && request.resource.data.workspaceId == id && mkValidCode(request.resource.data)
+          && grade1Ticket(uid,id,'save')
+          && ((!exists(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(id)) && request.resource.data.version == 1)
+            || (exists(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(id)) && request.resource.data.version == resource.data.version + 1));
+        allow delete: if grade1Approved(uid) && grade1Ticket(uid,id,'delete');
+      }
+      match /revisions/{id} {
+        allow read: if grade1Approved(uid);
+        allow create, update: if grade1Approved(uid)
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt','slot'])
+          && mkValidCode(request.resource.data) && request.resource.data.slot is int
+          && request.resource.data.slot >= 0 && request.resource.data.slot < 10
+          && id == request.resource.data.workspaceId + '__' + string(request.resource.data.slot)
+          && grade1Ticket(uid,request.resource.data.workspaceId,'save')
+          && request.resource.data.version == getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.version
+          && request.resource.data.code == getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.code;
+        allow delete: if grade1Approved(uid);
+      }
+      match /progress/{id} {
+        allow read: if grade1Approved(uid) || grade1Teaches(get(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)).data.classId);
+        allow create, update: if grade1Approved(uid) && mkWorkspaceId(id)
+          && request.resource.data.keys().hasOnly(['workspaceId','runState','completed','savedAt','version'])
+          && grade1Ticket(uid,id,'save')
+          && request.resource.data == {
+            'workspaceId':id,
+            'runState':getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(id)).data.runState,
+            'completed':getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(id)).data.completed,
+            'savedAt':request.time,
+            'version':getAfter(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)/workspaces/$(id)).data.version
+          };
+        allow delete: if grade1Approved(uid) && grade1Ticket(uid,id,'delete');
+      }
+      match /submissions/{id} {
+        allow read: if grade1Approved(uid) || grade1Teaches(resource.data.classId);
+        allow create, update: if grade1Approved(uid) && mkWorkspaceId(id) && grade1Ticket(uid,id,'submit')
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt','classId'])
+          && mkValidCode(request.resource.data) && request.resource.data.workspaceId == id
+          && request.resource.data.classId == get(/databases/$(database)/documents/cohorts/2026/grade1_users/$(uid)).data.classId;
+        allow delete: if grade1Approved(uid);
+      }
+    }
+    // 2027 enrollments are new pending profiles. Each year and grade retains its own records.
+    match /cohorts/2027/{cohort}/{uid} {
+      function futureOwn(uid) {
+        return cohort in ['grade1_users', 'grade2_users'] && own(uid);
+      }
+      function futureClass(classId) {
+        return (cohort == 'grade1_users' && grade1Class(classId))
+          || (cohort == 'grade2_users' && classId is string && classId.matches('class-2-([1-9]|1[0-2])'));
+      }
+      function futureTeaches(classId) {
+        return futureClass(classId) && signed()
+          && request.auth.token.email == 'englishmath@muhak-g-h.gne.go.kr'
+          && exists(/databases/$(database)/documents/staff/$(request.auth.uid));
+      }
+      function futureApproved(uid) {
+        return futureOwn(uid)
+          && get(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)).data.status == 'approved';
+      }
+      function futureTicket(uid, id, kind) {
+        let t = getAfter(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/limits/state).data;
+        return t.updatedAt == request.time && t.workspaceId == id && t.kind == kind;
+      }
+
+      allow get: if futureOwn(uid) || futureTeaches(resource.data.classId);
+      allow list: if futureTeaches(resource.data.classId) && request.query.limit <= 100;
+      allow create: if futureOwn(uid) && allowedEmail()
+        && request.resource.data.keys().hasOnly(['email','displayName','classId','status','createdAt','updatedAt'])
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.displayName is string && request.resource.data.displayName.size() <= 80
+        && request.resource.data.status == 'pending'
+        && futureClass(request.resource.data.classId)
+        && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
+      allow update: if futureTeaches(resource.data.classId) && request.auth.uid != uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+        && request.resource.data.status in ['pending','approved','blocked']
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+      match /limits/state {
+        allow read: if futureOwn(uid) || futureTeaches(get(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)).data.classId);
+        allow create, update: if futureApproved(uid)
+          && request.resource.data.keys().hasOnly(['day','count','workspaceId','kind','updatedAt'])
+          && request.resource.data.day == request.time.date()
+          && request.resource.data.updatedAt == request.time
+          && mkWorkspaceId(request.resource.data.workspaceId)
+          && request.resource.data.kind in ['save','submit','delete']
+          && request.resource.data.count is int && request.resource.data.count <= 150
+          && ((!exists(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/limits/state)
+                && request.resource.data.count == 1)
+            || (exists(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/limits/state)
+              && request.time >= resource.data.updatedAt + duration.value(15,'s')
+              && ((resource.data.day == request.time.date() && request.resource.data.count == resource.data.count + 1)
+                || (resource.data.day < request.time.date() && request.resource.data.count == 1))))
+          && ((request.resource.data.kind == 'save'
+                && getAfter(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+            || (request.resource.data.kind == 'submit'
+                && getAfter(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/submissions/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+            || (request.resource.data.kind == 'delete'
+                && exists(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/workspaces/$(request.resource.data.workspaceId))
+                && !existsAfter(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/workspaces/$(request.resource.data.workspaceId))));
+        allow delete: if false;
+      }
+      match /workspaces/{id} {
+        allow read: if futureApproved(uid);
+        allow create, update: if futureApproved(uid) && mkWorkspaceId(id)
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt'])
+          && request.resource.data.workspaceId == id && mkValidCode(request.resource.data)
+          && futureTicket(uid,id,'save')
+          && ((!exists(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/workspaces/$(id)) && request.resource.data.version == 1)
+            || (exists(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/workspaces/$(id)) && request.resource.data.version == resource.data.version + 1));
+        allow delete: if futureApproved(uid) && futureTicket(uid,id,'delete');
+      }
+      match /revisions/{id} {
+        allow read: if futureApproved(uid);
+        allow create, update: if futureApproved(uid)
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt','slot'])
+          && mkValidCode(request.resource.data) && request.resource.data.slot is int
+          && request.resource.data.slot >= 0 && request.resource.data.slot < 10
+          && id == request.resource.data.workspaceId + '__' + string(request.resource.data.slot)
+          && futureTicket(uid,request.resource.data.workspaceId,'save')
+          && request.resource.data.version == getAfter(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.version
+          && request.resource.data.code == getAfter(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.code;
+        allow delete: if futureApproved(uid);
+      }
+      match /progress/{id} {
+        allow read: if futureApproved(uid) || futureTeaches(get(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)).data.classId);
+        allow create, update: if futureApproved(uid) && mkWorkspaceId(id)
+          && request.resource.data.keys().hasOnly(['workspaceId','runState','completed','savedAt','version'])
+          && futureTicket(uid,id,'save')
+          && request.resource.data == {
+            'workspaceId':id,
+            'runState':getAfter(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/workspaces/$(id)).data.runState,
+            'completed':getAfter(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/workspaces/$(id)).data.completed,
+            'savedAt':request.time,
+            'version':getAfter(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)/workspaces/$(id)).data.version
+          };
+        allow delete: if futureApproved(uid) && futureTicket(uid,id,'delete');
+      }
+      match /submissions/{id} {
+        allow read: if futureApproved(uid) || futureTeaches(resource.data.classId);
+        allow create, update: if futureApproved(uid) && mkWorkspaceId(id) && futureTicket(uid,id,'submit')
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt','classId'])
+          && mkValidCode(request.resource.data) && request.resource.data.workspaceId == id
+          && request.resource.data.classId == get(/databases/$(database)/documents/cohorts/2027/$(cohort)/$(uid)).data.classId;
+        allow delete: if futureApproved(uid);
+      }
+    }
+    // Public learner accounts: Google sign-in only, private per-UID code storage, no class or approval queue.
+    function personalApproved(uid) {
+      return own(uid) && get(/databases/$(database)/documents/public_users/$(uid)).data.status == 'approved'
+        && get(/databases/$(database)/documents/public_users/$(uid)).data.userType == 'personal';
+    }
+    function personalTicket(uid,id,kind) {
+      let t = getAfter(/databases/$(database)/documents/public_users/$(uid)/limits/state).data;
+      return t.updatedAt == request.time && t.workspaceId == id && t.kind == kind;
+    }
+
+    match /public_users/{uid} {
+      allow get: if own(uid);
+      allow list: if false;
+      allow create: if own(uid)
+        && request.resource.data.keys().hasOnly(['email','displayName','userType','status','createdAt','updatedAt'])
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 80
+        && request.resource.data.status == 'approved'
+        && request.resource.data.userType == 'personal'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update, delete: if false;
+      match /limits/state {
+        allow read: if own(uid) ;
+        allow create, update: if personalApproved(uid)
+          && request.resource.data.keys().hasOnly(['day','count','workspaceId','kind','updatedAt'])
+          && request.resource.data.day == request.time.date()
+          && request.resource.data.updatedAt == request.time
+          && mkWorkspaceId(request.resource.data.workspaceId)
+          && request.resource.data.kind in ['save','submit','delete']
+          && request.resource.data.count is int && request.resource.data.count <= 150
+          && ((!exists(/databases/$(database)/documents/public_users/$(uid)/limits/state)
+                && request.resource.data.count == 1)
+            || (exists(/databases/$(database)/documents/public_users/$(uid)/limits/state)
+              && request.time >= resource.data.updatedAt + duration.value(15,'s')
+              && ((resource.data.day == request.time.date() && request.resource.data.count == resource.data.count + 1)
+                || (resource.data.day < request.time.date() && request.resource.data.count == 1))))
+          && ((request.resource.data.kind == 'save'
+                && getAfter(/databases/$(database)/documents/public_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+            || (request.resource.data.kind == 'submit'
+                && getAfter(/databases/$(database)/documents/public_users/$(uid)/submissions/$(request.resource.data.workspaceId)).data.savedAt == request.time)
+            || (request.resource.data.kind == 'delete'
+                && exists(/databases/$(database)/documents/public_users/$(uid)/workspaces/$(request.resource.data.workspaceId))
+                && !existsAfter(/databases/$(database)/documents/public_users/$(uid)/workspaces/$(request.resource.data.workspaceId))));
+        allow delete: if false;
+      }
+      match /workspaces/{id} {
+        allow read: if personalApproved(uid);
+        allow create, update: if personalApproved(uid) && mkWorkspaceId(id)
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt'])
+          && request.resource.data.workspaceId == id && mkValidCode(request.resource.data)
+          && personalTicket(uid,id,'save')
+          && ((!exists(/databases/$(database)/documents/public_users/$(uid)/workspaces/$(id)) && request.resource.data.version == 1)
+            || (exists(/databases/$(database)/documents/public_users/$(uid)/workspaces/$(id)) && request.resource.data.version == resource.data.version + 1));
+        allow delete: if personalApproved(uid) && personalTicket(uid,id,'delete');
+      }
+      match /revisions/{id} {
+        allow read: if personalApproved(uid);
+        allow create, update: if personalApproved(uid)
+          && request.resource.data.keys().hasOnly(['workspaceId','lessonId','title','code','runState','completed','version','savedAt','slot'])
+          && mkValidCode(request.resource.data) && request.resource.data.slot is int
+          && request.resource.data.slot >= 0 && request.resource.data.slot < 10
+          && id == request.resource.data.workspaceId + '__' + string(request.resource.data.slot)
+          && personalTicket(uid,request.resource.data.workspaceId,'save')
+          && request.resource.data.version == getAfter(/databases/$(database)/documents/public_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.version
+          && request.resource.data.code == getAfter(/databases/$(database)/documents/public_users/$(uid)/workspaces/$(request.resource.data.workspaceId)).data.code;
+        allow delete: if personalApproved(uid);
+      }
+      match /progress/{id} {
+        allow read: if personalApproved(uid) ;
+        allow create, update: if personalApproved(uid) && mkWorkspaceId(id)
+          && request.resource.data.keys().hasOnly(['workspaceId','runState','completed','savedAt','version'])
+          && personalTicket(uid,id,'save')
+          && request.resource.data == {
+            'workspaceId':id,
+            'runState':getAfter(/databases/$(database)/documents/public_users/$(uid)/workspaces/$(id)).data.runState,
+            'completed':getAfter(/databases/$(database)/documents/public_users/$(uid)/workspaces/$(id)).data.completed,
+            'savedAt':request.time,
+            'version':getAfter(/databases/$(database)/documents/public_users/$(uid)/workspaces/$(id)).data.version
+          };
+        allow delete: if personalApproved(uid) && personalTicket(uid,id,'delete');
+      }
+      match /submissions/{id} {
+        allow read, write: if false;
+      }
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
+

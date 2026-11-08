@@ -59,3 +59,13 @@ pre,code,.cm-content,.cm-scroller{font-family:ui-monospace,Consolas,SWKorean,mon
 #sw-students .sw-record{overflow-wrap:anywhere}
 #sw-students .sw-record button{min-height:44px;max-width:100%;white-space:normal;text-align:center}
 @media(max-width:600px){#sw-students .sw-record{padding:12px}#sw-students .sw-record button{width:100%;margin:5px 0}}
+
+
+/* Student registration: single column on shared classroom phones. */
+.sw-enrollment-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:760px}
+.sw-enrollment-fields label{display:flex;flex-direction:column;gap:6px;font-weight:700;min-width:0}
+.sw-enrollment-fields input,.sw-enrollment-fields select{box-sizing:border-box;min-height:44px;width:100%;max-width:100%;padding:10px 12px;font:inherit;color:inherit;background:#fff;border:1px solid #aac5d0;border-radius:8px}
+.sw-enrollment-confirm{display:flex;align-items:flex-start;gap:8px;margin:18px 0;line-height:1.6}
+.sw-enrollment-confirm input{width:20px;height:20px;flex:none;margin-top:3px}
+.sw-enrollment [hidden]{display:none!important}
+@media(max-width:640px){.sw-enrollment-fields{grid-template-columns:minmax(0,1fr)}.sw-enrollment .btn{width:100%}}

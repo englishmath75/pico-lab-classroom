@@ -1,3 +1,4 @@
+import {enrollmentInput} from './enrollment.js';
 import { initializeApp } from 'firebase/app';
 import { initializeAuth, inMemoryPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup,
   onAuthStateChanged, signOut, connectAuthEmulator } from 'firebase/auth';
@@ -34,7 +35,9 @@ export function createCloud(config, emulator = false) {
     login: () => signInWithPopup(auth, provider),
     logout: () => signOut(auth),
     watchProfile(uid, onChange, onError) {
-      return onSnapshot(doc(db, 'users', uid), snapshot => onChange(snapshot.exists() ? snapshot.data() : null), onError);
+      return onSnapshot(doc(db, 'users', uid), {includeMetadataChanges: true}, snapshot => {
+        if (!snapshot.metadata.hasPendingWrites && !snapshot.metadata.fromCache) onChange(snapshot.exists() ? snapshot.data() : null);
+      }, onError);
     },
     async identity(user) {
       const [staff, profile, classes, access] = await Promise.all([
@@ -42,15 +45,17 @@ export function createCloud(config, emulator = false) {
         getDocsFromServer(query(collection(db, 'classes'), where('active', '==', true), limit(50))),
         getDocFromServer(doc(db, 'config', 'access'))
       ]);
+      let enrollmentConfig = null, enrollmentError = '';
+      if (!staff.exists() && (!profile.exists() || !profile.data().enrollment || profile.data().status === 'pending')) {
+        try { enrollmentConfig = (await getDocFromServer(doc(db, 'config', 'swEnrollment'))).data() || null; }
+        catch { enrollmentError = '학생 등록 설정을 불러오지 못했습니다. 잠시 뒤 승인 상태 확인을 누르거나 선생님께 알려 주세요.'; }
+      }
       return { staff: staff.exists() ? staff.data() : null, profile: profile.exists() ? profile.data() : null,
-        classes: classes.docs.map(d => ({ id: d.id, ...d.data() })), access: access.data() };
+        classes: classes.docs.map(d => ({ id: d.id, ...d.data() })), access: access.data(), enrollmentConfig, enrollmentError };
     },
-    async register(user, classId) {
-      if(!/^class-2-([1-9]|1[0-2])$/.test(classId))throw Error('기존 고2 학급을 선택해 주세요.');
-      const existing=await getDocFromServer(doc(db,'users',user.uid));
-      if(existing.exists())return existing.data();
-      await setDoc(doc(db, 'users', user.uid), { email: user.email, displayName: (user.displayName || '학생').slice(0, 80),
-        classId, status: 'pending', createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+    async register(user, fields) {
+      const current = () => { if (auth.currentUser?.uid !== user.uid) throw Error('계정이 변경되었습니다. 다시 로그인해 주세요.'); };
+      return registerStudent(db, user, fields, current);
     },
     async students(classId) {
       const result = await getDocsFromServer(query(collection(db, 'users'), where('classId', '==', classId), limit(100)));
@@ -77,6 +82,23 @@ export function createCloud(config, emulator = false) {
       return { progress: progress.map(d => d.data()), submissions: submissions.map(d => d.data()), quota: quota.data() };
     }
   };
+}
+
+export async function registerStudent(db, user, fields, assertCurrent = () => {}) {
+  assertCurrent();
+  const ref = doc(db, 'users', user.uid);
+  await runTransaction(db, async transaction => {
+    const [existing, catalog] = await Promise.all([transaction.get(ref), transaction.get(doc(db, 'config', 'swEnrollment'))]);
+    assertCurrent();
+    const data = enrollmentInput(catalog.data(), user.email, fields);
+    if (existing.exists()) {
+      if (existing.data().enrollment && existing.data().status !== 'pending') throw Error('이미 등록된 계정입니다. 소속 변경은 선생님께 요청해 주세요.');
+      if (existing.data().enrollment && existing.data().classId !== data.classId) throw Error('기존 수업 등록은 자동으로 변경하지 않습니다. 선생님께 소속 확인을 요청해 주세요.');
+      transaction.update(ref, {...data, email: user.email, status: 'pending', updatedAt: serverTimestamp()});
+    } else {
+      transaction.set(ref, {...data, email: user.email, status: 'pending', createdAt: serverTimestamp(), updatedAt: serverTimestamp()});
+    }
+  });
 }
 
 async function allDocuments(base, batchSize=50) {
@@ -129,3 +151,4 @@ export class StudentStore {
     });
   }
 }
+
