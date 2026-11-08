@@ -58,8 +58,8 @@ export function createCloud(config, emulator = false) {
       return registerStudent(db, user, fields, current);
     },
     async students(classId) {
-      const result = await getDocsFromServer(query(collection(db, 'users'), where('classId', '==', classId), limit(100)));
-      return result.docs.map(d => ({ uid: d.id, ...d.data() }));
+      const docs = await allDocuments(query(collection(db, 'users'), where('classId', '==', classId)), 100);
+      return docs.map(d => ({ uid: d.id, ...d.data() }));
     },
     approve(uid, status) { return updateDoc(doc(db, 'users', uid), { status, updatedAt: serverTimestamp() }); },
     async changeStudentStatus(uid, expected, next) {

@@ -216,8 +216,8 @@ import providedData from '../provided-data.json';
  async function showTeacher(gen){
   if(!identity?.staff){$('sw-view').textContent='담당 교사 권한이 필요합니다.';return;}
   const classes=identity.classes.filter(c=>identity.staff.classIds?.includes(c.id));
-  $('sw-view').innerHTML='<section class="panel"><h1>교사용 관리실 · 학생 계정 관리</h1><p>담당 학급 학생의 승인·이용 정지·정지 해제를 관리합니다. 상태를 바꿔도 기존 학습 기록은 삭제되지 않습니다.</p><p class="sw-caption">승인 대기 → 학생 승인 · 승인됨 → 이용 정지 · 이용 중지 → 정지 해제. 학생 화면은 상태가 변경되면 자동으로 반영됩니다.</p><label for="sw-teacher-class">관리할 학급</label><select id="sw-teacher-class"></select><p id="sw-teacher-summary" role="status"></p><div id="sw-students"></div></section>';
-  for(const c of classes)$('sw-teacher-class').append(new Option(c.title,c.id));
+  $('sw-view').innerHTML='<section class="panel"><h1>교사용 관리실 · 학생 계정 관리</h1><p>담당 학급 학생의 승인·이용 정지·정지 해제를 관리합니다. 상태를 바꿔도 기존 학습 기록은 삭제되지 않습니다.</p><p class="sw-caption">승인 대기 → 학생 승인 · 승인됨 → 이용 정지 · 이용 중지 → 정지 해제. 학생 화면은 상태가 변경되면 자동으로 반영됩니다.</p><label for="sw-teacher-class">승인 요청을 받을 수업</label><select id="sw-teacher-class"></select><p id="sw-teacher-summary" role="status"></p><div id="sw-students"></div></section>';
+  for(const c of classes)$('sw-teacher-class').append(new Option(classes.length===1?'SW · 소프트웨어와 생활':c.title,c.id));
   async function list(){
    const classId=$('sw-teacher-class').value;
    if(!classId){$('sw-teacher-summary').textContent='담당 학급이 등록되어 있지 않습니다.';return;}
@@ -226,6 +226,7 @@ import providedData from '../provided-data.json';
    $('sw-students').replaceChildren();
    const labels={pending:'승인 대기',approved:'승인됨',blocked:'이용 중지'};
    const counts={pending:0,approved:0,blocked:0};
+   students.sort((a,b)=>(a.enrollment?.grade||0)-(b.enrollment?.grade||0)||(a.enrollment?.classNumber||0)-(b.enrollment?.classNumber||0)||(a.displayName||'').localeCompare(b.displayName||'','ko'));
    for(const student of students){
     if(student.uid===user?.uid||!student.enrollment)continue;
     if(Object.hasOwn(counts,student.status))counts[student.status]++;
@@ -417,6 +418,7 @@ import providedData from '../provided-data.json';
      stopProfile=cloud.watchProfile(next.uid,profile=>{
       if(generation!==sessionGeneration||!identity)return;
       const previous=identity.profile?.status||null,updated=profile?.status||null;
+      if(previous===updated&&identity.profile?.displayName===profile?.displayName&&JSON.stringify(identity.profile?.enrollment)===JSON.stringify(profile?.enrollment))return;
       identity={...identity,profile};store.writable=approvedStudent(profile);renderRegistration();updateStatus();
       if(previous===updated)return;
       if(updated==='blocked')say('교사가 계정 이용을 중지했습니다. 미저장 초안은 ‘초안 내려받기’로 보관하세요.',true);

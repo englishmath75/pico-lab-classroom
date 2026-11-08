@@ -776,4 +776,3 @@ service cloud.firestore {
     match /{document=**} { allow read, write: if false; }
   }
 }
-
