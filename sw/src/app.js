@@ -60,7 +60,7 @@ import providedData from '../provided-data.json';
   $('sw-user').textContent=user?((user.displayName||'로그인한 사용자')+' · '+(user.email||'')):'로그인 전';
   const cls=identity?.classes?.find(c=>c.id===identity.profile?.classId);
   $('sw-space').textContent=(cls?(cls.title.includes('2026')?cls.title:'2026학년도 '+cls.title):null)|| (user?'기존 고2 학급 확인':'고2 · 소프트웨어와 생활');
-  $('sw-teacher').hidden=!identity?.staff;$('sw-teacher-menu').hidden=!identity?.staff;$('sw-refresh').hidden=!user;
+  $('sw-teacher').hidden=!identity?.staff;$('sw-teacher-menu').hidden=!identity?.staff;$('sw-teacher-shortcut').hidden=!identity?.staff;$('sw-refresh').hidden=!user;
  }
  function release(){
   viewGeneration++;activeExerciseIds.clear();try{frame?.contentWindow?.SWRelease?.();frame?.contentWindow?.SWDispose?.();}catch{}
