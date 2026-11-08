@@ -90,6 +90,25 @@ try{
   const card=t.page.locator('.sw-record').filter({hasText:people.student.name});await card.getByRole('button',{name:'진도·제출물 확인',exact:true}).click();await expect(card.locator('.sw-detail')).toContainText('A.append(7)');
   await t.page.screenshot({path:artifacts+'/teacher-submission.png'});assert.equal((await value(people.student.uid,EX)).code,CODE);
  });
+ await scenario('teacher suspends and reinstates student, live learner state and saved records survive',async()=>{
+  const t=await device('/?page=teacher');await login(t.page,people.teacher);
+  const card=()=>t.page.locator('.sw-record').filter({hasText:people.student.name});
+  await expect(card().getByRole('button',{name:'이용 정지',exact:true})).toBeVisible();
+  await card().getByRole('button',{name:'이용 정지',exact:true}).click();
+  await t.page.locator('#sw-dialog-actions').getByRole('button',{name:'이용 정지',exact:true}).click();
+  await expect.poll(async()=>admin(async db=>(await getDocFromServer(doc(db,'users',people.student.uid))).data().status)).toBe('blocked');
+  await expect(home.page.locator('#sw-save-state')).toContainText('저장 권한이 중지됨');
+  await expect(card().getByRole('button',{name:'정지 해제 · 이용 재개',exact:true})).toBeVisible();
+  assert.equal((await value(people.student.uid,EX)).code,CODE);
+  await card().getByRole('button',{name:'정지 해제 · 이용 재개',exact:true}).click();
+  await t.page.locator('#sw-dialog-actions').getByRole('button',{name:'정지 해제 · 이용 재개',exact:true}).click();
+  await expect.poll(async()=>admin(async db=>(await getDocFromServer(doc(db,'users',people.student.uid))).data().status)).toBe('approved');
+  await expect(card().getByRole('button',{name:'이용 정지',exact:true})).toBeVisible();
+  await expect(home.page.locator('#sw-save-state')).not.toContainText('저장 권한이 중지됨');
+  assert.equal((await value(people.student.uid,EX)).code,CODE);
+  await t.page.setViewportSize({width:390,height:844});await expect(card().getByRole('button',{name:'이용 정지',exact:true})).toBeVisible();
+  await t.page.screenshot({path:artifacts+'/teacher-status-controls-390.png'});
+ });
  await scenario('saved empty student code survives fresh teacher defaults',async()=>{
   const p=home.page;await age();await code(p,'');await p.locator('.sw-practice').getByRole('button',{name:'계정에 저장',exact:true}).click();await expect.poll(async()=> (await value(people.student.uid,EX)).code).toBe('');
   const n=await device(BASE);await login(n.page,people.student);await expect(n.page.locator('.cm-content')).toHaveText('');
