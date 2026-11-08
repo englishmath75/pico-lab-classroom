@@ -9,8 +9,8 @@ import {encode} from '../src/store.js';
 import {activityIds} from '../src/registry.js';
 let env;
 const auth=uid=>env.authenticatedContext(uid,{email:uid+'@muhak-g-h.gne.go.kr',email_verified:true,firebase:{sign_in_provider:'google.com'}}).firestore();
-const profile=status=>({email:'alice@muhak-g-h.gne.go.kr',displayName:'emulator',classId:'class-2-1',status,createdAt:Timestamp.now(),updatedAt:Timestamp.now()});
-before(async()=>{env=await initializeTestEnvironment({projectId:'demo-englishmath-python',firestore:{host:'127.0.0.1',port:8080,rules:readFileSync('sw/security/integration-proposed.rules','utf8')}});});
+const profile=status=>({email:'alice@muhak-g-h.gne.go.kr',displayName:'emulator',classId:'class-2-1',enrollment:{schoolId:'muhak-g-h',schoolName:'마산무학여자고등학교',academicYear:2026,grade:2,classNumber:1},status,createdAt:Timestamp.now(),updatedAt:Timestamp.now()});
+before(async()=>{env=await initializeTestEnvironment({projectId:'demo-englishmath-python',firestore:{host:'127.0.0.1',port:8080,rules:readFileSync(process.env.SW_RULES_FILE||'sw/security/integration-proposed.rules','utf8')}});});
 beforeEach(async()=>{await env.clearFirestore();await env.withSecurityRulesDisabled(async c=>{
  const db=c.firestore();await Promise.all([setDoc(doc(db,'config/access'),{allowedDomains:['muhak-g-h.gne.go.kr'],allowedEmails:[]}),setDoc(doc(db,'users/alice'),profile('approved')),setDoc(doc(db,'users/bob'),profile('approved')),setDoc(doc(db,'users/pending'),profile('pending')),setDoc(doc(db,'staff/teacher'),{classIds:['class-2-1']}),setDoc(doc(db,'cohorts/2026/grade1_users/alice'),{...profile('approved'),classId:'class-1-1'}),setDoc(doc(db,'public_users/alice'),{email:'alice@muhak-g-h.gne.go.kr',displayName:'emulator',status:'approved',userType:'personal',createdAt:Timestamp.now(),updatedAt:Timestamp.now()})]);
 });});
@@ -76,3 +76,4 @@ test('library paginates more than 150 authorized exercise records without cross-
  const rows=await new StudentStore(auth('alice')).list('alice');assert.equal(rows.length,160);assert.equal(new Set(rows.map(r=>r.workspaceId)).size,160);
  await assertFails(new StudentStore(auth('bob')).list('alice'));
 });
+

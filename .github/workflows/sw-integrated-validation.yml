@@ -43,7 +43,7 @@ jobs:
       - name: Desktop and mobile interaction
         run: node sw/tests/integration-ui.mjs
       - name: Account ownership, restore and teacher submission
-        run: npx firebase emulators:exec --config sw/firebase.integration.json --project demo-englishmath-python --only auth,firestore 'SW_RULES_FILE=sw/security/integration-proposed.rules node --test --test-concurrency=1 sw/tests/student-security.test.mjs sw/tests/grade1-isolation.test.mjs sw/tests/integration-security.test.mjs && node sw/tests/integration-accounts.mjs'
+        run: npx firebase emulators:exec --config sw/firebase.enrollment.json --project demo-englishmath-python --only auth,firestore 'SW_ENROLLMENT=1 SW_RULES_FILE=sw/security/enrollment-proposed.rules node --test --test-concurrency=1 sw/tests/student-security.test.mjs sw/tests/grade1-isolation.test.mjs sw/tests/integration-security.test.mjs sw/tests/enrollment-security.test.mjs && SW_RULES_FILE=sw/security/enrollment-proposed.rules node sw/tests/integration-accounts.mjs'
       - name: Every registered example executes in a fresh runtime
         env:
           SW_CATALOG_JOBS: 2
@@ -65,3 +65,4 @@ jobs:
           name: sw-integrated-acceptance-evidence
           path: sw/evidence/
           retention-days: 30
+

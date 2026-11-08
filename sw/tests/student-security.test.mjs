@@ -9,11 +9,12 @@ let env;
 const projectId='demo-englishmath-python';
 const auth=(uid,extra={})=>env.authenticatedContext(uid,{email:uid+'@muhak-g-h.gne.go.kr',email_verified:true,firebase:{sign_in_provider:'google.com'},...extra}).firestore();
 const input=(code='print(42)')=>({code,title:'실습',runState:'success',completed:false,classId:'class-2-1'});
-const profile=(uid,classId='class-2-1',status='approved')=>({email:uid+'@muhak-g-h.gne.go.kr',displayName:uid,classId,status,createdAt:Timestamp.now(),updatedAt:Timestamp.now()});
+const profile=(uid,classId='class-2-1',status='approved')=>({email:uid+'@muhak-g-h.gne.go.kr',displayName:uid,classId,enrollment:{schoolId:'muhak-g-h',schoolName:'마산무학여자고등학교',academicYear:2026,grade:2,classNumber:1},status,createdAt:Timestamp.now(),updatedAt:Timestamp.now()});
 async function seed(extra=[]) {
   await env.withSecurityRulesDisabled(async ctx=>{
     const db=ctx.firestore();
     await Promise.all([
+      setDoc(doc(db,'config/swEnrollment'),JSON.parse(readFileSync('sw/security/enrollment-catalog.proposed.json','utf8'))),
       setDoc(doc(db,'config/access'),{allowedDomains:['muhak-g-h.gne.go.kr'],allowedEmails:[]}),
       setDoc(doc(db,'classes/class-2-1'),{title:'2학년 1반',active:true}),
       setDoc(doc(db,'classes/class-2-2'),{title:'2학년 2반',active:true}),
@@ -42,7 +43,9 @@ test('승인 대기·익명·인증 안 된 이메일·다른 로그인 제공�
 });
 test('허용된 학교 계정은 pending만 생성, 타 도메인은 등록 불가',async()=>{
   const student=auth('new-student');
-  await assertSucceeds(setDoc(doc(student,'users/new-student'),{...profile('new-student','class-2-1','pending'),createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
+  const registration={...profile('new-student','class-2-1','pending'),createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+  if(process.env.SW_ENROLLMENT!=='1')delete registration.enrollment;
+  await assertSucceeds(setDoc(doc(student,'users/new-student'),registration));
   await assertFails(setDoc(doc(auth('intruder',{email:'intruder@gmail.com'}),'users/intruder'),{...profile('intruder'),email:'intruder@gmail.com',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp()}));
 });
 test('학생 관리자 권한·학급·승인 상태 위조 불가',async()=>{
@@ -124,3 +127,4 @@ test('로그아웃·계정 교체 후 늦게 도착한 결과와 학생 코드 �
   s.set('bob new');const pending=s.checkpoint();s.set('bob newer');assert.equal(s.saved(pending,1),true);assert.equal(s.dirty,true);
   s.change(null);assert.equal(s.uid,null);assert.equal(s.code,'');assert.equal(s.version,0);
 });
+
