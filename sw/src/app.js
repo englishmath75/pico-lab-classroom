@@ -8,7 +8,7 @@ import providedData from '../provided-data.json';
 (function startApp(){
  'use strict';
  const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- let cloud,user=null,identity=null,authReady=false,store,route,frame=null,disposeView=()=>{},engine=null,viewGeneration=0,sessionGeneration=0,lastActivity=Date.now(),ending=false,autoBusy=false,guestBackup=null,dialogResolve=null;
+ let cloud,user=null,identity=null,authReady=false,store,route,frame=null,disposeView=()=>{},engine=null,viewGeneration=0,sessionGeneration=0,lastActivity=Date.now(),ending=false,autoBusy=false,guestBackup=null,dialogResolve=null,stopProfile=null;
  const download=(name,text,type='application/json;charset=utf-8')=>{const u=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);};
  const activeExerciseIds=new Set();
  const side=document.querySelector('.side'),sideNav=side?.querySelector('nav');
@@ -44,14 +44,14 @@ import providedData from '../provided-data.json';
   if(ending)label='학습 종료 처리 중';
   else if(!user)label=dirty.length?'메모리 임시 보관 · 로그인 필요':'로그인 필요';
   else if(!identity)label='승인 확인 중';
-  else if(!store.writable)label=identity.profile?.status==='pending'?'학급 승인 대기':identity.profile?.status==='blocked'?'저장 권한이 중지됨':'학급 등록 필요';
+  else if(!store.writable)label=identity?.staff?'교사 계정 · 학생용 저장 기능은 승인된 학생 계정에서 사용합니다.':identity.profile?.status==='pending'?'학급 승인 대기':identity.profile?.status==='blocked'?'저장 권한이 중지됨 · 교사에게 정지 해제 요청':'학급 등록 필요';
   else if(readError)label='읽기 실패 · '+readError.message;
   else if(error)label=(error.kind==='conflict'?'충돌 · ':'저장 실패 · ')+error.error.message;
   else if(saving)label='저장 대기·처리 중 · 남은 초안 '+dirty.length+'개';
   else if(dirty.length)label='변경됨 · 저장할 초안 '+dirty.length+'개';
   else if(active.some(d=>d.kind==='saved'))label='클라우드 저장 완료 · '+new Date(Math.max(...active.map(d=>d.savedAt||0))).toLocaleTimeString('ko-KR');
   else if(active.some(d=>d.version>0))label='클라우드 저장본 불러옴';
-  else label=route?.storageMode==='none'?'이 화면은 저장 대상이 없습니다.':'작성하면 계정에 자동 저장됩니다.';
+  else label=route?.storageMode==='none'?(identity?.staff?'교사 계정 · 현재 안내 화면은 저장 대상이 아닙니다.':'이 안내 화면은 저장 대상이 아닙니다.'):'작성하면 계정에 자동 저장됩니다.';
   $('sw-save-state').textContent=label;
   $('sw-save').hidden=route?.storageMode==='none'&&!activeExerciseIds.size;
   $('sw-submit').hidden=route?.storageMode==='none'&&!activeExerciseIds.size||!store.writable;
@@ -214,29 +214,62 @@ import providedData from '../provided-data.json';
   }catch(e){if(gen===viewGeneration)$('sw-records').textContent='보관함을 읽지 못했습니다. '+readableError(e);}
  }
  async function showTeacher(gen){
-  if(!identity?.staff){$('sw-view').textContent='기존 담당 교사 권한이 필요합니다.';return;}
+  if(!identity?.staff){$('sw-view').textContent='담당 교사 권한이 필요합니다.';return;}
   const classes=identity.classes.filter(c=>identity.staff.classIds?.includes(c.id));
-  $('sw-view').innerHTML='<section class="panel"><h1>교사용 관리실</h1><p>담당 학급의 승인·진도와 명시적으로 제출한 자료만 확인합니다.</p><select id="sw-teacher-class"></select><div id="sw-students"></div></section>';
+  $('sw-view').innerHTML='<section class="panel"><h1>교사용 관리실 · 학생 계정 관리</h1><p>담당 학급 학생의 승인·이용 정지·정지 해제를 관리합니다. 상태를 바꿔도 기존 학습 기록은 삭제되지 않습니다.</p><p class="sw-caption">승인 대기 → 학생 승인 · 승인됨 → 이용 정지 · 이용 중지 → 정지 해제. 학생 화면은 상태가 변경되면 자동으로 반영됩니다.</p><label for="sw-teacher-class">관리할 학급</label><select id="sw-teacher-class"></select><p id="sw-teacher-summary" role="status"></p><div id="sw-students"></div></section>';
   for(const c of classes)$('sw-teacher-class').append(new Option(c.title,c.id));
   async function list(){
-   const classId=$('sw-teacher-class').value;if(!classId)return;
-   const students=await cloud.students(classId);if(gen!==viewGeneration)return;$('sw-students').replaceChildren();
+   const classId=$('sw-teacher-class').value;
+   if(!classId){$('sw-teacher-summary').textContent='담당 학급이 등록되어 있지 않습니다.';return;}
+   $('sw-teacher-summary').textContent='학생 계정을 확인하고 있습니다…';
+   const students=await cloud.students(classId);if(gen!==viewGeneration)return;
+   $('sw-students').replaceChildren();
+   const labels={pending:'승인 대기',approved:'승인됨',blocked:'이용 중지'};
+   const counts={pending:0,approved:0,blocked:0};
    for(const student of students){
+    if(student.uid===user?.uid)continue;
+    if(Object.hasOwn(counts,student.status))counts[student.status]++;
     const card=document.createElement('article');card.className='sw-record';
-    const title=document.createElement('h2');title.textContent=(student.displayName||'학생')+' · '+student.status;card.append(title);
-    if(student.status==='pending'){
-     const b=document.createElement('button');b.className='btn secondary';b.textContent='이 학생 승인';b.onclick=async()=>{if(await ask('학생 승인','담당 학급 등록 요청을 승인합니다.',[['approve','승인'],['cancel','취소']])==='approve'){await cloud.approve(student.uid,'approved');await list();}};card.append(b);
+    const title=document.createElement('h2');title.textContent=(student.displayName||'학생')+' · '+(labels[student.status]||'상태 확인 필요');card.append(title);
+    const email=document.createElement('p');email.className='sw-caption';email.textContent=student.email||'';card.append(email);
+    const transitions={pending:['approved','학생 승인'],approved:['blocked','이용 정지'],blocked:['approved','정지 해제 · 이용 재개']};
+    const next=transitions[student.status];
+    if(next){
+     const [status,label]=next;
+     const b=document.createElement('button');b.className='btn '+(status==='approved'?'primary':'secondary');b.textContent=label;
+     b.onclick=async()=>{
+      const detail=student.displayName+' 학생의 상태를 '+(labels[status]||status)+'(으)로 변경합니다. 학습 기록은 보존됩니다.';
+      const answer=await ask(label,detail,[['confirm',label],['cancel','취소']]);
+      if(answer!=='confirm')return;
+      b.disabled=true;
+      try{
+       await cloud.changeStudentStatus(student.uid,student.status,status);
+       if(gen!==viewGeneration)return;
+       say(student.displayName+' 학생: '+(labels[student.status]||student.status)+' → '+(labels[status]||status)+' 변경 완료');
+       await list();
+      }catch(e){say('상태 변경 실패: '+readableError(e),true);b.disabled=false;}
+     };
+     card.append(b);
     }
-    const b=document.createElement('button');b.className='btn secondary';b.textContent='진도·제출물 확인';b.onclick=async()=>{
-     const data=await cloud.teacherDetails(student.uid,classId);if(gen!==viewGeneration)return;
-     const detail=document.createElement('div');const p=document.createElement('p');p.textContent='진도 '+data.progress.length+'건 · 명시적 제출 '+data.submissions.length+'건';detail.append(p);
-     for(const r of data.progress){const x=document.createElement('p');x.textContent=titleFor(r.workspaceId)+' · '+(r.completed?'완료':'진행 중');detail.append(x);}
-     for(const r of data.submissions){const h=document.createElement('h3');h.textContent=r.title;const pre=document.createElement('pre');try{pre.textContent=structured(r.workspaceId)?JSON.stringify(decode(r.workspaceId,r.code),null,2):r.code;}catch{pre.textContent='기록 형식 확인 필요';}detail.append(h,pre);}
-     card.querySelector('.sw-detail')?.remove();detail.className='sw-detail';card.append(detail);
-    };card.append(b);$('sw-students').append(card);
+    const b=document.createElement('button');b.className='btn secondary';b.textContent='진도·제출물 확인';
+    b.onclick=async()=>{
+     b.disabled=true;
+     try{
+      const data=await cloud.teacherDetails(student.uid,classId);if(gen!==viewGeneration)return;
+      const detail=document.createElement('div');const p=document.createElement('p');p.textContent='진도 '+data.progress.length+'건 · 명시적 제출 '+data.submissions.length+'건';detail.append(p);
+      for(const r of data.progress){const x=document.createElement('p');x.textContent=titleFor(r.workspaceId)+' · '+(r.completed?'완료':'진행 중');detail.append(x);}
+      for(const r of data.submissions){const h=document.createElement('h3');h.textContent=r.title;const pre=document.createElement('pre');try{pre.textContent=structured(r.workspaceId)?JSON.stringify(decode(r.workspaceId,r.code),null,2):r.code;}catch{pre.textContent='기록 형식 확인 필요';}detail.append(h,pre);}
+      card.querySelector('.sw-detail')?.remove();detail.className='sw-detail';card.append(detail);
+     }catch(e){say('학습 기록 조회 실패: '+readableError(e),true);}
+     finally{b.disabled=false;}
+    };
+    card.append(b);$('sw-students').append(card);
    }
+   $('sw-teacher-summary').textContent='전체 '+(counts.pending+counts.approved+counts.blocked)+'명 · 승인 '+counts.approved+'명 · 승인 대기 '+counts.pending+'명 · 이용 중지 '+counts.blocked+'명';
+   if(!students.length)$('sw-students').textContent='이 학급에 등록된 학생이 없습니다.';
   }
-  $('sw-teacher-class').onchange=()=>list().catch(e=>say(readableError(e),true));await list();
+  $('sw-teacher-class').onchange=()=>list().catch(e=>say('학생 목록 조회 실패: '+readableError(e),true));
+  await list().catch(e=>{say('학생 목록 조회 실패: '+readableError(e),true);$('sw-teacher-summary').textContent='목록을 불러오지 못했습니다. 담당 학급 및 교사 권한을 확인하세요.';});
  }
  async function importFile(file){
   const generation=sessionGeneration,sourceRoute=route?.url,unit=route?.id==='data-lab'?route.params.unit:null;
@@ -328,12 +361,22 @@ import providedData from '../provided-data.json';
   addEventListener('popstate',()=>void navigate(location.href,{replace:true}));
   addEventListener('beforeunload',e=>{if(store.dirty().length){e.preventDefault();e.returnValue='';}});
   cloud.observe(async next=>{
-   const generation=++sessionGeneration;authReady=false;release();user=next;identity=null;store.change(next?.uid||null,false);updateStatus();
+   const generation=++sessionGeneration;authReady=false;if(stopProfile){stopProfile();stopProfile=null;}release();user=next;identity=null;store.change(next?.uid||null,false);updateStatus();
    if(next){
     say('');lastActivity=Date.now();
     try{
      const result=await cloud.identity(next);if(generation!==sessionGeneration)return;identity=result;store.writable=result.profile?.status==='approved';
      $('sw-registration').hidden=!!result.profile||!!result.staff;
+     stopProfile=cloud.watchProfile(next.uid,profile=>{
+      if(generation!==sessionGeneration||!identity)return;
+      const previous=identity.profile?.status||null,updated=profile?.status||null;
+      if(previous===updated)return;
+      identity={...identity,profile};store.writable=updated==='approved';updateStatus();
+      if(updated==='blocked')say('교사가 계정 이용을 중지했습니다. 미저장 초안은 ‘초안 내려받기’로 보관하세요.',true);
+      else if(updated==='approved')say('학급 이용 승인이 확인되었습니다. 계정 저장 기능을 사용할 수 있습니다.');
+      else say('학급 승인 상태가 변경되었습니다. 교사에게 확인해 주세요.',true);
+      if(updated==='approved')void navigate(route?.url||location.href,{replace:true}).catch(e=>say(readableError(e),true));
+     },e=>{if(generation===sessionGeneration)say('실시간 승인 확인 오류: '+readableError(e)+' · 승인 상태 확인을 눌러 다시 조회하세요.',true);});
      $('sw-register-class').replaceChildren();
      for(const c of result.classes.filter(c=>/^class-2-([1-9]|1[0-2])$/.test(c.id)))$('sw-register-class').append(new Option(c.title,c.id));
      $('sw-register').onclick=async()=>{try{await cloud.register(user,$('sw-register-class').value);identity=await cloud.identity(user);store.writable=identity.profile?.status==='approved';$('sw-registration').hidden=!!identity.profile;updateStatus();}catch(e){say(readableError(e),true);}};
