@@ -52,3 +52,10 @@ pre,code,.cm-content,.cm-scroller{font-family:ui-monospace,Consolas,SWKorean,mon
 
 .sw-shell :is(h1,h2,h3,p,a,span,strong,small,label,summary,button,select){font-family:SWKorean,system-ui,"Malgun Gothic",sans-serif!important}
 .sw-practice{font-size:16px;line-height:1.65}.sw-practice h2{font-size:21px;margin:0 0 10px;color:#153d50}.sw-practice label{font-size:14px;color:#3c596a;margin:10px 0}.sw-practice textarea{border:1px solid #b9ced5;border-radius:8px;padding:10px;font-size:15px;min-height:78px}.sw-practice .visual-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.sw-practice .visual-actions button:first-child{font-weight:700}.sw-practice [role=status]{font-size:14px;margin:8px 0}.sw-practice .notice{background:#fff5d8;border-left:3px solid #c8953b;padding:12px}.sw-practice input[type=file]{font-size:13px}
+
+/* Teacher account actions remain readable and tappable on shared PCs and phones. */
+#sw-teacher-class{font-size:16px;max-width:100%;min-height:42px;padding:8px 12px;border:1px solid #abc8cf;border-radius:9px;background:#fff;color:#173f4a}
+#sw-teacher-summary{font-weight:700;line-height:1.6;overflow-wrap:anywhere}
+#sw-students .sw-record{overflow-wrap:anywhere}
+#sw-students .sw-record button{min-height:44px;max-width:100%;white-space:normal;text-align:center}
+@media(max-width:600px){#sw-students .sw-record{padding:12px}#sw-students .sw-record button{width:100%;margin:5px 0}}
