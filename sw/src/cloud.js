@@ -3,7 +3,7 @@ import { initializeAuth, inMemoryPersistence, browserPopupRedirectResolver, Goog
   onAuthStateChanged, signOut, connectAuthEmulator } from 'firebase/auth';
 import { initializeFirestore, memoryLocalCache, connectFirestoreEmulator,
   doc, collection, getDocFromServer, getDocsFromServer, query, where, limit,
-  orderBy, documentId, startAfter, runTransaction, serverTimestamp, Timestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
+  orderBy, documentId, startAfter, onSnapshot, runTransaction, serverTimestamp, Timestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 
 export const MAX_CODE = 20000, SAVE_INTERVAL = 60000, WRITE_GAP = 16000;
 import {validActivity as validWorkspace} from './registry.js';
@@ -33,6 +33,9 @@ export function createCloud(config, emulator = false) {
     observe(callback) { return onAuthStateChanged(auth, callback); },
     login: () => signInWithPopup(auth, provider),
     logout: () => signOut(auth),
+    watchProfile(uid, onChange, onError) {
+      return onSnapshot(doc(db, 'users', uid), snapshot => onChange(snapshot.exists() ? snapshot.data() : null), onError);
+    },
     async identity(user) {
       const [staff, profile, classes, access] = await Promise.all([
         getDocFromServer(doc(db, 'staff', user.uid)), getDocFromServer(doc(db, 'users', user.uid)),
@@ -54,6 +57,17 @@ export function createCloud(config, emulator = false) {
       return result.docs.map(d => ({ uid: d.id, ...d.data() }));
     },
     approve(uid, status) { return updateDoc(doc(db, 'users', uid), { status, updatedAt: serverTimestamp() }); },
+    async changeStudentStatus(uid, expected, next) {
+      const transitions = { pending: 'approved', approved: 'blocked', blocked: 'approved' };
+      if (!uid || transitions[expected] !== next) throw Error('허용되지 않은 승인 상태 변경입니다.');
+      const ref = doc(db, 'users', uid);
+      await runTransaction(db, async transaction => {
+        const current = await transaction.get(ref);
+        if (!current.exists()) throw Error('학생 계정을 찾을 수 없습니다.');
+        if (current.data().status !== expected) throw Error('다른 기기에서 상태가 변경되었습니다. 학생 목록을 새로고침하세요.');
+        transaction.update(ref, { status: next, updatedAt: serverTimestamp() });
+      });
+    },
     async teacherDetails(uid, classId) {
       const [progress, submissions, quota] = await Promise.all([
         allDocuments(collection(db,'users',uid,'progress')),
