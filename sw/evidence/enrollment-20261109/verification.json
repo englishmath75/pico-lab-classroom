@@ -1,0 +1,55 @@
+{
+  "source_sha": "ee2cd5e6d64ac726595193fb2f57b6b550382783",
+  "validation_run": 42534378616,
+  "validation_url": "https://github.com/englishmath75/pico-lab-classroom/actions/runs/42534378616",
+  "status": "VALIDATED_CANDIDATE_NOT_DEPLOYED",
+  "build": "PASS",
+  "unit_and_storage": {
+    "pass": 24,
+    "fail": 0
+  },
+  "existing_rules_baseline_regression": {
+    "pass": 31,
+    "fail": 0
+  },
+  "proposed_enrollment_security": {
+    "pass": 5,
+    "fail": 0
+  },
+  "browser": {
+    "status": "PASS",
+    "environment": "Chromium + Firebase auth/firestore emulators",
+    "checks": [
+      "explicit required school, grade, class and name",
+      "grade 1 remains grade 1",
+      "pending request correction",
+      "teacher reads affiliation and approves",
+      "approval state updates live",
+      "independent browser context restores affiliation",
+      "legacy test approval requires re-enrollment",
+      "account switch clears student form",
+      "1440px/390px layouts without horizontal overflow"
+    ]
+  },
+  "production": {
+    "firebase_auth": "BLOCKED: school administrator authentication was not completed",
+    "live_rules_read": "BLOCKED",
+    "new_rules_approval": "NOT_REQUESTED: latest complete production rules must first be inspected",
+    "deployment": "NOT_RUN",
+    "real_google_student_flow": "NOT_RUN",
+    "school_pc": "NOT_RUN"
+  },
+  "unchanged": {
+    "mk": true,
+    "commercial_python": true,
+    "teacher_staff": true,
+    "student_records_deleted": false
+  },
+  "continuation": [
+    "Reconnect school administrator Firebase session only when user asks to resume authentication.",
+    "Read full current production rules, verify current class-2-1 roster and authorized teacher, rebase minimal SW rules changes without touching MK/public sections.",
+    "Review proposed config/swEnrollment school/year/class ranges and ask concrete shared-rule application approval.",
+    "Update existing integrated CI account fixtures to include required enrollment metadata and point enrollment regression to final approved rules, then run required full SW publication CI.",
+    "Deploy only validated SW through existing publisher/Pages and verify actual Google login, registration, teacher approval and restore."
+  ]
+}
