@@ -10,7 +10,7 @@ import {doc,collection,getDocFromServer,getDocs,setDoc,updateDoc,Timestamp} from
 const expect=pwExpect.configure({timeout:25000}),exec=promisify(execFile),projectId='demo-englishmath-python',artifacts=resolve('sw/evidence/integration-20261107');
 for(const k of ['FIRESTORE_EMULATOR_HOST','FIREBASE_AUTH_EMULATOR_HOST'])if(process.env[k]&&!/^(127\.0\.0\.1|localhost):\d+$/.test(process.env[k]))throw Error('Local emulator only');
 await mkdir(artifacts,{recursive:true});
-const env=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8080,rules:await readFile('sw/security/integration-proposed.rules','utf8')}});
+const env=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8080,rules:await readFile(process.env.SW_RULES_FILE||'sw/security/integration-proposed.rules','utf8')}});
 const people=Object.fromEntries(['student','other','teacher'].map(k=>[k,{uid:'sw-v2-'+k,email:'sw-v2-'+k+'@muhak-g-h.gne.go.kr',name:'SW 검증 '+k}]));
 const results=[],errors=[],devices=[],vendorCache=new Map(),dist=resolve('dist');
 let browser,server,origin,lastPage;
@@ -22,8 +22,8 @@ async function scope(uid){return admin(async db=>{const out={};for(const g of ['
 const value=async(uid,id)=>{const r=await record(uid,id);return r?JSON.parse(r.code).value:null;};
 async function seed(){
  await env.clearFirestore();await admin(async db=>{await setDoc(doc(db,'staff',people.teacher.uid),{classIds:['class-2-1']});
-  await Promise.all([setDoc(doc(db,'config/access'),{allowedDomains:['muhak-g-h.gne.go.kr'],allowedEmails:[]}),setDoc(doc(db,'classes/class-2-1'),{title:'2026학년도 2학년 1반',active:true}),
-   ...Object.values(people).map(p=>setDoc(doc(db,'users',p.uid),{email:p.email,displayName:p.name,classId:'class-2-1',status:'approved',createdAt:Timestamp.now(),updatedAt:Timestamp.now()}))]);
+  await Promise.all([setDoc(doc(db,'config/swEnrollment'),JSON.parse(await readFile('sw/security/enrollment-catalog.proposed.json','utf8'))),setDoc(doc(db,'config/access'),{allowedDomains:['muhak-g-h.gne.go.kr'],allowedEmails:[]}),setDoc(doc(db,'classes/class-2-1'),{title:'2026학년도 2학년 1반',active:true}),
+   ...Object.values(people).map(p=>setDoc(doc(db,'users',p.uid),{email:p.email,displayName:p.name,classId:'class-2-1',enrollment:{schoolId:'muhak-g-h',schoolName:'마산무학여자고등학교',academicYear:2026,grade:2,classNumber:1},status:'approved',createdAt:Timestamp.now(),updatedAt:Timestamp.now()}))]);
  });
  const cleared=await fetch('http://127.0.0.1:9099/emulator/v1/projects/'+projectId+'/accounts',{method:'DELETE'});assert(cleared.ok);
  const imported=await fetch('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/projects/'+projectId+'/accounts:batchCreate',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer owner'},body:JSON.stringify({users:Object.values(people).map(p=>({localId:p.uid,email:p.email,emailVerified:true,displayName:p.name,providerUserInfo:[{providerId:'google.com',rawId:p.email,email:p.email,displayName:p.name}]}))})});assert(imported.ok);
@@ -44,7 +44,7 @@ async function device(path='/?page=home',{clock=false,camera=false}={}){
 }
 async function login(p,person){
  const popup=p.waitForEvent('popup');await p.locator('#sw-login').click();const q=await popup;await q.waitForLoadState();await q.getByText(person.email,{exact:true}).click();
- await expect(p.locator('#sw-user')).toContainText(person.name);await expect(p.locator('#sw-space')).toHaveText('2026학년도 2학년 1반');
+ await expect(p.locator('#sw-user')).toContainText(person.name);await expect(p.locator('#sw-space')).toHaveText('마산무학여자고등학교 · 2026학년도 2학년 1반');
  await expect(p.locator('#sw-message')).not.toContainText('승인 정보를 읽지 못했습니다');
  await expect(p.locator('#sw-message')).not.toContainText('학습을 마쳤습니다');
  await expect(p.locator('#sw-message')).not.toContainText('15분 동안');
@@ -118,3 +118,4 @@ try{
  for(const d of devices)await d.context.close().catch(()=>{});await browser?.close();server?.close();await env.cleanup();
 }
 if(results.some(r=>r.status==='FAIL')||errors.length)process.exitCode=1;
+

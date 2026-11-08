@@ -1,7 +1,7 @@
 {
-  "source_sha": "ee2cd5e6d64ac726595193fb2f57b6b550382783",
-  "validation_run": 42534378616,
-  "validation_url": "https://github.com/englishmath75/pico-lab-classroom/actions/runs/42534378616",
+  "source_sha": "e2a9ac14129b08f260bd9a2d27d5a974ab55cd67",
+  "validation_run": 42534945069,
+  "validation_url": "https://github.com/englishmath75/pico-lab-classroom/actions/runs/42534945069",
   "status": "VALIDATED_CANDIDATE_NOT_DEPLOYED",
   "build": "PASS",
   "unit_and_storage": {
@@ -13,8 +13,9 @@
     "fail": 0
   },
   "proposed_enrollment_security": {
-    "pass": 5,
-    "fail": 0
+    "pass": 42,
+    "fail": 0,
+    "includes": "new enrollment security plus existing SW storage, MK/cohort/public isolation and all finite SW workspace coverage"
   },
   "browser": {
     "status": "PASS",
@@ -43,13 +44,15 @@
     "mk": true,
     "commercial_python": true,
     "teacher_staff": true,
-    "student_records_deleted": false
+    "student_records_deleted": false,
+    "publisher_sha": "c1c12e57bd61f166b58c2fdb7662c07e50eaf218"
   },
   "continuation": [
     "Reconnect school administrator Firebase session only when user asks to resume authentication.",
     "Read full current production rules, verify current class-2-1 roster and authorized teacher, rebase minimal SW rules changes without touching MK/public sections.",
     "Review proposed config/swEnrollment school/year/class ranges and ask concrete shared-rule application approval.",
-    "Update existing integrated CI account fixtures to include required enrollment metadata and point enrollment regression to final approved rules, then run required full SW publication CI.",
+    "Rebase proposed rules against actual live rules and, after approval, run final SW publication validation using the final rules and existing updated integration fixtures.",
     "Deploy only validated SW through existing publisher/Pages and verify actual Google login, registration, teacher approval and restore."
-  ]
+  ],
+  "existing_integrated_test_fixtures": "UPDATED for enrollment contract; full Python/catalog suite not rerun because application/runtime code unchanged"
 }
