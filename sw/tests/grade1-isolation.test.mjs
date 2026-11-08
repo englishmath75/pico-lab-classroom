@@ -17,7 +17,7 @@ beforeEach(async()=>{await env.clearFirestore();await env.withSecurityRulesDisab
     setDoc(doc(db,'config/access'),{allowedDomains:['muhak-g-h.gne.go.kr'],allowedEmails:[]}),
     setDoc(doc(db,'classes/class-2-1'),{title:'2학년 1반',active:true}),
     setDoc(doc(db,'staff/teacher'),{classIds:['class-2-1']}),
-    setDoc(doc(db,'users/alice'),profile('alice','class-2-1')),
+    setDoc(doc(db,'users/alice'),{...profile('alice','class-2-1'),enrollment:{schoolId:'muhak-g-h',schoolName:'마산무학여자고등학교',academicYear:2026,grade:2,classNumber:1}}),
     setDoc(doc(db,'cohorts/2026/grade1_users/alice'),profile('alice','class-1-1')),
     setDoc(doc(db,'cohorts/2026/grade1_users/bob'),profile('bob','class-1-2')),
   ]);
@@ -235,3 +235,4 @@ test('Raw SDK cannot create arbitrary MK activity IDs or oversize payloads; SW c
  await assertFails(rawV3Write('users','mk3-cu1173'));
  await assertSucceeds(rawV3Write(schoolRoot(2026,1),'mk3-report','{"topic":"list"}'));
 });
+

@@ -38,7 +38,7 @@ jobs:
           python3 sw/publisher/check_site.py dist
       - run: npx playwright install chromium
       - name: Proposed enrollment security and browser verification (emulators only)
-        run: npx firebase emulators:exec --config sw/firebase.enrollment.json --project demo-englishmath-python --only auth,firestore 'node --test --test-concurrency=1 sw/tests/enrollment-security.test.mjs && node sw/tests/enrollment-browser.mjs'
+        run: npx firebase emulators:exec --config sw/firebase.enrollment.json --project demo-englishmath-python --only auth,firestore 'SW_ENROLLMENT=1 SW_RULES_FILE=sw/security/enrollment-proposed.rules node --test --test-concurrency=1 sw/tests/student-security.test.mjs sw/tests/grade1-isolation.test.mjs sw/tests/integration-security.test.mjs sw/tests/enrollment-security.test.mjs && node sw/tests/enrollment-browser.mjs'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
