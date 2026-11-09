@@ -1,0 +1,48 @@
+name: SW library resume validation
+on:
+  push:
+    branches: [work/sw-library-resume-20261109]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sw-library-resume-validation
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci && npm ci --prefix sw
+      - run: node --test sw/tests/store.test.mjs sw/tests/membership.test.mjs sw/tests/enrollment.test.mjs
+      - name: Build exact SW candidate
+        run: |
+          npm run build:sw
+          python3 sw/publisher/package_site.py dist --source-sha "$GITHUB_SHA"
+          python3 sw/publisher/finalize_brand.py --dist dist --source-sha "$GITHUB_SHA"
+          python3 sw/publisher/check_site.py dist
+          node --test sw/tests/content.test.mjs
+      - run: npx playwright install --with-deps chromium
+      - name: Saved library resume with Firebase emulators
+        run: npx firebase emulators:exec --config sw/firebase.membership.json --project demo-englishmath-python --only auth,firestore 'node sw/tests/library-browser.mjs'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sw-library-resume-evidence
+          path: sw/evidence/library-resume-20261109/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sw-library-site-candidate
+          path: dist/
+          retention-days: 14
