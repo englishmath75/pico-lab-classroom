@@ -232,6 +232,7 @@ function AppSidebar({
       </SidebarHeader>
       <SidebarContent className="bg-slate-950 text-white">
         <SidebarGroup className="px-3 py-5">
+          <a href="./ai-agent-smart-life.html" className="mb-3 flex w-full items-center justify-between rounded-2xl border border-emerald-300/50 bg-emerald-300 px-3 py-3 text-left font-black text-slate-950 transition hover:bg-emerald-200" aria-label="AI 에이전트 12차시 교실 열기"><span><span className="block text-base">AI 에이전트 12차시</span><span className="mt-0.5 block text-xs font-bold">Python·데이터 분석·AI 비서</span></span><Sparkles className="size-5" /></a>
           <button onClick={onArduinoCourse} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-amber-300/50 bg-amber-400 px-3 py-3 text-left text-slate-950 shadow-[0_10px_30px_rgba(251,191,36,.14)] transition hover:bg-amber-300">
             <span className="min-w-0 flex-1"><span className="block text-base font-black">아두이노 실습</span><span className="mt-0.5 block text-xs font-bold">Arduino 전용 교실</span></span>
             <BookOpen className="ml-auto size-5" />
@@ -516,6 +517,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <a href="./ai-agent-smart-life.html" className="flex items-center gap-2 rounded-full bg-emerald-300 px-3.5 py-2 text-xs font-black text-slate-950 transition hover:bg-emerald-200"><Sparkles className="size-3.5" /> AI 12차시</a>
             <button onClick={openArduinoCourse} className="hidden items-center gap-2 rounded-full bg-amber-400 px-3.5 py-2 text-xs font-black text-slate-950 transition hover:bg-amber-300 sm:flex"><span className="size-2 rounded-full bg-slate-950" /> Arduino 실습</button>
             <button onClick={openAssessment} className="hidden items-center gap-2 rounded-full bg-rose-500 px-3.5 py-2 text-xs font-black text-white transition hover:bg-rose-400 sm:flex"><span className="size-2 rounded-full bg-white" /> 수행평가 연습</button>
             <button onClick={() => selectLesson(nextIncomplete)} className="flex items-center gap-2 rounded-full bg-slate-950 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-slate-800"><span className="size-2 rounded-full bg-cyan-400" /> Pico 이어서</button>
@@ -523,6 +525,12 @@ export default function Home() {
         </header>
 
         <main className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-7 sm:py-9">
+          <section className="mb-7 rounded-[26px] border border-emerald-200 bg-gradient-to-r from-emerald-100 via-white to-cyan-50 p-5 shadow-sm sm:p-7">
+            <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+              <div><span className="rounded-full bg-emerald-900 px-3 py-1.5 text-xs font-black text-emerald-100">기말 대비 · 12차시</span><h2 className="mt-3 text-2xl font-black tracking-tight text-slate-950">AI AGENT SMART LIFE</h2><p className="mt-2 text-sm font-semibold leading-6 text-slate-700">Python·Pandas·시각화·머신러닝·나만의 AI 비서까지, 모든 차시를 웹앱에서 학습합니다.</p></div>
+              <a href="./ai-agent-smart-life.html" className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-800 px-5 text-sm font-black text-white transition hover:bg-emerald-900">12차시 교실 시작 <ChevronRight className="size-4" /></a>
+            </div>
+          </section>
           <section className="mb-7 overflow-hidden rounded-[26px] border border-amber-200 bg-gradient-to-r from-amber-100 via-white to-cyan-50 p-5 shadow-sm sm:p-7">
             <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
               <div>
