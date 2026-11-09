@@ -263,12 +263,12 @@ try {
     await row.getByRole('button',{name:'회원 처리 이력',exact:true}).click();await expect(t.locator('#student-details')).toContainText('학급 재신청');await expect(t.locator('#student-details')).toContainText('정보 변경 반려');
     await expect(t.locator('#student-details')).toContainText('요청 정보: 수정된 검증 학생');
     await t.screenshot({path:resolve(artifacts,'membership-teacher-history.png')});
-    await t.setViewportSize({width:390,height:844});await t.locator('#teacher-area').scrollIntoViewIfNeeded();assert.equal(await t.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);await t.screenshot({path:resolve(artifacts,'membership-teacher-mobile.png')});
+    await t.setViewportSize({width:390,height:844});await expect.poll(()=>t.locator('#sidebar').evaluate(el=>el.getBoundingClientRect().right)).toBeLessThanOrEqual(1);await t.locator('#teacher-area').evaluate(el=>el.scrollIntoView({block:'start'}));assert.equal(await t.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);assert.ok(await row.locator('td').first().evaluate(el=>el.getBoundingClientRect().width)>250,'mobile student name has readable full-width card');await t.screenshot({path:resolve(artifacts,'membership-teacher-mobile.png'),animations:'disabled'});
     await t.locator('#finish').click();await expect(t.locator('#identity')).toHaveText('로그인하지 않음');await expect(t.locator('#membership-note')).toHaveValue('');await expect(t.locator('#student-details')).toBeEmpty();
     const independent=await device('/?page=practice');await login(independent.page,person);await expect(independent.page.locator('#editor')).toHaveValue('print("회원 변경 후에도 보존")');
-    await independent.page.setViewportSize({width:390,height:844});await independent.page.locator('#member-info').click();await expect(independent.page.locator('#membership-current')).toContainText('재신청 검증 학생');
+    await independent.page.setViewportSize({width:390,height:844});await expect.poll(()=>independent.page.locator('#sidebar').evaluate(el=>el.getBoundingClientRect().right)).toBeLessThanOrEqual(1);await independent.page.locator('#member-info').click();await expect(independent.page.locator('#membership-current')).toContainText('재신청 검증 학생');
     assert.equal(await independent.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
-    await independent.page.screenshot({path:resolve(artifacts,'membership-student-mobile.png')});
+    await independent.page.screenshot({path:resolve(artifacts,'membership-student-mobile.png'),animations:'disabled'});
     assert.equal(await scopeData(person.uid),savedBefore);
   });
 
