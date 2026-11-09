@@ -157,6 +157,8 @@ function wipe(uid=null,{initialAnonymous=false}={}) {
   scopeGeneration++;identityRequest++;identity=null;flushPromise=null;guardPromise=null;
   for(const record of records.values())record.reset();records.clear();
   libraryItems=[];
+  $('membership-panel').hidden=true;$('member-info').hidden=true;$('membership-result').textContent='';$('membership-current').textContent='';$('membership-name').value='';$('registration-name').value='';
+  if($('membership-note-dialog').open)$('membership-note-cancel').click();
   if($('code-name-dialog').open)$('code-name-cancel').click();
   renderCodeChoices();
   for(const draft of drafts.values())draft.reset();nextSaveDue=0;document.body.classList.remove('idle-private');
@@ -284,8 +286,14 @@ async function refreshIdentity() {
   $('enrollment-heading').textContent=personal?'개인 코드 보관함 시작':identity.spaceTitle+' 학급 등록';
   $('class-select').replaceChildren(...identity.classes.map(c=>new Option(c.title,c.id)));
   $('class-select').closest('label').hidden=personal;
-  $('class-select').disabled=!!identity.profile;
-  $('register').hidden=personal||!!identity.profile;
+  const cancelled=identity.profile?.status==='cancelled';
+  $('class-select').disabled=!!identity.profile&&!cancelled;
+  if(identity.profile)$('class-select').value=identity.profile.classId;
+  $('registration-name-label').hidden=personal||!!identity.profile&&!cancelled;
+  $('registration-name').value=identity.profile?.displayName||user.displayName||'';
+  $('register').textContent=cancelled?'학급 재신청':'학급 등록 요청';
+  renderMembership();
+  $('register').hidden=personal||!!identity.profile&&!cancelled;
   $('register-personal').hidden=!!identity.profile;
   $('enrollment').hidden=!!identity.profile||teacher;
   $('student-area').hidden=false;
@@ -302,7 +310,7 @@ async function refreshIdentity() {
     if(new URLSearchParams(location.search).get('panel')==='library') await showLibrary();
   } else if(identity.profile) {
     $('enrollment').hidden=false;
-    notice(identity.profile.status==='pending'?'학급 승인 대기 중입니다. 선생님 승인 후 승인 상태 새로고침을 눌러 주세요.':'이 학급은 이용 중지 상태입니다. 선생님께 문의하세요.',true);
+    notice(cancelled?'등록이 취소되었습니다. 이름과 학급을 확인해 재신청하세요. 이전 학습 기록은 보존됩니다.':identity.profile.status==='pending'?'학급 승인 대기 중입니다. 선생님 승인 후 승인 상태 새로고침을 눌러 주세요.':'이 학급은 이용 중지 상태입니다. 선생님께 문의하세요.',true);
   } else if(!teacher) {
     notice(personal?'개인 학습자로 시작 버튼을 누르면 학급 등록 없이 코드를 저장할 수 있습니다.':identity.spaceTitle+' 학급을 선택해 등록 요청을 눌러 주세요.');
   }
@@ -375,20 +383,52 @@ async function showTeacher() {
   if(!classId) {notice('활성화된 담당 학급이 없습니다.',true);return;}
   const students=await bounded(cloud.students(classId));if(!session.current(snapshot)||$('teacher-class').value!==classId) return;
   $('student-list').replaceChildren();$('student-details').replaceChildren();
-  const visibleStudents=students.filter(student=>student.uid!==user.uid);
+  const visibleStudents=students.filter(student=>student.uid!==user.uid&&($('show-cancelled').checked||student.status!=='cancelled'));
   const pendingCount=visibleStudents.filter(student=>student.status==='pending').length;
   $('roster-summary').textContent=visibleStudents.length
-    ? '등록 '+visibleStudents.length+'명 · 승인 대기 '+pendingCount+'명'
+    ? '등록 '+visibleStudents.length+'명 · 승인 대기 '+pendingCount+'명 · 정보 변경 요청 '+visibleStudents.filter(s=>s.changeRequest?.status==='pending').length+'명'
     : '등록된 학생이 없습니다.';
-  for(const student of students.filter(student=>student.uid!==user.uid)) {
+  for(const student of visibleStudents) {
     const row=document.createElement('tr'),name=document.createElement('td'),status=document.createElement('td'),actions=document.createElement('td');
-    name.textContent=`${student.displayName} (${student.email})`;status.textContent=({approved:'승인됨',pending:'승인 대기',blocked:'이용 중지'})[student.status]||student.status;
-    for(const [label,value] of [['승인','approved'],['승인 대기','pending'],['이용 중지','blocked']]) {
-      const b=button(label,async()=>{if(await confirmAction('학생 승인 상태 변경',`${student.displayName} 학생의 상태를 “${label}”으로 변경합니다.`,label)){await cloud.approve(student.uid,value,student.classKey);await showTeacher();}});
-      b.disabled=value===student.status||student.uid===user.uid;actions.append(b);
+    name.textContent=`${student.displayName} (${student.email})`;status.textContent=({approved:'승인됨',pending:'승인 대기',blocked:'이용 중지',cancelled:'등록 취소'})[student.status]||student.status;
+    const mkClass=!student.classKey.startsWith('2026:class-2-');
+    const current=()=>session.current(snapshot)&&$('teacher-class').value===classId&&!!identity?.staff;
+    const process=async(action,input={})=>{
+      if(!current())throw Error('계정 또는 학급이 바뀌었습니다. 명단을 다시 열어 주세요.');
+      await bounded(cloud.manageMembership(student.uid,student.classKey,action,input,student));
+      if(current())await showTeacher();
+    };
+    for(const [label,value] of [[student.status==='blocked'?'이용 중지 해제':'승인','approved'],[student.status==='cancelled'?'등록 복구 · 승인 대기':'승인 대기','pending'],['이용 중지','blocked']]) {
+      if(student.status==='cancelled'&&value!=='pending')continue;
+      const b=button(label,async()=>{if(await confirmAction('학생 승인 상태 변경',`${student.displayName} 학생의 상태를 “${label}”으로 변경합니다. 처리 중인 정보 변경 요청은 취소됩니다.`,label)){
+        if(!current())return;
+        if(mkClass)await process('status',{status:value});else {await cloud.approve(student.uid,value,student.classKey);if(current())await showTeacher();}
+      }});
+      b.disabled=value===student.status;actions.append(b);
+    }
+    if(mkClass) {
+      if(student.status!=='cancelled')actions.append(button('등록 취소',async()=>{
+        if(await confirmAction('학급 등록 취소',`${student.displayName} 학생을 등록 명단에서 제외합니다. 학습 기록은 삭제하지 않습니다. 재신청 또는 등록 복구 후 다시 승인할 수 있습니다.`, '등록 취소'))await process('cancel');
+      }));
+      const request=student.changeRequest;
+      if(request?.status==='pending') {
+        const compare=document.createElement('p');compare.className='membership-comparison';
+        compare.textContent=`정보 변경 요청: ${student.displayName} · ${classLabel(student.classId)} → ${request.displayName} · ${classLabel(request.classId)}`;actions.append(compare);
+        if(['pending','approved'].includes(student.status)) {
+          actions.append(button('정보 변경 승인',async()=>{
+            if(await confirmAction('정보 변경 승인',compare.textContent+' · 기존 학급 승인 상태는 유지됩니다.','변경 승인'))await process('approve');
+          }),button('정보 변경 반려',async()=>{const note=await membershipNote();if(note!==null)await process('reject',{note});}));
+        }
+      }
+      actions.append(button('회원 처리 이력',async()=>{
+        const history=await bounded(cloud.membershipHistory(student.uid,student.classKey));if(!current())return;
+        const target=$('student-details');target.replaceChildren();const h=document.createElement('h2');h.textContent=student.displayName+' 회원 처리 이력 · 최근 30건';target.append(h);
+        if(!history.length){const p=document.createElement('p');p.textContent='이 기능 적용 이후의 처리 이력이 없습니다.';target.append(p);}
+        for(const item of history){const p=document.createElement('p');p.textContent=`${date(item.at)} · ${membershipActionLabel(item.action)} · ${item.before.displayName} ${classLabel(item.before.classId)} (${statusLabel(item.before.status)}) → ${item.after.displayName} ${classLabel(item.after.classId)} (${statusLabel(item.after.status)})${item.after.changeRequest?.note?' · 사유: '+item.after.changeRequest.note:''}`;target.append(p);}
+      }));
     }
     actions.append(button('학습·제출 확인',async()=>{
-      const details=await bounded(cloud.teacherDetails(student.uid,student.classKey));if(!session.current(snapshot)) return;
+      const details=await bounded(cloud.teacherDetails(student.uid,student.classKey));if(!current()) return;
       const target=$('student-details');target.replaceChildren();const h=document.createElement('h2');h.textContent=`${student.displayName} 학생의 학습 현황`;target.append(h);
       const last=document.createElement('p');last.textContent=`마지막 저장·제출: ${date(details.quota?.updatedAt)} · 오늘 저장·제출 횟수: ${details.quota?.count||0}`;target.append(last);
       for(const p of details.progress) {const line=document.createElement('p');line.textContent=`${labels.get(p.workspaceId)||p.workspaceId} · ${p.completed?'완료':'학습 중'} · ${p.runState==='success'?'마지막 실행 성공':p.runState==='error'?'마지막 실행 오류':'실행 전'} · ${date(p.savedAt)}`;target.append(line);}
@@ -398,11 +438,56 @@ async function showTeacher() {
   }
 }
 function action(id,fn) {$(id).addEventListener('click',()=>Promise.resolve().then(fn).catch(showError));}
+
+function classLabel(id){return String(id||'').replace(/^class-([12])-(\d+)$/,'$1학년 $2반');}
+function statusLabel(status){return ({approved:'승인됨',pending:'승인 대기',blocked:'이용 중지',cancelled:'등록 취소'})[status]||status;}
+function membershipActionLabel(action){return ({request:'정보 변경 요청',approve:'정보 변경 승인',reject:'정보 변경 반려',withdraw:'변경 요청 취소',cancel:'등록 취소',reapply:'학급 재신청',status:'승인 상태 변경'})[action]||action;}
+function renderMembership(){
+  const p=identity?.profile,eligible=!!p&&!identity.staff&&selectedSpace!=='personal';
+  $('member-info').hidden=!eligible;
+  if(!eligible){$('membership-panel').hidden=true;return;}
+  $('membership-current').textContent=`${identity.spaceTitle} · ${p.displayName} · ${classLabel(p.classId)} · ${statusLabel(p.status)}`;
+  $('membership-name').value=p.displayName;
+  $('membership-class').replaceChildren(...identity.classes.map(c=>new Option(c.title,c.id)));
+  $('membership-class').value=p.classId;
+  const pending=p.changeRequest?.status==='pending',allowed=['approved','pending'].includes(p.status);
+  $('membership-request').disabled=pending||!allowed;
+  $('membership-name').disabled=pending||!allowed;$('membership-class').disabled=pending||!allowed;
+  $('membership-withdraw').hidden=!pending||!allowed;
+  const r=p.changeRequest;
+  $('membership-result').textContent=r?`${membershipActionLabel(r.status==='pending'?'request':r.status==='approved'?'approve':r.status==='rejected'?'reject':'withdraw')}: ${r.displayName} · ${classLabel(r.classId)}${r.note?' · 사유: '+r.note:''}`:'변경 요청이 없습니다.';
+}
+function membershipNote(){
+  const dialog=$('membership-note-dialog');$('membership-note').value='';
+  return new Promise(resolve=>{const done=value=>{dialog.close();resolve(value);};
+    $('membership-note-form').onsubmit=e=>{e.preventDefault();const note=$('membership-note').value.trim();if(note)done(note);};
+    $('membership-note-cancel').onclick=()=>done(null);dialog.oncancel=e=>{e.preventDefault();done(null);};dialog.showModal();$('membership-note').focus();
+  });
+}
+action('member-info',()=>{$('membership-panel').hidden=false;$('membership-panel').scrollIntoView({block:'start'});});
+action('membership-refresh',async()=>{if(await protectDraft())await refreshIdentity();});
+for(const [id,kind] of [['membership-request','request'],['membership-withdraw','withdraw']])action(id,async()=>{
+  if(!await protectDraft())return;
+  const snapshot=scope(),expected=identity?.profile,input={displayName:$('membership-name').value,classId:$('membership-class').value};
+  if(!expected)return;
+  $(id).disabled=true;
+  try {await bounded(cloud.membership(user,selectedSpace,kind,input,expected));if(scopeCurrent(snapshot))await refreshIdentity();}
+  finally {if(scopeCurrent(snapshot))renderMembership();}
+});
+
 action('login',async()=>{if(!await protectDraft())return;if(!cloud){notice('아직 Google 로그인 연결을 준비하고 있습니다.',true);return;}await cloud.login();});
 action('new-code',()=>createCode());action('save-as',()=>createCode(true));
 action('logout',()=>logout());action('finish',()=>logout());action('save',async()=>{if(loading){notice('코드를 불러온 뒤 저장해 주세요.');return;}if(!canWrite()){notice('Google 로그인 후 개인 학습을 시작하거나 학급 승인을 확인하세요.',true);return;}await save();});action('library-tab',showLibrary);action('teacher-tab',showTeacher);
-action('refresh-students',showTeacher);$('teacher-class').onchange=()=>showTeacher().catch(showError);
-action('register',async()=>{if(!$('class-select').value)throw Error('등록 가능한 학급이 없습니다.');await cloud.register(user,$('class-select').value,selectedSpace);await refreshIdentity();});
+action('refresh-students',showTeacher);$('show-cancelled').onchange=()=>showTeacher().catch(showError);$('teacher-class').onchange=()=>showTeacher().catch(showError);
+action('register',async()=>{
+  if(!$('class-select').value)throw Error('등록 가능한 학급이 없습니다.');
+  const snapshot=scope(),input={displayName:$('registration-name').value,classId:$('class-select').value};
+  $('register').disabled=true;
+  try {if(identity?.profile?.status==='cancelled')await cloud.membership(user,selectedSpace,'reapply',input,identity.profile);
+    else await cloud.register(user,input.classId,selectedSpace,input.displayName);
+    if(scopeCurrent(snapshot))await refreshIdentity();
+  } finally {$('register').disabled=false;}
+});
 action('register-personal',async()=>{
   if(!await protectDraft())return;
   const snapshot=scope();

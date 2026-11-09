@@ -93,3 +93,11 @@ h1{text-wrap:balance}
 
 
 #code-name-dialog{width:min(500px,calc(100vw - 32px));box-sizing:border-box}#code-name-dialog input{display:block;width:100%;box-sizing:border-box;margin:8px 0}#code-library-tools .hint{margin:0}#code-library-tools[hidden],#code-library-help[hidden]{display:none}
+
+/* Membership requests retain the current classroom layout on desktop and mobile. */
+#membership-panel input,#membership-panel select,#registration-name {max-width:100%;min-width:0}
+#membership-note-dialog {width:min(520px,calc(100vw - 32px))}
+#membership-note {display:block;width:100%;min-height:100px;box-sizing:border-box}
+.membership-comparison {padding:10px;background:#f1edff;border-radius:8px;overflow-wrap:anywhere}
+#student-list td {overflow-wrap:anywhere}#student-list td:last-child button {margin:4px}
+@media(max-width:640px){#membership-panel .toolbar{align-items:stretch}#membership-panel .toolbar label{width:100%}#member-info{white-space:normal}#student-list td:last-child{min-width:190px}}

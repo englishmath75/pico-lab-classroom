@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {membershipPatch} from '../mk/membership.js';
+const before={displayName:'기존 이름',classId:'class-1-1',status:'approved',email:'student@example.test'};
+const input={displayName:'수정 이름',classId:'class-1-2',actorUid:'teacher'};
+test('request keeps approved name, class and status until review',()=>{const a=membershipPatch(before,'request',input,1);assert.equal(a.classId,before.classId);assert.equal(a.displayName,before.displayName);assert.equal(a.status,'approved');assert.equal(a.changeRequest.classId,'class-1-2');assert.equal(a.membershipVersion,1);});
+test('approval changes only requested identity, rejection preserves original with reason',()=>{const b=membershipPatch(before,'request',input,1);const a=membershipPatch(b,'approve',input,2);assert.equal(a.displayName,input.displayName);assert.equal(a.classId,input.classId);assert.equal(a.status,b.status);const r=membershipPatch(b,'reject',{actorUid:'teacher',note:'학급 확인 필요'},2);assert.equal(r.classId,b.classId);assert.equal(r.changeRequest.note,'학급 확인 필요');});
+test('cancel and reapply preserve immutable account and require pending approval',()=>{const c=membershipPatch(before,'cancel',{},1);const a=membershipPatch(c,'reapply',input,2);assert.equal(a.email,before.email);assert.equal(a.status,'pending');assert.equal(a.membershipVersion,2);});
+test('blocked student cannot reapply or request a change',()=>{for(const action of ['reapply','request'])assert.throws(()=>membershipPatch({...before,status:'blocked'},action,input,1));});
+test('duplicate request, empty name, cross-grade and unchanged data are rejected',()=>{assert.throws(()=>membershipPatch(membershipPatch(before,'request',input,1),'request',input,2));for(const x of [{...input,displayName:' '},{...input,classId:'class-2-1'},before])assert.throws(()=>membershipPatch(before,'request',x,1));});
+test('withdraw allows corrected request; cancel invalidates pending request',()=>{const b=membershipPatch(before,'request',input,1);const w=membershipPatch(b,'withdraw',{actorUid:'student'},2);assert.equal(membershipPatch(w,'request',input,3).changeRequest.status,'pending');assert.equal(membershipPatch(b,'cancel',{},3).changeRequest,null);});

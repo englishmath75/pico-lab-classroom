@@ -1,3 +1,4 @@
+import { membershipPatch } from './membership.js';
 import { MK_ACTIVITY_IDS } from './activity-ids.js';
 // Grade-1 cloud adapter. 2026 cohort paths are isolated from Grade 2 and future academic years.
 // Both grades use the same Firebase Auth project; grades never share workspace documents.
@@ -39,6 +40,7 @@ export function readableError(error) {
   if (error.code === 'daily-limit') return '오늘의 저장 횟수에 도달했습니다. 미저장 학습물을 내려받아 보관하세요.';
   if (/permission-denied/.test(error.code || '')) return '저장 권한이 없습니다. 학급 승인 상태와 계정을 확인해 주세요.';
   if (/unavailable|deadline|network/.test(error.code || '') || globalThis.navigator?.onLine === false) return '연결 문제로 저장하지 못했습니다. 이 화면을 유지하거나 미저장 학습물을 내려받아 주세요.';
+  if(error.code==='membership-conflict') return '학생 정보가 다른 화면에서 변경되었습니다. 새로고침 후 다시 확인해 주세요.';
   return error.message || '처리하지 못했습니다. 연결 상태를 확인해 주세요.';
 }
 export function createCloud(config, emulator = false) {
@@ -107,9 +109,11 @@ export function createCloud(config, emulator = false) {
         });
       });
     },
-    async register(user, classId, spaceId = '2026-1') {
+    async register(user, classId, spaceId = '2026-1', displayName = user.displayName) {
       const selected = SCHOOL_SPACES.find(space => space.id === spaceId);
       if (!selected || !classId.startsWith(`class-${selected.grade}-`)) throw Error('학년도와 학급을 확인해 주세요.');
+      const name=String(displayName||'').trim();
+      if(!name||name.length>80) throw Error('학생 이름을 입력해 주세요.');
       const profileRef = doc(db, schoolRoot(selected.year, selected.grade), user.uid);
       await runTransaction(db, async tx => {
         const existing = await tx.get(profileRef);
@@ -117,9 +121,25 @@ export function createCloud(config, emulator = false) {
           if (existing.data().classId !== classId) throw Error('이미 등록한 학급이 있습니다. 담당 선생님께 확인해 주세요.');
           return;
         }
-        tx.set(profileRef, { email: user.email, displayName: (user.displayName || '학생').slice(0, 80),
+        tx.set(profileRef, { email: user.email, displayName: name,
           classId, status: 'pending', createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
       });
+    },
+    async membership(user, spaceId, action, input, expected) {
+      const selected=SCHOOL_SPACES.find(s=>s.id===spaceId);
+      if(!selected) throw Error('학교 학습 공간에서만 회원 정보를 변경할 수 있습니다.');
+      return mutateMembership(db,schoolRoot(selected.year,selected.grade),user.uid,user.uid,action,input,expected);
+    },
+    async manageMembership(uid,classKey,action,input,expected) {
+      const {year,grade}=classScope(classKey);
+      if(year===2026&&grade===2) throw Error('SW 학급은 SW 교사용 관리실에서 처리해 주세요.');
+      return mutateMembership(db,schoolRoot(year,grade),uid,auth.currentUser?.uid,action,input,expected);
+    },
+    async membershipHistory(uid,classKey) {
+      const {year,grade}=classScope(classKey);
+      if(year===2026&&grade===2) return [];
+      const result=await getDocsFromServer(query(collection(db,schoolRoot(year,grade),uid,'membershipHistory'),orderBy('version','desc'),limit(30)));
+      return result.docs.map(d=>d.data());
     },
     async students(classKey) {
       const { year, grade, classId } = classScope(classKey);
@@ -143,6 +163,23 @@ export function createCloud(config, emulator = false) {
       return {progress:progress.map(d=>d.data()),submissions:submissions.map(d=>d.data()),quota:quota.data()};
     }
   };
+}
+
+
+export async function mutateMembership(db,root,uid,actorUid,action,input={},expected) {
+  if(!/^cohorts\/(2026\/grade1_users|2027\/grade[12]_users)$/.test(root)) throw Error('지원하지 않는 회원 공간입니다.');
+  const ref=doc(db,root,uid);
+  await runTransaction(db,async tx=>{
+    const snap=await tx.get(ref);
+    if(!snap.exists()) throw Error('등록 정보를 찾지 못했습니다. 새로고침해 주세요.');
+    const before=snap.data();
+    if(!expected || (before.membershipVersion||0)!==(expected.membershipVersion||0) || before.updatedAt?.toMillis()!==expected.updatedAt?.toMillis()) {
+      throw Object.assign(Error('학생 정보가 변경되었습니다.'),{code:'membership-conflict'});
+    }
+    const now=serverTimestamp(),after=membershipPatch(before,action,{...input,actorUid},now);
+    tx.set(ref,after);
+    tx.set(doc(ref,'membershipHistory',String(after.membershipVersion)),{version:after.membershipVersion,action,actorUid,at:now,before,after});
+  });
 }
 
 export class StudentStore {
@@ -197,3 +234,4 @@ async function paged(ref,filters=[]) {
   }while(result.length<250);
   return result;
 }
+
