@@ -66,7 +66,10 @@ export function resolveRoute(input,base='https://sw.englishmath.kr/'){
 export function routeForActivity(id){
  if(id.startsWith("sw3-2026-g2-"))return "/?page=exercise&exercise="+id;
  if(id==='inquiry-d')return '/?page=four-turtles';
- if(/^lesson-(?:0[1-9]|10)$/.test(id)||/^sw2-lesson-\d\d-state$/.test(id))return '/?page=lesson&lesson='+Math.max(1,Number(id.match(/\d\d/)[0]));
+ // Code records are also authored in the standalone editor (with a custom
+ // title). Resume that exact workspace; lesson answers retain their course view.
+ if(/^lesson-(?:0[0-9]|10)$/.test(id))return '/?page=practice&workspace='+id;
+ if(/^sw2-lesson-\d\d-state$/.test(id))return '/?page=lesson&lesson='+Math.max(1,Number(id.match(/\d\d/)[0]));
  if(id.startsWith('sw2-datalab-'))return '/?page=data-lab&unit='+id.split('-')[2];
  const page=({'sw2-inquiry-d-state':'four-turtles','sw2-kosis':'kosis-project','sw2-review':'exam','sw2-report':'report','sw2-basics':'python-review','sw2-binary':'questions-supplement','sw2-first-analysis':'first-analysis','sw2-simulation':'simulation','sw2-free-code':'lab','sw2-free-state':'lab'})[id];
  if(page)return '/?page='+page;

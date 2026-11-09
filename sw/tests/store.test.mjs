@@ -5,6 +5,16 @@ import {ClassroomStore,encode,decode} from '../src/store.js';
 import {rawFor,updateRaw,keys} from '../src/models.js';
 import {SpaceWriteQueue} from '../src/write-queue.js';
 import {activityIds,newIds,legacyIds,resolveRoute,routeForActivity,structured} from '../src/registry.js';
+
+test('library resumes each saved lesson code in its exact editable workspace',()=>{
+ for(let n=0;n<=10;n++){
+  const id='lesson-'+String(n).padStart(2,'0'),route=resolveRoute(routeForActivity(id));
+  assert.equal(route.id,'practice');assert.equal(route.params.workspace,id);
+  if(n){const state=resolveRoute(routeForActivity('sw2-'+id+'-state'));assert.equal(state.id,'lesson');assert.equal(state.params.lesson,String(n));}
+ }
+ assert.equal(resolveRoute(routeForActivity('sw2-report')).id,'report');
+ assert.equal(resolveRoute(routeForActivity('scratch-02')).params.workspace,'scratch-02');
+});
 const defer=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return{promise,resolve,reject};};
 function fixture(){
  const records=new Map(),writes=[];
