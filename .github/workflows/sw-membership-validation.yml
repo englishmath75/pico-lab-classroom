@@ -27,7 +27,7 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix sw
       - name: Membership, enrollment and saving contracts
-        run: node --test sw/tests/membership.test.mjs sw/tests/enrollment.test.mjs sw/tests/store.test.mjs sw/tests/content.test.mjs
+        run: node --test sw/tests/membership.test.mjs sw/tests/enrollment.test.mjs sw/tests/store.test.mjs
       - name: Build SW candidate only
         run: |
           node sw/audit-exercises.mjs
@@ -35,6 +35,8 @@ jobs:
           python3 sw/publisher/package_site.py dist --source-sha "$GITHUB_SHA"
           python3 sw/publisher/finalize_brand.py --dist dist --source-sha "$GITHUB_SHA"
           python3 sw/publisher/check_site.py dist
+      - name: Preserved classroom content after build
+        run: node --test sw/tests/content.test.mjs
       - run: npx playwright install chromium
       - name: Proposed rules regression and membership security
         run: npx firebase emulators:exec --config sw/firebase.membership.json --project demo-englishmath-python --only firestore 'SW_ENROLLMENT=1 SW_RULES_FILE=sw/security/membership-proposed.rules node --test --test-concurrency=1 sw/tests/student-security.test.mjs sw/tests/grade1-isolation.test.mjs sw/tests/integration-security.test.mjs sw/tests/membership-security.test.mjs'
