@@ -157,7 +157,7 @@ function wipe(uid=null,{initialAnonymous=false}={}) {
   scopeGeneration++;identityRequest++;identity=null;flushPromise=null;guardPromise=null;
   for(const record of records.values())record.reset();records.clear();
   libraryItems=[];
-  $('membership-panel').hidden=true;$('member-info').hidden=true;$('membership-result').textContent='';$('membership-current').textContent='';$('membership-name').value='';$('registration-name').value='';
+  $('membership-panel').hidden=true;$('member-info').hidden=true;$('membership-result').textContent='';$('membership-current').textContent='';$('membership-name').value='';$('membership-class').replaceChildren();$('registration-name').value='';$('membership-note').value='';
   if($('membership-note-dialog').open)$('membership-note-cancel').click();
   if($('code-name-dialog').open)$('code-name-cancel').click();
   renderCodeChoices();
@@ -424,7 +424,7 @@ async function showTeacher() {
         const history=await bounded(cloud.membershipHistory(student.uid,student.classKey));if(!current())return;
         const target=$('student-details');target.replaceChildren();const h=document.createElement('h2');h.textContent=student.displayName+' 회원 처리 이력 · 최근 30건';target.append(h);
         if(!history.length){const p=document.createElement('p');p.textContent='이 기능 적용 이후의 처리 이력이 없습니다.';target.append(p);}
-        for(const item of history){const p=document.createElement('p');p.textContent=`${date(item.at)} · ${membershipActionLabel(item.action)} · ${item.before.displayName} ${classLabel(item.before.classId)} (${statusLabel(item.before.status)}) → ${item.after.displayName} ${classLabel(item.after.classId)} (${statusLabel(item.after.status)})${item.after.changeRequest?.note?' · 사유: '+item.after.changeRequest.note:''}`;target.append(p);}
+        for(const item of history){const p=document.createElement('p');p.textContent=`${date(item.at)} · ${membershipActionLabel(item.action)} · ${item.before.displayName} ${classLabel(item.before.classId)} (${statusLabel(item.before.status)}) → ${item.after.displayName} ${classLabel(item.after.classId)} (${statusLabel(item.after.status)})${item.after.changeRequest?' · 요청 정보: '+item.after.changeRequest.displayName+' '+classLabel(item.after.changeRequest.classId):''}${item.after.changeRequest?.note?' · 사유: '+item.after.changeRequest.note:''}`;target.append(p);}
       }));
     }
     actions.append(button('학습·제출 확인',async()=>{
