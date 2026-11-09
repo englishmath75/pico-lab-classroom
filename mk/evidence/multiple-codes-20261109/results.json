@@ -1,0 +1,51 @@
+{
+  "projectId": "demo-englishmath-python",
+  "environment": "localhost Firebase auth/firestore emulators",
+  "evidence": [
+    {
+      "scenario": "multiple: independent named codes, restoration, offline and capacity protection",
+      "status": "pass",
+      "durationMs": 69565
+    },
+    {
+      "scenario": "common login across main navigation, avatar lifecycle, and legacy avatar address",
+      "status": "pass",
+      "durationMs": 4013
+    },
+    {
+      "scenario": "notebook autosaves without buttons and restores in an independent home browser",
+      "status": "pass",
+      "durationMs": 62005
+    },
+    {
+      "scenario": "notebook separates academic years, personal space, and the next shared-PC student",
+      "status": "pass",
+      "durationMs": 1926
+    },
+    {
+      "scenario": "edits during a real save survive, and offline finish protects unsaved work",
+      "status": "pass",
+      "durationMs": 138634
+    },
+    {
+      "scenario": "extended: code/report/notebook drafts survive rapid navigation and restore in another context",
+      "status": "pass",
+      "durationMs": 112547
+    },
+    {
+      "scenario": "extended: conflicts preserve local code and same-question answers",
+      "status": "pass",
+      "durationMs": 18498
+    },
+    {
+      "scenario": "extended: manual camera start and disposal use a mock MediaStream without writes",
+      "status": "pass",
+      "durationMs": 1075
+    },
+    {
+      "scenario": "extended: guest draft export and hard idle logout protect a shared PC",
+      "status": "pass",
+      "durationMs": 1281
+    }
+  ]
+}
