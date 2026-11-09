@@ -1,0 +1,64 @@
+[
+  {
+    "indexExplorer": "11/11 commands correct with added/removed/moved/selected visual differences"
+  },
+  {
+    "listAndAnswer": "6 routes, cumulative edits, mobile and 40 answer checks"
+  },
+  {
+    "runtimeMs": 2896,
+    "activity": "mk3-gugudan-horizontal-fstring"
+  },
+  {
+    "runtimeMs": 1952,
+    "activity": "mk3-turtle-circles"
+  },
+  {
+    "download": "PNG",
+    "bytes": 225711,
+    "activity": "mk3-turtle-circles"
+  },
+  {
+    "runtimeMs": 4952,
+    "activity": "mk3-plot-bar"
+  },
+  {
+    "download": "PNG",
+    "bytes": 8732,
+    "activity": "mk3-plot-bar"
+  },
+  {
+    "runtimeMs": 1999,
+    "activity": "scratch-01"
+  },
+  {
+    "runtimeMs": 1989,
+    "activity": "scratch-01"
+  },
+  {
+    "reverseComparison": "PASS: two methods, result None, state snapshots, 4 steps, autoplay, load real Python code, 390px responsive"
+  },
+  {
+    "runtimeMs": 1990,
+    "activity": "mk3-list-sort"
+  },
+  {
+    "pythonIsolation": "no document, no parent, opaque null origin"
+  },
+  {
+    "status": "pass",
+    "checks": [
+      "6 menus",
+      "legacy aliases",
+      "40 questions and wrong-only",
+      "stdin and horizontal output",
+      "real Turtle commands",
+      "real matplotlib with Korean font",
+      "Turtle and matplotlib PNG exports",
+      "per-run isolation and stop",
+      "390/768/1366/1920",
+      "200% zoom",
+      "keyboard focus"
+    ]
+  }
+]

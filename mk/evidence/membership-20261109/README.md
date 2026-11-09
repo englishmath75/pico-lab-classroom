@@ -42,15 +42,24 @@
 ## 확인된 결과
 
 - 단위 검사 41개, 보안 검사 44개, 통합 브라우저 10개 시나리오, 기존 수업 실행·키보드·PC/모바일 검사 모두 PASS.
-- 최초 모바일 증거 사진은 메뉴 전환 중 촬영되어 증거용 브랜치에서 메뉴 전환 완료를 기다리는 검증 후 다시 촬영합니다. 이 브랜치는 앱 소스를 바꾸지 않습니다.
+- 모바일에서는 학생별 카드로 이름·승인 상태·처리 버튼을 표시합니다. 메뉴 전환 완료, 이름 표시 폭, 페이지 넘침을 검사하고 증거 사진을 수집합니다.
 
-- 최종 소스: `8724475a3294065e1520587ac7b0fa80915654be`.
+- 최종 소스: `69920d59398a9635d8f6f3f572a4434b6ae5a8b6`.
 - 신규 회원 보안 검사 13개: PASS (Firebase Emulator).
 - 기존 저장·학년 분리 보안 검사 31개: PASS (기존 기준 규칙 회귀).
 - 제안 전체 규칙을 사용하는 브라우저 회원 관리 시나리오: PASS. 오프라인 요청 입력 보존, 요청→반려→재요청→승인, 정지→해제, 등록 취소→재신청→승인, 별도 Chromium 컨텍스트의 코드 복원, 학생·교사 390px 화면, 로그아웃 시 반려 사유·명단 제거 검사 포함.
 - 실제 Google 계정 대신 Auth Emulator의 Google 로그인 화면과 Firestore Emulator를 사용했습니다. 독립 브라우저 컨텍스트 검증을 실제 학교 PC 검사로 보고하지 않습니다.
 - 공개 운영 배포 비교: MK `dpl_BqrBHCd6j4TDMunQBvAFkeUbKuH9` / `6184016`, SW 게시 `912dffc`, 상용 Python `dpl_2T6xocywVvCL7Jue3Lk4VBjsbGPR` / `0c9ecc0`, 공통 main `c38e7ce` 모두 기존과 동일.
-- 전체 CI: https://github.com/englishmath75/pico-lab-classroom/actions/runs/42556000024 **SUCCESS**.
+- 기능 구현 전체 CI: https://github.com/englishmath75/pico-lab-classroom/actions/runs/42556000024 **SUCCESS**.
+- 모바일 명단 최종 수정본 CI: https://github.com/englishmath75/pico-lab-classroom/actions/runs/42557919548 **SUCCESS**. 단위 41개, 보안 44개, 통합 시나리오 10개 및 수업 실행·PC/모바일·키보드 검사 모두 통과했습니다.
+- 최종 미리보기 배포: `dpl_7rMcCPZSMCS6tCkHsRVD9SFm6c8T`, **READY**. `mk-build-info.json`의 소스 SHA가 최종 커밋과 일치합니다.
+- 미리보기 브라우저에서 실습 화면·여러 코드 저장 도구·버전 `69920d5` 표시 확인. 로그인 상태의 신규 회원 처리 검증은 아래의 에뮬레이터 결과입니다.
+
+### 화면 증거 — 테스트 계정 / Firebase Emulator
+
+![교사 회원 관리 PC](membership-teacher-history.png)
+![교사 회원 관리 모바일](membership-teacher-mobile.png)
+![학생 변경 요청 모바일](membership-student-mobile.png)
 
 운영 적용 전 상태: **승인 대기**. 미리보기 빌드와 에뮬레이터 결과는 운영 적용 완료를 뜻하지 않습니다.
 학교 PC 실기, 실제 학생 Google 계정의 신규 변경 요청·교사 승인, 실제 학교 카메라: 별도 확인 전까지 **NOT_RUN**.
@@ -58,5 +67,5 @@
 ## 복구
 
 앱 문제 시 MK의 기존 운영 배포 `dpl_BqrBHCd6j4TDMunQBvAFkeUbKuH9` / 소스 `6184016`으로 복귀합니다.
-규칙 문제 시 게시 직전 백업한 전체 규칙으로 복원합니다. 회원·이력·코드 문서를 삭제하지 않습니다.
+규칙 문제 시 현재 게시 규칙과 게시 직전 백업을 비교하고, 이후의 SW 등 다른 변경을 보존하면서 이번 MK 추가분만 되돌립니다. 회원·이력·코드 문서를 삭제하지 않습니다.
 취소·정지 상태는 별도 교사 승인 없이 자동 복구하지 않습니다.

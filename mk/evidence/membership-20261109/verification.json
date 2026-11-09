@@ -1,0 +1,60 @@
+{
+  "site": "https://mk.englishmath.kr",
+  "status": "AWAITING_SHARED_RULES_APPROVAL",
+  "runtimeCommit": "69920d59398a9635d8f6f3f572a4434b6ae5a8b6",
+  "sourceBranch": "work/mk-member-management-20261109",
+  "previewDeployment": {
+    "id": "dpl_7rMcCPZSMCS6tCkHsRVD9SFm6c8T",
+    "url": "https://englishmath-python-c5fslkc45-englishmath6003-2101s-projects.vercel.app",
+    "state": "READY",
+    "version": "3.2.0"
+  },
+  "productionBefore": {
+    "id": "dpl_BqrBHCd6j4TDMunQBvAFkeUbKuH9",
+    "commit": "61840168f9213a1e7b9e4198b60fdfb3a04d6620"
+  },
+  "rules": {
+    "project": "englishmath-python-classroom",
+    "baselineSha256": "dda6ec21249d899fbcca4d1d71905b411b493821c7769edb2fdd724c956c8eb5",
+    "proposedSha256": "68441c8d2197ac98c8550ffa2a4cdc283560c1426e6be61e48ed4f1c41f54d30",
+    "additions": 74,
+    "deletions": 0,
+    "productionApplied": false
+  },
+  "protected": {
+    "swMain": "912dffc2c619a0f94a4189140bb28926a0598b26",
+    "commercialDeployment": "dpl_2T6xocywVvCL7Jue3Lk4VBjsbGPR",
+    "commercialCommit": "0c9ecc02c9f631edd5da48dd0126aef640887629",
+    "sharedMain": "c38e7ce5e057b68898d086dde1caaaceae4f6d00"
+  },
+  "studentProductionMutations": 0,
+  "priorFullVerification": {
+    "runId": 42556000024,
+    "url": "https://github.com/englishmath75/pico-lab-classroom/actions/runs/42556000024",
+    "status": "SUCCESS",
+    "unitPassed": 41,
+    "baselineSecurityPassed": 31,
+    "membershipSecurityPassed": 13,
+    "browserScenariosPassed": 10,
+    "contentRuntimeResponsiveKeyboard": "PASS",
+    "actualStudentGoogleRequestApproval": "NOT_RUN",
+    "actualSchoolPC": "NOT_RUN",
+    "actualSchoolCamera": "NOT_RUN"
+  },
+  "verification": {
+    "runId": 42557919548,
+    "url": "https://github.com/englishmath75/pico-lab-classroom/actions/runs/42557919548",
+    "status": "SUCCESS",
+    "unitPassed": 41,
+    "baselineSecurityPassed": 31,
+    "membershipSecurityPassed": 13,
+    "browserScenariosPassed": 10,
+    "contentRuntimeResponsiveKeyboard": "PASS",
+    "actualStudentGoogleRequestApproval": "NOT_RUN",
+    "actualSchoolPC": "NOT_RUN",
+    "actualSchoolCamera": "NOT_RUN",
+    "artifactId": 13647984868,
+    "artifactSha256": "57b9ee9bf85fcf988373b742ec6f1b27c7902ba5941c1ed345de9a3029d7d65b",
+    "mobileTeacherCards": "PASS"
+  }
+}
