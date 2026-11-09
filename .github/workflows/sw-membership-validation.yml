@@ -27,9 +27,10 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix sw
       - name: Membership, enrollment and saving contracts
-        run: node --test sw/tests/membership.test.mjs sw/tests/enrollment.test.mjs sw/tests/store.test.mjs
+        run: node --test sw/tests/membership.test.mjs sw/tests/enrollment.test.mjs sw/tests/store.test.mjs sw/tests/content.test.mjs
       - name: Build SW candidate only
         run: |
+          node sw/audit-exercises.mjs
           npm run build:sw
           python3 sw/publisher/package_site.py dist --source-sha "$GITHUB_SHA"
           python3 sw/publisher/finalize_brand.py --dist dist --source-sha "$GITHUB_SHA"

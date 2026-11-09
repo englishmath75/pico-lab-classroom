@@ -412,7 +412,7 @@ import providedData from '../provided-data.json';
   const uid=user.uid,session=sessionGeneration;
   async function send(action,fields){
    $('sw-member-send').disabled=true;$('sw-member-withdraw').disabled=true;
-   try{await cloud.membership(uid,action,fields,p);if(uid!==user?.uid||session!==sessionGeneration)return;identity=await cloud.identity(user);if(uid!==user?.uid||session!==sessionGeneration)return;renderRegistration();updateStatus();}
+   try{await cloud.membership(uid,action,fields,p);if(uid!==user?.uid||session!==sessionGeneration)return;const next=await cloud.identity(user);if(uid!==user?.uid||session!==sessionGeneration)return;identity=next;renderRegistration();updateStatus();}
    catch(e){if(uid===user?.uid&&session===sessionGeneration){$('sw-member-result').textContent='처리 실패: '+readableError(e);$('sw-member-send').disabled=waiting||blocked;$('sw-member-withdraw').disabled=false;}}
   }
   $('sw-member-form').onsubmit=e=>{e.preventDefault();const fields={schoolId:$('sw-member-school').value,grade:$('sw-member-grade').value,classNumber:$('sw-member-class').value,displayName:$('sw-member-name').value,confirmed:$('sw-member-confirm').checked};try{enrollmentInput(identity.enrollmentConfig,user.email,fields);void send(cancelled?'reapply':'request',fields);}catch(e){$('sw-member-result').textContent=e.message;}};
