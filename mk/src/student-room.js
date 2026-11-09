@@ -472,7 +472,7 @@ for(const [id,kind] of [['membership-request','request'],['membership-withdraw',
   if(!expected)return;
   $(id).disabled=true;
   try {await bounded(cloud.membership(user,selectedSpace,kind,input,expected));if(scopeCurrent(snapshot))await refreshIdentity();}
-  finally {if(scopeCurrent(snapshot))renderMembership();}
+  finally {if(scopeCurrent(snapshot))$(id).disabled=kind==='request'&&(identity?.profile?.changeRequest?.status==='pending'||!['pending','approved'].includes(identity?.profile?.status));}
 });
 
 action('login',async()=>{if(!await protectDraft())return;if(!cloud){notice('아직 Google 로그인 연결을 준비하고 있습니다.',true);return;}await cloud.login();});

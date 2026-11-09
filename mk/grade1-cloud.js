@@ -173,7 +173,7 @@ export async function mutateMembership(db,root,uid,actorUid,action,input={},expe
     const snap=await tx.get(ref);
     if(!snap.exists()) throw Error('등록 정보를 찾지 못했습니다. 새로고침해 주세요.');
     const before=snap.data();
-    if(!expected || (before.membershipVersion||0)!==(expected.membershipVersion||0) || before.updatedAt?.toMillis()!==expected.updatedAt?.toMillis()) {
+    if(!expected || (before.membershipVersion||0)!==(expected.membershipVersion||0) || before.updatedAt?.isEqual?.(expected.updatedAt)!==true) {
       throw Object.assign(Error('학생 정보가 변경되었습니다.'),{code:'membership-conflict'});
     }
     const now=serverTimestamp(),after=membershipPatch(before,action,{...input,actorUid},now);

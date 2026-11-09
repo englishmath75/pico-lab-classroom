@@ -239,6 +239,36 @@ try {
   origin = `http://127.0.0.1:${server.address().port}`;
   browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
 
+  await scenario('membership: request review cancellation reapply and independent restoration',async()=>{
+    const student=await device('/?page=practice'),teacher=await device('/?page=home');
+    const p=student.page,t=teacher.page,person=people.membership;
+    await login(p,person);await p.locator('#editor').fill('print("회원 변경 후에도 보존")');await p.locator('#save').click();await expect(p.locator('#save-state')).toContainText('클라우드 저장 완료');
+    const savedBefore=await scopeData(person.uid);
+    await p.locator('#member-info').click();await p.locator('#membership-name').fill('수정된 검증 학생');await p.locator('#membership-class').selectOption('class-1-2');
+    await student.context.setOffline(true);await p.locator('#membership-request').click();await expect(p.locator('#notice')).toContainText('연결 문제');await expect(p.locator('#membership-name')).toHaveValue('수정된 검증 학생');await expect(p.locator('#membership-class')).toHaveValue('class-1-2');await student.context.setOffline(false);await p.locator('#membership-request').click();
+    await expect(p.locator('#membership-result')).toContainText('정보 변경 요청: 수정된 검증 학생');
+    await expect(p.locator('#membership-current')).toContainText('1학년 1반');
+    await login(t,people.teacher);await t.locator('#teacher-tab').click();
+    let row=t.locator('#student-list tr').filter({hasText:person.email});
+    await expect(row).toContainText('정보 변경 요청:');await row.getByRole('button',{name:'정보 변경 반려',exact:true}).click();await t.locator('#membership-note').fill('이름을 다시 확인해 주세요.');await t.locator('#membership-note-form button[type=submit]').click();
+    await expect(row).not.toContainText('정보 변경 요청:');await p.locator('#membership-refresh').click();await expect(p.locator('#membership-result')).toContainText('이름을 다시 확인해 주세요.');
+    await p.locator('#membership-name').fill('수정된 검증 학생');await p.locator('#membership-class').selectOption('class-1-2');await p.locator('#membership-request').click();await expect(p.locator('#membership-result')).toContainText('정보 변경 요청:');
+    await t.locator('#refresh-students').click();await expect(row).toContainText('정보 변경 요청:');await row.getByRole('button',{name:'정보 변경 승인',exact:true}).click();await t.locator('#dialog-yes').click();await expect(row).toHaveCount(0);
+    await t.locator('#teacher-class').selectOption('2026:class-1-2');row=t.locator('#student-list tr').filter({hasText:person.email});await expect(row).toContainText('수정된 검증 학생');
+    await p.locator('#membership-refresh').click();await expect(p.locator('#membership-current')).toContainText('1학년 2반');assert.equal(await scopeData(person.uid),savedBefore);
+    await row.getByRole('button',{name:'이용 중지',exact:true}).click();await t.locator('#dialog-yes').click();await expect(row.getByRole('button',{name:'이용 중지 해제',exact:true})).toBeVisible();await row.getByRole('button',{name:'이용 중지 해제',exact:true}).click();await t.locator('#dialog-yes').click();await expect(row).toContainText('승인됨');
+    await row.getByRole('button',{name:'등록 취소',exact:true}).click();await t.locator('#dialog-yes').click();await expect(row).toHaveCount(0);await t.locator('#show-cancelled').check();await expect(row).toContainText('등록 취소');
+    await p.locator('#membership-refresh').click();await expect(p.locator('#notice')).toContainText('등록이 취소');await p.locator('#registration-name').fill('재신청 검증 학생');await p.locator('#class-select').selectOption('class-1-2');await p.locator('#register').click();await expect(p.locator('#notice')).toContainText('승인 대기');
+    await t.locator('#refresh-students').click();await expect(row).toContainText('재신청 검증 학생');await row.getByRole('button',{name:'승인',exact:true}).click();await t.locator('#dialog-yes').click();await expect(row).toContainText('승인됨');
+    await row.getByRole('button',{name:'회원 처리 이력',exact:true}).click();await expect(t.locator('#student-details')).toContainText('학급 재신청');await expect(t.locator('#student-details')).toContainText('정보 변경 반려');
+    await t.screenshot({path:resolve(artifacts,'membership-teacher-history.png')});
+    const independent=await device('/?page=practice');await login(independent.page,person);await expect(independent.page.locator('#editor')).toHaveValue('print("회원 변경 후에도 보존")');
+    await independent.page.setViewportSize({width:390,height:844});await independent.page.locator('#member-info').click();await expect(independent.page.locator('#membership-current')).toContainText('재신청 검증 학생');
+    assert.equal(await independent.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+    await independent.page.screenshot({path:resolve(artifacts,'membership-student-mobile.png')});
+    assert.equal(await scopeData(person.uid),savedBefore);
+  });
+
   await scenario('multiple: independent named codes, restoration, offline and capacity protection',async()=>{
     const {page,context}=await device('/?page=practice');await login(page,people.multiple);
     await expect(page.locator('#new-code')).toBeEnabled();
@@ -533,35 +563,6 @@ try {
     await expect(page.locator('#notice')).toContainText('저장되지 않았습니다');await expect(page.locator('#editor')).not.toHaveValue('never saved offline');
     assert.equal(await record(people.idle.uid,'2026-1','mk3-list-search'),null);
     await page.screenshot({path:resolve(artifacts,'idle-logout.png')});await context.setOffline(false);
-  });
-
-  await scenario('membership: request review cancellation reapply and independent restoration',async()=>{
-    const student=await device('/?page=practice'),teacher=await device('/?page=home');
-    const p=student.page,t=teacher.page,person=people.membership;
-    await login(p,person);await p.locator('#editor').fill('print("회원 변경 후에도 보존")');await p.locator('#save').click();await expect(p.locator('#save-state')).toContainText('클라우드 저장 완료');
-    const savedBefore=await scopeData(person.uid);
-    await p.locator('#member-info').click();await p.locator('#membership-name').fill('수정된 검증 학생');await p.locator('#membership-class').selectOption('class-1-2');await p.locator('#membership-request').click();
-    await expect(p.locator('#membership-result')).toContainText('정보 변경 요청: 수정된 검증 학생');
-    await expect(p.locator('#membership-current')).toContainText('1학년 1반');
-    await login(t,people.teacher);await t.locator('#teacher-tab').click();
-    let row=t.locator('#student-list tr').filter({hasText:person.email});
-    await expect(row).toContainText('정보 변경 요청:');await row.getByRole('button',{name:'정보 변경 반려',exact:true}).click();await t.locator('#membership-note').fill('이름을 다시 확인해 주세요.');await t.locator('#membership-note-form button[type=submit]').click();
-    await expect(row).not.toContainText('정보 변경 요청:');await p.locator('#membership-refresh').click();await expect(p.locator('#membership-result')).toContainText('이름을 다시 확인해 주세요.');
-    await p.locator('#membership-name').fill('수정된 검증 학생');await p.locator('#membership-class').selectOption('class-1-2');await p.locator('#membership-request').click();await expect(p.locator('#membership-result')).toContainText('정보 변경 요청:');
-    await t.locator('#refresh-students').click();await expect(row).toContainText('정보 변경 요청:');await row.getByRole('button',{name:'정보 변경 승인',exact:true}).click();await t.locator('#dialog-yes').click();await expect(row).toHaveCount(0);
-    await t.locator('#teacher-class').selectOption('2026:class-1-2');row=t.locator('#student-list tr').filter({hasText:person.email});await expect(row).toContainText('수정된 검증 학생');
-    await p.locator('#membership-refresh').click();await expect(p.locator('#membership-current')).toContainText('1학년 2반');assert.equal(await scopeData(person.uid),savedBefore);
-    await row.getByRole('button',{name:'이용 중지',exact:true}).click();await t.locator('#dialog-yes').click();await expect(row.getByRole('button',{name:'이용 중지 해제',exact:true})).toBeVisible();await row.getByRole('button',{name:'이용 중지 해제',exact:true}).click();await t.locator('#dialog-yes').click();await expect(row).toContainText('승인됨');
-    await row.getByRole('button',{name:'등록 취소',exact:true}).click();await t.locator('#dialog-yes').click();await expect(row).toHaveCount(0);await t.locator('#show-cancelled').check();await expect(row).toContainText('등록 취소');
-    await p.locator('#membership-refresh').click();await expect(p.locator('#notice')).toContainText('등록이 취소');await p.locator('#registration-name').fill('재신청 검증 학생');await p.locator('#class-select').selectOption('class-1-2');await p.locator('#register').click();await expect(p.locator('#notice')).toContainText('승인 대기');
-    await t.locator('#refresh-students').click();await expect(row).toContainText('재신청 검증 학생');await row.getByRole('button',{name:'승인',exact:true}).click();await t.locator('#dialog-yes').click();await expect(row).toContainText('승인됨');
-    await row.getByRole('button',{name:'회원 처리 이력',exact:true}).click();await expect(t.locator('#student-details')).toContainText('학급 재신청');await expect(t.locator('#student-details')).toContainText('정보 변경 반려');
-    await t.screenshot({path:resolve(artifacts,'membership-teacher-history.png')});
-    const independent=await device('/?page=practice');await login(independent.page,person);await expect(independent.page.locator('#editor')).toHaveValue('print("회원 변경 후에도 보존")');
-    await independent.page.setViewportSize({width:390,height:844});await independent.page.locator('#member-info').click();await expect(independent.page.locator('#membership-current')).toContainText('재신청 검증 학생');
-    assert.equal(await independent.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
-    await independent.page.screenshot({path:resolve(artifacts,'membership-student-mobile.png')});
-    assert.equal(await scopeData(person.uid),savedBefore);
   });
 
   const pageErrors = evidence.filter(item => item.pageError);
