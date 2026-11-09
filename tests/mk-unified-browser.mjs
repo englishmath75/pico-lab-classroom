@@ -28,7 +28,7 @@ const people = {
   other: { uid: 'mk-unified-other', name: '다른 검증 학생', email: 'mk-other@muhak-g-h.gne.go.kr' },
   race: { uid: 'mk-unified-race', name: '저장 보호 검증 학생', email: 'mk-race@muhak-g-h.gne.go.kr' },
 };
-for(const key of ['complete','conflict','camera','idle'])people[key]={uid:'mk-v2-'+key,name:'V2 검증 '+key,email:'mk-v2-'+key+'@muhak-g-h.gne.go.kr'};
+for(const key of ['complete','conflict','camera','idle','multiple'])people[key]={uid:'mk-v2-'+key,name:'V2 검증 '+key,email:'mk-v2-'+key+'@muhak-g-h.gne.go.kr'};
 const fixtures = {
   school: '학교에서 작성한 자동 저장 답안',
   future: '2027학년도에만 있는 답안',
@@ -51,7 +51,7 @@ for (const name of ['FIRESTORE_EMULATOR_HOST', 'FIREBASE_AUTH_EMULATOR_HOST']) {
 await mkdir(artifacts, { recursive: true });
 const env = await initializeTestEnvironment({
   projectId,
-  firestore: { host: '127.0.0.1', port: 8080, rules: await readFile('firestore.rules', 'utf8') },
+  firestore: { host: '127.0.0.1', port: 8080, rules: await readFile(process.env.MK_RULES_FILE||'firestore.rules', 'utf8') },
 });
 let server;
 let browser;
@@ -236,6 +236,53 @@ try {
   await new Promise(resolveReady => server.listen(0, '127.0.0.1', resolveReady));
   origin = `http://127.0.0.1:${server.address().port}`;
   browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
+
+  await scenario('multiple: independent named codes, restoration, offline and capacity protection',async()=>{
+    const {page,context}=await device('/?page=practice');await login(page,people.multiple);
+    await expect(page.locator('#new-code')).toBeEnabled();
+    await page.locator('#title').fill('첫 번째 코드');await page.locator('#editor').fill('print("first")');await page.locator('#save').click();
+    await expect(page.locator('#save-state')).toContainText('클라우드 저장 완료');
+    const create=async(button,title)=>{
+      await page.locator(button).click();await page.locator('#new-code-title').fill(title);
+      await page.locator('#code-name-form button[type=submit]').click();
+      await expect(page.locator('#notice')).toContainText('별도 코드로 저장했습니다',{timeout:45000});
+      await expect(page.locator('#title')).toHaveValue(title);await expect(page.locator('#new-code')).toBeEnabled();
+    };
+    await create('#save-as','두 번째 코드');await expect(page.locator('#workspace')).toHaveValue('scratch-02');
+    await page.locator('#editor').fill('print("second")');await page.locator('#save').click();
+    await expect(page.locator('#save-state')).toContainText('클라우드 저장 완료',{timeout:45000});
+    await create('#save-as','두 번째 코드');await expect(page.locator('#workspace')).toHaveValue('scratch-03');
+    await page.locator('#editor').fill('print("third")');await page.locator('#save').click();
+    await expect(page.locator('#save-state')).toContainText('클라우드 저장 완료',{timeout:45000});
+    for(const [id,code] of [['01','first'],['02','second'],['03','third']])assert.equal((await record(people.multiple.uid,'2026-1','scratch-'+id)).code,`print("${code}")`);
+    await page.locator('#library-tab').click();await expect(page.locator('#library-list .entry')).toHaveCount(3);
+    await page.screenshot({path:resolve(artifacts,'multiple-codes-library.png')});
+    await page.locator('#finish').click();await expect(page.locator('#identity')).toHaveText('로그인하지 않음');
+    await expect(page.locator('#workspace')).not.toContainText('첫 번째 코드');
+    const restored=await device('/?page=practice');await login(restored.page,people.multiple);
+    await expect(restored.page.locator('#editor')).toHaveValue('print("first")');
+    await restored.page.locator('#workspace').selectOption('scratch-03');await expect(restored.page.locator('#editor')).toHaveValue('print("third")');
+    await restored.page.locator('#workspace').selectOption('scratch-02');await expect(restored.page.locator('#editor')).toHaveValue('print("second")');
+    await restored.page.setViewportSize({width:390,height:844});
+    await restored.page.locator('#new-code').click();await expect(restored.page.locator('#code-name-dialog')).toBeVisible();
+    assert.equal(await restored.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    await restored.page.screenshot({path:resolve(artifacts,'multiple-codes-mobile.png')});
+    await restored.page.locator('#code-name-cancel').click();
+    await restored.context.setOffline(true);await restored.page.locator('#save-as').click();
+    await restored.page.locator('#code-name-form button[type=submit]').click();
+    await expect(restored.page.locator('#notice')).toHaveClass(/error/);await expect(restored.page.locator('#editor')).toHaveValue('print("second")');
+    await restored.context.setOffline(false);
+    await env.withSecurityRulesDisabled(async ctx=>{
+      for(let n=4;n<=10;n++){const id=`scratch-${String(n).padStart(2,'0')}`;await setDoc(doc(ctx.firestore(),roots['2026-1'],people.multiple.uid,'workspaces',id),{workspaceId:id,lessonId:id,title:'보존 '+n,code:'print('+n+')',completed:false,runState:'idle',version:1,savedAt:Timestamp.now()});}
+    });
+    const before=await scopeData(people.multiple.uid);
+    await restored.page.locator('#new-code').click();await restored.page.locator('#code-name-form button[type=submit]').click();
+    await expect(restored.page.locator('#notice')).toContainText('10개 모두 사용 중');
+    await expect(restored.page.locator('#editor')).toHaveValue('print("second")');
+    assert.equal(await scopeData(people.multiple.uid),before);
+    await restored.page.screenshot({path:resolve(artifacts,'multiple-codes-full.png')});
+    await context.close();await restored.context.close();
+  });
 
   await scenario('common login across main navigation, avatar lifecycle, and legacy avatar address', async () => {
     const { page, writes } = await device('/?page=home');
@@ -498,3 +545,4 @@ try {
   if (server?.listening) await new Promise(resolveClosed => server.close(resolveClosed));
   await env.cleanup();
 }
+

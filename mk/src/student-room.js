@@ -5,6 +5,7 @@ import { activities, activityById } from './content.js';
 import { SpaceWriteQueue } from './write-queue.js';
 import { LearningDraft } from './learning-draft.js';
 import { recordKind } from './routes.js';
+import { nextScratch, occupiedScratch } from './code-library.js';
 
 const $=id=>document.getElementById(id), session=new StudentSession();
 clearTemporaryLessons();
@@ -13,6 +14,7 @@ let cloud,user=null,identity=null,workspace='scratch-01',runner=null,autoTimer,l
 let runState='idle',loading=false,loggingOut=false,noticeAfterLogout='',idleSaveAttempted=false;
 let scopeGeneration=0,identityRequest=0,flushPromise=null,guardPromise=null,authObserved=false;
 const records=new Map(),drafts=new Map(),writes=new SpaceWriteQueue({gap:WRITE_GAP});
+let libraryItems=[],creatingCode=false;
 const channel='BroadcastChannel' in window ? new BroadcastChannel('englishmath-shared-pc') : null;
 const labels=new Map([
   ...activities.map(a=>[a.id,a.title]),
@@ -57,7 +59,7 @@ function getRecord(id) {
     read:()=>bounded(owner.store.load(owner.uid,id)),
     write:(data,version)=>mutateRecord(owner,id,'save',data,version),
     current:()=>scopeCurrent(owner),canWrite,
-    onChange:d=>{if(scopeCurrent(owner)){if(workspace===id)renderSaveState(d);summary();}}
+    onChange:d=>{if(scopeCurrent(owner)){if(workspace===id)renderSaveState(d);summary();renderCodeChoices();}}
   });
   record.owner=owner;record.stdin=activityById.get(id)?.stdin||'';records.set(id,record);return record;
 }
@@ -77,6 +79,59 @@ async function mutateRecord(snapshot,id,kind,data,version) {
   lastWrite=Date.now();return next;
 }
 function date(value) {return value?.toDate?.().toLocaleString('ko-KR') || '기록 없음';}
+function renderCodeChoices() {
+  const titles=new Map(libraryItems.map(item=>[item.workspaceId,item.title]));
+  for(const [id,record] of records)if(record.version>0||record.isDirty())titles.set(id,record.data.title);
+  for(const option of $('workspace').options)option.textContent=titles.has(option.value)?`${titles.get(option.value)} · ${labels.get(option.value)}`:labels.get(option.value);
+  const count=occupiedScratch(libraryItems,records).size;
+  $('code-count').textContent=`자유 코드 ${count} / 10개 · 수업 실습은 별도 저장`;
+  for(const id of ['new-code','save-as'])$(id).disabled=creatingCode||loading||!canWrite();
+}
+async function refreshCodeChoices() {
+  const owner=scope();
+  const items=await bounded(owner.store.list(owner.uid));
+  if(scopeCurrent(owner)){libraryItems=items;renderCodeChoices();}
+  return items;
+}
+function askCodeTitle(copy) {
+  const dialog=$('code-name-dialog');
+  $('code-name-heading').textContent=copy?'다른 이름으로 저장':'새 코드 만들기';
+  $('new-code-title').value=copy?`${$('title').value} 사본`.slice(0,80):'새 Python 코드';
+  return new Promise(resolve=>{
+    const done=value=>{dialog.close();dialog.oncancel=null;$('code-name-form').onsubmit=null;resolve(value);};
+    $('code-name-form').onsubmit=e=>{e.preventDefault();const title=$('new-code-title').value.trim();if(title)done(title);else $('new-code-title').focus();};
+    $('code-name-cancel').onclick=()=>done(null);dialog.oncancel=e=>{e.preventDefault();done(null);};
+    dialog.showModal();$('new-code-title').select();
+  });
+}
+async function createCode(copy=false) {
+  if(creatingCode||loading)return;
+  if(!canWrite())throw Error('로그인과 학급 승인을 확인한 뒤 새 코드를 저장해 주세요.');
+  const owner=scope(),snapshot=session.checkpoint(),original=workspace;
+  const source=copy?{code:$('editor').value,completed:false,runState,stdin:$('stdin').value}:{code:'',completed:false,runState:'idle',stdin:''};
+  creatingCode=true;renderCodeChoices();
+  try {
+    const title=await askCodeTitle(copy);
+    if(!title||!scopeCurrent(owner)||!session.current(snapshot))return;
+    notice('새 코드 저장 공간을 확인하고 있습니다.');
+    const items=await refreshCodeChoices();
+    if(!scopeCurrent(owner)||!session.current(snapshot))return;
+    const id=nextScratch(items,records,copy?[original]:[]),record=getRecord(id);
+    // Force a server read even if an empty slot was visited earlier. A later
+    // concurrent creation is still rejected by mutate's version-zero check.
+    if(!await record.load({force:true})||!scopeCurrent(owner)||!session.current(snapshot))return;
+    record.create({title,code:source.code,completed:source.completed,runState:source.runState});record.stdin=source.stdin;
+    try {
+      const saved=await record.save();
+      if(saved&&scopeCurrent(owner))notice(`“${title}”을 별도 코드로 저장했습니다. 내 코드 보관함에서 다시 열 수 있습니다.`);
+    } finally {
+      if(scopeCurrent(owner)){
+        if(session.current(snapshot))changed('open-record',{id});
+        scheduleSave(true);
+      }
+    }
+  } finally {creatingCode=false;renderCodeChoices();}
+}
 function button(label,action) {const b=document.createElement('button');b.textContent=label;b.addEventListener('click',()=>Promise.resolve().then(action).catch(showError));return b;}
 function showError(error) {
   if(error.code==='stale-scope')return;
@@ -101,6 +156,9 @@ function download(code=$('editor').value,name=workspace,id=workspace) {
 function wipe(uid=null,{initialAnonymous=false}={}) {
   scopeGeneration++;identityRequest++;identity=null;flushPromise=null;guardPromise=null;
   for(const record of records.values())record.reset();records.clear();
+  libraryItems=[];
+  if($('code-name-dialog').open)$('code-name-cancel').click();
+  renderCodeChoices();
   for(const draft of drafts.values())draft.reset();nextSaveDue=0;document.body.classList.remove('idle-private');
   $('learning-space-panel').hidden=true;
   if(!uid) selectedSpace=null;
@@ -198,7 +256,7 @@ async function loadWorkspace(id,force=false) {
     $('editor').value=record.data.code;$('title').value=record.data.title;session.code=record.data.code;
     renderSaveState(record);showError(error);
   }return false;}
-  finally{if(session.current(snapshot)){loading=!!user&&!identity;$('editor').readOnly=loading;changed();summary();}}
+  finally{if(session.current(snapshot)){loading=!!user&&!identity;$('editor').readOnly=loading;changed();summary();renderCodeChoices();}}
 }
 async function reloadWorkspace() {
   const record=getRecord(workspace),space=scope();
@@ -239,6 +297,8 @@ async function refreshIdentity() {
     // Retain those edits; optimistic version checks protect an older cloud copy.
     await loadWorkspace(workspace);
     if(request!==identityRequest||generation!==scopeGeneration||user?.uid!==uid)return;
+    await refreshCodeChoices();
+    if(request!==identityRequest||generation!==scopeGeneration||user?.uid!==uid)return;
     if(new URLSearchParams(location.search).get('panel')==='library') await showLibrary();
   } else if(identity.profile) {
     $('enrollment').hidden=false;
@@ -276,6 +336,7 @@ async function logout(automatic=false,remote=false) {
 async function showLibrary() {
   if(!canWrite()) {notice('로그인과 학급 승인이 필요합니다.',true);return;}
   const snapshot=session.checkpoint(),space=scope(),items=await bounded(identity.service.list(user.uid));if(!session.current(snapshot)||!scopeCurrent(space)) return;
+  libraryItems=items;renderCodeChoices();
   $('library-list').replaceChildren();
   if(!items.length) $('library-list').textContent='아직 저장한 코드가 없습니다.';
   for(const item of items) {
@@ -338,6 +399,7 @@ async function showTeacher() {
 }
 function action(id,fn) {$(id).addEventListener('click',()=>Promise.resolve().then(fn).catch(showError));}
 action('login',async()=>{if(!await protectDraft())return;if(!cloud){notice('아직 Google 로그인 연결을 준비하고 있습니다.',true);return;}await cloud.login();});
+action('new-code',()=>createCode());action('save-as',()=>createCode(true));
 action('logout',()=>logout());action('finish',()=>logout());action('save',async()=>{if(loading){notice('코드를 불러온 뒤 저장해 주세요.');return;}if(!canWrite()){notice('Google 로그인 후 개인 학습을 시작하거나 학급 승인을 확인하세요.',true);return;}await save();});action('library-tab',showLibrary);action('teacher-tab',showTeacher);
 action('refresh-students',showTeacher);$('teacher-class').onchange=()=>showTeacher().catch(showError);
 action('register',async()=>{if(!$('class-select').value)throw Error('등록 가능한 학급이 없습니다.');await cloud.register(user,$('class-select').value,selectedSpace);await refreshIdentity();});
@@ -461,3 +523,4 @@ export const room={
     return mutateRecord(snapshot,id,'save',{code,title:labels.get(id),completed:false,runState:'idle'},version);
   }
 };
+

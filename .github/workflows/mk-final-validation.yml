@@ -1,7 +1,7 @@
 name: MK final login and persistence validation
 on:
   push:
-    branches: [work/mk-unified-login-20261106]
+    branches: [work/mk-unified-login-20261106, work/mk-multiple-codes-20261109]
   pull_request:
     branches: [feat/mk-native-avatar-20261106]
 permissions:
@@ -31,8 +31,10 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run build:mk
       - run: python3 tests/mk-v3-content.py && python3 tests/mk-question-audit.py
-      - run: node --test tests/mk-learning-draft.test.mjs tests/mk-persistence.test.mjs tests/mk-list-answer.test.mjs tests/mk-reverse-compare.test.mjs
+      - run: node --test tests/mk-code-library.test.mjs tests/mk-learning-draft.test.mjs tests/mk-persistence.test.mjs tests/mk-list-answer.test.mjs tests/mk-reverse-compare.test.mjs
       - name: Existing production rules, isolated test data only
+        env:
+          MK_RULES_FILE: mk/security/production-20261109.rules
         run: npx firebase emulators:exec --project demo-englishmath-python --only auth,firestore 'node --test --test-concurrency=1 tests/student-security.test.mjs tests/grade1-isolation.test.mjs && node tests/mk-unified-browser.mjs'
       - run: node tests/mk-v3-browser.mjs
       - uses: actions/upload-artifact@v4
@@ -41,3 +43,4 @@ jobs:
           name: mk-final-test-evidence
           path: .artifacts
           include-hidden-files: true
+

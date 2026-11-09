@@ -9,6 +9,13 @@ export class LearningDraft {
     this.kind='guest';this.error=null;this.generation=0;
   }
   notify(kind,error=null){this.kind=kind;this.error=error;this.onChange(this);}
+  create(data) {
+    if(!this.loaded||this.version!==0||this.dirty)throw Object.assign(Error('이미 사용 중인 저장 공간입니다. 기존 기록을 덮어쓰지 않았습니다.'),{code:'conflict'});
+    this.update(data);
+    // Explicit creation also persists a deliberately empty document. Ordinary
+    // visits to an unchanged sample still never create a cloud record.
+    if(!this.dirty){this.dirty=true;this.dirtyAt=this.now();this.edit++;this.notify('dirty');}
+  }
   update(data) {
     if(JSON.stringify(data)===JSON.stringify(this.data))return;
     this.data={...data};this.edit++;
@@ -68,3 +75,4 @@ export class LearningDraft {
   discard(){this.dirty=false;this.dirtyAt=0;this.base={...this.data};this.notify('exported');}
   reset(){this.generation++;this.dirty=false;this.dirtyAt=0;this.data={title:'',code:'',completed:false,runState:'idle'};this.loaded=false;}
 }
+
