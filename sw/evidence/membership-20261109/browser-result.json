@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "environment": "Chromium + Firebase Auth/Firestore emulators",
+  "checks": [
+    "fresh required enrollment and live teacher approval",
+    "change request, reject, resubmit, approve with original identity preserved",
+    "teacher mobile layout and immutable history display",
+    "suspension and explicit unblock",
+    "cancel, teacher restore, student reapply never auto-approves",
+    "three distinct cloud codes and copy without overwriting",
+    "separate browser context restores both codes",
+    "ten limit, safe delete and reuse only the freed slot",
+    "offline membership request retains entered text",
+    "profile reset clears drafts in an already signed-in browser",
+    "student and teacher logout clear names, notes and history"
+  ],
+  "actualStudentGoogle": "NOT_RUN",
+  "actualSchoolPC": "NOT_RUN",
+  "actualSchoolCamera": "NOT_RUN"
+}
