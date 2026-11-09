@@ -1,6 +1,16 @@
-# MK 회원 관리 변경 — 배포 준비 기록
+# MK 회원 관리 변경 — 운영 배포 완료
 
-대상: `mk.englishmath.kr` / Vercel `englishmath-python-mk`.
+대상: [MK 파이썬 교실](https://mk.englishmath.kr/?page=practice) / Vercel `englishmath-python-mk`.
+
+**2026-11-09 13:28 KST 운영 배포 완료.** 실제 도메인의 `mk-build-info.json` 응답(HTTP 200)과 브라우저 버전 표시가 최종 소스 `69920d5`와 일치합니다.
+
+- 운영 배포: `dpl_9g5k8dBH2S7fFJRuVz2iALUMffid` / **READY** / 버전 **3.2.0**.
+- 공개 빌드 정보: [mk-build-info.json](https://mk.englishmath.kr/mk-build-info.json).
+- 승인한 공유 Firebase 규칙 확장도 게시 후 콘솔을 다시 읽어 전체 내용과 해시 일치를 확인했습니다.
+- 실제 학교 교사 Google 로그인, 회원 8명 조회, 신규 등록 취소 버튼, 회원 처리 이력 조회 및 학습 종료 후 명단·이력 제거를 확인했습니다.
+- 실제 학생의 승인 상태·학습 데이터는 시험 목적으로 변경하지 않았습니다. 실제 학생의 요청→교사 승인 운영 쓰기 시험, 학교 PC·실물 카메라는 **NOT_RUN**입니다.
+
+![실제 운영 실습 화면 — 검증 후 로그아웃 상태](production-practice.png)
 기준 소스: `61840168f9213a1e7b9e4198b60fdfb3a04d6620` (여러 코드 저장 수정 포함).
 작업 브랜치: `work/mk-member-management-20261109`.
 
@@ -21,8 +31,8 @@
 - 현재 게시 규칙을 Firebase Console에서 전체 복사해 기준 파일과 SHA-256 일치를 확인했습니다.
 - 기준: `mk/security/production-20261109.rules`
   SHA-256: `dda6ec21249d899fbcca4d1d71905b411b493821c7769edb2fdd724c956c8eb5`.
-- 제안 규칙 SHA-256: `68441c8d2197ac98c8550ffa2a4cdc283560c1426e6be61e48ed4f1c41f54d30`.
-- 제안: `mk/security/membership-proposed.rules`. 기존 규칙을 삭제하지 않고 MK 회원 처리 규칙 74줄만 추가합니다.
+- 게시 완료 규칙 SHA-256: `68441c8d2197ac98c8550ffa2a4cdc283560c1426e6be61e48ed4f1c41f54d30`.
+- 게시 파일: `mk/security/membership-proposed.rules`. 기존 규칙 0줄 삭제, MK 회원 처리 규칙 74줄 추가. 게시 시각은 2026-11-09 13:24 KST이며, 게시 직전 기준 해시 확인과 게시 후 서버 재조회 비교를 모두 통과했습니다.
 - 변경 경로: `cohorts/2026/grade1_users/{uid}` 및 기존 2027 학년별 회원 경로, 각 회원 아래 `membershipHistory/{version}`.
 - 학생은 본인의 이름·반 변경을 요청하거나 철회하고, 취소된 등록만 승인 대기로 재신청할 수 있습니다.
 - 기존 학교 교사 계정 + 기존 `staff` 권한 확인을 거쳐 교사만 정보 변경 승인·반려, 등록 취소·복구, 승인 상태 변경을 할 수 있습니다.
@@ -30,7 +40,7 @@
 - SW `users/{uid}`, `staff`, `config`, 개인 `public_users`, 기존 코드 저장 제한·수업 콘텐츠·상용 Python 배포는 변경하지 않습니다.
 - 실제 운영 학생의 승인 상태 또는 학습 데이터는 시험 목적으로 바꾸지 않았습니다.
 
-## 운영 적용 순서
+## 완료한 운영 적용 순서
 
 1. 제안 규칙을 사용하는 에뮬레이터 권한 검사, 저장 회귀, 브라우저 및 모바일 검사 통과.
 2. 정확한 소스 SHA로 MK 미리보기 빌드 확인.
@@ -41,19 +51,20 @@
 
 ## 확인된 결과
 
-- 단위 검사 41개, 보안 검사 44개, 통합 브라우저 10개 시나리오, 기존 수업 실행·키보드·PC/모바일 검사 모두 PASS.
-- 모바일에서는 학생별 카드로 이름·승인 상태·처리 버튼을 표시합니다. 메뉴 전환 완료, 이름 표시 폭, 페이지 넘침을 검사하고 증거 사진을 수집합니다.
+- 단위 검사 41개, 보안 검사 44개, 통합 브라우저 10개 시나리오, 기존 수업 실행·키보드·PC/모바일 브라우저 검사 모두 PASS.
+- 모바일에서는 학생별 카드로 이름·승인 상태·처리 버튼을 표시합니다. 메뉴 전환 완료, 이름 표시 폭, 페이지 넘침을 검사하고 에뮬레이터 증거 사진을 수집했습니다.
 
 - 최종 소스: `69920d59398a9635d8f6f3f572a4434b6ae5a8b6`.
 - 신규 회원 보안 검사 13개: PASS (Firebase Emulator).
 - 기존 저장·학년 분리 보안 검사 31개: PASS (기존 기준 규칙 회귀).
 - 제안 전체 규칙을 사용하는 브라우저 회원 관리 시나리오: PASS. 오프라인 요청 입력 보존, 요청→반려→재요청→승인, 정지→해제, 등록 취소→재신청→승인, 별도 Chromium 컨텍스트의 코드 복원, 학생·교사 390px 화면, 로그아웃 시 반려 사유·명단 제거 검사 포함.
-- 실제 Google 계정 대신 Auth Emulator의 Google 로그인 화면과 Firestore Emulator를 사용했습니다. 독립 브라우저 컨텍스트 검증을 실제 학교 PC 검사로 보고하지 않습니다.
-- 공개 운영 배포 비교: MK `dpl_BqrBHCd6j4TDMunQBvAFkeUbKuH9` / `6184016`, SW 게시 `912dffc`, 상용 Python `dpl_2T6xocywVvCL7Jue3Lk4VBjsbGPR` / `0c9ecc0`, 공통 main `c38e7ce` 모두 기존과 동일.
+- 자동화된 회원 변경 시나리오는 Auth Emulator의 Google 로그인 화면과 Firestore Emulator를 사용했습니다. 별도로 운영 사이트의 실제 교사 Google 로그인·회원 목록·이력 조회·학습 종료를 확인했습니다. 독립 브라우저 컨텍스트 검증은 실제 학교 PC 검사가 아닙니다.
+- 운영 배포 후 비교: MK만 `dpl_9g5k8dBH2S7fFJRuVz2iALUMffid` / `69920d5`로 변경. SW 게시 `912dffc`, 상용 Python `dpl_2T6xocywVvCL7Jue3Lk4VBjsbGPR` / `0c9ecc0`, 공통 main `c38e7ce`는 기존과 동일합니다.
 - 기능 구현 전체 CI: https://github.com/englishmath75/pico-lab-classroom/actions/runs/42556000024 **SUCCESS**.
 - 모바일 명단 최종 수정본 CI: https://github.com/englishmath75/pico-lab-classroom/actions/runs/42557919548 **SUCCESS**. 단위 41개, 보안 44개, 통합 시나리오 10개 및 수업 실행·PC/모바일·키보드 검사 모두 통과했습니다.
 - 최종 미리보기 배포: `dpl_7rMcCPZSMCS6tCkHsRVD9SFm6c8T`, **READY**. `mk-build-info.json`의 소스 SHA가 최종 커밋과 일치합니다.
-- 미리보기 브라우저에서 실습 화면·여러 코드 저장 도구·버전 `69920d5` 표시 확인. 로그인 상태의 신규 회원 처리 검증은 아래의 에뮬레이터 결과입니다.
+- 미리보기 및 실제 운영 브라우저에서 실습 화면·여러 코드 저장 도구·버전 `69920d5` 표시 확인. 변경 처리의 쓰기 검증은 아래의 에뮬레이터 결과입니다.
+- 미리보기 승격 API가 422를 반환하여 동일한 검증 SHA를 직접 운영 대상으로 빌드했습니다. 최종 운영 빌드는 성공했고 실제 MK 도메인 연결을 확인했습니다.
 
 ### 화면 증거 — 테스트 계정 / Firebase Emulator
 
@@ -61,7 +72,7 @@
 ![교사 회원 관리 모바일](membership-teacher-mobile.png)
 ![학생 변경 요청 모바일](membership-student-mobile.png)
 
-운영 적용 전 상태: **승인 대기**. 미리보기 빌드와 에뮬레이터 결과는 운영 적용 완료를 뜻하지 않습니다.
+운영 적용 상태: **DEPLOYED / READY**. 위 세 회원 관리 화면은 테스트 계정의 에뮬레이터 증거이며, 문서 상단 실습 화면은 실제 운영 사이트입니다. 실제 학생 명단은 공개 증거에 포함하지 않았습니다.
 학교 PC 실기, 실제 학생 Google 계정의 신규 변경 요청·교사 승인, 실제 학교 카메라: 별도 확인 전까지 **NOT_RUN**.
 
 ## 복구

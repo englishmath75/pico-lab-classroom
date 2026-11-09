@@ -1,0 +1,16 @@
+{
+  "site": "mk.englishmath.kr",
+  "from": "englishmath75/pico-lab-classroom",
+  "source": "mk/src + mk/content",
+  "course": "mk-info-2026-v3",
+  "version": "3.2.0",
+  "academicYears": [
+    2026,
+    2027
+  ],
+  "commit": "69920d59398a9635d8f6f3f572a4434b6ae5a8b6",
+  "activityCount": 53,
+  "questionCount": 40,
+  "codeupCount": 10,
+  "sharedFirebaseProject": "englishmath-python-classroom"
+}
