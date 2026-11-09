@@ -47,7 +47,7 @@ import providedData from '../provided-data.json';
   if(ending)label='학습 종료 처리 중';
   else if(!user)label=dirty.length?'메모리 임시 보관 · 로그인 필요':'로그인 필요';
   else if(!identity)label='승인 확인 중';
-  else if(!store.writable)label=identity?.staff?'교사 계정 · 학생용 저장 기능은 승인된 학생 계정에서 사용합니다.':!identity.profile?.enrollment?'학생 등록 필요':identity.profile?.status==='pending'?'학급 승인 대기':identity.profile?.status==='blocked'?'저장 권한이 중지됨 · 교사에게 정지 해제 요청':'학급 등록 필요';
+  else if(!store.writable)label=identity?.staff?'교사 계정 · 학생용 저장 기능은 승인된 학생 계정에서 사용합니다.':!identity.profile?.enrollment?'학생 등록 필요':identity.profile?.status==='pending'?'학급 승인 대기':identity.profile?.status==='blocked'?'저장 권한이 중지됨 · 교사에게 정지 해제 요청':identity.profile?.status==='cancelled'?'등록 취소 · 학급 재신청 필요':'학급 등록 필요';
   else if(readError)label='읽기 실패 · '+readError.message;
   else if(error)label=(error.kind==='conflict'?'충돌 · ':'저장 실패 · ')+error.error.message;
   else if(saving)label='저장 대기·처리 중 · 남은 초안 '+dirty.length+'개';
@@ -412,7 +412,7 @@ import providedData from '../provided-data.json';
   const uid=user.uid,session=sessionGeneration;
   async function send(action,fields){
    $('sw-member-send').disabled=true;$('sw-member-withdraw').disabled=true;
-   try{await cloud.membership(uid,action,fields,p);if(uid!==user?.uid||session!==sessionGeneration)return;const next=await cloud.identity(user);if(uid!==user?.uid||session!==sessionGeneration)return;identity=next;renderRegistration();updateStatus();}
+   try{await cloud.membership(uid,action,fields,p);if(uid!==user?.uid||session!==sessionGeneration)return;const next=await cloud.identity(user);if(uid!==user?.uid||session!==sessionGeneration)return;identity=next;store.writable=approvedStudent(next.profile);renderRegistration();updateStatus();}
    catch(e){if(uid===user?.uid&&session===sessionGeneration){$('sw-member-result').textContent='처리 실패: '+readableError(e);$('sw-member-send').disabled=waiting||blocked;$('sw-member-withdraw').disabled=false;}}
   }
   $('sw-member-form').onsubmit=e=>{e.preventDefault();const fields={schoolId:$('sw-member-school').value,grade:$('sw-member-grade').value,classNumber:$('sw-member-class').value,displayName:$('sw-member-name').value,confirmed:$('sw-member-confirm').checked};try{enrollmentInput(identity.enrollmentConfig,user.email,fields);void send(cancelled?'reapply':'request',fields);}catch(e){$('sw-member-result').textContent=e.message;}};
@@ -463,9 +463,9 @@ import providedData from '../provided-data.json';
      renderRegistration();
      stopProfile=cloud.watchProfile(next.uid,profile=>{
       if(generation!==sessionGeneration||!identity)return;
-      const previous=identity.profile?.status||null,updated=profile?.status||null;
+      const previous=identity.profile?.status||null,updated=profile?.status||null,removed=!!identity.profile&&!profile;
       if(previous===updated&&identity.profile?.membershipVersion===profile?.membershipVersion&&identity.profile?.displayName===profile?.displayName&&JSON.stringify(identity.profile?.enrollment)===JSON.stringify(profile?.enrollment))return;
-      identity={...identity,profile};store.writable=approvedStudent(profile);renderRegistration();updateStatus();
+      identity={...identity,profile};if(removed)store.change(user?.uid||null,false);store.writable=approvedStudent(profile);renderRegistration();updateStatus();if(removed)void navigate(route?.url||location.href,{replace:true}).catch(e=>say(readableError(e),true));
       if(previous===updated)return;
       if(updated==='blocked')say('교사가 계정 이용을 중지했습니다. 미저장 초안은 ‘초안 내려받기’로 보관하세요.',true);
       else if(updated==='approved'&&profile?.enrollment)say('학급 이용 승인이 확인되었습니다. 계정 저장 기능을 사용할 수 있습니다.');
