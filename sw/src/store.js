@@ -61,6 +61,14 @@ export class ClassroomStore{
  }
  backup(){return {schemaVersion:1,application:'englishmath-sw',records:[...this.drafts.values()].filter(d=>d.dirty||d.version).map(d=>({id:d.id,data:d.export(),version:d.version}))};}
  async remote(id){return this.service.load(this.uid,id);}
+ async remove(id,expectedVersion){
+  const d=this.draft(id),uid=this.uid,generation=this.generation;
+  if(d.saving)throw Error('진행 중인 저장을 먼저 확인해 주세요.');
+  if(d.dirty)throw Error('미저장 초안이 있습니다. 먼저 저장하거나 내려받아 주세요.');
+  await this.queue.run(uid,()=>this.service.mutate(uid,id,'delete',null,expectedVersion),{current:()=>this.writable&&uid===this.uid&&generation===this.generation});
+  if(generation!==this.generation)return;
+  d.reset();this.drafts.delete(id);this.errors.delete(id);this.temp.clear();this.onChange();
+ }
  async useRemote(id){
   const d=this.draft(id);if(d.saving)throw Error('진행 중인 저장 응답을 먼저 확인해 주세요.');
   const gen=this.generation,edit=d.edit,remote=await this.remote(id);

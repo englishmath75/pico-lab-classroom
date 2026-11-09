@@ -30,6 +30,6 @@ export function affiliation(profile) {
 export function approvedStudent(profile) { return profile?.status === 'approved' && !!profile.enrollment; }
 
 export function registrationMode(profile, staff) {
-  if (staff || (profile?.enrollment && ['approved', 'blocked'].includes(profile.status))) return 'hidden';
+  if (staff || (profile?.enrollment && ['approved', 'blocked', 'cancelled'].includes(profile.status))) return 'hidden';
   return profile?.status === 'pending' && profile.enrollment ? 'pending' : 'form';
 }

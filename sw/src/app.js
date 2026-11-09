@@ -1,3 +1,5 @@
+import {memberLabels,statusLabels} from './membership.js';
+import {scratchIds,occupiedScratch,nextScratch} from './code-library.js';
 import {schoolsFor, enrollmentInput, affiliation, registrationMode, approvedStudent} from './enrollment.js';
 import {createCloud,readableError} from './cloud.js';
 import {ClassroomStore,encode,decode} from './store.js';
@@ -100,7 +102,7 @@ import providedData from '../provided-data.json';
   if(ids?.some(id=>store.errors.has(id))){$('sw-view').textContent='기존 학습 기록을 읽지 못해 편집 화면을 열지 않았습니다. 위쪽 저장 문제 확인에서 다시 읽거나 서버 원문과 초안을 확인하세요.';updateStatus();return false;}
   $('sw-view').replaceChildren();document.title=route.label+' | 영수쌤의 파이썬 교실';
   if(route.kind==='frame')mountFrame(gen);
-  else if(route.kind==='practice')mountPractice();
+  else if(route.kind==='practice')await mountPractice(gen);
   else if(route.kind==='exercise')mountExercise();
   else if(route.kind==='datalab')mountDatalab();
   else if(route.kind==='library')await showLibrary(gen);
@@ -171,18 +173,44 @@ import providedData from '../provided-data.json';
    save:()=>store.flush([id])
   });
  }
- function mountPractice(){
-  const id=route.params.workspace,d=store.draft(id),gen=viewGeneration;
+ async function mountPractice(gen){
+  const id=route.params.workspace,d=store.draft(id),uid=user?.uid,session=sessionGeneration;
+  const current=()=>gen===viewGeneration&&session===sessionGeneration&&uid===user?.uid;
+  const records=store.writable?await cloud.service.list(uid):[];if(!current())return;
   const heading=document.createElement('h1');heading.textContent='자유 Python 실습실';$('sw-view').append(heading);
-  const select=document.createElement('select');select.setAttribute('aria-label','학습 활동');
-  for(const key of legacyIds)select.append(new Option(titleFor(key),key));
-  select.value=id;select.onchange=()=>navigate('/?page=practice&workspace='+select.value);$('sw-view').append(select);
+  const tools=document.createElement('section');tools.className='panel sw-code-tools';
+  tools.innerHTML='<div class="sw-enrollment-fields"><label>실습 선택<select id="sw-code-select"></select></label><label>코드 제목<input id="sw-code-title" maxlength="80" autocomplete="off"></label></div><div class="sw-code-actions"><button class="btn primary" id="sw-new-code">＋ 새 코드</button><button class="btn secondary" id="sw-copy-code">다른 이름으로 저장</button><a class="btn secondary" href="/?page=library" data-route="library">내 학습 보관함</a><span id="sw-code-count"></span></div><p class="sw-caption">자유 코드 최대 10개 · 수업 실습은 별도 저장됩니다. 현재 코드의 수정은 ‘계정에 저장’, 복사본은 ‘다른 이름으로 저장’을 사용하세요.</p><p id="sw-code-notice" role="status"></p>';
+  $('sw-view').append(tools);
+  const used=occupiedScratch(records,store.drafts),saved=new Map(records.map(r=>[r.workspaceId,r]));
+  for(const key of legacyIds){if(scratchIds.includes(key)&&!used.has(key)&&key!==id)continue;const draft=store.drafts.get(key);$('sw-code-select').append(new Option((draft?.version||draft?.dirty?draft.data.title:saved.get(key)?.title)||titleFor(key),key));}
+  $('sw-code-select').value=id;$('sw-code-select').onchange=()=>void navigate('/?page=practice&workspace='+$('sw-code-select').value);
+  $('sw-code-title').value=d.data.title;$('sw-code-title').oninput=()=>{const value=$('sw-code-title').value.trim();if(value)store.set(id,visibleCode,{title:value});};
+  $('sw-code-count').textContent='자유 코드 '+used.size+' / 10개';
+  for(const key of ['sw-new-code','sw-copy-code'])$(key).disabled=!store.writable;
+  if(!store.writable)$('sw-code-notice').textContent='학생 로그인과 승인 후 계정에 새 코드를 저장할 수 있습니다.';
+  const seed='books = [3, 5, 2]\nbooks.append(4)\nprint(books)\n';let visibleCode=d.version||d.dirty?d.data.code:seed;
+  async function create(copy){
+   if(!store.writable||!current())return;
+   $('sw-new-code').disabled=true;$('sw-copy-code').disabled=true;
+   try{
+    const latest=await cloud.service.list(uid);if(!current())return;
+    const excluded=[id];let target;
+    for(;;){target=nextScratch(latest,store.drafts,excluded);await store.prepare([target]);if(!current())return;if(store.errors.has(target))throw Error('기존 저장본을 확인하지 못했습니다.');if(store.draft(target).version){excluded.push(target);continue;}break;}
+    store.set(target,copy?visibleCode:'',{title:copy?(d.data.title+' 복사본').slice(0,80):'새 코드 '+Number(target.slice(-2))});
+    const state=store.get('sw2-free-state'),inputs={...state.practiceInputs};inputs[target]=copy?(inputs[id]||''):'';
+    if(inputs[target])store.set('sw2-free-state',{...state,practiceInputs:inputs});
+    await navigate('/?page=practice&workspace='+target);
+    const ok=await store.flush([target,...(inputs[target]?['sw2-free-state']:[])]);
+    if(uid===user?.uid&&session===sessionGeneration&&route?.params.workspace===target){$('sw-code-notice').textContent=ok?'클라우드 저장 완료 · 새 항목으로 보관했습니다.':'새 코드 초안을 유지했습니다. 상단 저장 상태를 확인하세요.';}
+   }catch(e){if(current()){$('sw-code-notice').textContent=readableError(e);$('sw-new-code').disabled=false;$('sw-copy-code').disabled=false;}}
+  }
+  $('sw-new-code').onclick=()=>void create(false);$('sw-copy-code').onclick=()=>void create(true);
   const host=document.createElement('div');$('sw-view').append(host);
-  disposeView=mountPracticeLab(host,{id,title:titleFor(id),autoRun:'visible-once',hasSaved:!!(d.version||d.dirty),teacherCode:'books = [3, 5, 2]\nbooks.append(4)\nprint(books)\n',
+  disposeView=mountPracticeLab(host,{id,title:titleFor(id),autoRun:'visible-once',hasSaved:!!(d.version||d.dirty),teacherCode:seed,
    readCode:()=>d.version||d.dirty?d.data.code:null,
-   writeCode:code=>{if(gen===viewGeneration)store.set(id,code);},
+   writeCode:code=>{if(current()){visibleCode=code;store.set(id,code);}},
    readInput:()=>store.get('sw2-free-state').practiceInputs?.[id]||'',
-   writeInput:value=>{if(gen===viewGeneration){const saved=store.get('sw2-free-state');store.set('sw2-free-state',{...saved,practiceInputs:{...saved.practiceInputs,[id]:value}});}},
+   writeInput:value=>{if(current()){const saved=store.get('sw2-free-state');if((saved.practiceInputs?.[id]||'')!==value)store.set('sw2-free-state',{...saved,practiceInputs:{...saved.practiceInputs,[id]:value}});}},
    save:()=>store.flush([id,'sw2-free-state'])
   });
  }
@@ -209,69 +237,61 @@ import providedData from '../provided-data.json';
       }
      }]
     ]){const b=document.createElement('button');b.className='btn secondary';b.textContent=label;b.onclick=()=>Promise.resolve(fn()).catch(e=>say(e.message,true));row.append(b);}
+    if(scratchIds.includes(id)&&!rec.dirty){
+     const del=document.createElement('button');del.className='btn secondary';del.textContent='코드 삭제';
+     del.onclick=async()=>{if(await ask('자유 코드 삭제',rec.title+' 코드와 이전 저장 이력을 삭제합니다. 필요한 코드는 먼저 내려받으세요. 제출본은 유지됩니다.',[['delete','이 코드 삭제'],['cancel','취소']])!=='delete'||gen!==viewGeneration)return;
+      del.disabled=true;try{await store.prepare([id,'sw2-free-state']);if(gen!==viewGeneration)return;if(store.errors.size)throw Error('저장본을 읽지 못했습니다.');await store.remove(id,rec.version);if(gen!==viewGeneration)return;const state=store.get('sw2-free-state');if(state.practiceInputs?.[id]){const inputs={...state.practiceInputs};delete inputs[id];store.set('sw2-free-state',{...state,practiceInputs:inputs});await store.flush(['sw2-free-state']);}await navigate('/?page=library',{replace:true});}catch(e){say(readableError(e),true);del.disabled=false;}};
+     row.append(del);
+    }
     $('sw-records').append(row);
    }
   }catch(e){if(gen===viewGeneration)$('sw-records').textContent='보관함을 읽지 못했습니다. '+readableError(e);}
  }
  async function showTeacher(gen){
   if(!identity?.staff){$('sw-view').textContent='담당 교사 권한이 필요합니다.';return;}
-  const classes=identity.classes.filter(c=>identity.staff.classIds?.includes(c.id));
-  $('sw-view').innerHTML='<section class="panel"><h1>교사용 관리실 · 학생 계정 관리</h1><p>담당 학급 학생의 승인·이용 정지·정지 해제를 관리합니다. 상태를 바꿔도 기존 학습 기록은 삭제되지 않습니다.</p><p class="sw-caption">승인 대기 → 학생 승인 · 승인됨 → 이용 정지 · 이용 중지 → 정지 해제. 학생 화면은 상태가 변경되면 자동으로 반영됩니다.</p><label for="sw-teacher-class">승인 요청을 받을 수업</label><select id="sw-teacher-class"></select><p id="sw-teacher-summary" role="status"></p><div id="sw-students"></div></section>';
+  const classes=identity.classes.filter(c=>identity.staff.classIds?.includes(c.id));let listing=0;
+  $('sw-view').innerHTML='<section class="panel"><h1>교사용 관리실 · 학생 계정 관리</h1><p>학생 승인, 정보 변경 승인·반려, 등록 취소·복구, 이용 중지·해제를 관리합니다.</p><label for="sw-teacher-class">승인 요청을 받을 수업</label><select id="sw-teacher-class"></select><div class="sw-code-actions"><button class="btn secondary" id="sw-roster-refresh">학생 현황 새로고침</button><label><input type="checkbox" id="sw-show-cancelled"> 등록 취소 학생도 보기</label></div><p class="sw-caption">등록 취소는 명단에서 제외하는 기능입니다. 복구하면 승인 대기가 되며, 확인 후 승인하세요. 이용 중지 학생은 ‘이용 중지 해제’로 다시 승인합니다.</p><p id="sw-teacher-summary" role="status"></p><div id="sw-students"></div></section>';
   for(const c of classes)$('sw-teacher-class').append(new Option(classes.length===1?'SW · 소프트웨어와 생활':c.title,c.id));
   async function list(){
-   const classId=$('sw-teacher-class').value;
+   const classId=$('sw-teacher-class').value,seq=++listing,include=$('sw-show-cancelled').checked;
    if(!classId){$('sw-teacher-summary').textContent='담당 학급이 등록되어 있지 않습니다.';return;}
    $('sw-teacher-summary').textContent='학생 계정을 확인하고 있습니다…';
-   const students=await cloud.students(classId);if(gen!==viewGeneration)return;
-   $('sw-students').replaceChildren();
-   const labels={pending:'승인 대기',approved:'승인됨',blocked:'이용 중지'};
-   const counts={pending:0,approved:0,blocked:0};
+   const students=await cloud.students(classId);if(gen!==viewGeneration||seq!==listing)return;
+   $('sw-students').replaceChildren();const counts={pending:0,approved:0,blocked:0,cancelled:0};let requests=0;
    students.sort((a,b)=>(a.enrollment?.grade||0)-(b.enrollment?.grade||0)||(a.enrollment?.classNumber||0)-(b.enrollment?.classNumber||0)||(a.displayName||'').localeCompare(b.displayName||'','ko'));
    for(const student of students){
     if(student.uid===user?.uid||!student.enrollment)continue;
     if(Object.hasOwn(counts,student.status))counts[student.status]++;
+    if(student.changeRequest?.status==='pending')requests++;
+    if(student.status==='cancelled'&&!include)continue;
     const card=document.createElement('article');card.className='sw-record';
-    const title=document.createElement('h2');title.textContent=(student.displayName||'학생')+' · '+(labels[student.status]||'상태 확인 필요');card.append(title);
-    const school=document.createElement('p');school.textContent=affiliation(student)||'테스트 등록 · 학생이 소속을 새로 등록하면 승인할 수 있습니다.';card.append(school);
-    const email=document.createElement('p');email.className='sw-caption';email.textContent=student.email||'';card.append(email);
-    const transitions={pending:['approved','학생 승인'],approved:['blocked','이용 정지'],blocked:['approved','정지 해제 · 이용 재개']};
-    const next=student.enrollment?transitions[student.status]:null;
-    if(next){
-     const [status,label]=next;
-     const b=document.createElement('button');b.className='btn '+(status==='approved'?'primary':'secondary');b.textContent=label;
-     b.onclick=async()=>{
-      const detail=(affiliation(student)||'기존 SW 수업 등록 학생')+'\n'+student.displayName+' 학생의 상태를 '+(labels[status]||status)+'(으)로 변경합니다. 학습 기록은 보존됩니다.';
-      const answer=await ask(label,detail,[['confirm',label],['cancel','취소']]);
-      if(answer!=='confirm')return;
-      b.disabled=true;
-      try{
-       await cloud.changeStudentStatus(student.uid,student.status,status);
-       if(gen!==viewGeneration)return;
-       say(student.displayName+' 학생: '+(labels[student.status]||student.status)+' → '+(labels[status]||status)+' 변경 완료');
-       await list();
-      }catch(e){say('상태 변경 실패: '+readableError(e),true);b.disabled=false;}
-     };
-     card.append(b);
+    const h=document.createElement('h2');h.textContent=student.displayName+' · '+(statusLabels[student.status]||'상태 확인 필요');card.append(h);
+    const info=document.createElement('p');info.textContent=affiliation(student);card.append(info);
+    const email=document.createElement('p');email.className='sw-caption';email.textContent=student.email;card.append(email);
+    const actions=document.createElement('div');actions.className='sw-code-actions';card.append(actions);
+    async function change(action,input,label){
+     if(await ask(label,student.displayName+' · '+affiliation(student)+'\n'+label+' 처리를 진행합니다.',[['confirm',label],['cancel','취소']])!=='confirm'||gen!==viewGeneration)return;
+     for(const b of actions.querySelectorAll('button'))b.disabled=true;
+     try{await cloud.membership(student.uid,action,input,student);if(gen!==viewGeneration)return;say(label+' 완료');await list();}catch(e){if(gen===viewGeneration){say(readableError(e),true);for(const b of actions.querySelectorAll('button'))b.disabled=false;}}
     }
-    const b=document.createElement('button');b.className='btn secondary';b.textContent='진도·제출물 확인';
-    b.onclick=async()=>{
-     b.disabled=true;
-     try{
-      const data=await cloud.teacherDetails(student.uid,classId);if(gen!==viewGeneration)return;
-      const detail=document.createElement('div');const p=document.createElement('p');p.textContent='진도 '+data.progress.length+'건 · 명시적 제출 '+data.submissions.length+'건';detail.append(p);
-      for(const r of data.progress){const x=document.createElement('p');x.textContent=titleFor(r.workspaceId)+' · '+(r.completed?'완료':'진행 중');detail.append(x);}
-      for(const r of data.submissions){const h=document.createElement('h3');h.textContent=r.title;const pre=document.createElement('pre');try{pre.textContent=structured(r.workspaceId)?JSON.stringify(decode(r.workspaceId,r.code),null,2):r.code;}catch{pre.textContent='기록 형식 확인 필요';}detail.append(h,pre);}
-      card.querySelector('.sw-detail')?.remove();detail.className='sw-detail';card.append(detail);
-     }catch(e){say('학습 기록 조회 실패: '+readableError(e),true);}
-     finally{b.disabled=false;}
-    };
-    card.append(b);$('sw-students').append(card);
+    const button=(label,fn)=>{const b=document.createElement('button');b.className='btn secondary';b.textContent=label;b.onclick=()=>Promise.resolve(fn()).catch(e=>{if(gen===viewGeneration)say(readableError(e),true);});actions.append(b);return b;};
+    const transitions={pending:['approved','학생 승인'],approved:['blocked','이용 중지'],blocked:['approved','이용 중지 해제'],cancelled:['pending','등록 복구 · 승인 대기']};
+    const next=transitions[student.status];if(next)button(next[1],()=>change('status',{status:next[0]},next[1]));
+    if(student.status!=='cancelled')button('등록 취소',()=>change('cancel',{},'등록 취소'));
+    if(student.changeRequest?.status==='pending'){
+     const request=document.createElement('p');request.className='sw-member-request';request.textContent='변경 요청: '+student.displayName+' · '+affiliation(student)+' → '+student.changeRequest.displayName+' · '+affiliation(student.changeRequest);card.append(request);
+     const reason=document.createElement('input');reason.maxLength=300;reason.placeholder='반려 사유 (학생에게 표시)';reason.setAttribute('aria-label','반려 사유');card.append(reason);
+     button('정보 변경 승인',()=>change('approve',{},'정보 변경 승인'));button('정보 변경 반려',()=>change('reject',{note:reason.value},'정보 변경 반려'));
+    }
+    button('회원 처리 이력',async()=>{const events=await cloud.membershipHistory(student.uid);if(gen!==viewGeneration)return;card.querySelector('.sw-member-history')?.remove();const view=document.createElement('div');view.className='sw-member-history';view.textContent=events.length?'최근 회원 처리 이력':'이 기능 적용 이후의 처리 이력이 없습니다.';for(const e of events){const p=document.createElement('p');p.textContent=(memberLabels[e.action]||e.action)+' · '+(e.at?.toDate?.().toLocaleString('ko-KR')||'')+' · '+e.after.displayName+' · '+affiliation(e.after)+' · '+(statusLabels[e.after.status]||e.after.status);view.append(p);}card.append(view);});
+    button('진도·제출물 확인',async()=>{const data=await cloud.teacherDetails(student.uid,classId);if(gen!==viewGeneration)return;card.querySelector('.sw-detail')?.remove();const detail=document.createElement('div');detail.className='sw-detail';const summary=document.createElement('p');summary.textContent='진도 '+data.progress.length+'개 · 제출물 '+data.submissions.length+'개';detail.append(summary);for(const r of data.submissions){const h=document.createElement('h3'),pre=document.createElement('pre');h.textContent=r.title;pre.textContent=r.code;detail.append(h,pre);}card.append(detail);});
+    $('sw-students').append(card);
    }
-   $('sw-teacher-summary').textContent='전체 '+(counts.pending+counts.approved+counts.blocked)+'명 · 승인 '+counts.approved+'명 · 승인 대기 '+counts.pending+'명 · 이용 중지 '+counts.blocked+'명';
-   if(!Object.values(counts).some(Boolean))$('sw-students').textContent='새로 등록한 학생이 없습니다. 학생은 Google 로그인 후 학교·학년·반·이름을 입력하고 승인 요청을 보내면 됩니다.';
+   $('sw-teacher-summary').textContent='등록 '+(counts.pending+counts.approved+counts.blocked)+'명 · 승인 '+counts.approved+'명 · 승인 대기 '+counts.pending+'명 · 이용 중지 '+counts.blocked+'명 · 등록 취소 '+counts.cancelled+'명 · 정보 변경 요청 '+requests+'명';
+   if(!$('sw-students').children.length)$('sw-students').textContent='표시할 학생이 없습니다. 학생은 로그인 후 학교·학년·반·이름을 입력해 승인 요청을 보내 주세요.';
   }
-  $('sw-teacher-class').onchange=()=>list().catch(e=>say('학생 목록 조회 실패: '+readableError(e),true));
-  await list().catch(e=>{say('학생 목록 조회 실패: '+readableError(e),true);$('sw-teacher-summary').textContent='목록을 불러오지 못했습니다. 담당 학급 및 교사 권한을 확인하세요.';});
+  const refresh=()=>list().catch(e=>{if(gen===viewGeneration){say('학생 목록 조회 실패: '+readableError(e),true);$('sw-teacher-summary').textContent='목록을 불러오지 못했습니다. 새로고침해 주세요.';}});
+  $('sw-teacher-class').onchange=refresh;$('sw-show-cancelled').onchange=refresh;$('sw-roster-refresh').onclick=refresh;await refresh();
  }
  async function importFile(file){
   const generation=sessionGeneration,sourceRoute=route?.url,unit=route?.id==='data-lab'?route.params.unit:null;
@@ -341,6 +361,7 @@ import providedData from '../provided-data.json';
   try{await cloud.login();}catch(e){say(readableError(e),true);}
  }
  function renderRegistration(edit = false){
+  renderMembership();
   const mode = registrationMode(identity?.profile, identity?.staff);
   $('sw-registration').hidden = !user || mode === 'hidden';
   if (!user || mode === 'hidden') { $('sw-registration-form').reset(); return; }
@@ -372,12 +393,37 @@ import providedData from '../provided-data.json';
   if (!schools.length && !identity?.enrollmentError) $('sw-registration-note').textContent = '현재 이 계정으로 신청할 수 있는 학교가 설정되지 않았습니다. 선생님께 학교 계정과 등록 설정을 확인해 달라고 요청하세요.';
   for (const id of ['sw-register-grade','sw-register-class','sw-register-name']) $(id).oninput = () => { $('sw-register-confirm').checked = false; };
  }
+ function renderMembership(){
+  const panel=$('sw-membership'),p=identity?.profile,open=panel.open;
+  panel.replaceChildren();panel.hidden=!user||!!identity?.staff||!p?.enrollment;
+  if(panel.hidden)return;
+  panel.innerHTML='<summary>내 등록 정보·변경 요청</summary><p id="sw-member-current"></p><p id="sw-member-result" role="status"></p><form id="sw-member-form"><div class="sw-enrollment-fields"><label>학교<select id="sw-member-school" required></select></label><label>학년<select id="sw-member-grade" required></select></label><label>반<select id="sw-member-class" required></select></label><label>학생 이름<input id="sw-member-name" required maxlength="40" autocomplete="off"></label></div><label><input type="checkbox" id="sw-member-confirm" required>학교·학년·반·이름이 정확한지 확인했습니다.</label><div class="sw-code-actions"><button class="btn primary" id="sw-member-send">정보 변경 승인 요청</button><button class="btn secondary" type="button" id="sw-member-withdraw" hidden>변경 요청 취소</button></div></form>';
+  panel.open=open||p.status==='cancelled';$('sw-member-current').textContent=p.displayName+' · '+affiliation(p)+' · '+statusLabels[p.status];
+  const request=p.changeRequest,waiting=request?.status==='pending',cancelled=p.status==='cancelled',blocked=p.status==='blocked';
+  $('sw-member-result').textContent=waiting?'처리 대기: '+request.displayName+' · '+affiliation(request):request?.status==='rejected'?'변경 요청 반려: '+(request.note||'선생님께 확인해 주세요.'):request?.status==='approved'?'정보 변경이 승인되었습니다.':cancelled?'등록이 취소되었습니다. 소속을 확인하고 학급 재신청을 하세요.':blocked?'이용 중지 상태입니다. 선생님께 해제를 요청해 주세요.':'변경 사항은 선생님 승인 후 적용됩니다.';
+  const schools=schoolsFor(identity.enrollmentConfig,user.email),initial=waiting?request:p;
+  $('sw-member-school').append(new Option('학교 선택',''));for(const school of schools)$('sw-member-school').append(new Option(school.name,school.id));
+  function choices(){const school=schools.find(x=>x.id===$('sw-member-school').value);for(const [id,values,label] of [['sw-member-grade',school?.grades,'학년'],['sw-member-class',school?.classNumbers,'반']]){$(id).replaceChildren(new Option(label+' 선택',''));for(const value of values||[])$(id).append(new Option(value+label,String(value)));}$('sw-member-confirm').checked=false;}
+  $('sw-member-school').value=initial.enrollment.schoolId;choices();$('sw-member-grade').value=String(initial.enrollment.grade);$('sw-member-class').value=String(initial.enrollment.classNumber);$('sw-member-name').value=initial.displayName;
+  $('sw-member-school').onchange=choices;
+  for(const id of ['sw-member-name','sw-member-grade','sw-member-class'])$(id).oninput=()=>{$('sw-member-confirm').checked=false;};
+  for(const field of panel.querySelectorAll('input,select'))field.disabled=waiting||blocked;
+  $('sw-member-send').disabled=waiting||blocked||!schools.length;$('sw-member-send').textContent=cancelled?'학급 재신청':'정보 변경 승인 요청';$('sw-member-withdraw').hidden=!waiting||blocked;
+  const uid=user.uid,session=sessionGeneration;
+  async function send(action,fields){
+   $('sw-member-send').disabled=true;$('sw-member-withdraw').disabled=true;
+   try{await cloud.membership(uid,action,fields,p);if(uid!==user?.uid||session!==sessionGeneration)return;identity=await cloud.identity(user);if(uid!==user?.uid||session!==sessionGeneration)return;renderRegistration();updateStatus();}
+   catch(e){if(uid===user?.uid&&session===sessionGeneration){$('sw-member-result').textContent='처리 실패: '+readableError(e);$('sw-member-send').disabled=waiting||blocked;$('sw-member-withdraw').disabled=false;}}
+  }
+  $('sw-member-form').onsubmit=e=>{e.preventDefault();const fields={schoolId:$('sw-member-school').value,grade:$('sw-member-grade').value,classNumber:$('sw-member-class').value,displayName:$('sw-member-name').value,confirmed:$('sw-member-confirm').checked};try{enrollmentInput(identity.enrollmentConfig,user.email,fields);void send(cancelled?'reapply':'request',fields);}catch(e){$('sw-member-result').textContent=e.message;}};
+  $('sw-member-withdraw').onclick=()=>void send('withdraw',{});
+ }
  async function boot(){
   const response=await fetch('/student-config.json',{cache:'no-store'});if(!response.ok)throw Error('로그인 설정을 불러오지 못했습니다.');
   const config=await response.json(),emulator=config.emulator===true&&['localhost','127.0.0.1'].includes(location.hostname)&&config.firebase?.projectId==='demo-englishmath-python';
   cloud=createCloud(config.firebase,emulator);store=new ClassroomStore(cloud.service,{onChange:updateStatus});store.providedData=providedData;
   $('sw-refresh').onclick=async()=>{const uid=user?.uid,gen=sessionGeneration;if(!uid)return;try{const next=await cloud.identity(user);if(uid!==user?.uid||gen!==sessionGeneration)return;identity=next;store.writable=approvedStudent(next.profile);renderRegistration();await navigate(route.url,{replace:true});updateStatus();}catch(e){say(readableError(e),true);}};
-  $('sw-edit-enrollment').onclick=()=>renderRegistration(true);
+  $('sw-edit-enrollment').textContent='정보 변경 승인 요청';$('sw-edit-enrollment').onclick=()=>{const panel=$('sw-membership');panel.open=true;panel.scrollIntoView({block:'start'});};
   $('sw-registration-form').onsubmit=async e=>{
    e.preventDefault();
    const student=user, generation=sessionGeneration, current=()=>student?.uid===user?.uid&&generation===sessionGeneration;
@@ -409,7 +455,7 @@ import providedData from '../provided-data.json';
   addEventListener('popstate',()=>void navigate(location.href,{replace:true}));
   addEventListener('beforeunload',e=>{if(store.dirty().length){e.preventDefault();e.returnValue='';}});
   cloud.observe(async next=>{
-   const generation=++sessionGeneration;authReady=false;$('sw-registration').hidden=true;$('sw-registration-form').reset();$('sw-pending-affiliation').textContent='';if(stopProfile){stopProfile();stopProfile=null;}release();user=next;identity=null;store.change(next?.uid||null,false);updateStatus();
+   const generation=++sessionGeneration;authReady=false;$('sw-membership').replaceChildren();$('sw-membership').hidden=true;$('sw-registration').hidden=true;$('sw-registration-form').reset();$('sw-pending-affiliation').textContent='';if(stopProfile){stopProfile();stopProfile=null;}release();user=next;identity=null;store.change(next?.uid||null,false);updateStatus();
    if(next){
     say('');lastActivity=Date.now();
     try{
@@ -418,7 +464,7 @@ import providedData from '../provided-data.json';
      stopProfile=cloud.watchProfile(next.uid,profile=>{
       if(generation!==sessionGeneration||!identity)return;
       const previous=identity.profile?.status||null,updated=profile?.status||null;
-      if(previous===updated&&identity.profile?.displayName===profile?.displayName&&JSON.stringify(identity.profile?.enrollment)===JSON.stringify(profile?.enrollment))return;
+      if(previous===updated&&identity.profile?.membershipVersion===profile?.membershipVersion&&identity.profile?.displayName===profile?.displayName&&JSON.stringify(identity.profile?.enrollment)===JSON.stringify(profile?.enrollment))return;
       identity={...identity,profile};store.writable=approvedStudent(profile);renderRegistration();updateStatus();
       if(previous===updated)return;
       if(updated==='blocked')say('교사가 계정 이용을 중지했습니다. 미저장 초안은 ‘초안 내려받기’로 보관하세요.',true);

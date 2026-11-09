@@ -1,0 +1,81 @@
+--- production
++++ proposed
+@@ -317,6 +317,63 @@
+         && request.resource.data.active is bool;
+       allow create, delete: if false;
+     }
++    // SW-only membership requests and immutable transaction history.
++    function swMemberFields(d,email) {
++      let catalog = get(/databases/$(database)/documents/config/swEnrollment).data;
++      let e = d.enrollment;
++      let school = catalog.schools[e.schoolId];
++      return catalog.enabled == true && school.active == true
++        && e.keys().hasOnly(['schoolId','schoolName','academicYear','grade','classNumber'])
++        && e.schoolName == school.name && e.academicYear == catalog.academicYear
++        && e.grade is int && e.grade in school.grades
++        && e.classNumber is int && e.classNumber in school.classNumbers
++        && d.classId == school.approvalClassId
++        && get(/databases/$(database)/documents/classes/$(d.classId)).data.active == true
++        && email.split('@')[1] == school.emailDomain
++        && d.displayName is string && d.displayName.size() > 0 && d.displayName.size() <= 40;
++    }
++    function swMemberReview(b,a,uid,teacher) {
++      let r = b.changeRequest;
++      let n = a.changeRequest;
++      return b.status in ['pending','approved'] && r.status == 'pending'
++        && n.diff(r).affectedKeys().hasOnly(['status','reviewedAt','reviewedBy','note'])
++        && n.reviewedAt == request.time && n.reviewedBy == request.auth.uid
++        && n.note is string && n.note.size() <= 300
++        && ((teacher && n.status in ['approved','rejected']) || (own(uid) && n.status == 'withdrawn'))
++        && ((n.status == 'approved' && a.displayName == r.displayName && a.classId == r.classId && a.enrollment == r.enrollment)
++          || (n.status != 'approved' && a.displayName == b.displayName && a.classId == b.classId && a.enrollment == b.enrollment));
++    }
++    function swMemberChange(uid,e) {
++      let b = resource.data;
++      let a = request.resource.data;
++      let teacher = teaches(b.classId) && teaches(a.classId) && request.auth.uid != uid;
++      return swMemberFields(a,b.email)
++        && a.diff(b).affectedKeys().hasOnly(['membershipVersion','updatedAt','changeRequest','displayName','classId','enrollment','status'])
++        && a.membershipVersion is int && a.membershipVersion == b.get('membershipVersion',0)+1
++        && a.updatedAt == request.time
++        && e.before == b && e.after == a && e.actorUid == request.auth.uid && e.at == request.time
++        && ((e.action == 'request' && own(uid) && allowedEmail()
++              && b.status in ['pending','approved']
++              && (b.get('changeRequest',null) == null || b.changeRequest.status != 'pending')
++              && a.status == b.status && a.displayName == b.displayName && a.classId == b.classId && a.enrollment == b.enrollment
++              && a.changeRequest.keys().hasOnly(['displayName','classId','enrollment','status','requestedAt'])
++              && swMemberFields(a.changeRequest,b.email) && a.changeRequest.status == 'pending'
++              && a.changeRequest.requestedAt == request.time
++              && (a.changeRequest.displayName != b.displayName || a.changeRequest.enrollment != b.enrollment))
++          || (e.action in ['approve','reject','withdraw'] && a.status == b.status
++              && swMemberReview(b,a,uid,teacher)
++              && ((e.action == 'approve' && a.changeRequest.status == 'approved')
++                || (e.action == 'reject' && a.changeRequest.status == 'rejected')
++                || (e.action == 'withdraw' && a.changeRequest.status == 'withdrawn')))
++          || (e.action == 'reapply' && own(uid) && allowedEmail() && b.status == 'cancelled'
++              && a.status == 'pending' && a.changeRequest == null)
++          || (e.action in ['status','cancel'] && teacher && a.displayName == b.displayName && a.classId == b.classId && a.enrollment == b.enrollment
++              && ((b.status == 'pending' && a.status in ['approved','cancelled'])
++                || (b.status == 'approved' && a.status in ['blocked','cancelled'])
++                || (b.status == 'blocked' && a.status in ['approved','cancelled'])
++                || (b.status == 'cancelled' && a.status == 'pending'))
++              && a.changeRequest == null && (e.action != 'cancel' || a.status == 'cancelled')));
++    }
+     match /users/{uid} {
+       allow get: if own(uid) || teaches(resource.data.classId);
+       allow list: if teaches(resource.data.classId) && request.query.limit <= 100;
+@@ -342,6 +399,14 @@
+           || (resource.data.status == 'approved' && request.resource.data.status == 'blocked')
+           || (resource.data.status == 'blocked' && request.resource.data.status == 'approved'))
+         && request.resource.data.updatedAt == request.time;
++      allow update: if swMemberChange(uid,
++        getAfter(/databases/$(database)/documents/users/$(uid)/membershipHistory/$(string(request.resource.data.membershipVersion))).data);
++      match /membershipHistory/{id} {
++        allow get: if own(uid) || teaches(get(/databases/$(database)/documents/users/$(uid)).data.classId);
++        allow list: if (own(uid) || teaches(get(/databases/$(database)/documents/users/$(uid)).data.classId)) && request.query.limit <= 30;
++        allow create: if signed() && mkMemberHistory(/databases/$(database)/documents/users/$(uid),id);
++        allow update, delete: if false;
++      }
+       allow delete: if false;
+       match /limits/state {
+         allow read: if own(uid) || teaches(get(/databases/$(database)/documents/users/$(uid)).data.classId);

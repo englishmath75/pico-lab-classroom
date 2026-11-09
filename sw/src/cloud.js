@@ -1,4 +1,5 @@
 import {enrollmentInput} from './enrollment.js';
+import {membershipPatch} from './membership.js';
 import { initializeApp } from 'firebase/app';
 import { initializeAuth, inMemoryPersistence, browserPopupRedirectResolver, GoogleAuthProvider, signInWithPopup,
   onAuthStateChanged, signOut, connectAuthEmulator } from 'firebase/auth';
@@ -46,7 +47,7 @@ export function createCloud(config, emulator = false) {
         getDocFromServer(doc(db, 'config', 'access'))
       ]);
       let enrollmentConfig = null, enrollmentError = '';
-      if (!staff.exists() && (!profile.exists() || !profile.data().enrollment || profile.data().status === 'pending')) {
+      if (!staff.exists()) {
         try { enrollmentConfig = (await getDocFromServer(doc(db, 'config', 'swEnrollment'))).data() || null; }
         catch { enrollmentError = '학생 등록 설정을 불러오지 못했습니다. 잠시 뒤 승인 상태 확인을 누르거나 선생님께 알려 주세요.'; }
       }
@@ -60,6 +61,17 @@ export function createCloud(config, emulator = false) {
     async students(classId) {
       const docs = await allDocuments(query(collection(db, 'users'), where('classId', '==', classId)), 100);
       return docs.map(d => ({ uid: d.id, ...d.data() }));
+    },
+    async membership(uid,action,input,expected) {
+      const actor=auth.currentUser?.uid;
+      if(!actor)throw Error('다시 로그인해 주세요.');
+      return mutateMembership(db,uid,actor,action,input,expected,()=>{
+        if(auth.currentUser?.uid!==actor)throw Error('계정이 변경되었습니다.');
+      });
+    },
+    async membershipHistory(uid){
+      const result=await getDocsFromServer(query(collection(db,'users',uid,'membershipHistory'),orderBy('version','desc'),limit(30)));
+      return result.docs.map(d=>d.data());
     },
     approve(uid, status) { return updateDoc(doc(db, 'users', uid), { status, updatedAt: serverTimestamp() }); },
     async changeStudentStatus(uid, expected, next) {
@@ -101,6 +113,20 @@ export async function registerStudent(db, user, fields, assertCurrent = () => {}
   });
 }
 
+export async function mutateMembership(db,uid,actorUid,action,input={},expected,assertCurrent=()=>{}){
+ const ref=doc(db,'users',uid);
+ await runTransaction(db,async tx=>{
+  const [snap,catalog]=await Promise.all([tx.get(ref),tx.get(doc(db,'config','swEnrollment'))]);
+  assertCurrent();
+  if(!snap.exists())throw Error('등록 정보를 찾지 못했습니다. 새로고침해 주세요.');
+  const before=snap.data();
+  if(!expected||(before.membershipVersion||0)!==(expected.membershipVersion||0)||before.updatedAt?.isEqual?.(expected.updatedAt)!==true)throw Error('다른 화면에서 학생 정보가 변경되었습니다. 새로고침 후 다시 확인해 주세요.');
+  const now=serverTimestamp(),after=membershipPatch(before,action,{...input,actorUid},now,catalog.data());
+  tx.set(ref,after);
+  tx.set(doc(ref,'membershipHistory',String(after.membershipVersion)),{version:after.membershipVersion,action,actorUid,at:now,before,after});
+ });
+}
+
 async function allDocuments(base, batchSize=50) {
   const docs=[];let cursor;
   for(;;){
@@ -135,7 +161,9 @@ export class StudentStore {
       if (count > 150) throw Object.assign(Error('daily-limit'), { code: 'daily-limit' });
       tx.set(quotaRef, { day, count, workspaceId: id, kind, updatedAt: serverTimestamp() });
       if (kind === 'delete') {
-        tx.delete(workRef); tx.delete(this.ref(uid, 'progress', id)); return 0;
+        tx.delete(workRef); tx.delete(this.ref(uid, 'progress', id));
+        for(let slot=0;slot<10;slot++)tx.delete(this.ref(uid,'revisions',`${id}__${slot}`));
+        return 0;
       }
       const data = { workspaceId: id, lessonId: id, title: input.title.slice(0,80), code: input.code,
         runState: input.runState, completed: !!input.completed, version: version + 1, savedAt: serverTimestamp() };

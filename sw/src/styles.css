@@ -69,3 +69,6 @@ pre,code,.cm-content,.cm-scroller{font-family:ui-monospace,Consolas,SWKorean,mon
 .sw-enrollment-confirm input{width:20px;height:20px;flex:none;margin-top:3px}
 .sw-enrollment [hidden]{display:none!important}
 @media(max-width:640px){.sw-enrollment-fields{grid-template-columns:minmax(0,1fr)}.sw-enrollment .btn{width:100%}}
+
+/* SW member controls and ten-code library retain the current theme. */
+.sw-code-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:16px 0}.sw-code-tools input,.sw-code-tools select,.sw-enrollment input,.sw-enrollment select{max-width:100%;min-width:0}.sw-record{overflow-wrap:anywhere}.sw-record input{width:min(100%,40rem);box-sizing:border-box;padding:10px;border:1px solid #abc7d3;border-radius:8px}.sw-member-request,.sw-member-history{padding:14px;border-left:3px solid #2e7180;background:#edf6f7}.sw-member-history p{font-size:.9rem}.sw-enrollment summary{font-weight:700;cursor:pointer}#sw-member-form>label{display:flex;gap:8px;align-items:center;margin-top:16px}.sw-code-tools .sw-enrollment-fields{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:600px){.sw-code-tools .sw-enrollment-fields{grid-template-columns:1fr}.sw-code-actions>*{max-width:100%;white-space:normal}.sw-record .btn{min-height:44px}}

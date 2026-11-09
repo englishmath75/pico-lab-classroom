@@ -1,0 +1,51 @@
+name: SW membership and ten codes validation
+on:
+  push:
+    branches: [work/sw-membership-codes-20261109]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sw-membership-validation
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm ci --prefix sw
+      - name: Membership, enrollment and saving contracts
+        run: node --test sw/tests/membership.test.mjs sw/tests/enrollment.test.mjs sw/tests/store.test.mjs
+      - name: Build SW candidate only
+        run: |
+          npm run build:sw
+          python3 sw/publisher/package_site.py dist --source-sha "$GITHUB_SHA"
+          python3 sw/publisher/finalize_brand.py --dist dist --source-sha "$GITHUB_SHA"
+          python3 sw/publisher/check_site.py dist
+      - run: npx playwright install chromium
+      - name: Proposed rules regression and membership security
+        run: npx firebase emulators:exec --config sw/firebase.membership.json --project demo-englishmath-python --only firestore 'SW_ENROLLMENT=1 SW_RULES_FILE=sw/security/membership-proposed.rules node --test --test-concurrency=1 sw/tests/student-security.test.mjs sw/tests/grade1-isolation.test.mjs sw/tests/integration-security.test.mjs sw/tests/membership-security.test.mjs'
+      - name: Browser membership lifecycle and ten codes
+        run: npx firebase emulators:exec --config sw/firebase.membership.json --project demo-englishmath-python --only auth,firestore 'node sw/tests/membership-browser.mjs'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sw-membership-evidence
+          path: sw/evidence/membership-20261109/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sw-membership-site-candidate
+          path: dist/
+          retention-days: 14
