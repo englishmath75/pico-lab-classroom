@@ -25,6 +25,7 @@ const frame=(label,file,storageMode='none',ids=[])=>({label,file,kind:'frame',st
 export const routes={
  exercise:{label:"Python 통합 실습",kind:"exercise",storageMode:"mixed",activityIds:[],aliases:[],mount:"exercise",dispose:"engine"},
  home:frame('01. 수업 안내','index.html'),
+ 'pandas-intro':frame('판다스 첫 수업 · Series','pandas-intro.html'),
  data:frame('03. 실습 자료','index.html','mixed',['sw2-free-code','sw2-free-state']),
  exam:frame('04. 복습 문제','index.html','answers',['sw2-review']),
  report:frame('05. 탐구 보고서','index.html','report',['sw2-report']),
