@@ -54,6 +54,7 @@ export function resolveRoute(input,base='https://sw.englishmath.kr/'){
  const name=u.pathname.split('/').filter(Boolean).pop()||'index.html';
  let page=u.searchParams.get('page')||aliases[name]||(name==='student-room.html'?(u.searchParams.get('panel')==='library'?'library':u.searchParams.get('panel')==='teacher'?'teacher':'practice'):name==='data-lab'||u.pathname.endsWith('/data-lab/index.html')?'data-lab':name==='index.html'?'home':null);
  if(page==='review')page='python-review';
+ if(page==='pandas-intro'){page='lesson';u.searchParams.set('lesson','1');}
  if(!routes[page])return null;
  const q=new URLSearchParams({page});
  if(page==='exercise'){const id=u.searchParams.get('exercise');if(!exercises.some(e=>e.id===id))return null;q.set('exercise',id);}
@@ -62,7 +63,8 @@ export function resolveRoute(input,base='https://sw.englishmath.kr/'){
  if(page==='practice'){const id=u.searchParams.get('workspace')||u.searchParams.get('id');q.set('workspace',validActivity(id)&&!structured(id)?id:'scratch-01');}
  if(page==='video-player'){for(const key of ['lesson','episode','layout','embed']){const value=u.searchParams.get(key);if(/^[a-zA-Z0-9-]{1,50}$/.test(value||''))q.set(key,value);}}
  const hash=/^#[\w-]{1,80}$/.test(u.hash)?u.hash:'';
- return {id:page,...routes[page],params:Object.fromEntries(q),hash,url:'/?'+q+hash};
+ const firstLesson=page==='lesson'&&q.get('lesson')==='1';
+ return {id:page,...routes[page],...(firstLesson?{file:'pandas-intro.html',storageMode:'none',activityIds:[]}:{}),params:Object.fromEntries(q),hash,url:'/?'+q+hash};
 }
 export function routeForActivity(id){
  if(id.startsWith("sw3-2026-g2-"))return "/?page=exercise&exercise="+id;

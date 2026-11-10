@@ -10,9 +10,10 @@ const browser=await chromium.launch({headless:true,...(process.env.PLAYWRIGHT_CH
 const page=await browser.newPage({viewport:{width:1440,height:1000},locale:'ko-KR'}),errors=[];page.on('pageerror',e=>errors.push(e.message));
 const origin='http://127.0.0.1:'+server.address().port;
 try{
- await page.goto(origin+'/?page=pandas-intro');
+ await page.goto(origin+'/?page=lesson&lesson=1');
  const frame=page.frameLocator('#sw-classroom-frame');
  await frame.locator('h1').waitFor({timeout:60000});
+ assert.equal(await page.locator('a[data-route="pandas-intro"]').count(),0);assert.equal(await page.locator('a[data-route="lesson"]').getAttribute('aria-current'),'page');
  assert.equal(await frame.locator('.chapter').count(),14);assert.equal(await frame.locator('.example').count(),29);
  await page.screenshot({path:evidence+'/desktop.png'});
  // Run real Python through the integrated parent engine, with fresh independent examples.
@@ -31,7 +32,9 @@ try{
  await frame.locator('input[name="intro-q-0"][value="0"]').check();await frame.locator('#grade').click();assert.match(await frame.locator('#score').innerText(),/1 \/ 12/);
  const download=page.waitForEvent('download');await frame.locator('[data-download="3"]').click();const file=await download;assert.equal(file.suggestedFilename(),'pandas-intro-03.py');
  for(const width of [390,768]){await page.setViewportSize({width,height:844});await page.evaluate(()=>scrollTo(0,0));assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'outer overflow '+width);assert(await frame.locator('body').evaluate(el=>el.scrollWidth<=el.ownerDocument.documentElement.clientWidth+1),'frame overflow '+width);await page.screenshot({path:evidence+'/mobile-'+width+'.png'});}
- await page.setViewportSize({width:1440,height:1000});await page.goto(origin+'/?page=home');await page.frameLocator('#sw-classroom-frame').getByText('판다스 첫 수업 시작 →').click();await page.waitForURL('**/?page=pandas-intro');
+ await page.setViewportSize({width:1440,height:1000});await page.goto(origin+'/?page=home');await page.frameLocator('#sw-classroom-frame').getByText('판다스 첫 수업 시작 →').click();await page.waitForURL('**/?page=lesson&lesson=1');
+ await frame.getByRole('link',{name:/2차시 ·/}).click();await page.waitForURL('**/?page=lesson&lesson=2');await frame.locator('#heroTitle').waitFor();assert.match(await frame.locator('#heroTitle').innerText(),/2차시/);await frame.locator('#lessonPicker').evaluate(el=>el.open=true);await frame.locator('[data-lesson="0"]').click();await page.waitForURL('**/?page=lesson&lesson=1');await frame.locator('#code-1').waitFor();assert.equal(await frame.locator('#editor').count(),0);
+ await page.goto(origin+'/?page=pandas-intro');await page.waitForURL('**/?page=lesson&lesson=1');await frame.locator('#code-1').waitFor();
  assert.deepEqual(errors,[]);
  await writeFile(evidence+'/result.json',JSON.stringify({status:'PASS',examples:29,browserExecutions:14,checks:['desktop and mobile','actual Python output','editable code','slice visualization','quiz grading','download','home navigation'],errors},null,2));
  console.log('PASS: Series introduction browser checks');
