@@ -35,7 +35,7 @@ section('setup','03. 설치, import, 별명 pd', '''<p><b>설치</b>는 도구�
 s = pd.Series([10, 20, 30])
 print(s)
 print(s.ndim)
-print(s.shape)''','Series의 S는 대문자입니다. 인덱스를 생략하면 0, 1, 2처럼 자동으로 붙습니다. dtype은 값의 자료형, ndim은 차원 수입니다.',False)+'''<p class="note">Jupyter에서는 마지막 줄에 <code>s</code>만 써도 표시할 수 있지만, 일반 .py 파일과 이 페이지에서는 <code>print(s)</code>를 사용합니다. 출력 공백과 문자열 dtype 표기는 pandas 버전에 따라 조금 다를 수 있습니다.</p>''')
+print(s.shape)''','Series의 S는 대문자입니다. 인덱스를 생략하면 0, 1, 2처럼 자동으로 붙습니다. dtype은 값의 자료형, ndim은 차원 수입니다.',False)+'''<p class="note">Jupyter에서는 마지막 줄에 <code>s</code>만 써도 표시할 수 있지만, 일반 .py 파일과 이 페이지에서는 <code>print(s)</code>를 사용합니다. 출력 공백과 배열·문자열 dtype 표기는 pandas 버전에 따라 조금 다를 수 있습니다.</p>''')
 section('create','04. 리스트·튜플·딕셔너리로 각각 만들기', teacher('우리는 세 자료형을 한 리스트 안에 뒤섞지 않겠습니다. 각각에 같은 독서 시간 다섯 개를 담고 같은 요일 이름표를 붙여 보세요. 재료가 달라도 완성된 Series의 구조는 같다는 것을 확인합니다.')+ex('세 자료형 → 같은 Series','''import pandas as pd
 
 idx = ["월", "화", "수", "목", "금"]
@@ -63,7 +63,7 @@ body += ex('NumPy 배열에서 Series 만들기 · 선택 복습', '\n'.join(['i
 sections[-1]=(ident,title,body)
 section('structure','05. 행 위치·인덱스·값을 구별하기', table(['행 위치 · iloc','인덱스 이름표 · loc','독서 시간(분)'],[[str(i),d,str((i+1)*10)] for i,d in enumerate(['월','화','수','목','금'])])+'''<p>왼쪽 위치는 현재 나열된 순서입니다. 가운데 인덱스는 사용자가 붙인 이름표입니다. 출력에서 이름표와 값이 두 열처럼 보여도 Series는 <b>하나의 값 축을 가진 1차원 자료구조</b>입니다. 인덱스는 두 번째 데이터 열이 아닙니다.</p>'''+ex('index · values · array · dtype · size','''print(s.index)
 print(s.values)
-print(s.array)
+print(s.array.tolist())
 print(s.to_numpy())
 print(s.dtype)
 print(s.size, len(s), s.ndim, s.shape)
