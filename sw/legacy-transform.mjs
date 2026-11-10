@@ -31,9 +31,6 @@ export function transform(name,s){
   replace('3. 이전 예제 모음 · 필요할 때만 활용','4. 이전 예제 모음 · 필요할 때만 활용');
  }
 
- if(name==='index.html'){
-  s=s.replace('<section class="page" id="home">','<section class="page" id="home"><section class="panel" style="border:2px solid #198579;background:#effaf7"><span class="section-label">새 첫 수업 · Series 기초</span><h3>판다스, 처음부터 차근차근</h3><p>Excel·NumPy 비교 → Series 생성 → 인덱싱·슬라이싱 → 추가·삭제·수정 → 연산. 실행 예제 28개와 결과 예측 12문항으로 첫 수업을 시작합니다.</p><a class="btn primary" href="./pandas-intro.html">판다스 첫 수업 시작 →</a></section>');
- }
  if(name==='step-by-step.js'){
   replace("code:typeof z.code==='string'?z.code:''", "code:typeof z.code==='string'?z.code:LESSONS[i].steps.slice(0,(z.step||0)+1).map(s=>s.append).join('\\n')");
   replace("step:0,code:'',done:[]", "step:0,code:LESSONS[i].steps[0].append,done:[]");
@@ -121,7 +118,7 @@ $("grade").onclick=function(){state.graded=true;`);
   replace("editor.value=$('originalCode').textContent;saveDraft();", "editor.value=$('originalCode').textContent;editor.dispatchEvent(new Event('input',{bubbles:true}));saveDraft();");
  }
  if(name==='index.html'){
-  s=s.replace('<section class="page" id="home">','<section class="page" id="home"><section class="panel" style="border:2px solid #198579;background:#effaf7"><span class="section-label">새 첫 수업 · Series 기초</span><h3>판다스, 처음부터 차근차근</h3><p>Excel·NumPy 비교 → Series 생성 → 인덱싱·슬라이싱 → 추가·삭제·수정 → 연산. 실행 예제 28개와 결과 예측 12문항으로 첫 수업을 시작합니다.</p><a class="btn primary" href="./pandas-intro.html">판다스 첫 수업 시작 →</a></section>');
+  s=s.replace('<section class="page" id="home">','<section class="page" id="home"><section class="panel" style="border:2px solid #198579;background:#effaf7"><span class="section-label">새 첫 수업 · Series 기초</span><h3>판다스, 처음부터 차근차근</h3><p>Excel·NumPy 비교 → Series 생성 → 인덱싱·슬라이싱 → 추가·삭제·수정 → 연산. 실행 예제 29개와 결과 예측 12문항으로 첫 수업을 시작합니다.</p><a class="btn primary" href="./pandas-intro.html">판다스 첫 수업 시작 →</a></section>');
  }
  if(name==='step-by-step.js'){
   replace("nav();save();if(r.quizGraded)",`nav();save();window.SWPracticeConfig={key:'lesson-'+(which+1)+'-step-'+(r.step+1),id:'lesson-'+String(which+1).padStart(2,'0'),editor:'editor',input:'stdin',title:(which+1)+'차시 · 직접 실행하고 관찰하기',teacherCode:l.steps.slice(0,r.step+1).map(s=>s.append).join('\\n'),files:LESSONS.map(l=>l.dataset),hide:['run','stop','warmPython','savePy','fullExample','resetLesson','output','plot','graphDownload'],onBusy:busy,onResult:(code,result)=>{const norm=s=>s.replace(/\\s+/g,'');if(!result.error&&!result.limited&&norm(code).includes(norm(s.append))){if(!r.done.includes(r.step))r.done.push(r.step);r.verified[r.step]=code;}else delete r.verified[r.step];save();$('completeLabel').textContent=r.done.length+' / 5단계 완료';nav();}};window.dispatchEvent(new Event('sw:practice'));if(r.quizGraded)`);

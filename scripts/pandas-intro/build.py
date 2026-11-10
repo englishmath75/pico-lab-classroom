@@ -58,6 +58,9 @@ print(s.isna())''','값을 순서대로 다시 붙이는 것이 아닙니다. �
 
 print(pd.Series(0, index=["월", "화", "수"]))
 print(pd.Series(["정보", "수학", "영어"], index=["1교시", "2교시", "3교시"]))''','스칼라 값 0은 각 이름표에 반복해서 들어갑니다. Series는 숫자뿐 아니라 문자열도 담을 수 있습니다.',False))
+ident,title,body=sections[-1]
+body += ex('NumPy 배열에서 Series 만들기 · 선택 복습', '\n'.join(['import pandas as pd','import numpy as np','', 'data = np.arange(10, 60, 10)','s = pd.Series(data, index=["월", "화", "수", "목", "금"])','print(data)','print(s)']), '1학기 NumPy를 연결하는 선택 예제입니다. arange(10, 60, 10)은 10부터 60 직전까지 10씩 증가합니다. 나머지 기본 예제는 pandas만 import하면 됩니다.', False)
+sections[-1]=(ident,title,body)
 section('structure','05. 행 위치·인덱스·값을 구별하기', table(['행 위치 · iloc','인덱스 이름표 · loc','독서 시간(분)'],[[str(i),d,str((i+1)*10)] for i,d in enumerate(['월','화','수','목','금'])])+'''<p>왼쪽 위치는 현재 나열된 순서입니다. 가운데 인덱스는 사용자가 붙인 이름표입니다. 출력에서 이름표와 값이 두 열처럼 보여도 Series는 <b>하나의 값 축을 가진 1차원 자료구조</b>입니다. 인덱스는 두 번째 데이터 열이 아닙니다.</p>'''+ex('index · values · array · dtype · size','''print(s.index)
 print(s.values)
 print(s.array)
@@ -146,7 +149,7 @@ print((s / 2).tolist())
 print((s // 12).tolist())
 print((s % 12).tolist())
 print((s ** 2).tolist())
-print("원본:", s.tolist())''','스칼라 5를 각 값에 적용합니다. +, -, *, /, //, %, **의 파이썬 의미는 그대로입니다. s + 5만 계산하면 원본 s는 바뀌지 않습니다.')+ex('결과 재대입과 집계','''s = s + 5
+print("원본:", s.tolist())''','스칼라 5를 각 값에 적용하는 것을 브로드캐스팅이라고 합니다. +, -, *, /, //, %, **의 파이썬 의미는 그대로입니다. s + 5만 계산하면 원본 s는 바뀌지 않습니다.')+ex('결과 재대입과 집계','''s = s + 5
 print(s)
 print("합계:", s.sum())
 print("평균:", s.mean())

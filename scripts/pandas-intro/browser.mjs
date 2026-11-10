@@ -13,11 +13,11 @@ try{
  await page.goto(origin+'/?page=pandas-intro');
  const frame=page.frameLocator('#sw-classroom-frame');
  await frame.locator('h1').waitFor({timeout:60000});
- assert.equal(await frame.locator('.chapter').count(),14);assert.equal(await frame.locator('.example').count(),28);
+ assert.equal(await frame.locator('.chapter').count(),14);assert.equal(await frame.locator('.example').count(),29);
  await page.screenshot({path:evidence+'/desktop.png'});
  // Run real Python through the integrated parent engine, with fresh independent examples.
  const samples=JSON.parse(await readFile('public/pandas-data-lab/pandas-intro-examples.json','utf8'));
- for(const n of [3,10,12,15,18,21,22,23,24,25,26,27,28]){
+ for(const n of [3,7,11,13,16,19,22,23,24,25,26,27,28,29]){
   await frame.locator('[data-run="'+n+'"]').click();
   await frame.locator('[data-run="'+n+'"]').waitFor({state:'visible'});
   await page.waitForFunction(n=>{const d=document.querySelector('iframe').contentDocument;return !d.querySelector('[data-run="'+n+'"]').disabled;},n,{timeout:150000});
@@ -33,6 +33,6 @@ try{
  for(const width of [390,768]){await page.setViewportSize({width,height:844});await page.evaluate(()=>scrollTo(0,0));assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'outer overflow '+width);assert(await frame.locator('body').evaluate(el=>el.scrollWidth<=el.ownerDocument.documentElement.clientWidth+1),'frame overflow '+width);await page.screenshot({path:evidence+'/mobile-'+width+'.png'});}
  await page.setViewportSize({width:1440,height:1000});await page.goto(origin+'/?page=home');await page.frameLocator('#sw-classroom-frame').getByText('판다스 첫 수업 시작 →').click();await page.waitForURL('**/?page=pandas-intro');
  assert.deepEqual(errors,[]);
- await writeFile(evidence+'/result.json',JSON.stringify({status:'PASS',examples:28,browserExecutions:13,checks:['desktop and mobile','actual Python output','editable code','slice visualization','quiz grading','download','home navigation'],errors},null,2));
+ await writeFile(evidence+'/result.json',JSON.stringify({status:'PASS',examples:29,browserExecutions:14,checks:['desktop and mobile','actual Python output','editable code','slice visualization','quiz grading','download','home navigation'],errors},null,2));
  console.log('PASS: Series introduction browser checks');
 }catch(e){await page.screenshot({path:evidence+'/failure.png'});await writeFile(evidence+'/failure.txt',e.stack);throw e;}finally{await browser.close();await new Promise(r=>server.close(r));}
