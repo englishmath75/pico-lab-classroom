@@ -49,15 +49,15 @@
   },
   {
     "id": 9,
-    "title": "NumPy 배열에서 Series 만들기 · 선택 복습",
-    "code": "import pandas as pd\nimport numpy as np\n\ndata = np.arange(10, 60, 10)\ns = pd.Series(data, index=[\"월\", \"화\", \"수\", \"목\", \"금\"])\nprint(data)\nprint(s)\n",
-    "output": "[10 20 30 40 50]\n월    10\n화    20\n수    30\n목    40\n금    50\ndtype: int64"
+    "title": "range로 준비한 리스트에서 Series 만들기",
+    "code": "import pandas as pd\n\ndata = list(range(10, 60, 10))\ns = pd.Series(data, index=[\"월\", \"화\", \"수\", \"목\", \"금\"])\nprint(data)\nprint(s)\n",
+    "output": "[10, 20, 30, 40, 50]\n월    10\n화    20\n수    30\n목    40\n금    50\ndtype: int64"
   },
   {
     "id": 10,
-    "title": "index · values · array · dtype · size",
-    "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint(s.index)\nprint(s.values)\nprint(s.array.tolist())\nprint(s.to_numpy())\nprint(s.dtype)\nprint(s.size, len(s), s.ndim, s.shape)\nprint(s.index[0], s.index[-1])\ns.name = \"독서 시간\"\ns.index.name = \"요일\"\nprint(s)\n",
-    "output": "Index(['월', '화', '수', '목', '금'], dtype='object')\n[10 20 30 40 50]\n[np.int64(10), np.int64(20), np.int64(30), np.int64(40), np.int64(50)]\n[10 20 30 40 50]\nint64\n5 5 1 (5,)\n월 금\n요일\n월    10\n화    20\n수    30\n목    40\n금    50\nName: 독서 시간, dtype: int64"
+    "title": "index · 값 목록 · dtype · size",
+    "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint(s.index)\nprint(s.tolist())\nprint(s.dtype)\nprint(s.size, len(s), s.ndim, s.shape)\nprint(s.index[0], s.index[-1])\ns.name = \"독서 시간\"\ns.index.name = \"요일\"\nprint(s)\n",
+    "output": "Index(['월', '화', '수', '목', '금'], dtype='object')\n[10, 20, 30, 40, 50]\nint64\n5 5 1 (5,)\n월 금\n요일\n월    10\n화    20\n수    30\n목    40\n금    50\nName: 독서 시간, dtype: int64"
   },
   {
     "id": 11,

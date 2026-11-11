@@ -122,7 +122,7 @@ $("grade").onclick=function(){state.graded=true;`);
   replace("editor.value=$('originalCode').textContent;saveDraft();", "editor.value=$('originalCode').textContent;editor.dispatchEvent(new Event('input',{bubbles:true}));saveDraft();");
  }
  if(name==='index.html'){
-  s=s.replace('<section class="page" id="home">','<section class="page" id="home"><section class="panel" style="border:2px solid #198579;background:#effaf7"><span class="section-label">새 첫 수업 · Series 기초</span><h3>판다스, 처음부터 차근차근</h3><p>Excel·NumPy 비교 → Series 생성 → 인덱싱·슬라이싱 → 추가·삭제·수정 → 연산. 실행 예제 32개와 결과 예측 12문항으로 첫 수업을 시작합니다.</p><a class="btn primary" href="./step-by-step.html?lesson=1">판다스 첫 수업 시작 →</a></section>');
+  s=s.replace('<section class="page" id="home">','<section class="page" id="home"><section class="panel" style="border:2px solid #198579;background:#effaf7"><span class="section-label">새 첫 수업 · Series 기초</span><h3>판다스, 처음부터 차근차근</h3><p>판다스와 엑셀 비교 → Series 생성 → 인덱싱·슬라이싱 → 추가·삭제·수정 → 연산 순서로 배웁니다. 직접 실행하는 예제 32개와 개념·결과 확인 문제 12문항으로 연습합니다.</p><a class="btn primary" href="./step-by-step.html?lesson=1">판다스 첫 수업 시작 →</a></section>');
  }
  if(name==='step-by-step.js'){
 
