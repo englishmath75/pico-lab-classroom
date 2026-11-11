@@ -7,168 +7,186 @@
   },
   {
     "id": 2,
-    "title": "첫 Series와 자동 인덱스",
+    "title": "판다스 불러오기와 첫 Series",
     "code": "import pandas as pd\n\ns = pd.Series([10, 20, 30])\nprint(s)\nprint(s.ndim)\nprint(s.shape)\n",
     "output": "0    10\n1    20\n2    30\ndtype: int64\n1\n(3,)"
   },
   {
     "id": 3,
+    "title": "세 자료형을 각각 Series로 변환하기",
+    "code": "import pandas as pd\n\n# 1. 세 가지 다른 자료형으로 데이터 준비하기 (월~금 5일 치 데이터)\ndata1 = [10, 20, 30, 40, 50]                  # 리스트 (대괄호)\ndata2 = (100, 200, 300, 400, 500)             # 튜플 (소괄호)\ndata3 = {'월요일': 1, '화요일': 2, '수요일': 3, '목요일': 4, '금요일': 5}  # 딕셔너리 (키:값)\n\n# 2. 공통으로 붙여줄 이름표(인덱스) 만들기\nidx = ['월요일', '화요일', '수요일', '목요일', '금요일']\n\n# 3. 각각을 판다스의 1차원 시리즈(Series)로 변환하기\ns1 = pd.Series(data1, index=idx)  # 리스트 + 인덱스 지정\ns2 = pd.Series(data2, index=idx)  # 튜플 + 인덱스 지정\ns3 = pd.Series(data3)            # 딕셔너리의 키가 자동으로 인덱스가 됩니다!\n\nprint(\"--- [1] 리스트로 만든 시리즈 ---\")\nprint(s1)\nprint(\"\\n--- [2] 튜플로 만든 시리즈 ---\")\nprint(s2)\nprint(\"\\n--- [3] 딕셔너리로 만든 시리즈 ---\")\nprint(s3)\n",
+    "output": "--- [1] 리스트로 만든 시리즈 ---\n월요일    10\n화요일    20\n수요일    30\n목요일    40\n금요일    50\ndtype: int64\n\n--- [2] 튜플로 만든 시리즈 ---\n월요일    100\n화요일    200\n수요일    300\n목요일    400\n금요일    500\ndtype: int64\n\n--- [3] 딕셔너리로 만든 시리즈 ---\n월요일    1\n화요일    2\n수요일    3\n목요일    4\n금요일    5\ndtype: int64"
+  },
+  {
+    "id": 4,
+    "title": "세 Series를 5행 3열 DataFrame으로 묶기",
+    "code": "import pandas as pd\n\n# 1. 세 가지 다른 자료형으로 데이터 준비하기 (월~금 5일 치 데이터)\ndata1 = [10, 20, 30, 40, 50]                  # 리스트 (대괄호)\ndata2 = (100, 200, 300, 400, 500)             # 튜플 (소괄호)\ndata3 = {'월요일': 1, '화요일': 2, '수요일': 3, '목요일': 4, '금요일': 5}  # 딕셔너리 (키:값)\n\n# 2. 공통으로 붙여줄 이름표(인덱스) 만들기\nidx = ['월요일', '화요일', '수요일', '목요일', '금요일']\n\n# 3. 각각을 판다스의 1차원 시리즈(Series)로 변환하기\ns1 = pd.Series(data1, index=idx)  # 리스트 + 인덱스 지정\ns2 = pd.Series(data2, index=idx)  # 튜플 + 인덱스 지정\ns3 = pd.Series(data3)            # 딕셔너리의 키가 자동으로 인덱스가 됩니다!\n\n# 세 Series를 열 이름:Series 형태의 딕셔너리로 묶어 2차원 표 생성\n# 각 Series는 하나의 열, 공통 인덱스는 행 이름표가 됩니다.\ndf = pd.DataFrame({\n    '리스트_데이터': s1,\n    '튜플_데이터': s2,\n    '딕셔너리_데이터': s3\n})\n\nprint(\"--- [2차원 표(DataFrame) 전체 모습] ---\")\nprint(df)\n",
+    "output": "--- [2차원 표(DataFrame) 전체 모습] ---\n     리스트_데이터  튜플_데이터  딕셔너리_데이터\n월요일       10     100         1\n화요일       20     200         2\n수요일       30     300         3\n목요일       40     400         4\n금요일       50     500         5"
+  },
+  {
+    "id": 5,
+    "title": "이름표·위치·슬라이싱·벡터 연산 한 번에 연습하기",
+    "code": "import pandas as pd\n\n# 1. 세 가지 다른 자료형으로 데이터 준비하기 (월~금 5일 치 데이터)\ndata1 = [10, 20, 30, 40, 50]                  # 리스트 (대괄호)\ndata2 = (100, 200, 300, 400, 500)             # 튜플 (소괄호)\ndata3 = {'월요일': 1, '화요일': 2, '수요일': 3, '목요일': 4, '금요일': 5}  # 딕셔너리 (키:값)\n\n# 2. 공통으로 붙여줄 이름표(인덱스) 만들기\nidx = ['월요일', '화요일', '수요일', '목요일', '금요일']\n\n# 3. 각각을 판다스의 1차원 시리즈(Series)로 변환하기\ns1 = pd.Series(data1, index=idx)  # 리스트 + 인덱스 지정\ns2 = pd.Series(data2, index=idx)  # 튜플 + 인덱스 지정\ns3 = pd.Series(data3)            # 딕셔너리의 키가 자동으로 인덱스가 됩니다!\n\n# s1 시리즈를 가지고 연습합니다. (월요일:10 ~ 금요일:50)\n\n# 1. 인덱스 이름(라벨)으로 데이터 하나 불러오기\nprint(\"1. 수요일 데이터는? :\", s1['수요일'])\n\n# 2. 순서 번호(위치, 0부터 시작)로 데이터 불러오기\nprint(\"2. 첫 번째(0번) 데이터는? :\", s1.iloc[0])\n\n# 3. 여러 개의 인덱스를 리스트로 묶어서 한 번에 불러오기\nprint(\"\\n3. 월요일과 금요일 데이터만 뽑기:\")\nprint(s1[['월요일', '금요일']])\n\n# 4. 범위(슬라이싱)로 불러오기\nprint(\"\\n4. 화요일부터 목요일까지 연속으로 뽑기:\")\nprint(s1['화요일':'목요일'])\n\n# 5. 반복문(for) 없이 모든 데이터에 한 번에 5 더하기\nprint(\"\\n5. 모든 요일 데이터에 동시에 +5 하기 (벡터 연산):\")\nprint(s1 + 5)\n",
+    "output": "1. 수요일 데이터는? : 30\n2. 첫 번째(0번) 데이터는? : 10\n\n3. 월요일과 금요일 데이터만 뽑기:\n월요일    10\n금요일    50\ndtype: int64\n\n4. 화요일부터 목요일까지 연속으로 뽑기:\n화요일    20\n수요일    30\n목요일    40\ndtype: int64\n\n5. 모든 요일 데이터에 동시에 +5 하기 (벡터 연산):\n월요일    15\n화요일    25\n수요일    35\n목요일    45\n금요일    55\ndtype: int64"
+  },
+  {
+    "id": 6,
     "title": "세 자료형 → 같은 Series",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ndata1 = [10, 20, 30, 40, 50]\ndata2 = (10, 20, 30, 40, 50)\ndata3 = {\"월\": 10, \"화\": 20, \"수\": 30, \"목\": 40, \"금\": 50}\n\ns1 = pd.Series(data1, index=idx)\ns2 = pd.Series(data2, index=idx)\ns3 = pd.Series(data3)\nprint(s1)\nprint(s2)\nprint(s3)\nprint(s1.equals(s2), s2.equals(s3))\n",
     "output": "월    10\n화    20\n수    30\n목    40\n금    50\ndtype: int64\n월    10\n화    20\n수    30\n목    40\n금    50\ndtype: int64\n월    10\n화    20\n수    30\n목    40\n금    50\ndtype: int64\nTrue True"
   },
   {
-    "id": 4,
+    "id": 7,
     "title": "딕셔너리 + index는 이름을 맞춥니다",
     "code": "import pandas as pd\n\ndata = {\"월\": 10, \"화\": 20, \"수\": 30}\ns = pd.Series(data, index=[\"수\", \"월\", \"토\"])\nprint(s)\nprint(s.isna())\n",
     "output": "수    30.0\n월    10.0\n토     NaN\ndtype: float64\n수    False\n월    False\n토     True\ndtype: bool"
   },
   {
-    "id": 5,
+    "id": 8,
     "title": "하나의 값으로 채우기 · 문자열 Series",
     "code": "import pandas as pd\n\nprint(pd.Series(0, index=[\"월\", \"화\", \"수\"]))\nprint(pd.Series([\"정보\", \"수학\", \"영어\"], index=[\"1교시\", \"2교시\", \"3교시\"]))\n",
     "output": "월    0\n화    0\n수    0\ndtype: int64\n1교시    정보\n2교시    수학\n3교시    영어\ndtype: object"
   },
   {
-    "id": 6,
+    "id": 9,
     "title": "NumPy 배열에서 Series 만들기 · 선택 복습",
     "code": "import pandas as pd\nimport numpy as np\n\ndata = np.arange(10, 60, 10)\ns = pd.Series(data, index=[\"월\", \"화\", \"수\", \"목\", \"금\"])\nprint(data)\nprint(s)\n",
     "output": "[10 20 30 40 50]\n월    10\n화    20\n수    30\n목    40\n금    50\ndtype: int64"
   },
   {
-    "id": 7,
+    "id": 10,
     "title": "index · values · array · dtype · size",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint(s.index)\nprint(s.values)\nprint(s.array.tolist())\nprint(s.to_numpy())\nprint(s.dtype)\nprint(s.size, len(s), s.ndim, s.shape)\nprint(s.index[0], s.index[-1])\ns.name = \"독서 시간\"\ns.index.name = \"요일\"\nprint(s)\n",
     "output": "Index(['월', '화', '수', '목', '금'], dtype='object')\n[10 20 30 40 50]\n[np.int64(10), np.int64(20), np.int64(30), np.int64(40), np.int64(50)]\n[10 20 30 40 50]\nint64\n5 5 1 (5,)\n월 금\n요일\n월    10\n화    20\n수    30\n목    40\n금    50\nName: 독서 시간, dtype: int64"
   },
   {
-    "id": 8,
+    "id": 11,
     "title": "이름으로 찾기, 위치로 찾기",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint(s.loc[\"수\"])\nprint(s[\"수\"])\nprint(s.iloc[2])\nprint(s.iloc[-1])\nprint(s.at[\"월\"])\nprint(s.iat[0])\n",
     "output": "30\n30\n30\n50\n10\n10"
   },
   {
-    "id": 9,
+    "id": 12,
     "title": "여러 값 선택 · 대괄호 두 겹",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint(s.loc[[\"월\", \"수\", \"금\"]])\nprint(s.iloc[[0, 2, 4]])\nprint(s.loc[[\"금\", \"월\"]])\nprint(type(s.loc[\"월\"]).__name__)\nprint(type(s.loc[[\"월\"]]).__name__)\n",
     "output": "월    10\n수    30\n금    50\ndtype: int64\n월    10\n수    30\n금    50\ndtype: int64\n금    50\n월    10\ndtype: int64\nint64\nSeries"
   },
   {
-    "id": 10,
+    "id": 13,
     "title": "숫자 이름표도 위치가 아닙니다",
     "code": "import pandas as pd\n\nn = pd.Series([100, 200, 300], index=[10, 20, 30])\nprint(n.loc[20])\nprint(n.iloc[1])\nprint(n[20])\ntry:\n    print(n.loc[0])\nexcept KeyError:\n    print(\"KeyError: 이름표 0은 없습니다.\")\n",
     "output": "200\n200\n200\nKeyError: 이름표 0은 없습니다."
   },
   {
-    "id": 11,
+    "id": 14,
     "title": "loc와 iloc로 같은 구간 선택",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint(s.iloc[1:4])\nprint(s.loc[\"화\":\"목\"])\nprint(s[\"화\":\"목\"])\nprint(s.iloc[1:4].equals(s.loc[\"화\":\"목\"]))\n",
     "output": "화    20\n수    30\n목    40\ndtype: int64\n화    20\n수    30\n목    40\ndtype: int64\n화    20\n수    30\n목    40\ndtype: int64\nTrue"
   },
   {
-    "id": 12,
+    "id": 15,
     "title": "시작·끝 생략과 음수 위치",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint(s.iloc[:3])\nprint(s.iloc[2:])\nprint(s.iloc[-3:])\nprint(s.iloc[:-1])\nprint(s.iloc[:])\n",
     "output": "월    10\n화    20\n수    30\ndtype: int64\n수    30\n목    40\n금    50\ndtype: int64\n수    30\n목    40\n금    50\ndtype: int64\n월    10\n화    20\n수    30\n목    40\ndtype: int64\n월    10\n화    20\n수    30\n목    40\n금    50\ndtype: int64"
   },
   {
-    "id": 13,
+    "id": 16,
     "title": "간격과 역순 슬라이싱",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint(s.iloc[::2])\nprint(s.iloc[1::2])\nprint(s.iloc[::-1])\nprint(s.iloc[4:0:-2])\nprint(s.loc[\"월\":\"금\":2])\nprint(s.loc[\"금\":\"화\":-1])\n",
     "output": "월    10\n수    30\n금    50\ndtype: int64\n화    20\n목    40\ndtype: int64\n금    50\n목    40\n수    30\n화    20\n월    10\ndtype: int64\n금    50\n수    30\ndtype: int64\n월    10\n수    30\n금    50\ndtype: int64\n금    50\n목    40\n수    30\n화    20\ndtype: int64"
   },
   {
-    "id": 14,
+    "id": 17,
     "title": "빈 범위·범위 밖·한 값과 구간",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint(s.iloc[3:1].tolist())\nprint(s.iloc[1:3].tolist())\nprint(s.iloc[3:99].tolist())\ntry:\n    print(s.iloc[99])\nexcept IndexError:\n    print(\"IndexError: 위치 99는 없습니다.\")\n",
     "output": "[]\n[20, 30]\n[40, 50]\nIndexError: 위치 99는 없습니다."
   },
   {
-    "id": 15,
+    "id": 18,
     "title": "정수 인덱스에서 끝 포함 비교",
     "code": "import pandas as pd\n\nn = pd.Series([10, 20, 30, 40, 50])\nprint(n.loc[1:3].tolist())\nprint(n.iloc[1:3].tolist())\n",
     "output": "[20, 30, 40]\n[20, 30]"
   },
   {
-    "id": 16,
+    "id": 19,
     "title": "기존 값 수정 · 범위 수정",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\ns.loc[\"월\"] = 15\ns.iloc[1] = 25\ns.loc[\"수\":\"목\"] = 0\ns.loc[[\"월\", \"금\"]] = [11, 55]\nprint(s)\n",
     "output": "월    11\n화    25\n수     0\n목     0\n금    55\ndtype: int64"
   },
   {
-    "id": 17,
+    "id": 20,
     "title": "새 이름표 추가 · concat으로 연결",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\ns.loc[\"토\"] = 60\ns[\"일\"] = 70\nprint(s)\nextra = pd.Series({\"다음 월\": 80, \"다음 화\": 90})\ncombined = pd.concat([s, extra])\nprint(combined)\nprint(\"원본 길이:\", len(s))\n",
     "output": "월    10\n화    20\n수    30\n목    40\n금    50\n토    60\n일    70\ndtype: int64\n월       10\n화       20\n수       30\n목       40\n금       50\n토       60\n일       70\n다음 월    80\n다음 화    90\ndtype: int64\n원본 길이: 7"
   },
   {
-    "id": 18,
+    "id": 21,
     "title": "drop은 기본적으로 원본을 바꾸지 않습니다",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nshort = s.drop(\"수\")\nprint(short)\nprint(\"원본에는 수가 있나요?\", \"수\" in s.index)\ns = s.drop([\"월\", \"금\"])\nprint(s)\n",
     "output": "월    10\n화    20\n목    40\n금    50\ndtype: int64\n원본에는 수가 있나요? True\n화    20\n수    30\n목    40\ndtype: int64"
   },
   {
-    "id": 19,
+    "id": 22,
     "title": "inplace · del · pop 비교",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\na = s.copy()\nreturned = a.drop(\"월\", inplace=True)\nprint(returned)\nprint(a)\n\ndel a[\"화\"]\nremoved = a.pop(\"수\")\nprint(\"꺼낸 값:\", removed)\nprint(a)\n",
     "output": "None\n화    20\n수    30\n목    40\n금    50\ndtype: int64\n꺼낸 값: 30\n목    40\n금    50\ndtype: int64"
   },
   {
-    "id": 20,
+    "id": 23,
     "title": "없는 이름 삭제와 위치로 골라 삭제",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint(s.drop(\"토\", errors=\"ignore\"))\nprint(s.drop(s.index[0]))\ntry:\n    s.drop(0)\nexcept KeyError:\n    print(\"KeyError: 이름표 0은 없습니다.\")\n",
     "output": "월    10\n화    20\n수    30\n목    40\n금    50\ndtype: int64\n화    20\n수    30\n목    40\n금    50\ndtype: int64\nKeyError: 이름표 0은 없습니다."
   },
   {
-    "id": 21,
+    "id": 24,
     "title": "덧셈·뺄셈·곱셈·나눗셈",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint((s + 5).tolist())\nprint((s - 5).tolist())\nprint((s * 2).tolist())\nprint((s / 2).tolist())\nprint((s // 12).tolist())\nprint((s % 12).tolist())\nprint((s ** 2).tolist())\nprint(\"원본:\", s.tolist())\n",
     "output": "[15, 25, 35, 45, 55]\n[5, 15, 25, 35, 45]\n[20, 40, 60, 80, 100]\n[5.0, 10.0, 15.0, 20.0, 25.0]\n[0, 1, 2, 3, 4]\n[10, 8, 6, 4, 2]\n[100, 400, 900, 1600, 2500]\n원본: [10, 20, 30, 40, 50]"
   },
   {
-    "id": 22,
+    "id": 25,
     "title": "결과 재대입과 집계",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\ns = s + 5\nprint(s)\nprint(\"합계:\", s.sum())\nprint(\"평균:\", s.mean())\nprint(\"최솟값:\", s.min())\nprint(\"최댓값:\", s.max())\nprint(\"값 개수:\", s.count())\n",
     "output": "월    15\n화    25\n수    35\n목    45\n금    55\ndtype: int64\n합계: 175\n평균: 35.0\n최솟값: 15\n최댓값: 55\n값 개수: 5"
   },
   {
-    "id": 23,
+    "id": 26,
     "title": "순서가 달라도 같은 이름끼리 더하기",
     "code": "import pandas as pd\n\na = pd.Series([10, 20, 30], index=[\"월\", \"화\", \"수\"])\nb = pd.Series([300, 100, 200], index=[\"수\", \"월\", \"화\"])\nc = a + b\nprint(c.reindex([\"월\", \"화\", \"수\"]))\nprint((a - b).reindex([\"월\", \"화\", \"수\"]))\nprint((a * b).reindex([\"월\", \"화\", \"수\"]))\nprint((a / b).reindex([\"월\", \"화\", \"수\"]))\n",
     "output": "월    110\n화    220\n수    330\ndtype: int64\n월    -90\n화   -180\n수   -270\ndtype: int64\n월    1000\n화    4000\n수    9000\ndtype: int64\n월    0.1\n화    0.1\n수    0.1\ndtype: float64"
   },
   {
-    "id": 24,
+    "id": 27,
     "title": "이름이 맞지 않으면 NaN · fill_value",
     "code": "import pandas as pd\n\na = pd.Series({\"월\": 10, \"화\": 20})\nb = pd.Series({\"화\": 200, \"수\": 300})\norder = [\"월\", \"화\", \"수\"]\nr = (a + b).reindex(order)\nprint(r)\nprint(r.isna())\nprint(a.add(b, fill_value=0).reindex(order))\nprint(r.fillna(0))\n",
     "output": "월      NaN\n화    220.0\n수      NaN\ndtype: float64\n월     True\n화    False\n수     True\ndtype: bool\n월     10.0\n화    220.0\n수    300.0\ndtype: float64\n월      0.0\n화    220.0\n수      0.0\ndtype: float64"
   },
   {
-    "id": 25,
+    "id": 28,
     "title": "조건 비교와 필터링",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint(s >= 30)\nprint(s[s >= 30])\nprint(s[(s >= 20) & (s <= 40)])\nprint(s[(s < 20) | (s > 40)])\n",
     "output": "월    False\n화    False\n수     True\n목     True\n금     True\ndtype: bool\n수    30\n목    40\n금    50\ndtype: int64\n화    20\n수    30\n목    40\ndtype: int64\n월    10\n금    50\ndtype: int64"
   },
   {
-    "id": 26,
+    "id": 29,
     "title": "최댓값과 그 이름표 · idxmax와 idxmin",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint(s.max(), s.idxmax())\nprint(s.min(), s.idxmin())\nbest_label = s.index[0]\nbest_value = s.iloc[0]\nfor label, value in s.items():\n    if value > best_value:\n        best_label = label\n        best_value = value\nprint(best_label, best_value)\n",
     "output": "50 금\n10 월\n금 50"
   },
   {
-    "id": 27,
+    "id": 30,
     "title": "누적 합과 누적 곱",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns = pd.Series([10, 20, 30, 40, 50], index=idx)\n\nprint(s.cumsum())\nfactor = pd.Series([1.1, 1.2, 0.5], index=[\"1단계\", \"2단계\", \"3단계\"])\nprint(factor.cumprod())\nprint(round(factor.cumprod().iloc[-1], 2))\n",
     "output": "월     10\n화     30\n수     60\n목    100\n금    150\ndtype: int64\n1단계    1.10\n2단계    1.32\n3단계    0.66\ndtype: float64\n0.66"
   },
   {
-    "id": 28,
+    "id": 31,
     "title": "중복을 제외한 종류와 빈도",
     "code": "import pandas as pd\n\nsnack = pd.Series([\"사과\", \"우유\", \"사과\", \"빵\", \"우유\"])\nprint(snack.unique())\nprint(snack.nunique())\nprint(snack.value_counts().sort_index())\n",
     "output": "['사과' '우유' '빵']\n3\n빵     1\n사과    2\n우유    2\nName: count, dtype: int64"
   },
   {
-    "id": 29,
+    "id": 32,
     "title": "다섯 행, 세 열의 표",
     "code": "import pandas as pd\n\nidx = [\"월\", \"화\", \"수\", \"목\", \"금\"]\ns1 = pd.Series([10, 20, 30, 40, 50], index=idx)\ns2 = pd.Series((15, 25, 35, 45, 55), index=idx)\ns3 = pd.Series({\"월\": 5, \"화\": 10, \"수\": 15, \"목\": 20, \"금\": 25})\ndf = pd.DataFrame({\"독서\": s1, \"운동\": s2, \"복습\": s3})\nprint(df)\nprint(df.shape, df.ndim)\nprint(df[\"독서\"])\nprint(type(df[\"독서\"]).__name__)\nprint(type(df[[\"독서\"]]).__name__)\n",
     "output": "   독서  운동  복습\n월  10  15   5\n화  20  25  10\n수  30  35  15\n목  40  45  20\n금  50  55  25\n(5, 3) 2\n월    10\n화    20\n수    30\n목    40\n금    50\nName: 독서, dtype: int64\nSeries\nDataFrame"

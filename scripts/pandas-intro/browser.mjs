@@ -14,11 +14,11 @@ try{
  const frame=page.frameLocator('#sw-classroom-frame');
  await frame.locator('h1').waitFor({timeout:60000});
  assert.equal(await page.locator('a[data-route="pandas-intro"]').count(),0);assert.equal(await page.locator('a[data-route="lesson"]').getAttribute('aria-current'),'page');
- assert.equal(await frame.locator('.chapter').count(),14);assert.equal(await frame.locator('.example').count(),29);
+ assert.equal(await frame.locator('.chapter').count(),14);assert.equal(await frame.locator('.example').count(),32);
  await page.screenshot({path:evidence+'/desktop.png'});
  // Run real Python through the integrated parent engine, with fresh independent examples.
  const samples=JSON.parse(await readFile('public/pandas-data-lab/pandas-intro-examples.json','utf8'));
- for(const n of [3,7,11,13,16,19,22,23,24,25,26,27,28,29]){
+ for(const n of [3,4,5,6,10,14,16,19,22,25,26,27,28,29,30,31,32]){
   await frame.locator('[data-run="'+n+'"]').click();
   await frame.locator('[data-run="'+n+'"]').waitFor({state:'visible'});
   await page.waitForFunction(n=>{const d=document.querySelector('iframe').contentDocument;return !d.querySelector('[data-run="'+n+'"]').disabled;},n,{timeout:150000});
@@ -36,6 +36,6 @@ try{
  await frame.getByRole('link',{name:/2차시 ·/}).click();await page.waitForURL('**/?page=lesson&lesson=2');await frame.locator('#heroTitle').waitFor();assert.match(await frame.locator('#heroTitle').innerText(),/2차시/);await frame.locator('#lessonPicker').evaluate(el=>el.open=true);await frame.locator('[data-lesson="0"]').click();await page.waitForURL('**/?page=lesson&lesson=1');await frame.locator('#code-1').waitFor();assert.equal(await frame.locator('#editor').count(),0);
  await page.goto(origin+'/?page=pandas-intro');await page.waitForURL('**/?page=lesson&lesson=1');await frame.locator('#code-1').waitFor();
  assert.deepEqual(errors,[]);
- await writeFile(evidence+'/result.json',JSON.stringify({status:'PASS',examples:29,browserExecutions:14,checks:['desktop and mobile','actual Python output','editable code','slice visualization','quiz grading','download','home navigation'],errors},null,2));
+ await writeFile(evidence+'/result.json',JSON.stringify({status:'PASS',examples:32,browserExecutions:17,checks:['desktop and mobile','actual Python output','editable code','slice visualization','quiz grading','download','home navigation'],errors},null,2));
  console.log('PASS: Series introduction browser checks');
 }catch(e){await page.screenshot({path:evidence+'/failure.png'});await writeFile(evidence+'/failure.txt',e.stack);throw e;}finally{await browser.close();await new Promise(r=>server.close(r));}

@@ -4,7 +4,7 @@ import json, io, contextlib
 import pandas as pd
 root=Path(__file__).resolve().parents[2]
 data=json.loads((root/'public/pandas-data-lab/pandas-intro-examples.json').read_text())
-assert len(data)==29
+assert len(data)==32
 for example in data:
     out=io.StringIO()
     with contextlib.redirect_stdout(out): exec(compile(example['code'],example['title'],'exec'),{})
@@ -30,4 +30,4 @@ assert (x+y).fillna(0).reindex(['월','화','수']).tolist()==[0,220,0]
 page=(root/'public/pandas-data-lab/pandas-intro.html').read_text()
 for token in ['iloc[','loc[','cumprod','idxmax','value_counts','6lkGh9HpCYw','bI43qd9HeVw','NaN']:
     assert token in page,token
-print('PASS: 29 independent examples and indexing, mutation, alignment contracts; pandas',pd.__version__)
+print('PASS: 32 independent examples and indexing, mutation, alignment contracts; pandas',pd.__version__)
