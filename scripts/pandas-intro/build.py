@@ -35,7 +35,11 @@ s = pd.Series([10, 20, 30])
 print(s)
 print(s.ndim)
 print(s.shape)''','Series의 S는 대문자입니다. 인덱스를 생략하면 0, 1, 2처럼 자동으로 붙습니다. dtype은 값의 자료형, ndim은 차원 수입니다.',False)+'''<p class="note">Jupyter에서는 마지막 줄에 <code>s</code>만 써도 표시할 수 있지만, 일반 .py 파일과 이 페이지에서는 <code>print(s)</code>를 사용합니다. 출력 공백과 배열·문자열 dtype 표기는 pandas 버전에 따라 조금 다를 수 있습니다.</p>''')
-section('create','04. 리스트·튜플·딕셔너리로 각각 만들기', ''+ex('세 자료형 → 같은 Series','''import pandas as pd
+section('create','04. 리스트·튜플·딕셔너리로 각각 만들기', '<h3>파이썬 자료구조</h3>'+table(['자료구조','특징','예제 코드'],[
+['리스트','순서가 있고 수정 가능','<code>[1, 2, 3]</code>'],
+['튜플','순서가 있고 수정 불가','<code>(1, 2, 3)</code>'],
+['딕셔너리','연관된 데이터를 키:값(key:value) 쌍으로 저장',"<code>{'coffee': 5000, 'bread': 2000}</code>"]
+])+ex('세 자료형 → 같은 Series','''import pandas as pd
 
 idx = ["월", "화", "수", "목", "금"]
 data1 = [10, 20, 30, 40, 50]
