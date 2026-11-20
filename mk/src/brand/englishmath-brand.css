@@ -1,0 +1,13 @@
+/* Shared original logo from py.englishmath.kr. Preserve its aspect ratio. */
+.sidebar .brand, .side .brand { align-items: center; text-align: center; }
+.sidebar .brand img.englishmath-brand-logo,
+.classroom-page .side .brand img.englishmath-brand-logo {
+  display: block; box-sizing: border-box; width: 220px; max-width: 100%;
+  height: auto; aspect-ratio: auto; object-fit: contain; object-position: center;
+  margin: 0 auto 10px; padding: 12px 10px; background: #fff;
+  border: 1px solid #e7e1d6; border-radius: 12px; flex: none;
+}
+@media(max-width:900px) {
+ .sidebar .brand img.englishmath-brand-logo,
+ .classroom-page .side .brand img.englishmath-brand-logo { width: 200px; }
+}
